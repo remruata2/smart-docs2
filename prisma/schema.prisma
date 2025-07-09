@@ -6,6 +6,10 @@ generator client {
 datasource db {
   provider = "postgresql"
   url      = env("DATABASE_URL")
+  
+  // Enable SSL for secure connections
+  relationMode = "prisma"
+  directUrl = env("DATABASE_URL")
 }
 
 model CategoryList {
