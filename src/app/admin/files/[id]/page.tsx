@@ -6,28 +6,122 @@ import { UserRole } from "@/generated/prisma";
 import { getFileById, FileDetail } from "../actions"; // Corrected path to actions.ts
 import BackButton from "@/components/ui/BackButton"; // Corrected import for default export
 import { Button } from "@/components/ui/button";
-import { Pencil } from "lucide-react";
+import { Pencil, FileText } from "lucide-react";
 import { pageContainer, pageTitle, cardContainer } from "@/styles/ui-classes";
 import { format } from "date-fns";
+import ReactMarkdown from "react-markdown";
+import remarkGfm from "remark-gfm";
 
 interface DetailItemProps {
   label: string;
   value?: string | null;
-  isHtml?: boolean;
+  isMarkdown?: boolean;
 }
 
 const DetailItem: React.FC<DetailItemProps> = ({
   label,
   value,
-  isHtml = false,
+  isMarkdown = false,
 }) => {
   if (value === null || value === undefined || value.trim() === "") return null;
   return (
     <div className="mb-4 pt-4 first:pt-0">
       <h3 className="text-sm font-medium text-gray-500">{label}</h3>
-      {isHtml ? (
+      {isMarkdown ? (
         <div className="mt-1 text-md text-gray-900 prose prose-sm max-w-none">
-          <div dangerouslySetInnerHTML={{ __html: value }} />
+          <ReactMarkdown
+            remarkPlugins={[remarkGfm]}
+            components={{
+              // Custom styling for markdown elements
+              p: ({ children }) => (
+                <p className="mb-2 last:mb-0 break-words leading-relaxed">
+                  {children}
+                </p>
+              ),
+              ul: ({ children }) => (
+                <ul className="list-disc list-outside ml-4 mb-2 space-y-1">
+                  {children}
+                </ul>
+              ),
+              ol: ({ children }) => (
+                <ol className="list-decimal list-outside ml-4 mb-2 space-y-1">
+                  {children}
+                </ol>
+              ),
+              li: ({ children }) => (
+                <li className="leading-relaxed">{children}</li>
+              ),
+              strong: ({ children }) => (
+                <strong className="font-semibold text-gray-900">
+                  {children}
+                </strong>
+              ),
+              em: ({ children }) => <em className="italic">{children}</em>,
+              code: ({ children }) => (
+                <code className="bg-gray-200 px-1 py-0.5 rounded text-xs font-mono">
+                  {children}
+                </code>
+              ),
+              h1: ({ children }) => (
+                <h1 className="text-lg font-bold mb-2 text-gray-900">
+                  {children}
+                </h1>
+              ),
+              h2: ({ children }) => (
+                <h2 className="text-base font-semibold mb-2 text-gray-900">
+                  {children}
+                </h2>
+              ),
+              h3: ({ children }) => (
+                <h3 className="text-sm font-semibold mb-1 text-gray-900">
+                  {children}
+                </h3>
+              ),
+              h4: ({ children }) => (
+                <h4 className="text-sm font-semibold mb-1 text-gray-900">
+                  {children}
+                </h4>
+              ),
+              h5: ({ children }) => (
+                <h5 className="text-sm font-semibold mb-1 text-gray-900">
+                  {children}
+                </h5>
+              ),
+              h6: ({ children }) => (
+                <h6 className="text-sm font-semibold mb-1 text-gray-900">
+                  {children}
+                </h6>
+              ),
+              table: ({ children }) => (
+                <div className="overflow-x-auto my-4">
+                  <table className="min-w-full border-collapse border border-gray-300 text-sm">
+                    {children}
+                  </table>
+                </div>
+              ),
+              thead: ({ children }) => (
+                <thead className="bg-gray-50">{children}</thead>
+              ),
+              tbody: ({ children }) => (
+                <tbody className="bg-white">{children}</tbody>
+              ),
+              tr: ({ children }) => (
+                <tr className="border-b border-gray-200">{children}</tr>
+              ),
+              th: ({ children }) => (
+                <th className="border border-gray-300 px-4 py-2 text-left font-semibold text-gray-900 bg-gray-50">
+                  {children}
+                </th>
+              ),
+              td: ({ children }) => (
+                <td className="border border-gray-300 px-4 py-2 text-gray-700">
+                  {children}
+                </td>
+              ),
+            }}
+          >
+            {value}
+          </ReactMarkdown>
         </div>
       ) : (
         <p className="mt-1 text-md text-gray-900 whitespace-pre-wrap">
@@ -38,7 +132,11 @@ const DetailItem: React.FC<DetailItemProps> = ({
   );
 };
 
-export default async function ViewFilePage({ params }: { params: Promise<{ id: string }> }) {
+export default async function ViewFilePage({
+  params,
+}: {
+  params: Promise<{ id: string }>;
+}) {
   const session = await getServerSession(authOptions);
 
   if (!session || !session.user || session.user.role !== UserRole.admin) {
@@ -89,6 +187,18 @@ export default async function ViewFilePage({ params }: { params: Promise<{ id: s
       <div className="flex justify-between items-center mb-6">
         <h1 className={pageTitle}>File Details</h1>
         <div className="flex gap-2">
+          {file.doc1 && (
+            <Button
+              asChild
+              variant="default"
+              className="bg-blue-600 hover:bg-blue-700"
+            >
+              <a href={file.doc1} target="_blank" rel="noopener noreferrer">
+                <FileText className="h-4 w-4 mr-2" />
+                View Document
+              </a>
+            </Button>
+          )}
           <Button asChild variant="outline">
             <Link href={`/admin/files/${file.id}/edit`}>
               <Pencil className="h-4 w-4 mr-2" />
@@ -117,14 +227,14 @@ export default async function ViewFilePage({ params }: { params: Promise<{ id: s
               value={file.entry_date}
             />
           )}
-          <DetailItem label="Note" value={file.note} isHtml={true} />
-          {[1, 2, 3, 4, 5, 6].map((num) => (
-            <DetailItem
-              key={`doc${num}`}
-              label={`Document ${num}`}
-              value={file[`doc${num}` as keyof FileDetail] as string | null}
-            />
-          ))}
+          <DetailItem
+            label="Document Content"
+            value={file.note}
+            isMarkdown={true}
+          />
+          {file.doc1 && (
+            <DetailItem label="Document (File Path)" value={file.doc1} />
+          )}
           {file.created_at && (
             <DetailItem
               label="Created At"

@@ -1,0 +1,258 @@
+import { PrismaClient } from "../generated/prisma";
+import { SemanticVectorService } from "./semantic-vector";
+
+const prisma = new PrismaClient();
+
+export interface HybridSearchResult {
+  id: number;
+  file_no: string;
+  category: string;
+  title: string;
+  note: string;
+  entry_date_real: Date | null;
+  ts_rank?: number;
+  semantic_similarity?: number;
+  combined_score?: number;
+}
+
+export class HybridSearchService {
+  /**
+   * The Hybrid Search Recipe Implementation
+   *
+   * Step 1: Fast Keyword Filter (tsvector) - Pre-filter candidates
+   * Step 2: Semantic Re-Ranker (pgvector) - Rank by meaning
+   * Step 3: Intelligent Fallback - Full semantic search if no tsvector results
+   */
+  static async search(
+    query: string,
+    limit: number = 20
+  ): Promise<{
+    results: HybridSearchResult[];
+    searchMethod: "hybrid" | "semantic_fallback" | "tsvector_only";
+    stats: {
+      tsvectorResults: number;
+      semanticResults: number;
+      finalResults: number;
+    };
+  }> {
+    try {
+      console.log(`[HYBRID SEARCH] Starting search for: "${query}"`);
+
+      // Step 1: The Fast Keyword Filter (tsvector)
+      const tsvectorResults = await this.tsvectorSearch(query);
+
+      console.log(
+        `[HYBRID SEARCH] Step 1 - tsvector found ${tsvectorResults.length} candidates`
+      );
+
+      if (tsvectorResults.length === 0) {
+        console.log(
+          "[HYBRID SEARCH] Step 3 - Using intelligent fallback (full semantic search)"
+        );
+
+        // Step 3: The Intelligent Fallback
+        const semanticResults = await SemanticVectorService.semanticSearch(
+          query,
+          limit
+        );
+
+        return {
+          results: semanticResults.map((result) => ({
+            ...result,
+            semantic_similarity: result.similarity,
+            combined_score: result.similarity,
+          })),
+          searchMethod: "semantic_fallback",
+          stats: {
+            tsvectorResults: 0,
+            semanticResults: semanticResults.length,
+            finalResults: semanticResults.length,
+          },
+        };
+      }
+
+      // Step 2: The Semantic Re-Ranker (pgvector)
+      const candidateIds = tsvectorResults.map((r) => r.id);
+      const semanticResults = await this.semanticSearchOnCandidates(
+        query,
+        candidateIds,
+        limit
+      );
+
+      console.log(
+        `[HYBRID SEARCH] Step 2 - semantic re-ranking on ${candidateIds.length} candidates`
+      );
+
+      // Combine and rank results using hybrid scoring
+      const combinedResults = this.combineAndRankResults(
+        tsvectorResults,
+        semanticResults,
+        limit
+      );
+
+      console.log(`[HYBRID SEARCH] Final results: ${combinedResults.length}`);
+
+      return {
+        results: combinedResults,
+        searchMethod: "hybrid",
+        stats: {
+          tsvectorResults: tsvectorResults.length,
+          semanticResults: semanticResults.length,
+          finalResults: combinedResults.length,
+        },
+      };
+    } catch (error) {
+      console.error("[HYBRID SEARCH] Error:", error);
+
+      // Fallback to tsvector only
+      console.log("[HYBRID SEARCH] Error fallback - using tsvector only");
+      const fallbackResults = await this.tsvectorSearch(query);
+      return {
+        results: fallbackResults,
+        searchMethod: "tsvector_only",
+        stats: {
+          tsvectorResults: fallbackResults.length,
+          semanticResults: 0,
+          finalResults: fallbackResults.length,
+        },
+      };
+    }
+  }
+
+  private static async tsvectorSearch(
+    query: string,
+    limit?: number
+  ): Promise<HybridSearchResult[]> {
+    // Clean and prepare the search query for to_tsquery
+    const tsQuery = query
+      .toLowerCase()
+      .replace(/[^a-z0-9\s]/g, " ")
+      .trim()
+      .split(/\s+/)
+      .filter((term) => term.length > 1 || /^\d$/.test(term)) // Allow terms longer than 1 char or single digits
+      .join(" | "); // Use OR operator for broader initial filtering
+
+    if (!tsQuery) return [];
+
+    console.log(`[TSVECTOR] Query: "${query}" -> TSQuery: "${tsQuery}"`);
+
+    const results = (await prisma.$queryRawUnsafe(
+      `
+      SELECT 
+        id,
+        file_no,
+        category,
+        title,
+        note,
+        entry_date_real,
+        ts_rank(search_vector, to_tsquery('english', $1)) as ts_rank
+      FROM file_list 
+      WHERE search_vector @@ to_tsquery('english', $1)
+      ORDER BY ts_rank DESC, entry_date_real DESC
+    `,
+      tsQuery
+    )) as HybridSearchResult[];
+
+    console.log(
+      `[TSVECTOR] Found ${results.length} records (no limit applied)`
+    );
+    return results;
+  }
+
+  private static async semanticSearchOnCandidates(
+    query: string,
+    candidateIds: number[],
+    limit: number
+  ): Promise<HybridSearchResult[]> {
+    if (candidateIds.length === 0) return [];
+
+    const queryEmbedding = await SemanticVectorService.generateEmbedding(query);
+
+    console.log(`[SEMANTIC] Re-ranking ${candidateIds.length} candidates`);
+
+    const results = (await prisma.$queryRawUnsafe(
+      `
+      SELECT 
+        id,
+        file_no,
+        category,
+        title,
+        note,
+        entry_date_real,
+        1 - (semantic_vector <=> $1::vector) as semantic_similarity
+      FROM file_list 
+      WHERE id = ANY($2) AND semantic_vector IS NOT NULL
+      ORDER BY semantic_vector <=> $1::vector
+      LIMIT $3
+    `,
+      queryEmbedding,
+      candidateIds,
+      limit
+    )) as HybridSearchResult[];
+
+    return results;
+  }
+
+  private static combineAndRankResults(
+    tsvectorResults: HybridSearchResult[],
+    semanticResults: HybridSearchResult[],
+    limit: number
+  ): HybridSearchResult[] {
+    // Create a map of results by ID
+    const resultMap = new Map<number, HybridSearchResult>();
+
+    // Add tsvector results with initial scoring (60% weight)
+    tsvectorResults.forEach((result) => {
+      resultMap.set(result.id, {
+        ...result,
+        combined_score: (result.ts_rank || 0) * 0.6,
+      });
+    });
+
+    // Add semantic results and update scores (40% weight)
+    semanticResults.forEach((result) => {
+      const existing = resultMap.get(result.id);
+      if (existing) {
+        // Hybrid score: 60% tsvector + 40% semantic
+        existing.semantic_similarity = result.semantic_similarity;
+        existing.combined_score =
+          (existing.ts_rank || 0) * 0.6 +
+          (result.semantic_similarity || 0) * 0.4;
+      } else {
+        // Semantic-only result (shouldn't happen in normal flow, but safety net)
+        resultMap.set(result.id, {
+          ...result,
+          combined_score: (result.semantic_similarity || 0) * 0.4,
+        });
+      }
+    });
+
+    // Sort by combined score and return top results
+    const finalResults = Array.from(resultMap.values())
+      .sort((a, b) => (b.combined_score || 0) - (a.combined_score || 0))
+      .slice(0, limit);
+
+    console.log(
+      `[HYBRID] Combined scoring completed: ${finalResults.length} results`
+    );
+
+    // Detailed logging for debugging
+    console.log(
+      "[HYBRID-DEBUG] Initial tsvector results:",
+      tsvectorResults.map((r) => ({ id: r.id, ts_rank: r.ts_rank }))
+    );
+    console.log(
+      "[HYBRID-DEBUG] Semantic re-ranking results:",
+      semanticResults.map((r) => ({
+        id: r.id,
+        semantic_similarity: r.semantic_similarity,
+      }))
+    );
+    console.log(
+      "[HYBRID-DEBUG] Final combined and sorted results:",
+      finalResults.map((r) => ({ id: r.id, combined_score: r.combined_score }))
+    );
+
+    return finalResults;
+  }
+}

@@ -4,8 +4,10 @@ generator client {
 }
 
 datasource db {
-  provider = "postgresql"
-  url      = "postgresql://postgres:  @localhost:5432/cid_ai?schema=public"
+  provider     = "postgresql"
+  url          = env("DATABASE_URL")
+  directUrl    = env("DATABASE_URL")
+  relationMode = "prisma"
 }
 
 model CategoryList {
@@ -25,22 +27,18 @@ model FileList {
   title           String                   @db.VarChar(255)
   note            String?
   doc1            String?                  @db.VarChar(150)
-  doc2            String?                  @db.VarChar(255)
-  doc3            String?                  @db.VarChar(255)
-  doc4            String?                  @db.VarChar(255)
-  doc5            String?                  @db.VarChar(255)
-  doc6            String?                  @db.VarChar(255)
   entry_date      String?                  @db.VarChar(50)
   entry_date_real DateTime?                @db.Date
   search_vector   Unsupported("tsvector")?
   created_at      DateTime?                @default(now()) @db.Timestamptz(6)
   updated_at      DateTime?                @updatedAt @db.Timestamptz(6)
-  note_plain_text String?
+  semantic_vector Unsupported("vector")?
 
   @@index([category], map: "idx_file_list_category")
   @@index([entry_date_real], map: "idx_file_list_entry_date")
   @@index([file_no], map: "idx_file_list_file_no")
   @@index([search_vector], map: "idx_search_vector", type: Gin)
+  @@index([semantic_vector], map: "idx_semantic_vector")
   @@map("file_list")
 }
 

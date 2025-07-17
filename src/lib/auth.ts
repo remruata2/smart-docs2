@@ -53,8 +53,8 @@ export const getUserRole = (
 
 // Export the role constants
 export const ROLES = {
-  ADMIN: 'admin' as UserRole,
-  STAFF: 'staff' as UserRole,
+	ADMIN: "admin" as UserRole,
+	STAFF: "staff" as UserRole,
 } as const;
 
 // Type for the role values

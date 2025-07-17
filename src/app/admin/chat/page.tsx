@@ -21,7 +21,7 @@ import {
   Check,
   FileDown,
 } from "lucide-react";
-import { PDFDocument, rgb, StandardFonts } from "pdf-lib";
+// PDF generation removed - using text export instead
 import { ChatMessage } from "@/lib/ai-service";
 import ReactMarkdown from "react-markdown";
 import remarkGfm from "remark-gfm";
@@ -54,10 +54,12 @@ export default function AdminChatPage() {
   } | null>(null);
   const [copiedMessageId, setCopiedMessageId] = useState<string | null>(null);
   // Track expanded source lists by message ID
-  const [expandedSources, setExpandedSources] = useState<Record<string, boolean>>({});
+  const [expandedSources, setExpandedSources] = useState<
+    Record<string, boolean>
+  >({});
   const scrollAreaRef = useRef<HTMLDivElement>(null);
   const inputRef = useRef<HTMLInputElement>(null);
-  
+
   // Initial number of sources to show
   const INITIAL_SOURCES_SHOWN = 15;
 
@@ -665,7 +667,7 @@ export default function AdminChatPage() {
       start: { x: margin, y: currentY },
       end: { x: margin + maxWidth - 40, y: currentY },
       thickness: 1,
-      color: rgb(0.5, 0.5, 0.5),
+      color: [0.5, 0.5, 0.5],
     });
 
     for (const row of tableRows) {
@@ -682,7 +684,7 @@ export default function AdminChatPage() {
           y: currentY - cellPadding,
           width: maxWidth - 40,
           height: rowHeight,
-          color: rgb(0.95, 0.95, 0.95),
+          color: [0.95, 0.95, 0.95],
         });
       }
 
@@ -722,7 +724,7 @@ export default function AdminChatPage() {
           y: currentY,
           size: row.size,
           font: row.type === "table_header" ? boldFont : regularFont,
-          color: rgb(0, 0, 0),
+          color: [0, 0, 0],
         });
       }
 
@@ -731,7 +733,7 @@ export default function AdminChatPage() {
         start: { x: margin, y: currentY - cellPadding },
         end: { x: margin + maxWidth - 40, y: currentY - cellPadding },
         thickness: row.type === "table_header" ? 1 : 0.5,
-        color: rgb(0.5, 0.5, 0.5),
+        color: [0.5, 0.5, 0.5],
       });
     }
 
@@ -742,538 +744,36 @@ export default function AdminChatPage() {
         start: { x: margin + i * columnWidth, y: startY },
         end: { x: margin + i * columnWidth, y: endY },
         thickness: 0.5,
-        color: rgb(0.7, 0.7, 0.7),
+        color: [0.7, 0.7, 0.7],
       });
     }
 
     return currentY - cellPadding - 10; // Return new Y position with some spacing
   };
 
-  // Generate PDF from message content using pdf-lib
-  const handleGeneratePdf = async (text: string, sources?: ChatSource[]) => {
+  // Remove the entire handleGeneratePdf function and replace with text export
+  // Export text content to file
+  const handleExportText = async (text: string, sources?: ChatSource[]) => {
     if (!text) return;
 
-    // Ensure we're running in the browser
-    if (typeof window === "undefined") {
-      console.error("PDF generation only works in the browser");
-      return;
-    }
-
     try {
-      console.log("Starting PDF generation with pdf-lib...");
-
-      // Parse markdown and preserve formatting information
-      let processedText = text
-        // Normalize line breaks to just \n
-        .replace(/\r\n/g, "\n")
-        .replace(/\r/g, "\n")
-        // Clean up extra whitespace but preserve structure
-        .replace(/\n\s*\n\s*\n/g, "\n\n")
-        // Keep only printable ASCII characters, spaces, tabs, and newlines
-        .replace(/[^\x20-\x7E\n\t]/g, "")
-        .trim();
-
-      console.log("Text processed for PDF, length:", processedText.length);
-      console.log("First 100 characters:", processedText.substring(0, 100));
-
-      if (processedText.length === 0) {
-        throw new Error("No valid content to generate PDF");
-      }
-
-      // Create a new PDF document
-      const pdfDoc = await PDFDocument.create();
-      const regularFont = await pdfDoc.embedFont(StandardFonts.Helvetica);
-      const boldFont = await pdfDoc.embedFont(StandardFonts.HelveticaBold);
-      const italicFont = await pdfDoc.embedFont(StandardFonts.HelveticaOblique);
-      const monoFont = await pdfDoc.embedFont(StandardFonts.Courier);
-
-      // Page settings
-      const pageWidth = 595.28; // A4 width in points
-      const pageHeight = 841.89; // A4 height in points
-      const margin = 50;
-      const maxWidth = pageWidth - margin * 2;
-      const fontSize = 12;
-      const lineHeight = fontSize * 1.2;
-
-      let page = pdfDoc.addPage([pageWidth, pageHeight]);
-      let yPosition = pageHeight - margin;
-
-      // Add title
-      const title = "CID AI Assistant Response";
-      page.drawText(title, {
-        x: margin,
-        y: yPosition,
-        size: 16,
-        font: boldFont,
-        color: rgb(0, 0, 0),
-      });
-      yPosition -= 25;
-
-      // Add date
-      const date = new Date().toLocaleString();
-      page.drawText(`Generated on: ${date}`, {
-        x: margin,
-        y: yPosition,
-        size: 10,
-        font: regularFont,
-        color: rgb(0.5, 0.5, 0.5),
-      });
-      yPosition -= 30;
-
-      // Parse markdown into formatted lines
-      const formattedLines = parseMarkdownToFormattedLines(processedText);
-
-      // Process each formatted line with word wrapping
-      const wrappedLines: FormattedLine[] = [];
-
-      // Keep track of bullet groups and table groups and process in order
-      const bulletGroups: { [key: string]: FormattedLine[] } = {};
-      const tableGroups: { [key: string]: FormattedLine[] } = {};
-      const processedBullets = new Set<string>();
-      const processedTables = new Set<string>();
-
-      for (let i = 0; i < formattedLines.length; i++) {
-        const fLine = formattedLines[i];
-
-        if (fLine.type === "empty") {
-          wrappedLines.push(fLine);
-          continue;
-        }
-
-        if (fLine.type === "bullet" && fLine.bulletId) {
-          // Group bullet segments together
-          if (!bulletGroups[fLine.bulletId]) {
-            bulletGroups[fLine.bulletId] = [];
-          }
-          bulletGroups[fLine.bulletId].push(fLine);
-
-          // Check if this is the last segment of this bullet (look ahead)
-          const isLastSegment =
-            i === formattedLines.length - 1 ||
-            formattedLines[i + 1].bulletId !== fLine.bulletId;
-
-          // Process the bullet group when we have all segments
-          if (isLastSegment && !processedBullets.has(fLine.bulletId)) {
-            const segments = bulletGroups[fLine.bulletId];
-            const wrappedBulletLines = wrapBulletSegments(
-              segments,
-              maxWidth,
-              regularFont,
-              boldFont,
-              italicFont,
-              monoFont
-            );
-            wrappedLines.push(...wrappedBulletLines);
-            processedBullets.add(fLine.bulletId);
-          }
-        } else if (
-          (fLine.type === "table_header" ||
-            fLine.type === "table_row" ||
-            fLine.type === "table_separator") &&
-          fLine.tableId
-        ) {
-          // Group table rows together
-          if (!tableGroups[fLine.tableId]) {
-            tableGroups[fLine.tableId] = [];
-          }
-          tableGroups[fLine.tableId].push(fLine);
-
-          // Check if this is the last row of this table (look ahead)
-          const isLastRow =
-            i === formattedLines.length - 1 ||
-            formattedLines[i + 1].tableId !== fLine.tableId;
-
-          // Process the table group when we have all rows
-          if (isLastRow && !processedTables.has(fLine.tableId)) {
-            // Tables don't need text wrapping, just add them as-is
-            wrappedLines.push(...tableGroups[fLine.tableId]);
-            processedTables.add(fLine.tableId);
-          }
-        } else {
-          // Handle non-bullet, non-table segments individually
-          const wrappedSegments = wrapTextSegment(
-            fLine,
-            maxWidth,
-            regularFont,
-            boldFont,
-            italicFont,
-            monoFont
-          );
-          wrappedLines.push(...wrappedSegments);
-        }
-      }
-
-      // Group consecutive segments for proper rendering
-      // Only group segments that should truly be on the same line
-      const groupedLines: Array<{
-        segments: FormattedLine[];
-        type: string;
-        spacing: number;
-      }> = [];
-      let currentGroup: FormattedLine[] = [];
-      let currentType = "";
-      let currentSpacing = 16;
-
-      for (const line of wrappedLines) {
-        if (line.type === "empty") {
-          // Finish current group and add empty line
-          if (currentGroup.length > 0) {
-            groupedLines.push({
-              segments: currentGroup,
-              type: currentType,
-              spacing: currentSpacing,
-            });
-            currentGroup = [];
-          }
-          groupedLines.push({
-            segments: [line],
-            type: "empty",
-            spacing: line.spacing,
-          });
-        } else if (
-          (line.type === currentType &&
-            currentGroup.length > 0 &&
-            (line.type !== "bullet" ||
-              (line.bulletId === currentGroup[0]?.bulletId &&
-                !line.isWrappedLine))) ||
-          // Special case for table elements: group by tableId regardless of type
-          ((line.type === "table_header" ||
-            line.type === "table_row" ||
-            line.type === "table_separator") &&
-            currentGroup.length > 0 &&
-            (currentGroup[0]?.type === "table_header" ||
-              currentGroup[0]?.type === "table_row" ||
-              currentGroup[0]?.type === "table_separator") &&
-            line.tableId === currentGroup[0]?.tableId)
-        ) {
-          // Same type, add to current group
-          // For bullets: same bulletId and not a wrapped line
-          // For tables: same tableId (regardless of specific table element type)
-          // For others: same type (wrapped lines will be handled separately)
-          currentGroup.push(line);
-        } else {
-          // Different type or wrapped line, finish current group and start new one
-          if (currentGroup.length > 0) {
-            groupedLines.push({
-              segments: currentGroup,
-              type: currentType,
-              spacing: currentSpacing,
-            });
-          }
-          currentGroup = [line];
-          // For table elements, use a generic "table" type for grouping
-          if (
-            line.type === "table_header" ||
-            line.type === "table_row" ||
-            line.type === "table_separator"
-          ) {
-            currentType = "table";
-          } else {
-            currentType = line.type;
-          }
-          currentSpacing = line.spacing;
-        }
-      }
-
-      // Add final group
-      if (currentGroup.length > 0) {
-        groupedLines.push({
-          segments: currentGroup,
-          type: currentType,
-          spacing: currentSpacing,
-        });
-      }
-
-      // Render grouped content
-      let previousGroupType = "";
-      for (let groupIndex = 0; groupIndex < groupedLines.length; groupIndex++) {
-        const group = groupedLines[groupIndex];
-
-        // Add extra spacing between different content types for better readability
-        let extraSpacing = 0;
-        if (previousGroupType && previousGroupType !== group.type) {
-          if (
-            (previousGroupType === "paragraph" && group.type === "bullet") ||
-            (previousGroupType === "bullet" && group.type === "paragraph") ||
-            group.type.startsWith("header")
-          ) {
-            extraSpacing = 8; // Extra spacing between content types
-          }
-        }
-
-        // Check if we need a new page
-        if (yPosition - (group.spacing + extraSpacing) < margin) {
-          page = pdfDoc.addPage([pageWidth, pageHeight]);
-          yPosition = pageHeight - margin;
-        }
-
-        if (group.type !== "empty") {
-          // Handle table rendering separately
-          if (group.type === "table") {
-            // Calculate table height to check if we need a new page
-            const tableHeight = group.segments.length * 18 + 20; // Rough estimate
-            if (yPosition - tableHeight < margin) {
-              page = pdfDoc.addPage([pageWidth, pageHeight]);
-              yPosition = pageHeight - margin;
-            }
-
-            console.log(
-              "About to render table group with",
-              group.segments.length,
-              "segments"
-            );
-            console.log("Group type:", group.type);
-            console.log(
-              "Segment types:",
-              group.segments.map((s) => s.type)
-            );
-
-            yPosition = renderTable(
-              group.segments,
-              page,
-              yPosition,
-              maxWidth,
-              margin,
-              regularFont,
-              boldFont
-            );
-          }
-          // Check if this group has only one segment or if segments should be on same line
-          else if (
-            group.segments.length === 1 ||
-            (group.segments.length > 1 &&
-              !group.segments.some((s) => s.isWrappedLine))
-          ) {
-            // Single segment or multiple segments that belong on same line
-            let xPosition = margin + (group.segments[0]?.indent || 0);
-
-            // Render each segment inline
-            for (const segment of group.segments) {
-              // Select appropriate font
-              let selectedFont = regularFont;
-              if (segment.font === "bold") selectedFont = boldFont;
-              else if (segment.font === "italic") selectedFont = italicFont;
-              else if (segment.font === "mono") selectedFont = monoFont;
-
-              // Draw the text segment (with justification if needed)
-              if (segment.isJustified && segment.justificationData) {
-                // Draw justified text word by word
-                let currentX = xPosition;
-                const { words, spacing } = segment.justificationData;
-
-                for (let i = 0; i < words.length; i++) {
-                  const word = words[i];
-                  page.drawText(word, {
-                    x: currentX,
-                    y: yPosition,
-                    size: segment.size,
-                    font: selectedFont,
-                    color: segment.type.startsWith("header")
-                      ? rgb(0.2, 0.2, 0.6)
-                      : rgb(0, 0, 0),
-                  });
-
-                  // Move to next word position
-                  const wordWidth = selectedFont.widthOfTextAtSize(
-                    word,
-                    segment.size
-                  );
-                  currentX += wordWidth;
-
-                  // Add space between words (including justification spacing)
-                  if (i < words.length - 1) {
-                    const spaceWidth = selectedFont.widthOfTextAtSize(
-                      " ",
-                      segment.size
-                    );
-                    currentX += spaceWidth + spacing;
-                  }
-                }
-              } else {
-                // Draw normal text
-                page.drawText(segment.text, {
-                  x: xPosition,
-                  y: yPosition,
-                  size: segment.size,
-                  font: selectedFont,
-                  color: segment.type.startsWith("header")
-                    ? rgb(0.2, 0.2, 0.6)
-                    : rgb(0, 0, 0),
-                });
-              }
-
-              // Move x position for next segment
-              try {
-                const textWidth = selectedFont.widthOfTextAtSize(
-                  segment.text,
-                  segment.size
-                );
-                xPosition += textWidth;
-              } catch (encodingError) {
-                xPosition += segment.text.length * segment.size * 0.6;
-              }
-            }
-          } else {
-            // Multiple segments that should be on separate lines
-            for (
-              let segIndex = 0;
-              segIndex < group.segments.length;
-              segIndex++
-            ) {
-              const segment = group.segments[segIndex];
-
-              // Check if we need a new page for this segment
-              if (yPosition - segment.spacing < margin) {
-                page = pdfDoc.addPage([pageWidth, pageHeight]);
-                yPosition = pageHeight - margin;
-              }
-
-              // Select appropriate font
-              let selectedFont = regularFont;
-              if (segment.font === "bold") selectedFont = boldFont;
-              else if (segment.font === "italic") selectedFont = italicFont;
-              else if (segment.font === "mono") selectedFont = monoFont;
-
-              // Draw the text segment (with justification if needed)
-              if (segment.isJustified && segment.justificationData) {
-                // Draw justified text word by word
-                let currentX = margin + segment.indent;
-                const { words, spacing } = segment.justificationData;
-
-                for (let i = 0; i < words.length; i++) {
-                  const word = words[i];
-                  page.drawText(word, {
-                    x: currentX,
-                    y: yPosition,
-                    size: segment.size,
-                    font: selectedFont,
-                    color: segment.type.startsWith("header")
-                      ? rgb(0.2, 0.2, 0.6)
-                      : rgb(0, 0, 0),
-                  });
-
-                  // Move to next word position
-                  const wordWidth = selectedFont.widthOfTextAtSize(
-                    word,
-                    segment.size
-                  );
-                  currentX += wordWidth;
-
-                  // Add space between words (including justification spacing)
-                  if (i < words.length - 1) {
-                    const spaceWidth = selectedFont.widthOfTextAtSize(
-                      " ",
-                      segment.size
-                    );
-                    currentX += spaceWidth + spacing;
-                  }
-                }
-              } else {
-                // Draw normal text
-                page.drawText(segment.text, {
-                  x: margin + segment.indent,
-                  y: yPosition,
-                  size: segment.size,
-                  font: selectedFont,
-                  color: segment.type.startsWith("header")
-                    ? rgb(0.2, 0.2, 0.6)
-                    : rgb(0, 0, 0),
-                });
-              }
-
-              // Move to next line for next segment (except for last segment)
-              if (segIndex < group.segments.length - 1) {
-                yPosition -= segment.spacing;
-              }
-            }
-          }
-        }
-
-        // Don't advance yPosition for tables since renderTable handles it
-        if (group.type !== "table") {
-          yPosition -= group.spacing + extraSpacing;
-        }
-        previousGroupType = group.type;
-      }
-
-      // Add sources section if available
+      // Create content with sources
+      let content = text;
       if (sources && sources.length > 0) {
-        // Add some spacing before sources
-        yPosition -= 20;
-
-        // Check if we need a new page for sources
-        if (yPosition - 40 < margin) {
-          page = pdfDoc.addPage([pageWidth, pageHeight]);
-          yPosition = pageHeight - margin;
-        }
-
-        // Sources header
-        page.drawText("Sources:", {
-          x: margin,
-          y: yPosition,
-          size: 14,
-          font: boldFont,
-          color: rgb(0.2, 0.2, 0.6),
+        content += "\n\nSources:\n";
+        sources.forEach((source, index) => {
+          content += `${index + 1}. ${source.file_no}: ${source.title}\n`;
         });
-        yPosition -= 20;
-
-        // List each source
-        for (let i = 0; i < sources.length; i++) {
-          const source = sources[i];
-
-          // Check if we need a new page
-          if (yPosition - 16 < margin) {
-            page = pdfDoc.addPage([pageWidth, pageHeight]);
-            yPosition = pageHeight - margin;
-          }
-
-          // Source number and title
-          const sourceText = `${i + 1}. ${source.title}`;
-          const sourceLines =
-            sourceText.length > 70
-              ? [
-                  sourceText.substring(0, 70) + "...",
-                  `   File: ${source.file_no}`,
-                ]
-              : [sourceText, `   File: ${source.file_no}`];
-
-          for (const line of sourceLines) {
-            page.drawText(line, {
-              x: margin + 10,
-              y: yPosition,
-              size: 10,
-              font: regularFont,
-              color: rgb(0.3, 0.3, 0.3),
-            });
-            yPosition -= 14;
-          }
-
-          yPosition -= 4; // Extra spacing between sources
-        }
       }
-
-      // Generate PDF bytes
-      const pdfBytes = await pdfDoc.save();
-
-      // Generate a readable filename
-      const timestamp = new Date()
-        .toISOString()
-        .slice(0, 19)
-        .replace(/[:.]/g, "-");
-      const filename = `CID-AI-Response-${timestamp}.pdf`;
-
-      console.log(
-        "PDF generated successfully, attempting download with filename:",
-        filename
-      );
-      console.log("PDF size:", pdfBytes.length, "bytes");
-
-      // Create blob and download
-      const blob = new Blob([pdfBytes], { type: "application/pdf" });
-      const url = URL.createObjectURL(blob);
 
       // Create download link
+      const blob = new Blob([content], { type: "text/plain" });
+      const url = URL.createObjectURL(blob);
       const link = document.createElement("a");
+      const filename = `cid-ai-response-${new Date()
+        .toISOString()
+        .slice(0, 19)
+        .replace(/:/g, "-")}.txt`;
       link.href = url;
       link.download = filename;
       link.style.display = "none";
@@ -1286,15 +786,10 @@ export default function AdminChatPage() {
       // Clean up
       setTimeout(() => {
         URL.revokeObjectURL(url);
-        console.log("PDF downloaded successfully with pdf-lib!");
       }, 1000);
     } catch (err) {
-      console.error("Failed to generate PDF with pdf-lib:", err);
-      // Show user-friendly error with more details
-      const errorMessage = err instanceof Error ? err.message : "Unknown error";
-      alert(
-        `Failed to generate PDF: ${errorMessage}. Please try again or check the browser console for details.`
-      );
+      console.error("Failed to export text:", err);
+      alert("Failed to export text. Please try again.");
     }
   };
 
@@ -1502,7 +997,7 @@ export default function AdminChatPage() {
                                   size="icon"
                                   className="h-7 w-7"
                                   onClick={async () =>
-                                    await handleGeneratePdf(
+                                    await handleExportText(
                                       message.content,
                                       message.sources
                                     )
@@ -1527,13 +1022,20 @@ export default function AdminChatPage() {
                           }`}
                         >
                           <span>{formatTimestamp(message.timestamp)}</span>
-                          {message.role === "assistant" && message.tokenCount && (
-                            <span className="border-l border-gray-300 dark:border-gray-700 pl-2 flex items-center">
-                              <span title="Input tokens">In: {message.tokenCount.input.toLocaleString()}</span>
-                              <span className="mx-1">|</span>
-                              <span title="Output tokens">Out: {message.tokenCount.output.toLocaleString()}</span>
-                            </span>
-                          )}
+                          {message.role === "assistant" &&
+                            message.tokenCount && (
+                              <span className="border-l border-gray-300 dark:border-gray-700 pl-2 flex items-center">
+                                <span title="Input tokens">
+                                  In:{" "}
+                                  {message.tokenCount.input.toLocaleString()}
+                                </span>
+                                <span className="mx-1">|</span>
+                                <span title="Output tokens">
+                                  Out:{" "}
+                                  {message.tokenCount.output.toLocaleString()}
+                                </span>
+                              </span>
+                            )}
                         </div>
                         {message.sources && message.sources.length > 0 && (
                           <div className="mt-2 space-y-1">
@@ -1542,9 +1044,12 @@ export default function AdminChatPage() {
                             </div>
                             <div className="flex flex-wrap gap-1">
                               {/* Show initial sources or all if expanded */}
-                              {(expandedSources[message.id] 
-                                ? message.sources 
-                                : message.sources.slice(0, INITIAL_SOURCES_SHOWN)
+                              {(expandedSources[message.id]
+                                ? message.sources
+                                : message.sources.slice(
+                                    0,
+                                    INITIAL_SOURCES_SHOWN
+                                  )
                               ).map((source, index) => (
                                 <Link
                                   key={`${source.id}-${index}`}
@@ -1566,18 +1071,24 @@ export default function AdminChatPage() {
                                   </Badge>
                                 </Link>
                               ))}
-                              
+
                               {/* Show "Show more/less" button if there are more sources than the initial limit */}
-                              {message.sources.length > INITIAL_SOURCES_SHOWN && (
-                                <Button 
-                                  variant="ghost" 
-                                  size="sm" 
-                                  onClick={() => toggleSourceExpansion(message.id)}
+                              {message.sources.length >
+                                INITIAL_SOURCES_SHOWN && (
+                                <Button
+                                  variant="ghost"
+                                  size="sm"
+                                  onClick={() =>
+                                    toggleSourceExpansion(message.id)
+                                  }
                                   className="text-xs text-blue-600 hover:text-blue-800 py-1 h-auto"
                                 >
-                                  {expandedSources[message.id] 
-                                    ? `Show less` 
-                                    : `Show ${message.sources.length - INITIAL_SOURCES_SHOWN} more...`}
+                                  {expandedSources[message.id]
+                                    ? `Show less`
+                                    : `Show ${
+                                        message.sources.length -
+                                        INITIAL_SOURCES_SHOWN
+                                      } more...`}
                                 </Button>
                               )}
                             </div>

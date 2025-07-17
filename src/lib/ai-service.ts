@@ -25,7 +25,7 @@ export interface SearchResult {
   file_no: string;
   category: string;
   title: string;
-  note_plain_text: string | null;
+  note: string | null;
   entry_date_real: Date | null;
 }
 
@@ -46,7 +46,7 @@ export async function searchDatabase(
       where: {
         OR: [
           ...searchTerms.map((term) => ({
-            note_plain_text: { contains: term, mode: "insensitive" as const },
+            note: { contains: term, mode: "insensitive" as const },
           })),
           ...searchTerms.map((term) => ({
             title: { contains: term, mode: "insensitive" as const },
@@ -64,7 +64,7 @@ export async function searchDatabase(
         file_no: true,
         category: true,
         title: true,
-        note_plain_text: true,
+        note: true,
         entry_date_real: true,
       },
       take: limit,
@@ -91,7 +91,7 @@ function prepareContextForAI(records: SearchResult[]): string {
     source: `File: ${record.file_no}`,
     title: record.title,
     category: record.category,
-    content: record.note_plain_text || "No content available",
+    content: record.note || "No content available",
     date: record.entry_date_real?.toLocaleDateString() || "Unknown date",
   }));
 

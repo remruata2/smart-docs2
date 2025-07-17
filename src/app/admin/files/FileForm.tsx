@@ -18,7 +18,6 @@ import {
 } from "@/components/ui/form";
 import { Input } from "@/components/ui/input";
 import { Controller } from "react-hook-form";
-import TiptapEditor from "@/components/ui/TiptapEditor";
 import { ActionResponse, FileDetail, CategoryListItem } from "./actions"; // Added CategoryListItem
 import { Check, ChevronsUpDown } from "lucide-react";
 import { cn } from "@/lib/utils";
@@ -37,14 +36,33 @@ import {
 } from "@/components/ui/popover";
 
 // Define the Zod schema based on actions.ts (or import if centralized and exported)
-const fileFormSchema = z.object({
-  file_no: z.string().min(1, { message: "File No is required" }).max(100),
-  category: z.string().min(1, { message: "Category is required" }).max(500),
-  title: z.string().min(1, { message: "Title is required" }).max(500),
-  note: z.string().optional().nullable(),
-  doc1: z.any().optional(), // Changed for file input
-  entry_date: z.string().optional().nullable(), // Expects YYYY-MM-DD from date input or empty string
-});
+const fileFormSchema = z
+  .object({
+    file_no: z.string().min(1, { message: "File No is required" }).max(100),
+    category: z.string().min(1, { message: "Category is required" }).max(500),
+    title: z.string().min(1, { message: "Title is required" }).max(500),
+    note: z.string().optional().nullable(),
+    doc1: z.any(), // FileList or string
+    entry_date: z.string().optional().nullable(),
+  })
+  .refine(
+    (data) => {
+      // If doc1 is a string, it's an existing file path, so it's valid.
+      if (typeof data.doc1 === "string" && data.doc1) {
+        return true;
+      }
+      // If it's not a string, it must be a FileList with at least one file.
+      if (data.doc1 instanceof FileList && data.doc1.length > 0) {
+        return true;
+      }
+      // In any other case (e.g., empty FileList, null, undefined), it's invalid.
+      return false;
+    },
+    {
+      message: "A document file is required.",
+      path: ["doc1"],
+    }
+  );
 
 type FileFormValues = z.infer<typeof fileFormSchema>;
 
@@ -76,9 +94,9 @@ export default function FileForm({
       category: initialData?.category || "",
       title: initialData?.title || "",
       note: initialData?.note || "",
-      doc1: initialData?.doc1 || "",
+      doc1: initialData?.doc1 || undefined, // Use undefined for new files
       entry_date:
-        initialData?.entry_date_real || new Date().toISOString().split("T")[0], // Use entry_date_real or today's date
+        initialData?.entry_date_real || new Date().toISOString().split("T")[0],
     },
   });
 
@@ -88,12 +106,14 @@ export default function FileForm({
 
   async function onSubmit(data: FileFormValues) {
     const formData = new FormData();
+
     Object.entries(data).forEach(([key, value]) => {
       if (key === "doc1") {
-        // Handle file input: data.doc1 will be a FileList
-        if (value && (value as FileList).length > 0) {
-          formData.append(key, (value as FileList)[0]);
+        if (value instanceof FileList && value.length > 0) {
+          formData.append(key, value[0]);
         }
+        // If value is a string (existing file), we don't append it,
+        // as the backend will only update the file if a new one is provided.
       } else if (value !== null && value !== undefined) {
         formData.append(key, String(value));
       }
@@ -122,6 +142,19 @@ export default function FileForm({
       toast.error("An unexpected error occurred. Please try again.");
       console.error("Form submission error:", error);
     }
+  }
+
+  async function parseDocumentViaApi(
+    file: File
+  ): Promise<{ content: string; metadata: any; error?: string }> {
+    const formData = new FormData();
+    formData.append("file", file);
+    const res = await fetch("/api/parse-document", {
+      method: "POST",
+      body: formData,
+    });
+    const data = await res.json();
+    return data;
   }
 
   return (
@@ -293,6 +326,7 @@ export default function FileForm({
             </FormItem>
           )}
         />
+
         <FormField
           control={form.control}
           name="title"
@@ -300,12 +334,83 @@ export default function FileForm({
             <FormItem>
               <FormLabel>Title *</FormLabel>
               <FormControl>
-                <Input placeholder="Enter title" {...field} />
+                <Input placeholder="Enter the file title" {...field} />
               </FormControl>
               <FormMessage />
             </FormItem>
           )}
         />
+
+        <FormField
+          control={form.control}
+          name="doc1"
+          render={({ field }) => (
+            <FormItem>
+              <FormLabel>Document Upload (Word, Excel) *</FormLabel>
+              <FormControl>
+                <Input
+                  type="file"
+                  accept=".docx,.xlsx,.xls"
+                  onChange={async (e) => {
+                    const file = e.target.files?.[0];
+                    if (file) {
+                      const result = await parseDocumentViaApi(file);
+                      if (result.error) {
+                        toast.error(result.error);
+                        form.setValue("note", "");
+                      } else {
+                        form.setValue("note", result.content || "");
+                        toast.success("Document parsed successfully!");
+                      }
+                      form.setValue("doc1", e.target.files, {
+                        shouldValidate: true,
+                      });
+                    }
+                  }}
+                />
+              </FormControl>
+              {initialData?.doc1 && (
+                <FormDescription>
+                  Current file:{" "}
+                  <a
+                    href={initialData.doc1}
+                    target="_blank"
+                    rel="noopener noreferrer"
+                    className="text-indigo-600 hover:underline"
+                  >
+                    {initialData.doc1.split("/").pop()}
+                  </a>
+                  . Uploading a new file will replace it.
+                </FormDescription>
+              )}
+              <FormMessage />
+            </FormItem>
+          )}
+        />
+
+        <FormField
+          control={form.control}
+          name="note"
+          render={({ field }) => (
+            <FormItem>
+              <FormLabel>Document Content</FormLabel>
+              <FormControl>
+                <textarea
+                  placeholder="The content of the uploaded document will appear here..."
+                  className="w-full p-2 border rounded-md min-h-[400px] resize-y"
+                  {...field}
+                  value={field.value || ""}
+                />
+              </FormControl>
+              <FormDescription>
+                This content is automatically generated from the uploaded file.
+                You can edit it if needed.
+              </FormDescription>
+              <FormMessage />
+            </FormItem>
+          )}
+        />
+
         <FormField
           control={form.control}
           name="entry_date"
@@ -313,62 +418,11 @@ export default function FileForm({
             <FormItem>
               <FormLabel>Entry Date</FormLabel>
               <FormControl>
-                <Input type="date" {...field} value={field.value || ""} />
-              </FormControl>
-              <FormDescription>
-                The date associated with the file entry.
-              </FormDescription>
-              <FormMessage />
-            </FormItem>
-          )}
-        />
-        {isClient && (
-          <FormField
-            control={form.control}
-            name="note"
-            render={({ field }) => (
-              <FormItem>
-                <FormLabel>Note</FormLabel>
-                <FormControl>
-                  <Controller
-                    name="note"
-                    control={form.control}
-                    defaultValue={field.value || ""}
-                    render={({ field: controllerField }) => {
-                      if (!isClient) {
-                        return (
-                          <div className="w-full p-2 border rounded min-h-[200px] bg-gray-100 text-gray-500 flex items-center justify-center">
-                            Loading editor...
-                          </div>
-                        );
-                      }
-                      return (
-                        <TiptapEditor
-                          initialHtml={controllerField.value}
-                          onChange={controllerField.onChange}
-                        />
-                      );
-                    }}
-                  />
-                </FormControl>
-                <FormMessage />
-              </FormItem>
-            )}
-          />
-        )}
-        <FormField
-          control={form.control}
-          name="doc1"
-          render={({ field: { onChange, onBlur, name, ref } }) => (
-            <FormItem>
-              <FormLabel>Upload Document/Image</FormLabel>
-              <FormControl>
                 <Input
-                  type="file"
-                  onChange={(e) => onChange(e.target.files)}
-                  onBlur={onBlur}
-                  name={name}
-                  ref={ref}
+                  type="date"
+                  {...field}
+                  value={field.value || ""}
+                  className="w-auto"
                 />
               </FormControl>
               <FormMessage />

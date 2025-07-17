@@ -2124,16 +2124,10 @@ export namespace Prisma {
     title: string | null
     note: string | null
     doc1: string | null
-    doc2: string | null
-    doc3: string | null
-    doc4: string | null
-    doc5: string | null
-    doc6: string | null
     entry_date: string | null
     entry_date_real: Date | null
     created_at: Date | null
     updated_at: Date | null
-    note_plain_text: string | null
   }
 
   export type FileListMaxAggregateOutputType = {
@@ -2143,16 +2137,10 @@ export namespace Prisma {
     title: string | null
     note: string | null
     doc1: string | null
-    doc2: string | null
-    doc3: string | null
-    doc4: string | null
-    doc5: string | null
-    doc6: string | null
     entry_date: string | null
     entry_date_real: Date | null
     created_at: Date | null
     updated_at: Date | null
-    note_plain_text: string | null
   }
 
   export type FileListCountAggregateOutputType = {
@@ -2162,16 +2150,10 @@ export namespace Prisma {
     title: number
     note: number
     doc1: number
-    doc2: number
-    doc3: number
-    doc4: number
-    doc5: number
-    doc6: number
     entry_date: number
     entry_date_real: number
     created_at: number
     updated_at: number
-    note_plain_text: number
     _all: number
   }
 
@@ -2191,16 +2173,10 @@ export namespace Prisma {
     title?: true
     note?: true
     doc1?: true
-    doc2?: true
-    doc3?: true
-    doc4?: true
-    doc5?: true
-    doc6?: true
     entry_date?: true
     entry_date_real?: true
     created_at?: true
     updated_at?: true
-    note_plain_text?: true
   }
 
   export type FileListMaxAggregateInputType = {
@@ -2210,16 +2186,10 @@ export namespace Prisma {
     title?: true
     note?: true
     doc1?: true
-    doc2?: true
-    doc3?: true
-    doc4?: true
-    doc5?: true
-    doc6?: true
     entry_date?: true
     entry_date_real?: true
     created_at?: true
     updated_at?: true
-    note_plain_text?: true
   }
 
   export type FileListCountAggregateInputType = {
@@ -2229,16 +2199,10 @@ export namespace Prisma {
     title?: true
     note?: true
     doc1?: true
-    doc2?: true
-    doc3?: true
-    doc4?: true
-    doc5?: true
-    doc6?: true
     entry_date?: true
     entry_date_real?: true
     created_at?: true
     updated_at?: true
-    note_plain_text?: true
     _all?: true
   }
 
@@ -2335,16 +2299,10 @@ export namespace Prisma {
     title: string
     note: string | null
     doc1: string | null
-    doc2: string | null
-    doc3: string | null
-    doc4: string | null
-    doc5: string | null
-    doc6: string | null
     entry_date: string | null
     entry_date_real: Date | null
     created_at: Date | null
     updated_at: Date | null
-    note_plain_text: string | null
     _count: FileListCountAggregateOutputType | null
     _avg: FileListAvgAggregateOutputType | null
     _sum: FileListSumAggregateOutputType | null
@@ -2373,16 +2331,10 @@ export namespace Prisma {
     title?: boolean
     note?: boolean
     doc1?: boolean
-    doc2?: boolean
-    doc3?: boolean
-    doc4?: boolean
-    doc5?: boolean
-    doc6?: boolean
     entry_date?: boolean
     entry_date_real?: boolean
     created_at?: boolean
     updated_at?: boolean
-    note_plain_text?: boolean
   }, ExtArgs["result"]["fileList"]>
 
   export type FileListSelectCreateManyAndReturn<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = $Extensions.GetSelect<{
@@ -2392,16 +2344,10 @@ export namespace Prisma {
     title?: boolean
     note?: boolean
     doc1?: boolean
-    doc2?: boolean
-    doc3?: boolean
-    doc4?: boolean
-    doc5?: boolean
-    doc6?: boolean
     entry_date?: boolean
     entry_date_real?: boolean
     created_at?: boolean
     updated_at?: boolean
-    note_plain_text?: boolean
   }, ExtArgs["result"]["fileList"]>
 
   export type FileListSelectUpdateManyAndReturn<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = $Extensions.GetSelect<{
@@ -2411,16 +2357,10 @@ export namespace Prisma {
     title?: boolean
     note?: boolean
     doc1?: boolean
-    doc2?: boolean
-    doc3?: boolean
-    doc4?: boolean
-    doc5?: boolean
-    doc6?: boolean
     entry_date?: boolean
     entry_date_real?: boolean
     created_at?: boolean
     updated_at?: boolean
-    note_plain_text?: boolean
   }, ExtArgs["result"]["fileList"]>
 
   export type FileListSelectScalar = {
@@ -2430,19 +2370,13 @@ export namespace Prisma {
     title?: boolean
     note?: boolean
     doc1?: boolean
-    doc2?: boolean
-    doc3?: boolean
-    doc4?: boolean
-    doc5?: boolean
-    doc6?: boolean
     entry_date?: boolean
     entry_date_real?: boolean
     created_at?: boolean
     updated_at?: boolean
-    note_plain_text?: boolean
   }
 
-  export type FileListOmit<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = $Extensions.GetOmit<"id" | "file_no" | "category" | "title" | "note" | "doc1" | "doc2" | "doc3" | "doc4" | "doc5" | "doc6" | "entry_date" | "entry_date_real" | "created_at" | "updated_at" | "note_plain_text", ExtArgs["result"]["fileList"]>
+  export type FileListOmit<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = $Extensions.GetOmit<"id" | "file_no" | "category" | "title" | "note" | "doc1" | "entry_date" | "entry_date_real" | "created_at" | "updated_at", ExtArgs["result"]["fileList"]>
 
   export type $FileListPayload<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
     name: "FileList"
@@ -2454,16 +2388,10 @@ export namespace Prisma {
       title: string
       note: string | null
       doc1: string | null
-      doc2: string | null
-      doc3: string | null
-      doc4: string | null
-      doc5: string | null
-      doc6: string | null
       entry_date: string | null
       entry_date_real: Date | null
       created_at: Date | null
       updated_at: Date | null
-      note_plain_text: string | null
     }, ExtArgs["result"]["fileList"]>
     composites: {}
   }
@@ -2893,16 +2821,10 @@ export namespace Prisma {
     readonly title: FieldRef<"FileList", 'String'>
     readonly note: FieldRef<"FileList", 'String'>
     readonly doc1: FieldRef<"FileList", 'String'>
-    readonly doc2: FieldRef<"FileList", 'String'>
-    readonly doc3: FieldRef<"FileList", 'String'>
-    readonly doc4: FieldRef<"FileList", 'String'>
-    readonly doc5: FieldRef<"FileList", 'String'>
-    readonly doc6: FieldRef<"FileList", 'String'>
     readonly entry_date: FieldRef<"FileList", 'String'>
     readonly entry_date_real: FieldRef<"FileList", 'DateTime'>
     readonly created_at: FieldRef<"FileList", 'DateTime'>
     readonly updated_at: FieldRef<"FileList", 'DateTime'>
-    readonly note_plain_text: FieldRef<"FileList", 'String'>
   }
     
 
@@ -4356,16 +4278,10 @@ export namespace Prisma {
     title: 'title',
     note: 'note',
     doc1: 'doc1',
-    doc2: 'doc2',
-    doc3: 'doc3',
-    doc4: 'doc4',
-    doc5: 'doc5',
-    doc6: 'doc6',
     entry_date: 'entry_date',
     entry_date_real: 'entry_date_real',
     created_at: 'created_at',
-    updated_at: 'updated_at',
-    note_plain_text: 'note_plain_text'
+    updated_at: 'updated_at'
   };
 
   export type FileListScalarFieldEnum = (typeof FileListScalarFieldEnum)[keyof typeof FileListScalarFieldEnum]
@@ -4557,16 +4473,10 @@ export namespace Prisma {
     title?: StringFilter<"FileList"> | string
     note?: StringNullableFilter<"FileList"> | string | null
     doc1?: StringNullableFilter<"FileList"> | string | null
-    doc2?: StringNullableFilter<"FileList"> | string | null
-    doc3?: StringNullableFilter<"FileList"> | string | null
-    doc4?: StringNullableFilter<"FileList"> | string | null
-    doc5?: StringNullableFilter<"FileList"> | string | null
-    doc6?: StringNullableFilter<"FileList"> | string | null
     entry_date?: StringNullableFilter<"FileList"> | string | null
     entry_date_real?: DateTimeNullableFilter<"FileList"> | Date | string | null
     created_at?: DateTimeNullableFilter<"FileList"> | Date | string | null
     updated_at?: DateTimeNullableFilter<"FileList"> | Date | string | null
-    note_plain_text?: StringNullableFilter<"FileList"> | string | null
   }
 
   export type FileListOrderByWithRelationInput = {
@@ -4576,16 +4486,10 @@ export namespace Prisma {
     title?: SortOrder
     note?: SortOrderInput | SortOrder
     doc1?: SortOrderInput | SortOrder
-    doc2?: SortOrderInput | SortOrder
-    doc3?: SortOrderInput | SortOrder
-    doc4?: SortOrderInput | SortOrder
-    doc5?: SortOrderInput | SortOrder
-    doc6?: SortOrderInput | SortOrder
     entry_date?: SortOrderInput | SortOrder
     entry_date_real?: SortOrderInput | SortOrder
     created_at?: SortOrderInput | SortOrder
     updated_at?: SortOrderInput | SortOrder
-    note_plain_text?: SortOrderInput | SortOrder
   }
 
   export type FileListWhereUniqueInput = Prisma.AtLeast<{
@@ -4598,16 +4502,10 @@ export namespace Prisma {
     title?: StringFilter<"FileList"> | string
     note?: StringNullableFilter<"FileList"> | string | null
     doc1?: StringNullableFilter<"FileList"> | string | null
-    doc2?: StringNullableFilter<"FileList"> | string | null
-    doc3?: StringNullableFilter<"FileList"> | string | null
-    doc4?: StringNullableFilter<"FileList"> | string | null
-    doc5?: StringNullableFilter<"FileList"> | string | null
-    doc6?: StringNullableFilter<"FileList"> | string | null
     entry_date?: StringNullableFilter<"FileList"> | string | null
     entry_date_real?: DateTimeNullableFilter<"FileList"> | Date | string | null
     created_at?: DateTimeNullableFilter<"FileList"> | Date | string | null
     updated_at?: DateTimeNullableFilter<"FileList"> | Date | string | null
-    note_plain_text?: StringNullableFilter<"FileList"> | string | null
   }, "id">
 
   export type FileListOrderByWithAggregationInput = {
@@ -4617,16 +4515,10 @@ export namespace Prisma {
     title?: SortOrder
     note?: SortOrderInput | SortOrder
     doc1?: SortOrderInput | SortOrder
-    doc2?: SortOrderInput | SortOrder
-    doc3?: SortOrderInput | SortOrder
-    doc4?: SortOrderInput | SortOrder
-    doc5?: SortOrderInput | SortOrder
-    doc6?: SortOrderInput | SortOrder
     entry_date?: SortOrderInput | SortOrder
     entry_date_real?: SortOrderInput | SortOrder
     created_at?: SortOrderInput | SortOrder
     updated_at?: SortOrderInput | SortOrder
-    note_plain_text?: SortOrderInput | SortOrder
     _count?: FileListCountOrderByAggregateInput
     _avg?: FileListAvgOrderByAggregateInput
     _max?: FileListMaxOrderByAggregateInput
@@ -4644,16 +4536,10 @@ export namespace Prisma {
     title?: StringWithAggregatesFilter<"FileList"> | string
     note?: StringNullableWithAggregatesFilter<"FileList"> | string | null
     doc1?: StringNullableWithAggregatesFilter<"FileList"> | string | null
-    doc2?: StringNullableWithAggregatesFilter<"FileList"> | string | null
-    doc3?: StringNullableWithAggregatesFilter<"FileList"> | string | null
-    doc4?: StringNullableWithAggregatesFilter<"FileList"> | string | null
-    doc5?: StringNullableWithAggregatesFilter<"FileList"> | string | null
-    doc6?: StringNullableWithAggregatesFilter<"FileList"> | string | null
     entry_date?: StringNullableWithAggregatesFilter<"FileList"> | string | null
     entry_date_real?: DateTimeNullableWithAggregatesFilter<"FileList"> | Date | string | null
     created_at?: DateTimeNullableWithAggregatesFilter<"FileList"> | Date | string | null
     updated_at?: DateTimeNullableWithAggregatesFilter<"FileList"> | Date | string | null
-    note_plain_text?: StringNullableWithAggregatesFilter<"FileList"> | string | null
   }
 
   export type userWhereInput = {
@@ -4779,16 +4665,10 @@ export namespace Prisma {
     title: string
     note?: string | null
     doc1?: string | null
-    doc2?: string | null
-    doc3?: string | null
-    doc4?: string | null
-    doc5?: string | null
-    doc6?: string | null
     entry_date?: string | null
     entry_date_real?: Date | string | null
     created_at?: Date | string | null
     updated_at?: Date | string | null
-    note_plain_text?: string | null
   }
 
   export type FileListUncheckedCreateInput = {
@@ -4798,16 +4678,10 @@ export namespace Prisma {
     title: string
     note?: string | null
     doc1?: string | null
-    doc2?: string | null
-    doc3?: string | null
-    doc4?: string | null
-    doc5?: string | null
-    doc6?: string | null
     entry_date?: string | null
     entry_date_real?: Date | string | null
     created_at?: Date | string | null
     updated_at?: Date | string | null
-    note_plain_text?: string | null
   }
 
   export type FileListUpdateInput = {
@@ -4816,16 +4690,10 @@ export namespace Prisma {
     title?: StringFieldUpdateOperationsInput | string
     note?: NullableStringFieldUpdateOperationsInput | string | null
     doc1?: NullableStringFieldUpdateOperationsInput | string | null
-    doc2?: NullableStringFieldUpdateOperationsInput | string | null
-    doc3?: NullableStringFieldUpdateOperationsInput | string | null
-    doc4?: NullableStringFieldUpdateOperationsInput | string | null
-    doc5?: NullableStringFieldUpdateOperationsInput | string | null
-    doc6?: NullableStringFieldUpdateOperationsInput | string | null
     entry_date?: NullableStringFieldUpdateOperationsInput | string | null
     entry_date_real?: NullableDateTimeFieldUpdateOperationsInput | Date | string | null
     created_at?: NullableDateTimeFieldUpdateOperationsInput | Date | string | null
     updated_at?: NullableDateTimeFieldUpdateOperationsInput | Date | string | null
-    note_plain_text?: NullableStringFieldUpdateOperationsInput | string | null
   }
 
   export type FileListUncheckedUpdateInput = {
@@ -4835,16 +4703,10 @@ export namespace Prisma {
     title?: StringFieldUpdateOperationsInput | string
     note?: NullableStringFieldUpdateOperationsInput | string | null
     doc1?: NullableStringFieldUpdateOperationsInput | string | null
-    doc2?: NullableStringFieldUpdateOperationsInput | string | null
-    doc3?: NullableStringFieldUpdateOperationsInput | string | null
-    doc4?: NullableStringFieldUpdateOperationsInput | string | null
-    doc5?: NullableStringFieldUpdateOperationsInput | string | null
-    doc6?: NullableStringFieldUpdateOperationsInput | string | null
     entry_date?: NullableStringFieldUpdateOperationsInput | string | null
     entry_date_real?: NullableDateTimeFieldUpdateOperationsInput | Date | string | null
     created_at?: NullableDateTimeFieldUpdateOperationsInput | Date | string | null
     updated_at?: NullableDateTimeFieldUpdateOperationsInput | Date | string | null
-    note_plain_text?: NullableStringFieldUpdateOperationsInput | string | null
   }
 
   export type FileListCreateManyInput = {
@@ -4854,16 +4716,10 @@ export namespace Prisma {
     title: string
     note?: string | null
     doc1?: string | null
-    doc2?: string | null
-    doc3?: string | null
-    doc4?: string | null
-    doc5?: string | null
-    doc6?: string | null
     entry_date?: string | null
     entry_date_real?: Date | string | null
     created_at?: Date | string | null
     updated_at?: Date | string | null
-    note_plain_text?: string | null
   }
 
   export type FileListUpdateManyMutationInput = {
@@ -4872,16 +4728,10 @@ export namespace Prisma {
     title?: StringFieldUpdateOperationsInput | string
     note?: NullableStringFieldUpdateOperationsInput | string | null
     doc1?: NullableStringFieldUpdateOperationsInput | string | null
-    doc2?: NullableStringFieldUpdateOperationsInput | string | null
-    doc3?: NullableStringFieldUpdateOperationsInput | string | null
-    doc4?: NullableStringFieldUpdateOperationsInput | string | null
-    doc5?: NullableStringFieldUpdateOperationsInput | string | null
-    doc6?: NullableStringFieldUpdateOperationsInput | string | null
     entry_date?: NullableStringFieldUpdateOperationsInput | string | null
     entry_date_real?: NullableDateTimeFieldUpdateOperationsInput | Date | string | null
     created_at?: NullableDateTimeFieldUpdateOperationsInput | Date | string | null
     updated_at?: NullableDateTimeFieldUpdateOperationsInput | Date | string | null
-    note_plain_text?: NullableStringFieldUpdateOperationsInput | string | null
   }
 
   export type FileListUncheckedUpdateManyInput = {
@@ -4891,16 +4741,10 @@ export namespace Prisma {
     title?: StringFieldUpdateOperationsInput | string
     note?: NullableStringFieldUpdateOperationsInput | string | null
     doc1?: NullableStringFieldUpdateOperationsInput | string | null
-    doc2?: NullableStringFieldUpdateOperationsInput | string | null
-    doc3?: NullableStringFieldUpdateOperationsInput | string | null
-    doc4?: NullableStringFieldUpdateOperationsInput | string | null
-    doc5?: NullableStringFieldUpdateOperationsInput | string | null
-    doc6?: NullableStringFieldUpdateOperationsInput | string | null
     entry_date?: NullableStringFieldUpdateOperationsInput | string | null
     entry_date_real?: NullableDateTimeFieldUpdateOperationsInput | Date | string | null
     created_at?: NullableDateTimeFieldUpdateOperationsInput | Date | string | null
     updated_at?: NullableDateTimeFieldUpdateOperationsInput | Date | string | null
-    note_plain_text?: NullableStringFieldUpdateOperationsInput | string | null
   }
 
   export type userCreateInput = {
@@ -5114,16 +4958,10 @@ export namespace Prisma {
     title?: SortOrder
     note?: SortOrder
     doc1?: SortOrder
-    doc2?: SortOrder
-    doc3?: SortOrder
-    doc4?: SortOrder
-    doc5?: SortOrder
-    doc6?: SortOrder
     entry_date?: SortOrder
     entry_date_real?: SortOrder
     created_at?: SortOrder
     updated_at?: SortOrder
-    note_plain_text?: SortOrder
   }
 
   export type FileListAvgOrderByAggregateInput = {
@@ -5137,16 +4975,10 @@ export namespace Prisma {
     title?: SortOrder
     note?: SortOrder
     doc1?: SortOrder
-    doc2?: SortOrder
-    doc3?: SortOrder
-    doc4?: SortOrder
-    doc5?: SortOrder
-    doc6?: SortOrder
     entry_date?: SortOrder
     entry_date_real?: SortOrder
     created_at?: SortOrder
     updated_at?: SortOrder
-    note_plain_text?: SortOrder
   }
 
   export type FileListMinOrderByAggregateInput = {
@@ -5156,16 +4988,10 @@ export namespace Prisma {
     title?: SortOrder
     note?: SortOrder
     doc1?: SortOrder
-    doc2?: SortOrder
-    doc3?: SortOrder
-    doc4?: SortOrder
-    doc5?: SortOrder
-    doc6?: SortOrder
     entry_date?: SortOrder
     entry_date_real?: SortOrder
     created_at?: SortOrder
     updated_at?: SortOrder
-    note_plain_text?: SortOrder
   }
 
   export type FileListSumOrderByAggregateInput = {

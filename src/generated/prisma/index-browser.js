@@ -135,16 +135,10 @@ exports.Prisma.FileListScalarFieldEnum = {
   title: 'title',
   note: 'note',
   doc1: 'doc1',
-  doc2: 'doc2',
-  doc3: 'doc3',
-  doc4: 'doc4',
-  doc5: 'doc5',
-  doc6: 'doc6',
   entry_date: 'entry_date',
   entry_date_real: 'entry_date_real',
   created_at: 'created_at',
-  updated_at: 'updated_at',
-  note_plain_text: 'note_plain_text'
+  updated_at: 'updated_at'
 };
 
 exports.Prisma.UserScalarFieldEnum = {
