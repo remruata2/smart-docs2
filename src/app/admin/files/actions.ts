@@ -280,6 +280,7 @@ export async function getFileById(id: number): Promise<FileDetail | null> {
       category: selectedFile.category,
       title: selectedFile.title,
       note: selectedFile.note, // Prisma String? is string | null, FileDetail expects string | null
+      content_format: selectedFile.content_format as 'html' | 'markdown' | undefined, // Include content_format
       doc1: selectedFile.doc1,
       entry_date: selectedFile.entry_date,
       // Format for <input type="date"> which expects YYYY-MM-DD or empty string

@@ -34,7 +34,7 @@ const DetailItem: React.FC<DetailItemProps> = ({
                 (contentFormat === 'auto' && isHtmlContent(value));
   
   // For backward compatibility, also check isMarkdown prop
-  const shouldRenderAsMarkdown = !isHtml && (isMarkdown || contentFormat === 'markdown');
+  const shouldRenderAsMarkdown = contentFormat === 'markdown' || (!isHtml && isMarkdown);
 
   return (
     <div className="mb-4 pt-4 first:pt-0">
