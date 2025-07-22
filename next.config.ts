@@ -24,6 +24,10 @@ const nextConfig: NextConfig = {
   // Server components external packages
   experimental: {
     serverComponentsExternalPackages: ["mammoth", "xlsx"],
+    serverActions: {
+      // Increase body size limit to 10MB for file uploads
+      bodySizeLimit: "10mb",
+    },
   },
 };
 

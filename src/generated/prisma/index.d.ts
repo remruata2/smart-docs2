@@ -2123,6 +2123,7 @@ export namespace Prisma {
     category: string | null
     title: string | null
     note: string | null
+    content_format: string | null
     doc1: string | null
     entry_date: string | null
     entry_date_real: Date | null
@@ -2136,6 +2137,7 @@ export namespace Prisma {
     category: string | null
     title: string | null
     note: string | null
+    content_format: string | null
     doc1: string | null
     entry_date: string | null
     entry_date_real: Date | null
@@ -2149,6 +2151,7 @@ export namespace Prisma {
     category: number
     title: number
     note: number
+    content_format: number
     doc1: number
     entry_date: number
     entry_date_real: number
@@ -2172,6 +2175,7 @@ export namespace Prisma {
     category?: true
     title?: true
     note?: true
+    content_format?: true
     doc1?: true
     entry_date?: true
     entry_date_real?: true
@@ -2185,6 +2189,7 @@ export namespace Prisma {
     category?: true
     title?: true
     note?: true
+    content_format?: true
     doc1?: true
     entry_date?: true
     entry_date_real?: true
@@ -2198,6 +2203,7 @@ export namespace Prisma {
     category?: true
     title?: true
     note?: true
+    content_format?: true
     doc1?: true
     entry_date?: true
     entry_date_real?: true
@@ -2298,6 +2304,7 @@ export namespace Prisma {
     category: string
     title: string
     note: string | null
+    content_format: string | null
     doc1: string | null
     entry_date: string | null
     entry_date_real: Date | null
@@ -2330,6 +2337,7 @@ export namespace Prisma {
     category?: boolean
     title?: boolean
     note?: boolean
+    content_format?: boolean
     doc1?: boolean
     entry_date?: boolean
     entry_date_real?: boolean
@@ -2343,6 +2351,7 @@ export namespace Prisma {
     category?: boolean
     title?: boolean
     note?: boolean
+    content_format?: boolean
     doc1?: boolean
     entry_date?: boolean
     entry_date_real?: boolean
@@ -2356,6 +2365,7 @@ export namespace Prisma {
     category?: boolean
     title?: boolean
     note?: boolean
+    content_format?: boolean
     doc1?: boolean
     entry_date?: boolean
     entry_date_real?: boolean
@@ -2369,6 +2379,7 @@ export namespace Prisma {
     category?: boolean
     title?: boolean
     note?: boolean
+    content_format?: boolean
     doc1?: boolean
     entry_date?: boolean
     entry_date_real?: boolean
@@ -2376,7 +2387,7 @@ export namespace Prisma {
     updated_at?: boolean
   }
 
-  export type FileListOmit<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = $Extensions.GetOmit<"id" | "file_no" | "category" | "title" | "note" | "doc1" | "entry_date" | "entry_date_real" | "created_at" | "updated_at", ExtArgs["result"]["fileList"]>
+  export type FileListOmit<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = $Extensions.GetOmit<"id" | "file_no" | "category" | "title" | "note" | "content_format" | "doc1" | "entry_date" | "entry_date_real" | "created_at" | "updated_at", ExtArgs["result"]["fileList"]>
 
   export type $FileListPayload<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
     name: "FileList"
@@ -2387,6 +2398,7 @@ export namespace Prisma {
       category: string
       title: string
       note: string | null
+      content_format: string | null
       doc1: string | null
       entry_date: string | null
       entry_date_real: Date | null
@@ -2820,6 +2832,7 @@ export namespace Prisma {
     readonly category: FieldRef<"FileList", 'String'>
     readonly title: FieldRef<"FileList", 'String'>
     readonly note: FieldRef<"FileList", 'String'>
+    readonly content_format: FieldRef<"FileList", 'String'>
     readonly doc1: FieldRef<"FileList", 'String'>
     readonly entry_date: FieldRef<"FileList", 'String'>
     readonly entry_date_real: FieldRef<"FileList", 'DateTime'>
@@ -4277,6 +4290,7 @@ export namespace Prisma {
     category: 'category',
     title: 'title',
     note: 'note',
+    content_format: 'content_format',
     doc1: 'doc1',
     entry_date: 'entry_date',
     entry_date_real: 'entry_date_real',
@@ -4472,6 +4486,7 @@ export namespace Prisma {
     category?: StringFilter<"FileList"> | string
     title?: StringFilter<"FileList"> | string
     note?: StringNullableFilter<"FileList"> | string | null
+    content_format?: StringNullableFilter<"FileList"> | string | null
     doc1?: StringNullableFilter<"FileList"> | string | null
     entry_date?: StringNullableFilter<"FileList"> | string | null
     entry_date_real?: DateTimeNullableFilter<"FileList"> | Date | string | null
@@ -4485,6 +4500,7 @@ export namespace Prisma {
     category?: SortOrder
     title?: SortOrder
     note?: SortOrderInput | SortOrder
+    content_format?: SortOrderInput | SortOrder
     doc1?: SortOrderInput | SortOrder
     entry_date?: SortOrderInput | SortOrder
     entry_date_real?: SortOrderInput | SortOrder
@@ -4501,6 +4517,7 @@ export namespace Prisma {
     category?: StringFilter<"FileList"> | string
     title?: StringFilter<"FileList"> | string
     note?: StringNullableFilter<"FileList"> | string | null
+    content_format?: StringNullableFilter<"FileList"> | string | null
     doc1?: StringNullableFilter<"FileList"> | string | null
     entry_date?: StringNullableFilter<"FileList"> | string | null
     entry_date_real?: DateTimeNullableFilter<"FileList"> | Date | string | null
@@ -4514,6 +4531,7 @@ export namespace Prisma {
     category?: SortOrder
     title?: SortOrder
     note?: SortOrderInput | SortOrder
+    content_format?: SortOrderInput | SortOrder
     doc1?: SortOrderInput | SortOrder
     entry_date?: SortOrderInput | SortOrder
     entry_date_real?: SortOrderInput | SortOrder
@@ -4535,6 +4553,7 @@ export namespace Prisma {
     category?: StringWithAggregatesFilter<"FileList"> | string
     title?: StringWithAggregatesFilter<"FileList"> | string
     note?: StringNullableWithAggregatesFilter<"FileList"> | string | null
+    content_format?: StringNullableWithAggregatesFilter<"FileList"> | string | null
     doc1?: StringNullableWithAggregatesFilter<"FileList"> | string | null
     entry_date?: StringNullableWithAggregatesFilter<"FileList"> | string | null
     entry_date_real?: DateTimeNullableWithAggregatesFilter<"FileList"> | Date | string | null
@@ -4664,6 +4683,7 @@ export namespace Prisma {
     category: string
     title: string
     note?: string | null
+    content_format?: string | null
     doc1?: string | null
     entry_date?: string | null
     entry_date_real?: Date | string | null
@@ -4677,6 +4697,7 @@ export namespace Prisma {
     category: string
     title: string
     note?: string | null
+    content_format?: string | null
     doc1?: string | null
     entry_date?: string | null
     entry_date_real?: Date | string | null
@@ -4689,6 +4710,7 @@ export namespace Prisma {
     category?: StringFieldUpdateOperationsInput | string
     title?: StringFieldUpdateOperationsInput | string
     note?: NullableStringFieldUpdateOperationsInput | string | null
+    content_format?: NullableStringFieldUpdateOperationsInput | string | null
     doc1?: NullableStringFieldUpdateOperationsInput | string | null
     entry_date?: NullableStringFieldUpdateOperationsInput | string | null
     entry_date_real?: NullableDateTimeFieldUpdateOperationsInput | Date | string | null
@@ -4702,6 +4724,7 @@ export namespace Prisma {
     category?: StringFieldUpdateOperationsInput | string
     title?: StringFieldUpdateOperationsInput | string
     note?: NullableStringFieldUpdateOperationsInput | string | null
+    content_format?: NullableStringFieldUpdateOperationsInput | string | null
     doc1?: NullableStringFieldUpdateOperationsInput | string | null
     entry_date?: NullableStringFieldUpdateOperationsInput | string | null
     entry_date_real?: NullableDateTimeFieldUpdateOperationsInput | Date | string | null
@@ -4715,6 +4738,7 @@ export namespace Prisma {
     category: string
     title: string
     note?: string | null
+    content_format?: string | null
     doc1?: string | null
     entry_date?: string | null
     entry_date_real?: Date | string | null
@@ -4727,6 +4751,7 @@ export namespace Prisma {
     category?: StringFieldUpdateOperationsInput | string
     title?: StringFieldUpdateOperationsInput | string
     note?: NullableStringFieldUpdateOperationsInput | string | null
+    content_format?: NullableStringFieldUpdateOperationsInput | string | null
     doc1?: NullableStringFieldUpdateOperationsInput | string | null
     entry_date?: NullableStringFieldUpdateOperationsInput | string | null
     entry_date_real?: NullableDateTimeFieldUpdateOperationsInput | Date | string | null
@@ -4740,6 +4765,7 @@ export namespace Prisma {
     category?: StringFieldUpdateOperationsInput | string
     title?: StringFieldUpdateOperationsInput | string
     note?: NullableStringFieldUpdateOperationsInput | string | null
+    content_format?: NullableStringFieldUpdateOperationsInput | string | null
     doc1?: NullableStringFieldUpdateOperationsInput | string | null
     entry_date?: NullableStringFieldUpdateOperationsInput | string | null
     entry_date_real?: NullableDateTimeFieldUpdateOperationsInput | Date | string | null
@@ -4957,6 +4983,7 @@ export namespace Prisma {
     category?: SortOrder
     title?: SortOrder
     note?: SortOrder
+    content_format?: SortOrder
     doc1?: SortOrder
     entry_date?: SortOrder
     entry_date_real?: SortOrder
@@ -4974,6 +5001,7 @@ export namespace Prisma {
     category?: SortOrder
     title?: SortOrder
     note?: SortOrder
+    content_format?: SortOrder
     doc1?: SortOrder
     entry_date?: SortOrder
     entry_date_real?: SortOrder
@@ -4987,6 +5015,7 @@ export namespace Prisma {
     category?: SortOrder
     title?: SortOrder
     note?: SortOrder
+    content_format?: SortOrder
     doc1?: SortOrder
     entry_date?: SortOrder
     entry_date_real?: SortOrder

@@ -16,10 +16,11 @@ import {
   FormLabel,
   FormMessage,
 } from "@/components/ui/form";
+import { Textarea } from "@/components/ui/textarea";
 import { Input } from "@/components/ui/input";
 import { Controller } from "react-hook-form";
-import { ActionResponse, FileDetail, CategoryListItem } from "./actions"; // Added CategoryListItem
-import { Check, ChevronsUpDown } from "lucide-react";
+import { ActionResponse, FileDetail, CategoryListItem } from "./actions";
+import { Check, ChevronsUpDown, FileText, Edit } from "lucide-react";
 import { cn } from "@/lib/utils";
 import {
   Command,
@@ -29,11 +30,11 @@ import {
   CommandItem,
   CommandList,
 } from "@/components/ui/command";
-import {
-  Popover,
-  PopoverContent,
-  PopoverTrigger,
-} from "@/components/ui/popover";
+import { Popover, PopoverContent, PopoverTrigger } from "@/components/ui/popover";
+import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
+import TiptapEditor from "@/components/ui/TiptapEditor";
+// marked import removed - not used in this component
+import { convertHtmlToMarkdown } from "@/lib/htmlTableToMarkdown";
 
 // Define the Zod schema based on actions.ts (or import if centralized and exported)
 const fileFormSchema = z
@@ -44,9 +45,15 @@ const fileFormSchema = z
     note: z.string().optional().nullable(),
     doc1: z.any(), // FileList or string
     entry_date: z.string().optional().nullable(),
+    content_source: z.enum(["file", "editor"]),
   })
   .refine(
     (data) => {
+      // If using the editor, we don't need a file
+      if (data.content_source === "editor") {
+        return true;
+      }
+      
       // If doc1 is a string, it's an existing file path, so it's valid.
       if (typeof data.doc1 === "string" && data.doc1) {
         return true;
@@ -59,7 +66,7 @@ const fileFormSchema = z
       return false;
     },
     {
-      message: "A document file is required.",
+      message: "A document file is required when using file upload.",
       path: ["doc1"],
     }
   );
@@ -70,23 +77,25 @@ interface FileFormProps {
   initialData?: FileDetail | null;
   onSubmitAction: (formData: FormData) => Promise<ActionResponse>;
   submitButtonText?: string;
-  categoryListItems: CategoryListItem[]; // New prop for combobox data
+  categoryListItems: CategoryListItem[];
 }
 
 export default function FileForm({
   initialData,
   onSubmitAction,
   submitButtonText = "Submit",
-  categoryListItems, // Destructure new prop
+  categoryListItems,
 }: FileFormProps) {
   const [fileNoPopoverOpen, setFileNoPopoverOpen] = useState(false);
   const [categoryPopoverOpen, setCategoryPopoverOpen] = useState(false);
   const [isParsing, setIsParsing] = useState(false);
   const [isClient, setIsClient] = useState(false);
+  const [editorContent, setEditorContent] = useState<string>("");
 
   useEffect(() => {
     setIsClient(true);
   }, []);
+  
   const router = useRouter();
   const form = useForm<FileFormValues>({
     resolver: zodResolver(fileFormSchema),
@@ -98,19 +107,31 @@ export default function FileForm({
       doc1: initialData?.doc1 || undefined, // Use undefined for new files
       entry_date:
         initialData?.entry_date_real || new Date().toISOString().split("T")[0],
+      content_source: "file" as const,
     },
   });
+  
+  // Update form note field when editor content changes
+  useEffect(() => {
+    if (form.getValues("content_source") === "editor" && editorContent) {
+      form.setValue("note", editorContent);
+    }
+  }, [editorContent, form]);
 
   const {
     formState: { isSubmitting },
   } = form;
 
-  async function onSubmit(data: FileFormValues) {
+  async function onSubmit(values: FileFormValues) {
     const formData = new FormData();
 
-    Object.entries(data).forEach(([key, value]) => {
+    // Add content source to form data
+    formData.append("content_source", values.content_source);
+
+    Object.entries(values).forEach(([key, value]) => {
       if (key === "doc1") {
-        if (value instanceof FileList && value.length > 0) {
+        // Only append file if using file upload
+        if (values.content_source === "file" && value instanceof FileList && value.length > 0) {
           formData.append(key, value[0]);
         }
         // If value is a string (existing file), we don't append it,
@@ -119,6 +140,17 @@ export default function FileForm({
         formData.append(key, String(value));
       }
     });
+    
+    // If using editor, store HTML directly without conversion
+    if (values.content_source === "editor" && values.note) {
+      // Store HTML content directly
+      formData.set("note", values.note);
+      // Add a flag to indicate this is HTML content
+      formData.set("content_format", "html");
+    } else {
+      // For file uploads or manual markdown entry, set format as markdown
+      formData.set("content_format", "markdown");
+    }
 
     try {
       const result = await onSubmitAction(formData);
@@ -160,11 +192,45 @@ export default function FileForm({
 
   return (
     <Form {...form}>
-      <form onSubmit={form.handleSubmit(onSubmit)} className="space-y-8">
+      <form onSubmit={form.handleSubmit(onSubmit)} className="space-y-6">
+        {/* Content Source Selection */}
+        <FormField
+          control={form.control}
+          name="content_source"
+          render={({ field }: { field: any }) => (
+            <FormItem>
+              <FormLabel>Content Source</FormLabel>
+              <FormControl>
+                <Tabs
+                  defaultValue="file"
+                  className="w-full"
+                  value={field.value}
+                  onValueChange={(value) => {
+                    field.onChange(value as "file" | "editor");
+                  }}
+                >
+                  <TabsList className="grid w-full grid-cols-2">
+                    <TabsTrigger value="file" className="flex items-center gap-2">
+                      <FileText className="h-4 w-4" /> File Upload
+                    </TabsTrigger>
+                    <TabsTrigger value="editor" className="flex items-center gap-2">
+                      <Edit className="h-4 w-4" /> Manual Entry
+                    </TabsTrigger>
+                  </TabsList>
+                </Tabs>
+              </FormControl>
+              <FormDescription>
+                Choose whether to upload a document file or manually create content using the editor.
+              </FormDescription>
+              <FormMessage />
+            </FormItem>
+          )}
+        />
+
         <FormField
           control={form.control}
           name="file_no"
-          render={({ field }) => (
+          render={({ field }: { field: any }) => (
             <FormItem className="flex flex-col">
               <FormLabel>File No *</FormLabel>
               <Popover
@@ -225,7 +291,7 @@ export default function FileForm({
                           >
                             <Check
                               className={cn(
-                                "mr-2 h-4 w-4 shrink-0", // Added shrink-0
+                                "mr-2 h-4 w-4 shrink-0",
                                 item.file_no === field.value
                                   ? "opacity-100"
                                   : "opacity-0"
@@ -247,7 +313,7 @@ export default function FileForm({
         <FormField
           control={form.control}
           name="category"
-          render={({ field }) => (
+          render={({ field }: { field: any }) => (
             <FormItem className="flex flex-col">
               <FormLabel>Category *</FormLabel>
               <Popover
@@ -266,7 +332,7 @@ export default function FileForm({
                     >
                       {field.value
                         ? categoryListItems.find(
-                            (item) => item.category === field.value // Potential issue if categories are not unique, shows first match
+                            (item) => item.category === field.value
                           )?.category
                         : "Select Category"}
                       <ChevronsUpDown className="ml-2 h-4 w-4 shrink-0 opacity-50" />
@@ -282,10 +348,9 @@ export default function FileForm({
                     <CommandList>
                       <CommandEmpty>No category found.</CommandEmpty>
                       <CommandGroup>
-                        {/* Create a unique list of categories for selection if needed, here using all */}
                         {categoryListItems.map((item) => (
                           <CommandItem
-                            value={item.category} // Using category as value, ensure it's unique enough or handle selection carefully
+                            value={item.category}
                             key={`${item.id}-cat-${item.category}`}
                             onSelect={(currentValue: string) => {
                               form.setValue(
@@ -309,7 +374,7 @@ export default function FileForm({
                           >
                             <Check
                               className={cn(
-                                "mr-2 h-4 w-4 shrink-0", // Added shrink-0
+                                "mr-2 h-4 w-4 shrink-0",
                                 item.category === field.value
                                   ? "opacity-100"
                                   : "opacity-0"
@@ -331,7 +396,7 @@ export default function FileForm({
         <FormField
           control={form.control}
           name="title"
-          render={({ field }) => (
+          render={({ field }: { field: any }) => (
             <FormItem>
               <FormLabel>Title *</FormLabel>
               <FormControl>
@@ -342,110 +407,169 @@ export default function FileForm({
           )}
         />
 
-        <FormField
-          control={form.control}
-          name="doc1"
-          render={({ field }) => (
-            <FormItem>
-              <FormLabel className="flex items-center">
-                Document Upload (Word, Excel, PDF) *
-                {isParsing && (
-                  <span className="ml-2 flex items-center text-sm text-gray-500">
-                    <svg
-                      className="animate-spin -ml-1 mr-2 h-4 w-4 text-gray-500"
-                      xmlns="http://www.w3.org/2000/svg"
-                      fill="none"
-                      viewBox="0 0 24 24"
-                    >
-                      <circle
-                        className="opacity-25"
-                        cx="12"
-                        cy="12"
-                        r="10"
-                        stroke="currentColor"
-                        strokeWidth="4"
-                      ></circle>
-                      <path
-                        className="opacity-75"
-                        fill="currentColor"
-                        d="M4 12a8 8 0 018-8V0C5.373 0 0 5.373 0 12h4zm2 5.291A7.962 7.962 0 014 12H0c0 3.042 1.135 5.824 3 7.938l3-2.647z"
-                      ></path>
-                    </svg>
-                    Parsing document...
-                  </span>
-                )}
-              </FormLabel>
-              <FormControl>
-                <Input
-                  type="file"
-                  accept=".docx,.xlsx,.xls,.pdf"
-                  disabled={isParsing}
-                  onChange={async (e) => {
-                    const file = e.target.files?.[0];
-                    if (file) {
-                      setIsParsing(true);
-                      const result = await parseDocumentViaApi(file);
-                      if (result.error) {
-                        toast.error(result.error);
-                        form.setValue("note", "");
-                      } else {
-                        form.setValue("note", result.content || "");
-                        toast.success("Document parsed successfully!");
-                      }
-                      form.setValue("doc1", e.target.files, {
-                        shouldValidate: true,
-                      });
-                      setIsParsing(false);
-                    }
-                  }}
-                />
-              </FormControl>
-              {initialData?.doc1 && (
-                <FormDescription>
-                  Current file:{" "}
-                  <a
-                    href={initialData.doc1}
-                    target="_blank"
-                    rel="noopener noreferrer"
-                    className="text-indigo-600 hover:underline"
-                  >
-                    {initialData.doc1.split("/").pop()}
-                  </a>
-                  . Uploading a new file will replace it.
-                </FormDescription>
+        {/* File Upload Tab Content */}
+        {form.watch("content_source") === "file" && (
+          <>
+            <FormField
+              control={form.control}
+              name="doc1"
+              render={({ field }: { field: any }) => (
+                <FormItem>
+                  <FormLabel className="flex items-center">
+                    Document Upload (Word, Excel, PDF) *
+                    {isParsing && (
+                      <span className="ml-2 flex items-center text-sm text-gray-500">
+                        <svg
+                          className="animate-spin -ml-1 mr-2 h-4 w-4 text-gray-500"
+                          xmlns="http://www.w3.org/2000/svg"
+                          fill="none"
+                          viewBox="0 0 24 24"
+                        >
+                          <circle
+                            className="opacity-25"
+                            cx="12"
+                            cy="12"
+                            r="10"
+                            stroke="currentColor"
+                            strokeWidth="4"
+                          ></circle>
+                          <path
+                            className="opacity-75"
+                            fill="currentColor"
+                            d="M4 12a8 8 0 018-8V0C5.373 0 0 5.373 0 12h4zm2 5.291A7.962 7.962 0 014 12H0c0 3.042 1.135 5.824 3 7.938l3-2.647z"
+                          ></path>
+                        </svg>
+                        Parsing document...
+                      </span>
+                    )}
+                  </FormLabel>
+                  <FormControl>
+                    <Input
+                      type="file"
+                      accept=".docx,.xlsx,.xls,.pdf"
+                      disabled={isParsing}
+                      onChange={async (e) => {
+                        const file = e.target.files?.[0];
+                        if (file) {
+                          setIsParsing(true);
+                          const result = await parseDocumentViaApi(file);
+                          if (result.error) {
+                            toast.error(result.error);
+                            form.setValue("note", "");
+                          } else {
+                            form.setValue("note", result.content || "");
+                            toast.success("Document parsed successfully!");
+                          }
+                          form.setValue("doc1", e.target.files, {
+                            shouldValidate: true,
+                          });
+                          setIsParsing(false);
+                        }
+                      }}
+                    />
+                  </FormControl>
+                  {initialData?.doc1 && (
+                    <FormDescription>
+                      Current file:{" "}
+                      <a
+                        href={initialData.doc1}
+                        target="_blank"
+                        rel="noopener noreferrer"
+                        className="text-indigo-600 hover:underline"
+                      >
+                        {initialData.doc1.split("/").pop()}
+                      </a>
+                      . Uploading a new file will replace it.
+                    </FormDescription>
+                  )}
+                  <FormMessage />
+                </FormItem>
               )}
-              <FormMessage />
-            </FormItem>
-          )}
-        />
+            />
 
-        <FormField
-          control={form.control}
-          name="note"
-          render={({ field }) => (
-            <FormItem>
-              <FormLabel>Document Content</FormLabel>
-              <FormControl>
-                <textarea
-                  placeholder="The content of the uploaded document will appear here..."
-                  className="w-full p-2 border rounded-md min-h-[400px] resize-y"
-                  {...field}
-                  value={field.value || ""}
-                />
-              </FormControl>
-              <FormDescription>
-                This content is automatically generated from the uploaded file.
-                You can edit it if needed.
-              </FormDescription>
-              <FormMessage />
-            </FormItem>
-          )}
-        />
+            <FormField
+              control={form.control}
+              name="note"
+              render={({ field }: { field: any }) => (
+                <FormItem>
+                  <FormLabel>Document Content</FormLabel>
+                  <FormControl>
+                    <Textarea
+                      {...field}
+                      value={field.value || ""}
+                      className="min-h-[200px] font-mono text-sm"
+                      readOnly={isParsing}
+                    />
+                  </FormControl>
+                  <FormDescription>
+                    This content is automatically generated from the uploaded file.
+                    You can edit it if needed.
+                  </FormDescription>
+                  <FormMessage />
+                </FormItem>
+              )}
+            />
+          </>
+        )}
 
+        {/* TipTap Editor Tab Content */}
+        {form.watch("content_source") === "editor" && (
+          <>
+            <FormField
+              control={form.control}
+              name="note"
+              render={({ field }: { field: any }) => (
+                <FormItem>
+                  <FormLabel>Create Content</FormLabel>
+                  <FormControl>
+                    <div className="border rounded-md">
+                      <TiptapEditor
+                        initialHtml={field.value || ""}
+                        onChange={(html: string) => {
+                          // Store HTML in the form state for rich text editing
+                          setEditorContent(html);
+                          field.onChange(html);
+                        }}
+                        editable={true}
+                      />
+                    </div>
+                  </FormControl>
+                  <FormDescription>
+                    Create your content using the rich text editor above.
+                  </FormDescription>
+                  <FormMessage />
+                </FormItem>
+              )}
+            />
+
+            <FormField
+              control={form.control}
+              name="note"
+              render={({ field }: { field: any }) => (
+                <FormItem>
+                  <FormLabel>Document Content</FormLabel>
+                  <FormControl>
+                    <Textarea
+                      {...field}
+                      value={field.value || ""}
+                      className="min-h-[200px] font-mono text-sm mt-2"
+                      readOnly
+                    />
+                  </FormControl>
+                  <FormDescription>
+                    This shows the content that will be saved as markdown. It updates automatically as you edit in the rich text editor above.
+                  </FormDescription>
+                  <FormMessage />
+                </FormItem>
+              )}
+            />
+          </>
+        )}
+        
         <FormField
           control={form.control}
           name="entry_date"
-          render={({ field }) => (
+          render={({ field }: { field: any }) => (
             <FormItem>
               <FormLabel>Entry Date</FormLabel>
               <FormControl>

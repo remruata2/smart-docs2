@@ -134,6 +134,7 @@ exports.Prisma.FileListScalarFieldEnum = {
   category: 'category',
   title: 'title',
   note: 'note',
+  content_format: 'content_format',
   doc1: 'doc1',
   entry_date: 'entry_date',
   entry_date_real: 'entry_date_real',

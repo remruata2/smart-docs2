@@ -154,6 +154,7 @@ const fileSchema = z.object({
   note: z.string().optional(),
   // doc1 is removed from Zod schema; will be handled directly from FormData
   entry_date: z.string().optional().nullable(), // Input as string, will be converted to Date for entry_date_real
+  content_format: z.enum(['html', 'markdown']).optional(), // Format of the note content
 });
 
 export type FileListEntry = {
@@ -231,6 +232,7 @@ export type FileDetail = {
   entry_date_real: string | null; // YYYY-MM-DD format for date input
   created_at: string | null;
   updated_at: string | null;
+  content_format?: 'html' | 'markdown'; // Format of the note content
 };
 
 type PrismaFileSelectResult = {
@@ -239,6 +241,7 @@ type PrismaFileSelectResult = {
   category: string;
   title: string;
   note: string | null;
+  content_format: string | null;
   doc1: string | null;
   entry_date: string | null;
   entry_date_real: Date | null;
@@ -256,6 +259,7 @@ export async function getFileById(id: number): Promise<FileDetail | null> {
         category: true,
         title: true,
         note: true,
+        content_format: true,
         doc1: true,
         entry_date: true,
         entry_date_real: true,
@@ -336,7 +340,11 @@ export async function createFileAction(
     }
   }
 
-  const { note, entry_date, ...restOfData } = validatedFields.data;
+  const { note, entry_date, content_format, ...restOfData } = validatedFields.data;
+
+  // Determine content format based on input source
+  // If file upload, content is markdown; if manual entry, content is HTML
+  const determinedContentFormat = file && file.size > 0 ? 'markdown' : 'html';
 
   let entryDateReal: Date | null = null;
   if (entry_date && entry_date.trim() !== "") {
@@ -352,6 +360,7 @@ export async function createFileAction(
       data: {
         ...restOfData,
         note: finalNote, // Use the potentially parsed content
+        content_format: determinedContentFormat, // Set content format based on input source
         doc1: doc1Path,
         entry_date: entry_date,
         entry_date_real: entryDateReal,
@@ -417,8 +426,12 @@ export async function updateFileAction(
   }
 
   // 2. Prepare data for database update
-  const { note, entry_date, ...restOfData } = validatedFields.data;
+  const { note, entry_date, content_format, ...restOfData } = validatedFields.data;
   let finalNote = removeImagePlaceholder(note);
+
+  // Determine content format based on input source
+  // If file upload, content is markdown; if manual entry, content is HTML
+  const determinedContentFormat = file && file.size > 0 ? 'markdown' : 'html';
 
   let entryDateReal: Date | null = null;
   if (entry_date && entry_date.trim() !== "") {
@@ -433,6 +446,7 @@ export async function updateFileAction(
   const prismaDataForUpdate: any = {
     ...restOfData,
     note: finalNote, // This will be overwritten by parsed content if a file is uploaded
+    content_format: determinedContentFormat, // Set content format based on input source
     entry_date: entry_date,
     entry_date_real: entryDateReal,
   };

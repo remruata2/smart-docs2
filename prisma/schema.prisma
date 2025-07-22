@@ -26,6 +26,7 @@ model FileList {
   category        String                   @db.VarChar(150)
   title           String                   @db.VarChar(255)
   note            String?
+  content_format  String?                  @db.VarChar(20) // 'html' or 'markdown'
   doc1            String?                  @db.VarChar(150)
   entry_date      String?                  @db.VarChar(50)
   entry_date_real DateTime?                @db.Date

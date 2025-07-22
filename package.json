@@ -33,6 +33,7 @@
     "@radix-ui/react-popover": "^1.1.14",
     "@radix-ui/react-scroll-area": "^1.2.9",
     "@radix-ui/react-slot": "^1.2.3",
+    "@radix-ui/react-tabs": "^1.1.12",
     "@tiptap/extension-bullet-list": "^2.14.0",
     "@tiptap/extension-color": "^2.14.0",
     "@tiptap/extension-heading": "^2.14.0",
@@ -59,9 +60,11 @@
     "cmdk": "^1.1.1",
     "date-fns": "^4.1.0",
     "dotenv": "^16.6.1",
+    "html-to-markdown": "^1.0.0",
     "lexical": "^0.32.1",
     "llamaindex": "^0.11.19",
     "lucide-react": "^0.513.0",
+    "markdown-it-multimd-table": "^4.2.3",
     "marked": "^16.0.0",
     "next": "^15.3.2",
     "next-auth": "^4.24.11",
@@ -71,6 +74,7 @@
     "remark-gfm": "^4.0.1",
     "sonner": "^2.0.5",
     "tailwind-merge": "^3.3.0",
+    "turndown": "^7.2.0",
     "zod": "^3.25.56"
   },
   "devDependencies": {

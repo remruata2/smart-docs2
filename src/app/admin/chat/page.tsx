@@ -123,6 +123,18 @@ export default function AdminChatPage() {
         } else {
           const errorText = await response.text();
           console.error("Received non-JSON error response:", errorText);
+          
+          // Show toast for non-JSON errors (like 504 Gateway Timeout)
+          let errorMessage = "The server returned an unexpected response";
+          if (errorText.includes("504 Gateway Time-out")) {
+            errorMessage = "Server timeout. Please try again later.";
+          } else if (errorText.includes("502 Bad Gateway")) {
+            errorMessage = "Server error. Please try again later.";
+          } else if (errorText.includes("500 Internal Server Error")) {
+            errorMessage = "Internal server error. Please try again later.";
+          }
+          
+          toast.error(errorMessage);
           throw new Error(
             "The server returned an unexpected response. Check the console for details."
           );

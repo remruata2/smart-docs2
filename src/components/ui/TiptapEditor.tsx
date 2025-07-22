@@ -18,6 +18,7 @@ import ListItem from "@tiptap/extension-list-item";
 import OrderedList from "@tiptap/extension-ordered-list";
 import BulletList from "@tiptap/extension-bullet-list";
 import Heading from "@tiptap/extension-heading";
+// Turndown import removed - not used in this component
 import { useEffect, useCallback, useState } from "react";
 import {
   Bold,
@@ -548,6 +549,8 @@ export default function TiptapEditor({
     content: initialHtml || "",
     editable: editable,
     onUpdate: ({ editor }) => {
+      // Just pass the HTML to the parent component
+      // This preserves the rich text editing experience
       const html = editor.getHTML();
       onChange(html);
     },

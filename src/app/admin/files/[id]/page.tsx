@@ -11,33 +11,42 @@ import { pageContainer, pageTitle, cardContainer } from "@/styles/ui-classes";
 import { format } from "date-fns";
 import ReactMarkdown from "react-markdown";
 import remarkGfm from "remark-gfm";
+import { isHtmlContent } from "@/lib/contentFormatDetector";
 
 interface DetailItemProps {
   label: string;
   value?: string | null;
   isMarkdown?: boolean;
+  contentFormat?: 'html' | 'markdown' | 'auto';
 }
 
 const DetailItem: React.FC<DetailItemProps> = ({
   label,
   value,
   isMarkdown = false,
+  contentFormat = 'auto',
 }) => {
   if (value === null || value === undefined || value.trim() === "") return null;
 
-  // Debug logging for markdown content
-  if (isMarkdown && value) {
-    console.log(`[DEBUG] Markdown content for ${label}:`, {
-      length: value.length,
-      preview: value.substring(0, 200) + (value.length > 200 ? "..." : ""),
-      containsMarkdown: /[*#`|]/.test(value),
-    });
-  }
+  // Determine if content is HTML or markdown
+  // If contentFormat is explicitly set, use that, otherwise auto-detect
+  const isHtml = contentFormat === 'html' || 
+                (contentFormat === 'auto' && isHtmlContent(value));
+  
+  // For backward compatibility, also check isMarkdown prop
+  const shouldRenderAsMarkdown = !isHtml && (isMarkdown || contentFormat === 'markdown');
 
   return (
     <div className="mb-4 pt-4 first:pt-0">
       <h3 className="text-sm font-medium text-gray-500">{label}</h3>
-      {isMarkdown ? (
+      {isHtml ? (
+        // Render HTML content
+        <div 
+          className="mt-1 text-md text-gray-900 prose prose-sm max-w-none"
+          dangerouslySetInnerHTML={{ __html: value }}
+        />
+      ) : shouldRenderAsMarkdown ? (
+        // Render markdown content
         <div className="mt-1 text-md text-gray-900 prose prose-sm max-w-none">
           <ReactMarkdown
             remarkPlugins={[remarkGfm]}
@@ -254,7 +263,7 @@ export default async function ViewFilePage({
           <DetailItem
             label="Document Content"
             value={file.note}
-            isMarkdown={true}
+            contentFormat={(file.content_format as 'html' | 'markdown') || 'auto'}
           />
           {file.doc1 && (
             <DetailItem label="Document (File Path)" value={file.doc1} />
