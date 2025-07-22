@@ -373,99 +373,87 @@ export async function generateAIResponse(
   if (!allowedQueryTypes.includes(queryType)) {
     queryType = "specific_search";
   }
-  try {
-    const model = genAI.getGenerativeModel({
-      model: "gemini-2.5-flash",
-    });
+  const model = genAI.getGenerativeModel({
+    model: "gemini-2.5-flash",
+  });
 
-    // Build conversation context for follow-up questions
-    const recentHistory = conversationHistory.slice(-4); // Last 2 exchanges
-    const historyContext =
-      recentHistory.length > 0
-        ? `\nCONVERSATION HISTORY:\n${recentHistory
-            .map((msg) => `${msg.role.toUpperCase()}: ${msg.content}`)
-            .join("\n")}\n`
-        : "";
+  // Build conversation context for follow-up questions
+  const recentHistory = conversationHistory.slice(-4); // Last 2 exchanges
+  const historyContext =
+    recentHistory.length > 0
+      ? `\nCONVERSATION HISTORY:\n${recentHistory
+          .map((msg) => `${msg.role.toUpperCase()}: ${msg.content}`)
+          .join("\n")}\n`
+      : "";
 
-    // Adjust prompt based on query type
-    let roleInstructions = "";
-    switch (queryType) {
-      case "analytical_query":
-        roleInstructions = `
+  // Adjust prompt based on query type
+  let roleInstructions = "";
+  switch (queryType) {
+    case "analytical_query":
+      roleInstructions = `
 - The user is asking an analytical question that requires summarizing or finding patterns across multiple records.
 - Analyze all the provided database records to identify trends, frequencies, and key data points related to the user's question.
 - Synthesize your findings into a clear, structured summary.
 - Use counts, lists, and direct data points to support your analysis (e.g., 'The most common location is X, appearing 5 times.').
 - Present the information in an easy-to-understand format.
 `;
-        break;
-      case "follow_up":
-        roleInstructions = `
+      break;
+    case "follow_up":
+      roleInstructions = `
 - This is a follow-up question referring to previous conversation.
 - Use both the conversation history and database records to answer.
 - Connect the current question to previous context.
 `;
-        break;
-      case "elaboration":
-        roleInstructions = `
+      break;
+    case "elaboration":
+      roleInstructions = `
 - The user wants more detailed information about previous results.
 - Provide comprehensive details from the database records.
 - Expand on the information with additional context.
 `;
-        break;
-      case "recent_files":
-        roleInstructions = `
+      break;
+    case "recent_files":
+      roleInstructions = `
 - The user asked for recent/latest files.
 - Present the files in a clear, organized manner.
 - Include file numbers, titles, categories, and dates.
 - Mention they are sorted by most recent first.
 `;
-        break;
-      default: // specific_search and general
-        roleInstructions = `
+      break;
+    default: // specific_search and general
+      roleInstructions = `
 - Answer the user's specific question using the provided database records.
 - Be factual and cite relevant information by referencing file numbers.
 - Provide clear, organized information.
 `;
-    }
+  }
 
-    const prompt = `You are a helpful AI assistant for the CID (Criminal Investigation Department) database system.
+  const prompt = `You are a helpful AI assistant for the CID (Criminal Investigation Department) database system.\n\n${historyContext}\n\nCURRENT QUESTION: "${question}"\n\n${context}\n\nINSTRUCTIONS:\n${roleInstructions}\n\n- Always be professional and factual\n- If asked about specific cases, provide file numbers and relevant details\n- If no relevant information is found, say so clearly\n- Keep responses concise but informative\n- Use bullet points or numbered lists when presenting multiple items\n\nPlease provide a helpful response based on the database records above.`;
 
-${historyContext}
+  // Estimate input tokens (prompt size)
+  const inputTokens = estimateTokenCount(prompt);
 
-CURRENT QUESTION: "${question}"
-
-${context}
-
-INSTRUCTIONS:
-${roleInstructions}
-
-- Always be professional and factual
-- If asked about specific cases, provide file numbers and relevant details
-- If no relevant information is found, say so clearly
-- Keep responses concise but informative
-- Use bullet points or numbered lists when presenting multiple items
-
-Please provide a helpful response based on the database records above.`;
-
-    // Estimate input tokens (prompt size)
-    const inputTokens = estimateTokenCount(prompt);
-
+  try {
     const result = await model.generateContent(prompt);
     const response = await result.response;
-    const responseText = response.text();
+    const text = response.text();
 
-    // Estimate output tokens (response size)
-    const outputTokens = estimateTokenCount(responseText);
+    // Estimate token counts
+    const outputTokens = estimateTokenCount(text);
+
+    devLog("AI response generated successfully", { inputTokens, outputTokens });
 
     return {
-      text: responseText,
+      text: text,
       inputTokens,
       outputTokens,
     };
-  } catch (error) {
+  } catch (error: any) {
     console.error("AI response generation error:", error);
-    throw new Error("Failed to generate AI response");
+    if (error.message && error.message.includes("429")) {
+      throw new Error("RATE_LIMIT_EXCEEDED");
+    }
+    throw new Error("Failed to generate AI response.");
   }
 }
 

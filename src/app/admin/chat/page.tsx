@@ -22,6 +22,7 @@ import {
   FileDown,
 } from "lucide-react";
 // PDF generation removed - using text export instead
+import { toast } from "sonner";
 import { ChatMessage } from "@/lib/ai-service";
 import ReactMarkdown from "react-markdown";
 import remarkGfm from "remark-gfm";
@@ -106,15 +107,32 @@ export default function AdminChatPage() {
         }),
       });
 
-      const data: ChatResponse = await response.json();
-
       if (!response.ok) {
-        throw new Error(data.error || "Failed to get response");
+        const contentType = response.headers.get("content-type");
+        if (contentType && contentType.indexOf("application/json") !== -1) {
+          const errorData = await response.json();
+          if (response.status === 429) {
+            toast.error(
+              errorData.error ||
+                "You are making requests too quickly. Please wait and try again."
+            );
+            // We return here so we don't also add an error to the chat
+            return;
+          }
+          throw new Error(errorData.error || "An unknown error occurred");
+        } else {
+          const errorText = await response.text();
+          console.error("Received non-JSON error response:", errorText);
+          throw new Error(
+            "The server returned an unexpected response. Check the console for details."
+          );
+        }
       }
+
+      const data: ChatResponse = await response.json();
 
       if (data.success && data.message) {
         setMessages((prev) => [...prev, data.message]);
-        // Store metadata for debugging
         setLastResponseMeta({
           queryType: data.queryType,
           searchQuery: data.searchQuery,
@@ -123,17 +141,22 @@ export default function AdminChatPage() {
       } else {
         throw new Error(data.error || "Invalid response format");
       }
-    } catch (err) {
-      console.error("Chat error:", err);
+    } catch (error: unknown) {
+      console.error("Chat error:", error);
       const errorMessage =
-        err instanceof Error ? err.message : "An unexpected error occurred";
+        error instanceof Error ? error.message : "An unexpected error occurred";
       setError(errorMessage);
 
-      // Add error message to chat
+      let displayMessage = `I apologize, but I encountered an error: ${errorMessage}. Please try again.`;
+
+      if (error instanceof Error && error.message.includes("The server returned an unexpected response")) {
+        displayMessage = "I apologize, but the server returned an unexpected response. Please try again later.";
+      }
+
       const errorChatMessage: ChatMessage = {
         id: `error_${Date.now()}`,
         role: "assistant",
-        content: `I apologize, but I encountered an error: ${errorMessage}. Please try again.`,
+        content: displayMessage,
         timestamp: new Date(),
       };
       setMessages((prev) => [...prev, errorChatMessage]);

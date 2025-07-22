@@ -85,8 +85,19 @@ export async function POST(request: NextRequest) {
       analysisUsed: result.analysisUsed,
       timestamp: new Date().toISOString(),
     });
-  } catch (error) {
+  } catch (error: any) {
     console.error("[ADMIN CHAT] Error processing chat message:", error);
+
+    if (error.message === "RATE_LIMIT_EXCEEDED") {
+      return NextResponse.json(
+        {
+          success: false,
+          error: "You are asking too fast, please try again after some time.",
+          errorCode: "RATE_LIMIT_EXCEEDED",
+        },
+        { status: 429 }
+      );
+    }
 
     // Don't expose internal errors to the client
     const errorMessage =
