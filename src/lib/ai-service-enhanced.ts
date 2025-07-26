@@ -9,99 +9,99 @@ const DEV_LOGGING = true;
  * Developer logging helper function
  */
 function devLog(message: string, data?: any) {
-  if (DEV_LOGGING) {
-    console.log(`[AI-SERVICE-DEV] ${message}`);
-    if (data !== undefined) {
-      console.log(data);
-    }
-    console.log("---");
-  }
+	if (DEV_LOGGING) {
+		console.log(`[AI-SERVICE-DEV] ${message}`);
+		if (data !== undefined) {
+			console.log(data);
+		}
+		console.log("---");
+	}
 }
 
 // Initialize Gemini AI
 const genAI = new GoogleGenerativeAI(process.env.GEMINI_API_KEY!);
 
 export interface ChatMessage {
-  id: string;
-  role: "user" | "assistant";
-  content: string;
-  timestamp: Date;
-  sources?: Array<{
-    id: number;
-    file_no: string;
-    title: string;
-  }>;
-  tokenCount?: {
-    input: number;
-    output: number;
-  };
+	id: string;
+	role: "user" | "assistant";
+	content: string;
+	timestamp: Date;
+	sources?: Array<{
+		id: number;
+		file_no: string;
+		title: string;
+	}>;
+	tokenCount?: {
+		input: number;
+		output: number;
+	};
 }
 
 export interface SearchResult {
-  id: number;
-  file_no: string;
-  category: string;
-  title: string;
-  note: string | null;
-  entry_date_real: Date | null;
-  rank?: number; // For relevance ranking
-  ts_rank?: number;
-  semantic_similarity?: number;
-  combined_score?: number;
+	id: number;
+	file_no: string;
+	category: string;
+	title: string;
+	note: string | null;
+	entry_date_real: Date | null;
+	rank?: number; // For relevance ranking
+	ts_rank?: number;
+	semantic_similarity?: number;
+	combined_score?: number;
 }
 
 /**
  * Analyze user query and extract search keywords using AI
  */
 export async function analyzeQueryForSearch(
-  currentQuery: string,
-  conversationHistory: ChatMessage[] = []
+	currentQuery: string,
+	conversationHistory: ChatMessage[] = []
 ): Promise<{
-  coreSearchTerms: string;
-  instructionalTerms: string;
-  queryType:
-    | "specific_search"
-    | "follow_up"
-    | "elaboration"
-    | "general"
-    | "recent_files"
-    | "analytical_query";
-  contextNeeded: boolean;
+	coreSearchTerms: string;
+	instructionalTerms: string;
+	queryType:
+		| "specific_search"
+		| "follow_up"
+		| "elaboration"
+		| "general"
+		| "recent_files"
+		| "analytical_query";
+	contextNeeded: boolean;
 }> {
-  try {
-    // First check if this is a recent/latest files query
-    const recentFilesPattern =
-      /\b(recent|latest|newest|last|most recent)\s+(files?|records?|cases?|entries?)\b/i;
-    const numberPattern =
-      /\b(\d+)\s+(recent|latest|newest|last|most recent)\s+(files?|records?|cases?|entries?)\b/i;
+	try {
+		// First check if this is a recent/latest files query
+		const recentFilesPattern =
+			/\b(recent|latest|newest|last|most recent)\s+(files?|records?|cases?|entries?)\b/i;
+		const numberPattern =
+			/\b(\d+)\s+(recent|latest|newest|last|most recent)\s+(files?|records?|cases?|entries?)\b/i;
 
-    if (
-      recentFilesPattern.test(currentQuery) ||
-      numberPattern.test(currentQuery)
-    ) {
-      console.log("[QUERY ANALYSIS] Detected recent files query");
-      return {
-        coreSearchTerms: currentQuery, // Keep original for context
-        instructionalTerms: "",
-        queryType: "recent_files",
-        contextNeeded: false,
-      };
-    }
+		if (
+			recentFilesPattern.test(currentQuery) ||
+			numberPattern.test(currentQuery)
+		) {
+			console.log("[QUERY ANALYSIS] Detected recent files query");
+			return {
+				coreSearchTerms: currentQuery, // Keep original for context
+				instructionalTerms: "",
+				queryType: "recent_files",
+				contextNeeded: false,
+			};
+		}
 
-    const model = genAI.getGenerativeModel({
-      model: "gemini-2.5-flash",
-    });
+		const model = genAI.getGenerativeModel({
+			model: "gemini-2.5-pro",
+		});
 
-    // Build conversation context
-    const recentHistory = conversationHistory.slice(-6); // Last 3 exchanges
-    const historyContext =
-      recentHistory.length > 0
-        ? `\nRECENT CONVERSATION:\n${recentHistory
-            .map((msg) => `${msg.role.toUpperCase()}: ${msg.content}`)
-            .join("\n")}\n`
-        : "";
+		// Build conversation context
+		const recentHistory = conversationHistory.slice(-6); // Last 3 exchanges
+		const historyContext =
+			recentHistory.length > 0
+				? `\nRECENT CONVERSATION:\n${recentHistory
+						.map((msg) => `${msg.role.toUpperCase()}: ${msg.content}`)
+						.join("\n")}\n`
+				: "";
 
-    const prompt = `You are an AI assistant analyzing queries for a CID (Criminal Investigation Department) database search system.
+		const prompt = `You are an AI assistant analyzing queries for a CID (Criminal Investigation Department) database search system.
 
 ${historyContext}
 
@@ -145,88 +145,88 @@ Examples:
 
 `;
 
-    const result = await model.generateContent(prompt);
-    const response = await result.response;
-    const text = response.text().trim();
+		const result = await model.generateContent(prompt);
+		const response = await result.response;
+		const text = response.text().trim();
 
-    // Extract JSON from response
-    const jsonMatch = text.match(/\{[\s\S]*\}/);
-    if (!jsonMatch) {
-      throw new Error("Invalid response format from AI");
-    }
+		// Extract JSON from response
+		const jsonMatch = text.match(/\{[\s\S]*\}/);
+		if (!jsonMatch) {
+			throw new Error("Invalid response format from AI");
+		}
 
-    const analysis = JSON.parse(jsonMatch[0]);
+		const analysis = JSON.parse(jsonMatch[0]);
 
-    // Validate response
-    if (!analysis.coreSearchTerms || !analysis.queryType) {
-      throw new Error("Incomplete analysis from AI");
-    }
+		// Validate response
+		if (!analysis.coreSearchTerms || !analysis.queryType) {
+			throw new Error("Incomplete analysis from AI");
+		}
 
-    return {
-      coreSearchTerms: analysis.coreSearchTerms,
-      instructionalTerms: analysis.instructionalTerms || "",
-      queryType: analysis.queryType,
-      contextNeeded: analysis.contextNeeded || false,
-    };
-  } catch (error) {
-    console.error("Query analysis error:", error);
+		return {
+			coreSearchTerms: analysis.coreSearchTerms,
+			instructionalTerms: analysis.instructionalTerms || "",
+			queryType: analysis.queryType,
+			contextNeeded: analysis.contextNeeded || false,
+		};
+	} catch (error) {
+		console.error("Query analysis error:", error);
 
-    // Fallback to simple keyword extraction
-    const fallbackKeywords = currentQuery
-      .toLowerCase()
-      .replace(/[^\w\s]/g, " ")
-      .split(" ")
-      .filter((word) => word.length > 2)
-      .join(" ");
+		// Fallback to simple keyword extraction
+		const fallbackKeywords = currentQuery
+			.toLowerCase()
+			.replace(/[^\w\s]/g, " ")
+			.split(" ")
+			.filter((word) => word.length > 2)
+			.join(" ");
 
-    return {
-      coreSearchTerms: fallbackKeywords || currentQuery,
-      instructionalTerms: "",
-      queryType: "specific_search",
-      contextNeeded: false,
-    };
-  }
+		return {
+			coreSearchTerms: fallbackKeywords || currentQuery,
+			instructionalTerms: "",
+			queryType: "specific_search",
+			contextNeeded: false,
+		};
+	}
 }
 
 /**
  * Get recent files sorted by date
  */
 export async function getRecentFiles(
-  limit: number = 10
+	limit: number = 10
 ): Promise<SearchResult[]> {
-  try {
-    console.log(`[RECENT FILES] Fetching ${limit} most recent files`);
+	try {
+		console.log(`[RECENT FILES] Fetching ${limit} most recent files`);
 
-    const records = await prisma.fileList.findMany({
-      select: {
-        id: true,
-        file_no: true,
-        category: true,
-        title: true,
-        note: true,
-        entry_date_real: true,
-      },
-      where: {
-        entry_date_real: {
-          not: null,
-        },
-      },
-      orderBy: {
-        entry_date_real: "desc",
-      },
-      take: limit,
-    });
+		const records = await prisma.fileList.findMany({
+			select: {
+				id: true,
+				file_no: true,
+				category: true,
+				title: true,
+				note: true,
+				entry_date_real: true,
+			},
+			where: {
+				entry_date_real: {
+					not: null,
+				},
+			},
+			orderBy: {
+				entry_date_real: "desc",
+			},
+			take: limit,
+		});
 
-    console.log(`[RECENT FILES] Found ${records.length} recent files`);
+		console.log(`[RECENT FILES] Found ${records.length} recent files`);
 
-    return records.map((record) => ({
-      ...record,
-      rank: 1.0, // All recent files have equal relevance
-    }));
-  } catch (error) {
-    console.error("Recent files query error:", error);
-    throw new Error("Failed to fetch recent files");
-  }
+		return records.map((record) => ({
+			...record,
+			rank: 1.0, // All recent files have equal relevance
+		}));
+	} catch (error) {
+		console.error("Recent files query error:", error);
+		throw new Error("Failed to fetch recent files");
+	}
 }
 
 /**
@@ -239,64 +239,64 @@ export async function getRecentFiles(
  * 3. Avoids duplication of metadata
  */
 function prepareContextForAI(records: SearchResult[], query?: string): string {
-  if (records.length === 0) {
-    return "No relevant records found in the database.";
-  }
+	if (records.length === 0) {
+		return "No relevant records found in the database.";
+	}
 
-  // Group records by category for smarter organization
-  const recordsByCategory = records.reduce((acc, record) => {
-    const category = record.category || "Uncategorized";
-    if (!acc[category]) acc[category] = [];
-    acc[category].push(record);
-    return acc;
-  }, {} as Record<string, SearchResult[]>);
+	// Group records by category for smarter organization
+	const recordsByCategory = records.reduce((acc, record) => {
+		const category = record.category || "Uncategorized";
+		if (!acc[category]) acc[category] = [];
+		acc[category].push(record);
+		return acc;
+	}, {} as Record<string, SearchResult[]>);
 
-  // Create a structured index of all records for quick reference
-  const recordIndex = records.map((record, index) => ({
-    id: record.id,
-    file_no: record.file_no,
-    title: record.title,
-    category: record.category || "Uncategorized",
-    date: record.entry_date_real?.toLocaleDateString() || "Unknown date",
-    relevance: record.rank ? (record.rank * 100).toFixed(1) + "%" : "Unknown",
-  }));
+	// Create a structured index of all records for quick reference
+	const recordIndex = records.map((record, index) => ({
+		id: record.id,
+		file_no: record.file_no,
+		title: record.title,
+		category: record.category || "Uncategorized",
+		date: record.entry_date_real?.toLocaleDateString() || "Unknown date",
+		relevance: record.rank ? (record.rank * 100).toFixed(1) + "%" : "Unknown",
+	}));
 
-  // Build the full record details with optimized content
-  const detailedRecords = records.map((record) => {
-    let content = record.note || "No content available";
+	// Build the full record details with optimized content
+	const detailedRecords = records.map((record) => {
+		let content = record.note || "No content available";
 
-    // Avoid duplicating metadata if it's already in the note
-    const fileNoPattern = new RegExp(
-      `File No[^\\n]*${escapeRegExp(record.file_no)}`,
-      "i"
-    );
-    const categoryPattern = new RegExp(
-      `Category[^\\n]*${escapeRegExp(record.category)}`,
-      "i"
-    );
-    const titlePattern = new RegExp(
-      `Title[^\\n]*${escapeRegExp(record.title)}`,
-      "i"
-    );
+		// Avoid duplicating metadata if it's already in the note
+		const fileNoPattern = new RegExp(
+			`File No[^\\n]*${escapeRegExp(record.file_no)}`,
+			"i"
+		);
+		const categoryPattern = new RegExp(
+			`Category[^\\n]*${escapeRegExp(record.category)}`,
+			"i"
+		);
+		const titlePattern = new RegExp(
+			`Title[^\\n]*${escapeRegExp(record.title)}`,
+			"i"
+		);
 
-    const hasMetadataPrefix =
-      fileNoPattern.test(content.substring(0, 200)) ||
-      categoryPattern.test(content.substring(0, 200)) ||
-      titlePattern.test(content.substring(0, 200));
+		const hasMetadataPrefix =
+			fileNoPattern.test(content.substring(0, 200)) ||
+			categoryPattern.test(content.substring(0, 200)) ||
+			titlePattern.test(content.substring(0, 200));
 
-    return {
-      id: record.id,
-      file_no: record.file_no,
-      title: record.title,
-      category: record.category || "Uncategorized",
-      date: record.entry_date_real?.toLocaleDateString() || "Unknown date",
-      content: content,
-      relevance: record.rank ? (record.rank * 100).toFixed(1) + "%" : "",
-    };
-  });
+		return {
+			id: record.id,
+			file_no: record.file_no,
+			title: record.title,
+			category: record.category || "Uncategorized",
+			date: record.entry_date_real?.toLocaleDateString() || "Unknown date",
+			content: content,
+			relevance: record.rank ? (record.rank * 100).toFixed(1) + "%" : "",
+		};
+	});
 
-  // Build the optimized context
-  return `
+	// Build the optimized context
+	return `
 DATABASE CONTEXT:
 
 === OVERVIEW ===
@@ -306,18 +306,18 @@ Records are listed below ordered by relevance to your query.
 
 === RECORD INDEX ===
 ${recordIndex
-  .map(
-    (r, i) =>
-      `[${i + 1}] File: ${r.file_no} | Title: ${r.title} | Category: ${
-        r.category
-      } | Date: ${r.date} | Relevance: ${r.relevance}`
-  )
-  .join("\n")}
+	.map(
+		(r, i) =>
+			`[${i + 1}] File: ${r.file_no} | Title: ${r.title} | Category: ${
+				r.category
+			} | Date: ${r.date} | Relevance: ${r.relevance}`
+	)
+	.join("\n")}
 
 === FULL RECORD DETAILS ===
 ${detailedRecords
-  .map(
-    (record, index) => `
+	.map(
+		(record, index) => `
 [RECORD ${index + 1}] (Relevance: ${record.relevance})
 File: ${record.file_no}
 Title: ${record.title}
@@ -325,13 +325,13 @@ Category: ${record.category}
 Date: ${record.date}
 Content: ${record.content}
 ---`
-  )
-  .join("\n")}
+	)
+	.join("\n")}
 
 === CATEGORY SUMMARY ===
 ${Object.entries(recordsByCategory)
-  .map(([category, records]) => `${category}: ${records.length} records`)
-  .join("\n")}
+	.map(([category, records]) => `${category}: ${records.length} records`)
+	.join("\n")}
 
 END OF DATABASE CONTEXT
 `;
@@ -341,7 +341,7 @@ END OF DATABASE CONTEXT
  * Escape special regex characters in a string
  */
 function escapeRegExp(text: string): string {
-  return text.replace(/[.*+?^${}()|[\]\\]/g, "\\$&");
+	return text.replace(/[.*+?^${}()|[\]\\]/g, "\\$&");
 }
 
 /**
@@ -349,303 +349,303 @@ function escapeRegExp(text: string): string {
  * This is a very rough approximation - tokens are typically 4 characters on average in English
  */
 function estimateTokenCount(text: string): number {
-  return Math.ceil(text.length / 4);
+	return Math.ceil(text.length / 4);
 }
 
 /**
  * Generate AI response using Gemini with conversation context
  */
 export async function generateAIResponse(
-  question: string,
-  context: string,
-  conversationHistory: ChatMessage[] = [],
-  queryType: string = "specific_search"
+	question: string,
+	context: string,
+	conversationHistory: ChatMessage[] = [],
+	queryType: string = "specific_search"
 ): Promise<{ text: string; inputTokens: number; outputTokens: number }> {
-  // Ensure queryType is one of the allowed types, default to specific_search
-  const allowedQueryTypes = [
-    "specific_search",
-    "analytical_query",
-    "follow_up",
-    "elaboration",
-    "general",
-    "recent_files",
-  ];
-  if (!allowedQueryTypes.includes(queryType)) {
-    queryType = "specific_search";
-  }
-  const model = genAI.getGenerativeModel({
-    model: "gemini-2.5-flash",
-  });
+	// Ensure queryType is one of the allowed types, default to specific_search
+	const allowedQueryTypes = [
+		"specific_search",
+		"analytical_query",
+		"follow_up",
+		"elaboration",
+		"general",
+		"recent_files",
+	];
+	if (!allowedQueryTypes.includes(queryType)) {
+		queryType = "specific_search";
+	}
+	const model = genAI.getGenerativeModel({
+		model: "gemini-2.5-pro",
+	});
 
-  // Build conversation context for follow-up questions
-  const recentHistory = conversationHistory.slice(-4); // Last 2 exchanges
-  const historyContext =
-    recentHistory.length > 0
-      ? `\nCONVERSATION HISTORY:\n${recentHistory
-          .map((msg) => `${msg.role.toUpperCase()}: ${msg.content}`)
-          .join("\n")}\n`
-      : "";
+	// Build conversation context for follow-up questions
+	const recentHistory = conversationHistory.slice(-4); // Last 2 exchanges
+	const historyContext =
+		recentHistory.length > 0
+			? `\nCONVERSATION HISTORY:\n${recentHistory
+					.map((msg) => `${msg.role.toUpperCase()}: ${msg.content}`)
+					.join("\n")}\n`
+			: "";
 
-  // Adjust prompt based on query type
-  let roleInstructions = "";
-  switch (queryType) {
-    case "analytical_query":
-      roleInstructions = `
+	// Adjust prompt based on query type
+	let roleInstructions = "";
+	switch (queryType) {
+		case "analytical_query":
+			roleInstructions = `
 - The user is asking an analytical question that requires summarizing or finding patterns across multiple records.
 - Analyze all the provided database records to identify trends, frequencies, and key data points related to the user's question.
 - Synthesize your findings into a clear, structured summary.
 - Use counts, lists, and direct data points to support your analysis (e.g., 'The most common location is X, appearing 5 times.').
 - Present the information in an easy-to-understand format.
 `;
-      break;
-    case "follow_up":
-      roleInstructions = `
+			break;
+		case "follow_up":
+			roleInstructions = `
 - This is a follow-up question referring to previous conversation.
 - Use both the conversation history and database records to answer.
 - Connect the current question to previous context.
 `;
-      break;
-    case "elaboration":
-      roleInstructions = `
+			break;
+		case "elaboration":
+			roleInstructions = `
 - The user wants more detailed information about previous results.
 - Provide comprehensive details from the database records.
 - Expand on the information with additional context.
 `;
-      break;
-    case "recent_files":
-      roleInstructions = `
+			break;
+		case "recent_files":
+			roleInstructions = `
 - The user asked for recent/latest files.
 - Present the files in a clear, organized manner.
 - Include file numbers, titles, categories, and dates.
 - Mention they are sorted by most recent first.
 `;
-      break;
-    default: // specific_search and general
-      roleInstructions = `
+			break;
+		default: // specific_search and general
+			roleInstructions = `
 - Answer the user's specific question using the provided database records.
 - Be factual and cite relevant information by referencing file numbers.
 - Provide clear, organized information.
 `;
-  }
+	}
 
-  const prompt = `You are a helpful AI assistant for the CID (Criminal Investigation Department) database system.\n\n${historyContext}\n\nCURRENT QUESTION: "${question}"\n\n${context}\n\nINSTRUCTIONS:\n${roleInstructions}\n\n- Always be professional and factual\n- If asked about specific cases, provide file numbers and relevant details\n- If no relevant information is found, say so clearly\n- Keep responses concise but informative\n- Use bullet points or numbered lists when presenting multiple items\n\nPlease provide a helpful response based on the database records above.`;
+	const prompt = `You are a helpful AI assistant for the CID (Criminal Investigation Department) database system.\n\n${historyContext}\n\nCURRENT QUESTION: "${question}"\n\n${context}\n\nINSTRUCTIONS:\n${roleInstructions}\n\n- Always be professional and factual\n- If asked about specific cases, provide file numbers and relevant details\n- If no relevant information is found, say so clearly\n- Keep responses concise but informative\n- Use bullet points or numbered lists when presenting multiple items\n\nPlease provide a helpful response based on the database records above.`;
 
-  // Estimate input tokens (prompt size)
-  const inputTokens = estimateTokenCount(prompt);
+	// Estimate input tokens (prompt size)
+	const inputTokens = estimateTokenCount(prompt);
 
-  try {
-    const result = await model.generateContent(prompt);
-    const response = await result.response;
-    const text = response.text();
+	try {
+		const result = await model.generateContent(prompt);
+		const response = await result.response;
+		const text = response.text();
 
-    // Estimate token counts
-    const outputTokens = estimateTokenCount(text);
+		// Estimate token counts
+		const outputTokens = estimateTokenCount(text);
 
-    devLog("AI response generated successfully", { inputTokens, outputTokens });
+		devLog("AI response generated successfully", { inputTokens, outputTokens });
 
-    return {
-      text: text,
-      inputTokens,
-      outputTokens,
-    };
-  } catch (error: any) {
-    console.error("AI response generation error:", error);
-    if (error.message && error.message.includes("429")) {
-      throw new Error("RATE_LIMIT_EXCEEDED");
-    }
-    throw new Error("Failed to generate AI response.");
-  }
+		return {
+			text: text,
+			inputTokens,
+			outputTokens,
+		};
+	} catch (error: any) {
+		console.error("AI response generation error:", error);
+		if (error.message && error.message.includes("429")) {
+			throw new Error("RATE_LIMIT_EXCEEDED");
+		}
+		throw new Error("Failed to generate AI response.");
+	}
 }
 
 /**
  * Main chat function using enhanced search with conversation context
  */
 export async function processChatMessageEnhanced(
-  question: string,
-  conversationHistory: ChatMessage[] = [],
-  searchLimit: number = 100,
-  useEnhancedSearch: boolean = true
+	question: string,
+	conversationHistory: ChatMessage[] = [],
+	searchLimit: number = 100,
+	useEnhancedSearch: boolean = true
 ): Promise<{
-  response: string;
-  sources: Array<{
-    id: number;
-    file_no: string;
-    title: string;
-    relevance?: number;
-  }>;
-  searchQuery: string;
-  searchMethod:
-    | "hybrid"
-    | "semantic_fallback"
-    | "tsvector_only"
-    | "recent_files";
-  queryType: string;
-  analysisUsed: boolean;
-  tokenCount?: {
-    input: number;
-    output: number;
-  };
-  stats?: {
-    tsvectorResults: number;
-    semanticResults: number;
-    finalResults: number;
-  };
+	response: string;
+	sources: Array<{
+		id: number;
+		file_no: string;
+		title: string;
+		relevance?: number;
+	}>;
+	searchQuery: string;
+	searchMethod:
+		| "hybrid"
+		| "semantic_fallback"
+		| "tsvector_only"
+		| "recent_files";
+	queryType: string;
+	analysisUsed: boolean;
+	tokenCount?: {
+		input: number;
+		output: number;
+	};
+	stats?: {
+		tsvectorResults: number;
+		semanticResults: number;
+		finalResults: number;
+	};
 }> {
-  console.log(`[ADMIN CHAT] User admin asked: "${question}"`);
+	console.log(`[ADMIN CHAT] User admin asked: "${question}"`);
 
-  let analysisUsed = false;
-  let queryForSearch = question;
-  let queryType = "specific_search"; // Default
-  let searchLimitForRecent = 10; // Default for recent files
+	let analysisUsed = false;
+	let queryForSearch = question;
+	let queryType = "specific_search"; // Default
+	let searchLimitForRecent = 10; // Default for recent files
 
-  try {
-    const analysis = await analyzeQueryForSearch(question, conversationHistory);
-    console.log("[CHAT ANALYSIS] Processing query:", `"${question}"`);
-    console.log(
-      "[CHAT ANALYSIS] Conversation history length:",
-      conversationHistory.length
-    );
-    console.log("[CHAT ANALYSIS] Query type:", analysis.queryType);
-    console.log(
-      "[CHAT ANALYSIS] Core search terms:",
-      `"${analysis.coreSearchTerms}"`
-    );
-    console.log(
-      "[CHAT ANALYSIS] Instructional terms:",
-      `"${analysis.instructionalTerms}"`
-    );
-    console.log("[CHAT ANALYSIS] Context needed:", analysis.contextNeeded);
+	try {
+		const analysis = await analyzeQueryForSearch(question, conversationHistory);
+		console.log("[CHAT ANALYSIS] Processing query:", `"${question}"`);
+		console.log(
+			"[CHAT ANALYSIS] Conversation history length:",
+			conversationHistory.length
+		);
+		console.log("[CHAT ANALYSIS] Query type:", analysis.queryType);
+		console.log(
+			"[CHAT ANALYSIS] Core search terms:",
+			`"${analysis.coreSearchTerms}"`
+		);
+		console.log(
+			"[CHAT ANALYSIS] Instructional terms:",
+			`"${analysis.instructionalTerms}"`
+		);
+		console.log("[CHAT ANALYSIS] Context needed:", analysis.contextNeeded);
 
-    analysisUsed = true;
-    queryForSearch = analysis.coreSearchTerms;
-    queryType = analysis.queryType;
+		analysisUsed = true;
+		queryForSearch = analysis.coreSearchTerms;
+		queryType = analysis.queryType;
 
-    // Check for a number in instructional terms for recent files query
-    if (analysis.queryType === "recent_files" && analysis.instructionalTerms) {
-      const num = parseInt(analysis.instructionalTerms, 10);
-      if (!isNaN(num)) {
-        searchLimitForRecent = num;
-      }
-    }
-  } catch (error) {
-    console.error("Failed to analyze query with AI, using raw query.", error);
-    // Fallback to using the raw question if analysis fails
-    queryForSearch = question;
-  }
+		// Check for a number in instructional terms for recent files query
+		if (analysis.queryType === "recent_files" && analysis.instructionalTerms) {
+			const num = parseInt(analysis.instructionalTerms, 10);
+			if (!isNaN(num)) {
+				searchLimitForRecent = num;
+			}
+		}
+	} catch (error) {
+		console.error("Failed to analyze query with AI, using raw query.", error);
+		// Fallback to using the raw question if analysis fails
+		queryForSearch = question;
+	}
 
-  let records: SearchResult[] = [];
-  let searchMethod:
-    | "hybrid"
-    | "semantic_fallback"
-    | "tsvector_only"
-    | "recent_files" = "hybrid";
-  let searchStats;
+	let records: SearchResult[] = [];
+	let searchMethod:
+		| "hybrid"
+		| "semantic_fallback"
+		| "tsvector_only"
+		| "recent_files" = "hybrid";
+	let searchStats;
 
-  if (queryType === "recent_files") {
-    records = await getRecentFiles(searchLimitForRecent);
-    searchMethod = "recent_files";
-    console.log(`[CHAT ANALYSIS] Found ${records.length} recent files.`);
-  } else {
-    // Use the new Hybrid Search Service
-    const hybridSearchResponse = await HybridSearchService.search(
-      queryForSearch,
-      searchLimit
-    );
-    records = hybridSearchResponse.results;
-    searchMethod = hybridSearchResponse.searchMethod;
-    searchStats = hybridSearchResponse.stats;
+	if (queryType === "recent_files") {
+		records = await getRecentFiles(searchLimitForRecent);
+		searchMethod = "recent_files";
+		console.log(`[CHAT ANALYSIS] Found ${records.length} recent files.`);
+	} else {
+		// Use the new Hybrid Search Service
+		const hybridSearchResponse = await HybridSearchService.search(
+			queryForSearch,
+			searchLimit
+		);
+		records = hybridSearchResponse.results;
+		searchMethod = hybridSearchResponse.searchMethod;
+		searchStats = hybridSearchResponse.stats;
 
-    console.log(
-      `[CHAT ANALYSIS] Hybrid search completed. Method: ${searchMethod}, Found: ${records.length} records.`
-    );
-  }
+		console.log(
+			`[CHAT ANALYSIS] Hybrid search completed. Method: ${searchMethod}, Found: ${records.length} records.`
+		);
+	}
 
-  // Generate context from search results
-  const context = prepareContextForAI(records, queryForSearch);
+	// Generate context from search results
+	const context = prepareContextForAI(records, queryForSearch);
 
-  // Generate AI response
-  const aiResponse = await generateAIResponse(
-    question,
-    context,
-    conversationHistory,
-    queryType
-  );
+	// Generate AI response
+	const aiResponse = await generateAIResponse(
+		question,
+		context,
+		conversationHistory,
+		queryType
+	);
 
-  // Extract sources from the context that were used in the AI response
-  const citedSources = records
-    .filter((record) => {
-      const response = aiResponse.text.toLowerCase();
-      const fileNo = record.file_no.toLowerCase();
-      const title = record.title.toLowerCase();
+	// Extract sources from the context that were used in the AI response
+	const citedSources = records
+		.filter((record) => {
+			const response = aiResponse.text.toLowerCase();
+			const fileNo = record.file_no.toLowerCase();
+			const title = record.title.toLowerCase();
 
-      // Check for direct file number mention
-      if (response.includes(fileNo)) return true;
+			// Check for direct file number mention
+			if (response.includes(fileNo)) return true;
 
-      // Check for title mention (partial match)
-      const titleWords = title.split(" ").filter((word) => word.length > 3);
-      if (titleWords.some((word) => response.includes(word))) return true;
+			// Check for title mention (partial match)
+			const titleWords = title.split(" ").filter((word) => word.length > 3);
+			if (titleWords.some((word) => response.includes(word))) return true;
 
-      // Check for content keywords from the record
-      if (record.note) {
-        const noteWords = record.note
-          .toLowerCase()
-          .split(/\s+/)
-          .filter(
-            (word) =>
-              word.length > 4 &&
-              ![
-                "this",
-                "that",
-                "with",
-                "from",
-                "they",
-                "were",
-                "been",
-                "have",
-              ].includes(word)
-          )
-          .slice(0, 10); // Check first 10 meaningful words
+			// Check for content keywords from the record
+			if (record.note) {
+				const noteWords = record.note
+					.toLowerCase()
+					.split(/\s+/)
+					.filter(
+						(word) =>
+							word.length > 4 &&
+							![
+								"this",
+								"that",
+								"with",
+								"from",
+								"they",
+								"were",
+								"been",
+								"have",
+							].includes(word)
+					)
+					.slice(0, 10); // Check first 10 meaningful words
 
-        if (noteWords.some((word) => response.includes(word))) return true;
-      }
+				if (noteWords.some((word) => response.includes(word))) return true;
+			}
 
-      return false;
-    })
-    .map((record) => ({
-      id: record.id,
-      file_no: record.file_no,
-      title: record.title,
-      relevance: record.combined_score || record.rank,
-    }));
+			return false;
+		})
+		.map((record) => ({
+			id: record.id,
+			file_no: record.file_no,
+			title: record.title,
+			relevance: record.combined_score || record.rank,
+		}));
 
-  console.log(
-    `[CHAT ANALYSIS] Generated response with ${citedSources.length} cited sources out of ${records.length} total records used in context.`
-  );
-  console.log(
-    `[ADMIN CHAT] Response generated with ${citedSources.length} sources`
-  );
+	console.log(
+		`[CHAT ANALYSIS] Generated response with ${citedSources.length} cited sources out of ${records.length} total records used in context.`
+	);
+	console.log(
+		`[ADMIN CHAT] Response generated with ${citedSources.length} sources`
+	);
 
-  return {
-    response: aiResponse.text,
-    sources: citedSources,
-    searchQuery: queryForSearch,
-    searchMethod,
-    queryType,
-    analysisUsed,
-    tokenCount: {
-      input: aiResponse.inputTokens,
-      output: aiResponse.outputTokens,
-    },
-    stats: searchStats,
-  };
+	return {
+		response: aiResponse.text,
+		sources: citedSources,
+		searchQuery: queryForSearch,
+		searchMethod,
+		queryType,
+		analysisUsed,
+		tokenCount: {
+			input: aiResponse.inputTokens,
+			output: aiResponse.outputTokens,
+		},
+		stats: searchStats,
+	};
 }
 
 /**
  * Update search vectors for all records (maintenance function)
  */
 export async function updateSearchVectors(): Promise<void> {
-  try {
-    await prisma.$executeRaw`
+	try {
+		await prisma.$executeRaw`
       UPDATE file_list 
       SET search_vector = to_tsvector('english', 
         COALESCE(title, '') || ' ' || 
@@ -656,9 +656,9 @@ export async function updateSearchVectors(): Promise<void> {
       WHERE search_vector IS NULL OR note IS NOT NULL
     `;
 
-    console.log("[SEARCH VECTORS] Updated search vectors for all records");
-  } catch (error) {
-    console.error("Error updating search vectors:", error);
-    throw new Error("Failed to update search vectors");
-  }
+		console.log("[SEARCH VECTORS] Updated search vectors for all records");
+	} catch (error) {
+		console.error("Error updating search vectors:", error);
+		throw new Error("Failed to update search vectors");
+	}
 }
