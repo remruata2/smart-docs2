@@ -202,16 +202,28 @@ Examples:
     const response = await result.response;
     const text = response.text().trim();
 
+    console.log("[QUERY ANALYSIS] Raw AI response:", text);
+
     // Extract JSON from response
     const jsonMatch = text.match(/\{[\s\S]*\}/);
     if (!jsonMatch) {
+      console.error("[QUERY ANALYSIS] No JSON found in response:", text);
       throw new Error("Invalid response format from AI");
     }
 
-    const analysis = JSON.parse(jsonMatch[0]);
+    let analysis;
+    try {
+      analysis = JSON.parse(jsonMatch[0]);
+      console.log("[QUERY ANALYSIS] Parsed analysis:", analysis);
+    } catch (parseError) {
+      console.error("[QUERY ANALYSIS] JSON parse error:", parseError);
+      console.error("[QUERY ANALYSIS] JSON string:", jsonMatch[0]);
+      throw new Error("Invalid JSON format from AI");
+    }
 
     // Validate response
     if (!analysis.coreSearchTerms || !analysis.queryType) {
+      console.error("[QUERY ANALYSIS] Incomplete analysis:", analysis);
       throw new Error("Incomplete analysis from AI");
     }
 
