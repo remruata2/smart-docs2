@@ -597,8 +597,7 @@ export async function processChatMessageEnhanced(
   }
 
   // Check if this is an analytical query that needs chunked processing
-  const needsChunkedProcessing =
-    isAnalyticalQuery(question, queryType) && records.length > 20;
+  const needsChunkedProcessing = false; // Temporarily disable chunked processing for comparison
   let aiResponse;
   let contextTime = 0;
   let aiTime = 0;
