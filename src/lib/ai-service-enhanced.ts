@@ -254,17 +254,153 @@ export async function getRecentFiles(
 }
 
 /**
- * Prepare context for AI from database records with relevance scoring
- * Optimized to reduce token usage while preserving answer quality
- *
- * This implementation uses a smart context generation approach:
- * 1. For general list queries, it optimizes by using an indexed approach
- * 2. For detailed queries, it includes full content
- * 3. Avoids duplication of metadata
+ * Extract only relevant information from records to reduce token usage
+ */
+export function extractRelevantInformation(
+  records: SearchResult[],
+  query: string
+): SearchResult[] {
+  console.log(
+    `[RELEVANCE-EXTRACTION] Extracting relevant information from ${records.length} records`
+  );
+
+  // Convert query to lowercase for matching
+  const queryLower = query.toLowerCase();
+  const queryWords = queryLower.split(/\s+/).filter((word) => word.length > 2);
+
+  // Keywords that indicate relevance
+  const relevanceKeywords = [
+    "victim",
+    "suspect",
+    "witness",
+    "location",
+    "place",
+    "date",
+    "time",
+    "age",
+    "name",
+    "address",
+    "phone",
+    "incident",
+    "crime",
+    "case",
+    "file",
+    "number",
+    "category",
+    "description",
+    "details",
+  ];
+
+  return records.map((record) => {
+    const originalNote = record.note || "";
+    const title = record.title || "";
+    const category = record.category || "";
+
+    // Check if record contains query words
+    const containsQueryWords = queryWords.some(
+      (word) =>
+        title.toLowerCase().includes(word) ||
+        originalNote.toLowerCase().includes(word) ||
+        category.toLowerCase().includes(word)
+    );
+
+    // Check if record contains relevance keywords
+    const containsRelevanceKeywords = relevanceKeywords.some(
+      (keyword) =>
+        title.toLowerCase().includes(keyword) ||
+        originalNote.toLowerCase().includes(keyword) ||
+        category.toLowerCase().includes(keyword)
+    );
+
+    // If record is relevant, keep full content
+    if (containsQueryWords || containsRelevanceKeywords) {
+      return record;
+    }
+
+    // For less relevant records, extract only key information
+    const extractedNote = extractKeyInformation(originalNote, queryWords);
+
+    return {
+      ...record,
+      note: extractedNote,
+      // Add a flag to indicate this was processed
+      _processed: true,
+    };
+  });
+}
+
+/**
+ * Extract key information from a note based on query relevance
+ */
+function extractKeyInformation(note: string, queryWords: string[]): string {
+  if (!note) return "";
+
+  // Split note into sentences
+  const sentences = note.split(/[.!?]+/).filter((s) => s.trim().length > 0);
+
+  // Score sentences based on relevance
+  const scoredSentences = sentences.map((sentence) => {
+    const sentenceLower = sentence.toLowerCase();
+    let score = 0;
+
+    // Score based on query word matches
+    queryWords.forEach((word) => {
+      if (sentenceLower.includes(word)) {
+        score += 2; // Higher weight for query matches
+      }
+    });
+
+    // Score based on relevance keywords
+    const relevanceKeywords = [
+      "victim",
+      "suspect",
+      "witness",
+      "location",
+      "place",
+      "date",
+      "time",
+      "age",
+      "name",
+      "address",
+      "phone",
+      "incident",
+      "crime",
+      "case",
+    ];
+
+    relevanceKeywords.forEach((keyword) => {
+      if (sentenceLower.includes(keyword)) {
+        score += 1;
+      }
+    });
+
+    return { sentence: sentence.trim(), score };
+  });
+
+  // Sort by score and take top sentences
+  const topSentences = scoredSentences
+    .sort((a, b) => b.score - a.score)
+    .slice(0, 3) // Keep top 3 most relevant sentences
+    .map((item) => item.sentence)
+    .filter((s) => s.length > 0);
+
+  // If no relevant sentences found, return a summary
+  if (topSentences.length === 0) {
+    return `[Summary] ${note.substring(0, 200)}${
+      note.length > 200 ? "..." : ""
+    }`;
+  }
+
+  return topSentences.join(". ") + ".";
+}
+
+/**
+ * Prepare context for AI with optional relevance extraction
  */
 export function prepareContextForAI(
   records: SearchResult[],
-  query?: string
+  query?: string,
+  useRelevanceExtraction: boolean = false
 ): string {
   const recordCount = records.length;
   console.log(
@@ -274,8 +410,17 @@ export function prepareContextForAI(
     return "No relevant records found in the database.";
   }
 
+  // Apply relevance extraction if enabled
+  let processedRecords = records;
+  if (useRelevanceExtraction && query) {
+    processedRecords = extractRelevantInformation(records, query);
+    console.log(
+      `[CONTEXT-PREP] Applied relevance extraction to reduce token usage`
+    );
+  }
+
   // Group records by category for smarter organization
-  const recordsByCategory = records.reduce((acc, record) => {
+  const recordsByCategory = processedRecords.reduce((acc, record) => {
     const category = record.category || "Uncategorized";
     if (!acc[category]) acc[category] = [];
     acc[category].push(record);
@@ -283,7 +428,7 @@ export function prepareContextForAI(
   }, {} as Record<string, SearchResult[]>);
 
   // Create a structured index of all records for quick reference
-  const recordIndex = records.map((record, index) => ({
+  const recordIndex = processedRecords.map((record, index) => ({
     id: record.id,
     file_no: record.file_no,
     title: record.title,
@@ -293,7 +438,7 @@ export function prepareContextForAI(
   }));
 
   // Build the full record details with optimized content
-  const detailedRecords = records.map((record) => {
+  const detailedRecords = processedRecords.map((record) => {
     let content = record.note || "No content available";
 
     // Avoid duplicating metadata if it's already in the note
@@ -331,7 +476,7 @@ export function prepareContextForAI(
 DATABASE CONTEXT:
 
 === OVERVIEW ===
-Found ${records.length} relevant records from the CID database.
+Found ${processedRecords.length} relevant records from the CID database.
 The records span ${Object.keys(recordsByCategory).length} categories.
 Records are listed below ordered by relevance to your query.
 
@@ -597,41 +742,44 @@ export async function processChatMessageEnhanced(
   }
 
   // Check if this is an analytical query that needs chunked processing
-  const needsChunkedProcessing = false; // Temporarily disable chunked processing for comparison
+  const needsChunkedProcessing = false; // Normal processing is more efficient for all queries
   let aiResponse;
   let contextTime = 0;
   let aiTime = 0;
   let context = "";
 
-  if (needsChunkedProcessing) {
-    console.log(
-      `[CHAT PROCESSING] Detected analytical query with ${records.length} records - using chunked processing`
-    );
-    const chunkedTiming = timeStart("Chunked Analytical Processing");
-    aiResponse = await processChunkedAnalyticalQuery(question, records);
-    aiTime = timeEnd("Chunked Analytical Processing", chunkedTiming);
-    // No need to prepare full context since we're using chunks
-  } else {
-    // Standard processing for non-analytical queries
-    console.log(
-      `[CHAT PROCESSING] Starting context preparation for ${records.length} records`
-    );
-    const contextTiming = timeStart("Context Preparation");
-    context = prepareContextForAI(records, queryForSearch);
-    contextTime = timeEnd("Context Preparation", contextTiming);
-    console.log(`[CHAT PROCESSING] Context size: ${context.length} characters`);
+  // Use normal processing for all queries (analytical and non-analytical)
+  console.log(
+    `[CHAT PROCESSING] Starting context preparation for ${records.length} records`
+  );
+  const contextTiming = timeStart("Context Preparation");
 
-    // Generate AI response
-    console.log(`[CHAT PROCESSING] Starting AI response generation`);
-    const aiTiming = timeStart("AI Response Generation");
-    aiResponse = await generateAIResponse(
-      question,
-      context,
-      conversationHistory,
-      queryType
+  // Enable relevance extraction for large datasets to reduce token usage
+  const useRelevanceExtraction = records.length > 50; // Enable for queries with more than 50 records
+  context = prepareContextForAI(
+    records,
+    queryForSearch,
+    useRelevanceExtraction
+  );
+
+  contextTime = timeEnd("Context Preparation", contextTiming);
+  console.log(`[CHAT PROCESSING] Context size: ${context.length} characters`);
+  if (useRelevanceExtraction) {
+    console.log(
+      `[CHAT PROCESSING] Relevance extraction enabled to reduce token usage`
     );
-    aiTime = timeEnd("AI Response Generation", aiTiming);
   }
+
+  // Generate AI response
+  console.log(`[CHAT PROCESSING] Starting AI response generation`);
+  const aiTiming = timeStart("AI Response Generation");
+  aiResponse = await generateAIResponse(
+    question,
+    context,
+    conversationHistory,
+    queryType
+  );
+  aiTime = timeEnd("AI Response Generation", aiTiming);
 
   // Extract sources from the context that were used in the AI response
   console.log(`[CHAT PROCESSING] Starting source extraction`);
@@ -693,25 +841,14 @@ export async function processChatMessageEnhanced(
 
   // Log overall processing time breakdown
   console.log(`[TIMING-SUMMARY] Post-search processing breakdown:`);
-  if (!needsChunkedProcessing) {
-    console.log(`[TIMING-SUMMARY] - Context preparation: ${contextTime}ms`);
-  }
-  console.log(
-    `[TIMING-SUMMARY] - ${
-      needsChunkedProcessing ? "Chunked " : ""
-    }AI response generation: ${aiTime}ms`
-  );
+  console.log(`[TIMING-SUMMARY] - Context preparation: ${contextTime}ms`);
+  console.log(`[TIMING-SUMMARY] - AI response generation: ${aiTime}ms`);
   console.log(`[TIMING-SUMMARY] - Source extraction: ${sourceTime}ms`);
   console.log(
     `[TIMING-SUMMARY] - Total post-search time: ${
       contextTime + aiTime + sourceTime
     }ms`
   );
-  if (needsChunkedProcessing) {
-    console.log(
-      `[TIMING-SUMMARY] - Used chunked processing for analytical query`
-    );
-  }
 
   return {
     response: aiResponse.text,
