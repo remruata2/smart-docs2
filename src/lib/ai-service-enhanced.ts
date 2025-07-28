@@ -13,7 +13,7 @@ const DEV_LOGGING = true;
 // This feature extracts only relevant information from records to reduce token usage
 // while maintaining answer quality. It's particularly useful for large datasets.
 const RELEVANCE_EXTRACTION_CONFIG = {
-  enabled: true, // Set to false to disable relevance extraction completely
+  enabled: false, // Set to false to disable relevance extraction completely
   threshold: 50, // Enable for queries with more than this many records
   debug: true, // Set to true to see detailed extraction logs
 };
@@ -407,6 +407,14 @@ function analyzeQueryType(query: string): string {
 
   // Check for specific query patterns
   if (queryLower.includes("victim") && queryLower.includes("suspect")) {
+    // Check if age is also mentioned
+    if (
+      queryLower.includes("age") ||
+      queryLower.includes("old") ||
+      queryLower.includes("years")
+    ) {
+      return "victim_suspect_with_age";
+    }
     return "victim_suspect";
   }
   if (
@@ -462,6 +470,20 @@ function adjustScoreForQueryType(
         noteLower.includes("suspect") ||
         noteLower.includes("accused") ||
         noteLower.includes("complainant")
+      ) {
+        score += 10;
+      }
+      break;
+    case "victim_suspect_with_age":
+      // Boost score for records containing victim/suspect information AND age
+      if (
+        noteLower.includes("victim") ||
+        noteLower.includes("suspect") ||
+        noteLower.includes("accused") ||
+        noteLower.includes("complainant") ||
+        noteLower.includes("age") ||
+        noteLower.includes("old") ||
+        noteLower.includes("years")
       ) {
         score += 10;
       }
@@ -567,6 +589,27 @@ function getPatternsForQueryType(
           weight: 4,
           label: "Defendant",
         },
+      ];
+    case "victim_suspect_with_age":
+      return [
+        ...basePatterns,
+        { pattern: /victim[:\s]+([^.!?]+)/gi, weight: 5, label: "Victim" },
+        {
+          pattern: /complainant[:\s]+([^.!?]+)/gi,
+          weight: 5,
+          label: "Complainant",
+        },
+        { pattern: /injured[:\s]+([^.!?]+)/gi, weight: 4, label: "Injured" },
+        { pattern: /suspect[:\s]+([^.!?]+)/gi, weight: 5, label: "Suspect" },
+        { pattern: /accused[:\s]+([^.!?]+)/gi, weight: 5, label: "Accused" },
+        {
+          pattern: /defendant[:\s]+([^.!?]+)/gi,
+          weight: 4,
+          label: "Defendant",
+        },
+        { pattern: /age[:\s]+(\d+)/gi, weight: 5, label: "Age" },
+        { pattern: /(\d+)\s*years?\s*old/gi, weight: 5, label: "Age" },
+        { pattern: /(\d+)\s*years?/gi, weight: 3, label: "Age" },
       ];
     case "location":
       return [
@@ -742,6 +785,7 @@ function extractMinimalInformation(
     /time[:\s]+([^.!?]+)/gi,
     /age[:\s]+(\d+)/gi,
     /(\d+)\s*years?\s*old/gi,
+    /(\d+)\s*years?/gi, // More general age pattern
     /([A-Z][a-z]+\s+[A-Z][a-z]+)/g, // Names
   ];
 
@@ -788,6 +832,26 @@ export function prepareContextForAI(
     console.log(
       `[CONTEXT-PREP] Applied relevance extraction to reduce token usage`
     );
+
+    // Add debugging for age-related queries
+    const queryType = analyzeQueryType(query);
+    if (queryType.includes("age") || query.toLowerCase().includes("age")) {
+      console.log(`[CONTEXT-PREP] Age-related query detected: "${query}"`);
+      console.log(`[CONTEXT-PREP] Query type: ${queryType}`);
+
+      // Count how many records have age information
+      const recordsWithAge = processedRecords.filter((record) => {
+        const note = record.note || "";
+        return (
+          /age[:\s]+(\d+)/gi.test(note) ||
+          /(\d+)\s*years?\s*old/gi.test(note) ||
+          /(\d+)\s*years?/gi.test(note)
+        );
+      });
+      console.log(
+        `[CONTEXT-PREP] Records with age information: ${recordsWithAge.length}/${processedRecords.length}`
+      );
+    }
   }
 
   // Group records by category for smarter organization
@@ -1125,23 +1189,11 @@ export async function processChatMessageEnhanced(
   );
   const contextTiming = timeStart("Context Preparation");
 
-  // Enable relevance extraction for large datasets to reduce token usage
-  const useRelevanceExtraction =
-    RELEVANCE_EXTRACTION_CONFIG.enabled &&
-    records.length > RELEVANCE_EXTRACTION_CONFIG.threshold;
-  context = prepareContextForAI(
-    records,
-    queryForSearch,
-    useRelevanceExtraction
-  );
+  // Use normal processing for all queries (relevance extraction disabled)
+  context = prepareContextForAI(records, queryForSearch, false);
 
   contextTime = timeEnd("Context Preparation", contextTiming);
   console.log(`[CHAT PROCESSING] Context size: ${context.length} characters`);
-  if (useRelevanceExtraction) {
-    console.log(
-      `[CHAT PROCESSING] Relevance extraction enabled to reduce token usage`
-    );
-  }
 
   // Generate AI response
   console.log(`[CHAT PROCESSING] Starting AI response generation`);
