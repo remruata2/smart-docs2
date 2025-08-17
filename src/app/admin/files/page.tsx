@@ -41,7 +41,11 @@ export default async function FilesPage() {
           </Link>
         </Button>
       </div>
-      <FileListClient initialFiles={files} initialError={error} />
+      <FileListClient
+        initialFiles={files}
+        initialError={error}
+        canDelete={session.user.role === UserRole.admin}
+      />
     </div>
   );
 }

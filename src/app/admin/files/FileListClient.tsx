@@ -31,11 +31,13 @@ import { format } from "date-fns";
 interface FileListClientProps {
 	initialFiles: FileListEntry[];
 	initialError?: string | null;
+	canDelete?: boolean;
 }
 
 export default function FileListClient({
 	initialFiles,
 	initialError,
+	canDelete = false,
 }: FileListClientProps) {
 	const [files, setFiles] = useState<FileListEntry[]>(initialFiles);
 	const [error, setError] = useState<string | null>(initialError || null);
@@ -276,14 +278,16 @@ export default function FileListClient({
 											<span className="sr-only">Edit</span>
 										</Link>
 									</Button>
-									<Button
-										variant="ghost"
-										size="sm"
-										onClick={() => setItemToDelete(file)}
-									>
-										<Trash2 className="h-4 w-4 text-red-500" />
-										<span className="sr-only">Delete</span>
-									</Button>
+									{canDelete && (
+										<Button
+											variant="ghost"
+											size="sm"
+											onClick={() => setItemToDelete(file)}
+										>
+											<Trash2 className="h-4 w-4 text-red-500" />
+											<span className="sr-only">Delete</span>
+										</Button>
+									)}
 								</TableCell>
 							</TableRow>
 						))}
@@ -291,39 +295,41 @@ export default function FileListClient({
 				</Table>
 			)}
 
-			<AlertDialog
-				open={!!itemToDelete}
-				onOpenChange={(open) => !open && setItemToDelete(null)}
-			>
-				<AlertDialogContent>
-					<AlertDialogHeader>
-						<AlertDialogTitle>Are you absolutely sure?</AlertDialogTitle>
-						<AlertDialogDescription>
-							This action cannot be undone. This will permanently delete the
-							file record "
-							<strong>
-								{itemToDelete?.file_no} - {itemToDelete?.title}
-							</strong>
-							".
-						</AlertDialogDescription>
-					</AlertDialogHeader>
-					<AlertDialogFooter>
-						<AlertDialogCancel
-							onClick={() => setItemToDelete(null)}
-							disabled={loading}
-						>
-							Cancel
-						</AlertDialogCancel>
-						<AlertDialogAction
-							onClick={handleDelete}
-							disabled={loading}
-							className="bg-red-600 hover:bg-red-700"
-						>
-							{loading ? "Deleting..." : "Delete"}
-						</AlertDialogAction>
-					</AlertDialogFooter>
-				</AlertDialogContent>
-			</AlertDialog>
+			{canDelete && (
+				<AlertDialog
+					open={!!itemToDelete}
+					onOpenChange={(open) => !open && setItemToDelete(null)}
+				>
+					<AlertDialogContent>
+						<AlertDialogHeader>
+							<AlertDialogTitle>Are you absolutely sure?</AlertDialogTitle>
+							<AlertDialogDescription>
+								This action cannot be undone. This will permanently delete the
+								file record "
+								<strong>
+									{itemToDelete?.file_no} - {itemToDelete?.title}
+								</strong>
+								".
+							</AlertDialogDescription>
+						</AlertDialogHeader>
+						<AlertDialogFooter>
+							<AlertDialogCancel
+								onClick={() => setItemToDelete(null)}
+								disabled={loading}
+							>
+								Cancel
+							</AlertDialogCancel>
+							<AlertDialogAction
+								onClick={handleDelete}
+								disabled={loading}
+								className="bg-red-600 hover:bg-red-700"
+							>
+								{loading ? "Deleting..." : "Delete"}
+							</AlertDialogAction>
+						</AlertDialogFooter>
+					</AlertDialogContent>
+				</AlertDialog>
+			)}
 		</div>
 	);
 }

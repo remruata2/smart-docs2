@@ -30,10 +30,12 @@ import { cardContainer } from "@/styles/ui-classes";
 
 interface CategoryListClientProps {
   categories: CategoryList[];
+  canDelete?: boolean;
 }
 
 export default function CategoryListClient({
   categories: initialCategories,
+  canDelete = false,
 }: CategoryListClientProps) {
   const [categories, setCategories] =
     useState<CategoryList[]>(initialCategories);
@@ -170,15 +172,17 @@ export default function CategoryListClient({
                         <Pencil className="h-5 w-5" />
                       </Link>
                     </Button>
-                    <Button
-                      variant="ghost"
-                      size="sm"
-                      onClick={() => handleDeleteClick(category)}
-                      className="text-red-600 hover:text-red-900"
-                      title="Delete"
-                    >
-                      <Trash2 className="h-5 w-5" />
-                    </Button>
+                    {canDelete && (
+                      <Button
+                        variant="ghost"
+                        size="sm"
+                        onClick={() => handleDeleteClick(category)}
+                        className="text-red-600 hover:text-red-900"
+                        title="Delete"
+                      >
+                        <Trash2 className="h-5 w-5" />
+                      </Button>
+                    )}
                   </TableCell>
                 </TableRow>
               ))}
@@ -187,7 +191,7 @@ export default function CategoryListClient({
         )}
       </div>
 
-      {categoryToDelete && (
+      {canDelete && categoryToDelete && (
         <AlertDialog open={showDeleteDialog} onOpenChange={setShowDeleteDialog}>
           <AlertDialogContent>
             <AlertDialogHeader>

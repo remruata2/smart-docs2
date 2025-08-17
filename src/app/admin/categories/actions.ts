@@ -116,7 +116,7 @@ export async function deleteCategoryAction(id: number): Promise<{ success: boole
   const session = await getServerSession(authOptions);
   if (
     !session ||
-    (session.user.role !== UserRole.admin && session.user.role !== UserRole.staff)
+    session.user.role !== UserRole.admin
   ) {
     return { success: false, error: "Unauthorized" };
   }

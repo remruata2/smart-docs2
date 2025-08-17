@@ -37,7 +37,10 @@ export default async function AdminCategoriesPage() {
           </Link>
         </Button>
       </div>
-      <CategoryListClient categories={categories} />
+      <CategoryListClient
+        categories={categories}
+        canDelete={session.user.role === UserRole.admin}
+      />
     </div>
   );
 }

@@ -571,7 +571,7 @@ export async function deleteFileAction(id: number): Promise<ActionResponse> {
   if (
     !session ||
     !session.user ||
-    (session.user.role !== UserRole.admin && session.user.role !== UserRole.staff)
+    session.user.role !== UserRole.admin
   ) {
     return { success: false, error: "Unauthorized" };
   }
