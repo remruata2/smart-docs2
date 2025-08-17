@@ -1,0 +1,13 @@
+****HISTORY OF ASSAM - MIZORAM BORDER****
+
+The genesis of The Assam-Mizoram boundary dispute can be traced to the controversy relating to the demarcation of the boundaries on the basis of two different Notifications issued in 1875 and 1933. Mizoram has been claiming the so-called Inner Line Reserve measuring 509 sq.miles as per Notification of 1875 while the Assam Government has been insisting on the use of a map drawn on the basis of Notification of 1933.
+
+Before the Lushai Hills was annexed in 1895, the Bristish imperial Government made a Peace Agreement with the Lushais and defined the territorial boundary on the Southern Frontier of the District Cachar of the British India known as ‘**The Inner Line of Southern Frontier of the Ditrict Cachar’**in **1875.**This was made with the consent of the Lushai chief, namely Suakpuilala which was ratified by all his sons who, at that time, ruled over the most parts of Northern Lushai territory bordering Cachar.
+
+Subject to much debate as to the legitimacy, the Forest within Lushai Country measuring approximately 509 sq. miles situated beyond the Inner Line was unilaterally declared as Reserved Forest by the British in 1877, before the annexation of Lushai Territory. The Inner Line Reserve had been subsequently reduced by the then Assam Government in 1904, 1912 1nd 1930 mainly for the purpose of tea plantations. After the Independence, the Assam Government refused to hand over the whole area including the Forest, situated within the then Lushai territory and claimed the area as their own.
+
+For the people of Mizoram, the only known and accepted boundary between Mizoram and Assam is the Inner Line on the Southern Frontier of the District also known as **The Inner Line of the Lushai Hills, 1875**which was notified****on 20th August, 1875 under the Bengal Eastern Frontier Regulation, 1873 as subsequently revised in 1878.
+
+For the last 70 years after Independence, the boundary issue has remained unresolved till date. It is the aspiration of the people of Mizoram that the Central Government may constitute a **Boundary Commission** to look into the matter for judicious and permanent settlement of this persisting boundary problem once and for all as provided under Article 3 of the Constitution.
+
+Around this disputed areas, MZP constructed a small shed called ‘Zofate Chawlhbuk’ (most probably as a token of showing land ownership) as much to the disgust of Assam Govt. who dismantled it. The MZP activist who tried to rebuild this waiting shed were again dispersed by Assam Police Lathi charge and firing which resulted is several students and media person injured. To this day, MZP is still having a story intention to reconstruct the Zofate Chawlhbuk.

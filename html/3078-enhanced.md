@@ -1,0 +1,3 @@
+A. _Middle page of THE ZOZAM TIMES newspaper Dt. 3.4.2013_
+
+_FIR Lodged_:****C.Lalthakimi (36) w/o Vanlalhmuaka of Salem Veng, Kolasib suffered a grave injury on her head reportedly received from her husband on Sunday ie, 31.3.2013 @ 11:00AM. She was taken to Kolasib Hospital which later referred her to Aizawl Civil Hospital. She was treated in the ICU at Aizawl Civil Hospital but died on Monday ie, 1.4.2013 @ around 9:00PM. An FIR was lodged by Lalthakimi’s family regarding her death at Kolasib Police Station and investigation is underway.

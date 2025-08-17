@@ -1,0 +1,20 @@
+****PROFORMA FOR MILITANT ORGANISATIONS****
+
+|  | **Name of organisation**  | **:** | **United Democratic Liberation Front of Barak (UDLFB)** |
+| --- | --- | --- | --- |
+|  | **When formed**  | **:** | **Formerly known as UNLFBV, the UDLFB was formed in 1996 with an Armed group called UDLA. During that period its President was Bisonat Reang and suceeded by Ponchoram Reang. After the surrender of Ponchoram Reang to the Assam Police, Doinoram Reang became the President of UDLFB.**  |
+|  | **Aims and objects**  | **:** | **To uplift the living standards and to fulfill the development projects of the Govt. for the Tribal people living in the areas of Hailakandi, Karimganj and Cachar districts of Assam, who did not receive proper development in their respective areas.**  |
+|  | **Strength**  | **:** | **About 50 approx.** |
+|  | **No. of surrendered cadres**  | **:** | **NIL** |
+|  | **Areas of influence**  | **:** | **Certain areas under Karimganj and Hailakandi districts of Assam.**  |
+|  | **Weapons holding**  | **:** | **AK-47 - 1 No. with 40 rounds ammns.** **Rifle - 2 Nos. with 07 rounds ammns.** **Semi Rifle - 1 No. with 15 rounds ammns.** **9mm Pistol - 1 No. with 02 rounds ammns.**  |
+|  | **Names of important leaders & their designation/rank**  | **:** | **1) President : Doinoram Reang** **2) Vice President : Rohit Kumar @ Lambu of Gutguti** **3) Gen. Secretary : Sisomoni Reang of Gutguti, Assam** **4) S/S Army Chief : Nandi Ram of Riflemarra** **5) S/S Captain : Suikhu of Gendacherra, Assam** **6) S/S Lieutnant : Thaisua of Gutguti, Assam** **7) Commander : 1. Bango Reang of Gutguti, Assam** **2. Ketu Reang of Senapunji, Assam** **3. Bangtirung Reang of Gutguti, Assam** **8) Camp i/c :Horendo Reang of Gutguti, Assam** **9) Training Inspector: 1. Khorjung Reang** **2. Eleven Reang** **10) S/S Private/Sepoy : Around 20-40**  |
+|  | **Names of affiliated overground organizaions/important individuals**  | **:** | **None** |
+|  | **Names of affiliated underground organisations**  | **:** | **None** |
+|  | **Training camps/facilities abroad**  | **:** | **None** |
+|  | **Training camps/facilities in India**  | **:** | **None** |
+|  | **Modus operandi**  | **:** | **Mizoram is not included in their operational area amongst all the tribal villages under Hailakandi and Karimganj district. They used to make demand of cash ranging from ` 50/- to ` 300/- in every household and the same were handed over to them by the village Headmen. They had also used to make demand from businessmen, contractors having works within their demand area. They also resorted to kidnapping for ransom.**  |
+|  | **Involvement in heinous crimes so far** | **:** | **(a) On 6.6.2011, Doinoram Reang with his 9 associates kidnapped two employees of ABCI viz;- Prem Lal Dhiman (48), Delhi Project Manager and BAjrang Lal Bhurgi (44), Rajasthan, Field Manager from Meidum village in Kolasib Dist. due to failure of payment of their demand. In this connection, Bairahi C/No. 7/11 dt. 6.6.2011 u/s 365/380/395/34 IPC r/w 25(1B)(b) Arms Act has been registered and the investigation is underway.**  **(b) On 17.7.2011 @ 9:00 Am, Birguram Reang, Thinglian village was shot dead as per the order of S/S Army Chief Nandi Ram. Birguram Reang was an Ex-UNLF BV Cadre who used to collect donation and when refused to stop the practice as told/directed, he was killed. In this connection, Kolasib PS C/No. 41/11 dt. 17.7.2011 u/s 302/34 IPC r/w 27(1) Arms Act had been registered and the case is under investigation.** |
+|  | **Future plans/strategies**  | **:** | **Not known.** |
+|  | **Any known contacts with ISI/DGFI**  | **:** | **None** |
+|  | **Remarks** | **:** | **The UDLA/UDLFB is not a well organised group having large members. Their demand is a separate Tribal Development Council under Assam Govt. They had also submitted memorandums in this regard many times to the Assam Govt. which the latter neglected. The demand area covered all tribal villages in Hailakandi and Karimganj Districts. They demanded the upliftment of different ethnic tribals living in the area.** |

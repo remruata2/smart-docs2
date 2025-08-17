@@ -1,5 +1,6 @@
 import { pipeline } from "@xenova/transformers";
-import { PrismaClient } from "../generated/prisma";
+// Use explicit file path to avoid ESM directory import issues under ts-node
+import { PrismaClient } from "../generated/prisma/index.js";
 
 const prisma = new PrismaClient();
 
@@ -106,35 +107,56 @@ export class SemanticVectorService {
 
   static async batchUpdateSemanticVectors() {
     try {
-      console.log("🔄 Starting batch semantic vector update...");
+      console.log("🔄 Starting batch semantic vector update (NULL-only, with fallbacks)...");
 
-      const records = await prisma.fileList.findMany({
-        where: {
-          note: { not: null },
-        },
-        select: {
-          id: true,
-          note: true,
-        },
-      });
+      // Count rows missing semantic_vector before
+      const missingBeforeRes = (await prisma.$queryRawUnsafe(
+        `SELECT COUNT(*)::int AS c FROM file_list WHERE semantic_vector IS NULL`
+      )) as Array<{ c: number }>;
+      const missingBefore = missingBeforeRes[0]?.c ?? 0;
+      console.log(`📊 Missing semantic_vector before: ${missingBefore}`);
 
-      console.log(`📊 Found ${records.length} records to process`);
+      // Fetch only rows where semantic_vector is NULL, use raw SQL since Prisma can't filter Unsupported(vector)
+      const records = (await prisma.$queryRawUnsafe(
+        `SELECT id, note, title, category, file_no, entry_date FROM file_list WHERE semantic_vector IS NULL`
+      )) as Array<{
+        id: number;
+        note: string | null;
+        title?: string | null;
+        category?: string | null;
+        file_no?: string | null;
+        entry_date?: string | null;
+      }>;
+
+      console.log(`📦 Rows to process: ${records.length}`);
 
       for (let i = 0; i < records.length; i++) {
-        const record = records[i];
-        if (record.note) {
-          await this.updateSemanticVector(record.id, record.note);
+        const r = records[i];
+        // Build fallback content: prefer note (rich), else plain text, then metadata
+        const parts = [r.note, r.title, r.category, r.file_no, r.entry_date]
+          .filter((v) => !!v && String(v).trim().length > 0) as string[];
+        const content = parts.join(" ").trim();
 
-          // Progress logging
-          if ((i + 1) % 10 === 0) {
-            console.log(
-              `Progress: ${i + 1}/${records.length} records processed`
-            );
-          }
+        if (content.length === 0) {
+          console.log(
+            `Skipping file ${r.id} — no usable text (note/note_plain_text/title/category/file_no all empty)`
+          );
+          continue;
+        }
+
+        await this.updateSemanticVector(r.id, content);
+
+        if ((i + 1) % 10 === 0) {
+          console.log(`Progress: ${i + 1}/${records.length} records processed`);
         }
       }
 
-      console.log("🎉 Batch semantic vector update completed!");
+      // Count rows missing semantic_vector after
+      const missingAfterRes = (await prisma.$queryRawUnsafe(
+        `SELECT COUNT(*)::int AS c FROM file_list WHERE semantic_vector IS NULL`
+      )) as Array<{ c: number }>;
+      const missingAfter = missingAfterRes[0]?.c ?? 0;
+      console.log(`✅ Batch semantic vector update completed. Remaining NULL: ${missingAfter}`);
     } catch (error) {
       console.error("❌ Batch update failed:", error);
       throw error;

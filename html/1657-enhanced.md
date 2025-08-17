@@ -1,0 +1,13 @@
+AKLAS UDDIN
+
+1. The kidnappers themselves, Thomson Lalrambuatsaiha and Mickey Zohmingliana had no idea who Aklas Uddin was and if he was involved or not in Pseudoephedrine smuggling. They acted on the plan of Robert Lalmuanpuia, the master mind of the kidnap, but Robert Lalmuanpuia himself also said that he doesn't know if Aklas Uddin smuggles in Pseudoephedrine, they kidnapped him purely for monetary reason, to seek ransom to his family.
+
+2. Robert also said that they intended to kidnap a certain man whose flight was cancelled on that day so, Aklas Uddin was kidnapped instead. The kidnappers kidnapped Aklas Uddin to have some activity at least.
+
+3 Aklas Uddin has 5 (five) brothers and 3 (three) sisters and they live at Banga Bazar, Karimganj District, Cachar, Assam. Their family business is selling betel nut and have being supplying betel nit to Aizawl for 15 (fifteen) years. They brought and collect betel nut in their hometown and neighbouring villages and supply to Mizoram with a profit of Rs. 20,000/- to Rs. 30,000/- per month. The family is not known to be involved in other business other than betel nut business.
+
+4.  Traders near the shop of Aklas Uddin at New Market in the street of Power House said that Aklas Uddin is not involved in other business except in his betel nut business.
+
+5. The owner of Aklas Uddin's rented house at Babutlang, Zarkawt also said that he does not seem to be the kind of a person to be involved in smuggling of Pseudoephedrine, they added that he has never been unable to pay his rent.
+
+ Based on the findings and opinions of people who knows Aklas Uddin, it seems that he is not involved in Pseudoephedrine smuggling and that the accused/kidnappers just made it up to save their faces as they did not succeed in squeezing money from their victim, Aklas Uddin and his family for they were caught by the police in the nick of time.

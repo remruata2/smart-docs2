@@ -1,0 +1,5 @@
+**Front page of ZOZAM TIMES/ Inside page of VANGLAINI dt.23.05.2013**
+
+**New outpost inaugurated**:
+
+ Home Minister R.Lalzirliana inaugurated Zonuam Police Out Post yesterday. Speaking at the function, the Home Minister said that a project worth Rs.129 crores had already been approved by DONER Ministry and out of which Rs.15 crores is for construction of Police Headquarters, Rs. 10 crores for restructuring of Fire Deptt. and Rs.14 crores for upgradation of Central Jail. He also said that, requests made by most villages of Mizoram for creation of Police Station/ Out Post are clear indications of public's trust in Police. DGP, Alok Kumar Verma in his speech on the occasion said that the Police Deptt. received an amount of Rs. 18.67 crores for clearing pending liabilities due to the efforts of the Home Minister. He also said that there are 7 Local Councils with 3,200 household and 22,500 populations under the jurisdiction of the out post.

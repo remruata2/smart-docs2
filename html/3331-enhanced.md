@@ -1,0 +1,11 @@
+A. _Front page of THE ZOZAM TIMES newspaper Dt. 31.5.2013_
+
+****Crime Conference******: District Conference was held at the office of Lunglei SP, Dr. VJ Chandra IPS yesterday, they had discussions on the status of different cases in Lunglei District; how to solve pending cases and maintenance of better discipline among the Police.**
+
+ 82 cases have been registered in Lunglei District this year, 65 chargesheet have been submitted which is 79.2% out of all the cases registered, no final report has been submitted as yet and there are 17 pending cases. In Lunglei PS alone, out of 60 cases registered, 49 cases chargesheeted with 11 pending cases.11 cases had been registered under MLTP Act, 6 cases under ND&amp;PS Act and ADC Act.
+
+B. _Front page of THE ZOZAM TIMES & THE AIZAWL POST newspapers Dt. 31.5.2013_
+
+**Dispute between Vairengte & Lailapur over vehicle accident**: At around 2:30PM yesterday, the place near where MZP built a shed called ‘Zorun’ in 2006 as a land mark to show the area owned by Mizoram in between Vairengte, Mizoram and Lailapur, Assam, a Scorpio bearing regd. No. MZ 01 D 1215 owned by Lalthianghlima of Bungkawn, Aizawl met with an accident and rolled down 80 mtrs., the driver Vanlalzaua (56) s/o H.Rochhunga of Khatla died on the spot, other passengers namely Hminthanzauvi (47) d/o Lianduaia of Venghlui, Aizawl and Lalrinzuali (43) d/o S.Lalthuama of Bungkawn, Aizawl sustained injuries.
+
+ As the PO falls within an area claimed by both Mizoram and Assam, there arose little confusion as for registration of a case (i.e., whether at Vairengte PS or Lailapur PS) followed by minor scuffle between people of Vairengte and Lailapur. Sources said that Vairengte Police took the corpse and registered a case.

@@ -1,0 +1,21 @@
+**A. Front page of THE ZOZAM TIMES, VANGLAINI & THE AIZAWL POST newspaper Dt.8.2.2013:**
+
+**Five (5) cases registered on Bethlehem Veng arsons****:** In relating to a recent arson case five nos. of FIR had been lodged to Aizawl PS against Lallawmkimi(20) d/o Lalsangliana (L) and Lalchhandami (24) d/o K.Lalbiakdika, both of residence of Bethlehem Vengthlang, the 2 culprits confessed before police saying that they were the real culprit of the incident occurred on 29.1.2013
+
+** As per report of police, the accused persons were charged u/s 435/436 IPC (Mischief by fire or explosion substance with intent to cause damage/ intent to destroy house.etc.). U/S 436 IPC is a non-bailable case and under which the police can be forwarded the accused persons forward directly to judicial custody.******
+
+**B.Front page of THE AIZAWL POST & VANGLAINI newspaper Dt.8.2.2013:**
+
+**Garrage/Vehicle checking****:** Any vehicle registered after MZ 01 F 7188 found parking on the roadside due to non-having garage of its own will be seized and take action as per without any excuse. In this connection; Traffic police appealed to all vehicles owners to abide by the rules.****
+
+**C.Front page of VANGLAINI newspaper Dt.8.2.2013:**
+
+**Rapist sentenced to 7 years imprisonment****:** Afjal Hussein (20), who has alleged raped on unsounded mind of 15 yrs. girls on 10th June 2012 around 3:00PM at Kawnpui was sentenced to 7 yrs. imprisonment with a fine of Rs. 3,000/- by the Addl. Dist. &amp; Session Judge I on 2nd Feb. 2013. A 6 yrs. old girl sighted while the accused committing rape against the victim girl through their window. 
+
+**D.Front page of VANGLAINI newspaper Dt.8.2.2013:**
+
+**ACB arrested 1 person and registerd 1 case this year****:** This year, ACB has not received any FIR but has registered one case and arrested one person relating to corruption.
+
+ The allegation of corruption made against Bungtlang South BDO is proved by preliminary investigation and a case was registered on 30th Jan.2013 after obtaining permission of Vigilance Deptt. Bungtlang South BDO is accused of misappropriation of government money for IWDP-III Project of Lawngtlai dist.
+
+ Kanhmun VCP was also arrested on 28th Jan.2013 in connection with misappropriation of MNREGS money in 2009 to 2012.

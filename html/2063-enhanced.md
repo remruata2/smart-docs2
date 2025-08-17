@@ -1,0 +1,239 @@
+****BRU LIBERATION FRONT OF MIZORAM (BLFM)****
+
+1. On Dt 01.4.2003 7:00 AM, Suspected 7 armed BLFM kiddnapped Pu F. Lalfamkima @ Puia(30) s/o Biaksanga(L) of Thingsai P/A Maubawk driver of Sumo No.MZ-01(B)/4633 coming from Khantlang village while proceeding towards Tuipuibari and also extorted Rs.9200/- from two passengers. Released on 21.4.03 @ 1400 hrs. between Khantlang and Tuipuibari after 20 days. In this connection W.Phaileng PS C/No.7/03 dt.2.4.03 u/s 395/365 IPC r/w 25(1-B)(A) A. Act. Vice President Vanrama is also involved and arrested on 20.4.2006 at Naisingpara by AR/SB Staff.
+
+ Two accused namely 1) Kantarai Reang s/o Kartarai Reang of Kolalian and 2) Lawmthara Reang s/o Telenga Reang of Bunghmun were arrested by special operation party of Damcherra Police on 6.9.2003.
+
+2. On 6.9.2003 @ 1130 hrs encounter took place at Kasko North Dist in between a special operation party of Damcherra PS comprising of SPOs Ex.Kacharicherra and BLFM resulting 2 extremists namely Jebra Reang of Naisingpara PS Kanchanpur, N.Tripura and another one unidentified have been killed. The OPS party also arrested 2 BLFM extremist s namely 1) Kantarai Reang(30) s/o Kartarai Reang and 2) Lungthra Reang(18) s/o Telenga Reang of Naisingpara PS, Kanchanpur N. Tripura. They also recovered Rs.12,500/- from the PO. These 2 persons were involved in kidnapping of Driver F.Lalfamkima on 1.4.2003.
+
+ In this connection Damchura PS C/No 15/03 u/s 148/149/353/332/307 IPC and 27 of A.Act has been registered.
+
+3. On 20.9.2003 @ 1230 hrs suspected BLFM kidnapped one Sushil Nath, Driver of TR-03-1679 s/o Shi Satish Nath of Shantipur PS Kanchanpur W. Tripura from Shantipara near Gachirampara on Kanchanpur Anandabazar road when the said truck with an Assistant reached at the spot on way to Anandabazar from Kanchanpur. In the meantime, PS mobile vehicle in course of mobiled duty reached at the spot and came to learn the fact. After long chase, They could rescued the kidnapped victim and managed to detain. 2 extremist namely 1) K. Morning Sen John Naga (28) s/o Late K. Ramesh Naga of Kharingpur PS Pathal Bazar, Manipur and 2) Bimaljoy Reang (30) s/o Shri Uniham Reang of Ashampara Reang refugee camp, block - 2, Ration card No.160. One of the extremist is identified as Pradip Reang, deserted SPO who managed to flee away.
+
+4. On 30.1.04 at 1330 hrs, BLFM led by Rothangliana(32) kidnapped 3 persons of Tuipuibari while fishing in the Amsuri river near Tuipuibari. Out of three, two were released the same day whereas Helia(21) s/o Birbahu (VCP Tuipuibari) is being still held hostage by BLFM and escaped on 2.3.2004. They demanded the ransom of Rs.10 lakhs and letter reduce to 5 lakhs.
+
+ Mr Helia s/o Birbahu was reported escaped from the custody of his kidnappers on 2.3.2004 alongwith Labadur, BLFM member s/o Birado of Borai from where he was held hostage Bangladesh territory and the two persons reported to 3 MAP at N.Kawnpui at 5:45 PM.
+
+ In this connection W.Phaileng PS C/No.4/04 dt. 1.2.2004 u/s 363/365/34 IPC r/w 24 (1-B)(A) Arms Acts has been registered. Accused Vanrama, V/President was arrested on 20.4.2006 at Naisingpara by AR/SB Staff.
+
+5. Information is received that the following BLFM insurgents have surrendered to Mizoram Police at Tuipuibari today i.e. 5.3.2004 at 1245 hrs. and informally surrendered to SP CID(SB) on 11.3.2004 :-
+
+ 1) SS Sgt. Liankima (30) @ Khahmu s/o Aitoiha, Tuipuibari.
+
+ 2)  SS Sgt. Lalbuaia (22) @ Kharang s/o Vairendro, Tuirum.
+
+ 3) SS Cpl. Lalrinawma (22) @ Nasiruddin s/o Obawiram.
+
+ 4) SS Pvt. Zathuama (38) @ Kundurai, Tuirum.
+
+ 5) SS Pvt. Rothanga (24) @ Paspaipa s/o Goiado, Kolalian.
+
+ These BLFM insurgents also surrendered the following arms, ammunition, etc. to the Police :-
+
+ 1) One .303 (MK-III) Rifle.
+
+ 2) One 9mm Makarov Pistol with 16 rounds of 9mm amns.
+
+ 3) One Chinese Hand Grenade.
+
+ 4) One round of 7.62mm amns.
+
+ 5) Eight numbers of .303 charger.
+
+ 6) One Pistol holder.
+
+6. On 27.11.04, encounter took place at Sailo No. 1 near the house of one Kalamjoy Reang in Vanghmun PS area with suspected armed BLFM (4/5) in which one girl namely Rakhi Reang(17) s/o Shri Zoliana Reang of Tharma Vanghmun received bullet injury on both legs and later succumbed to her injuries at Hospital. Vanghmun PS C/No. 8/04 u/s 148/149/120(B)/307/302 IPC and 27 A. Act.
+
+7.  On March 20, 2005 at about 0130 hours, a group (9/10) of BLFM extremist with sophisticated arms raided Naisingpara Reang Refugee Camp, PS Kanchanpur and abducted one R. Laldawngliana Reang s/o Lt. Ranguna Reang and (2) Sawibunga Reang s/o Lt. Mukhram Reang, both are leaders of MBDPF (Mizo Bru Displaced People Forum) at the point of gun. After reaching at Barcherra expremists group released Sawibunga Reang as he felt sick and Laldawngliana was released on 27.5.2005. This refers to Kanchanpur PS Case No. 16/2005 u/s 364(A) IPC and 27 of Arms Act.
+
+ In connection with the above case, Kanchanpur Police arrested Smti Boiante Reang (30) NLFT Collaborator w/o Md. Akbar Anchary of Ashapara Refugee Relief Camp on 25.5.2005 and also one Surendra Reang @ Debasish Fa (38) s/o Shri Kanchan Kumar Reang of Auhillyapur, PS Kanchanpur, North District was arrested on 9.6.2005.
+
+8. Information has also been received that on 8.8.2005 at around 1230 hrs., 5(five) unknown miscreants armed with sophisticated weapons reportedly abducted one person namely Cheranjit Singh from Teirei Mini-Hydel Project at Tuirum. Cheranjit Singh a Diploma holder in Engineering is currently looking after the operations and maintenance work of the Project while Zoramsanga a casual labour from W. Phaileng who did not turn up at the project site for duty on 8.8.2005 is also presumed to be abducted by the miscreants.
+
+ In this connection W. Phaileng PS C/No. 35/05 dt. 9.8.2005 u/s 365/34 IPC r/w 25(1-A) A. Act has been registered. The abducted persons were released on 20.10.2005 on Mizoram - Bangladesh border west of Pukzing village of Mizoram.
+
+9. Information has been received that some insurgent groups suspected to be Bru militants captured four boats coming from Assam side which was carrying Hatkora in between Gharmura of Hailakandi District, Assam and Bairabi of Kolasib District, Mizoram on 4.9.2005 at 1200 hrs. The location where the boat were captured reportedly falls under Assam. It is also learnt that these militants demanded Rs. 50,000/- from the Mahaldar of Hatkora.
+
+ Police force has been despatched to Bairabi and are currently camped in Bairabi to take necessary actions.
+
+10. The BLFM are now trying to re-group inside the Refugee Camp after they were driven out of their base camp in Bangladesh by the NLFT. The BLFM leader Vanlalliana is now conducting a recruitment drive with a target of recruiting 1300 new cadres. According to source’s information, ten persons are engaged as Training Instructors and the new recruits are now actively undergoing training at a field located about 200 mts. south of Naisingpara. Information received stated that the Tripura Tribal Affairs Minister Shri Jiten Choudhury had also visited this training ground on 14.12.2005.
+
+11. On 26.12.2005 two BLFM cadres namely - SS Sgt. Kishore Kumar Molshoy @ Yaloiha s/o Huthanga(L), Zamuang PA Hamsapara Refugee Camp and SS Pvt. Sikanto @ Lalfela s/o Zawmza of Rengdil PA Hamsapara Refugee Camp surrendered before OC Zawlnuam OP under Kanhmun PS of Mamit District. On 28.12.2005, the two surrenderees were further forwarded to SP Mamit. They also submitted one country made .22 Revolver with 3 live rds. and 1 no. of Toy Laser Pointer .5. The two surrenderees were further brought to SP CID(SB) Aizawl on 3.1.2006 for further interrogation. It is revealed that one of the surrenderee namely - Kishore Kumar Molshoy @ Yaloiha is wanted in Kanhmun PS C/No.15/05 dt. 12.8.2005 u/s 295/511 IPC r/w 25-1B(a) Arms Act. He was also Ring Leader in the abduction of Pu Lalhmingthanga of Tlangpui village with a demand of huge amount of money from the Workers of Mizoram Presbyterian Church Winchester School, Tlangpui village under Katlicherra PS of Hailakandi District.
+
+12. Information received from Serhmun village indicated that on 6.1.2006 at about 11:00 AM Lalrimawia s/o Rallianzuala and Lalrohlua s/o Lalkhuma both of Serhmun village were intercepted by three unknown Bru militants suspected to be BLFM cadres in the jhum hut of Anil Kumar Chakma near Belkhai village of Mamit District. Commander of the Bru militant was carrying one .22 Country Made Revolver and the other two were armed with knives. The Bru militants sent Lalrimawia back to their village with a demand letter addressed to VC demanding Rs. 300/- per household of Serhmun village to secure the release of his friend Lalrohlua who was detained by Bru militants.
+
+ The militants with their captive further proceeding towards Mizoram - Tripura border and while passing through the Belkhai village some Belkhai villagers who personally recognised Lalrohlua reported the matter to Young Chakma Association (YCA) who were having a meeting in the village. The YCA then immediately chased them and rescued Lalrohlua from the clutch of militants. While two of the militants could manage to escape, one of them was arrested by the YCA. A Police party is being despatched to fetch the arrested persons.
+
+ The apprehended BLFM militants was identified as S/S Pvt. Lalawmpuia (28) s/o Ram Bahadur, Kolalian P/A Asapara Refugee Camp. The other two BLFM members were identified as S/S Pvt. Philai @ Maryali (25) s/o Tansai (L) of Tuipuibri, Persang Veng P/A Asapara Refugee Camp and S/S Lt. Pehdula (21) @ Rammawia s/o Boidesingha of Tuipuibari-I P/A Asapara Refugee Camp. The above two BLFM militants who managed to escape from the hands of the Belkhai YCA were reportedly carrying 1 (one) 9mm Pistol with 6(six) live rounds of 9mm ammunition and one Chinese made Hand Grenade.
+
+ In this connection Kawrthah PS C/No.1/06 dt.8.1.06 u/s 365/384/511/121/121(A)/506/34 IPC was registered.
+
+13. On 11.1.2006 at 5:48 AM a group of unidentified armed militants had opened indiscriminate firing towards the New Kawnpui BOP of 3rd Bn. MAP under Mamit District. The Police also returned the fire and repulse the militants. The militants immediately fled towards Tripura side. The Police party who were on the heels of the militants returned to BOP as the militants were proceeding towards the interior of Tripura State.
+
+ In this connection W. Phaileng PS C/No. 3/06 dt. 12.1.2006 u/s 307 IPC r/w 25(1-A) Arms Act has been registered.
+
+14. Information has been received that on 13.1.2006, two persons namely - J.Lalnunmawia (25) s/o Somzauha of Hazacherra and Lalnuntluanga (17) s/o Romazai of Hazacherra were apprehended by Chakma people at Rajiv Nagar under Mamit District while they were trying to collect donations by using a demand letter which was previously served to the V/C Secretary of Tuipuibari-II. The above two persons were later approved as BLFM members and they were reportedly directed by BLFM Area Commander Rothianga to collect donations. They were arrested by the Police and accordingly W. Phaileng PS Case No. 4/06 dt. 14.1.2006 u/s 384/34 IPC was registered and investigation is in progress.
+
+ Further interrogation of the accused revealed that on 9.1.2006, 14 BLFM members headed by Rothianga, Area Commander left Asapara Refugee Camp of Tripura and were reportedly divided into different groups with an intention to collect donations from various parts of Mizoram. According to the two arrested BLFM persons the arms holding of the BLFM are reported as AK-47 Rifle -1 no., SLR - 2 nos., Sten Gun - 1 no., .303 Rifle - 1 no., Grenade - 10 nos. and the total strength of BLFM cadre is reportedly around 300 including new recruits.
+
+15. Information received on 25.1.2006 that one Lalkhawngaiha (Bru) s/o Saithanga, K. Sarali village of Mamit District is reportedly being held hostage by suspected BLFM militants at Gosirampara of Tripura. The BLFM outfit under the command of SS Cpt.Solfathanga demanded Rs. 20,000/- from his parent for the release of Lalkhawngaiha.
+
+ It was also reported that on 18.1.2006, Lalkhawngaiha had received a letter from his girl friend who was staying in the Bru refugee camp, Tripura asking him to go down for their wedding arrangement. However, the said letter turned out to be a fake one which was reportedly forged by the BLFM outfit. As he reached Gosirampara, they held him hostage for ransom and the matter was informed to VCP Kawrthah on 24.1.2006 by the relatives of the hostage which was conveyed to the District Administration of Mamit. In this connection, one Dinpuia a close relative of the said hostage proceeded towards Gosirampara on 25.1.2006 for the safe release of the said hostage.
+
+16. Report received from SP Mamit indicated that on 4.3.2006 at around 0500 hrs. one Sumo Maxi Cab bearing registration no. MZ-01 C/5239 (Josua Travels) plying from Vaisam, Tripura to Aizawl was stopped by around 6 (six) suspected BLFM cadres in between Behliangchhip and Banglazion, Tripura. These suspected militants were in camouflage uniform and apparently armed with one country made Pistol and one knife. The Maxi Cab had 11 (eleven) occupants including the driver (8 males and 3 females). The following were reportedly taken away from the passengers:-
+
+ 1) Rs. 2500/- and 1 knife from Driver Laldailova s/o Lalhruaia of West Phaileng.
+
+ 2) Rs. 1850/- from Lalngaihawma (passenger) s/o Tawnliana of Vanghmun, Tripura.
+
+ 3) Rs. 60/- from Lalbiaksangi (passenger) w/o Zaithangkhuma of Vaisam, Tripura.
+
+ It is reported that no harm were done to the passengers and the militants after commission of the crime proceeded immediately towards the western side possibly towards the Bru Refugee Camp. The above incident was reported to 3rd MAP post at New Kawnpui. Interview of the driver and the passengers of the Maxi Cab revealed that these suspected BLFM cadres were reportedly fleeing from Mizoram due to the intensified operation undertaken by the Mizoram Police along the Mizoram - Tripura border. Since the incident took place inside Tripura and the place of occurrence falls within the jurisdiction of Vanghmun PS, Tripura, O/C of Vanghmun PS was also immediately informed about the incident from Mamit.
+
+ However, it is learnt that O/C of Vanghmun PS was reluctant to believe that such incident had occurred at a place which was not far from the PS and he claimed that so such report had been received by him. He further stated that the villagers of Behliangchhip including the Mizos residing there when contacted were not aware of the incident at all and he alleged that the incident was a fabricated one with a malafide intention of creating communal tension.
+
+17. Report received indicated that on 11.3.2006 at about 1100 hrs one cadre viz- S/S Cpl. Mison Rai (21) @ Lambu s/o Halflong Rai of Borai P/A Kaiskau Refugee Camp was arrested by Mizoram Police near Damcherra along the Mizoram - Tripura border. The above arrested Mision Rai had earlier reportedly delivered a demand letter of Rs. 50,000/- to one Propit @ Harua, Shopkeeper of Kanhmun on 10.3.2006 demanding the said money to be handed over to him on 11.3.2006. Accordingly the Police party laid an ambush and successfully arrested the man. Attempt is being made by the Police to arrest his accomplice by conducting operation in Kanhmun - Zawlnuam area.
+
+18. The 38 BLFM cadres who have surrendered before 36 Bn. Assam Rifles, Kanchanpur have been taken over by Mizoram Police Team and arrived at Sidon Transit Camp on 16.3.2006 at 3:00 PM. Arms and ammunitions submitted by the BLFM have also been handed over to Mizoram Police Team by the Assam Riffles authority.
+
+19. Information received indicated that on 16.3.2006 Pu Bualhmingthanga and his wife of Bungthuam village went for bathing at Langkaih river. On their way they were stop by 6 BLFM militants and severely beten. The said militants were armed with 1 AK-47 and one Pistol. It is further stated that the said militants gave them a letter of threatening to IR Bn. who are posted at Zawlnuam.
+
+20. On 16.3.2006, some of YMA of Zamuang who was returning from Tripura side spotted 5 persons suspected to be militants and some of them carrying arms. The matter reported to IR of Zamuang Post and chased them. On seeing the Police persons the suspected militants started fleeing and IR personnel opened fire at them where one Joinborai Reang (30) @ Thangliana s/o Sormorai Reang was killed at the spot. The Police recovered Local made gun apparently looks like AK-47. In this regard Kanhmun PS C/No. 3/06 dt. 17.3.2006 u/s 307/189/506/34 IPC r/w 25 (1-B)(a) 30 Arms Act was registered.
+
+21. On 21.3.2006 at around 11:00 AM, Police Patrol Party of New Kawnpui 3 MAP BOP shot at one BLFM militant who was later identified as SS 2 Lt. Rohila @ Rohida 22 yrs. s/o Utasona at Thaidawr. The incident occurred as the Police Party acting on a tip-off rushed to Thaidawr village to enquire into a report about the commission of extortion by some BLFM militants on the night of 20.3.2006. As the Police cordoned the house of Chutoino, Ex-VCP of Thaidawr where the militants were reportedly hiding, the militants on seeing the Police, started running and the Police also chased them. The Police party then opened fire at the fleeing militants and injured Rohila @ Rohida at the right thigh, who was apprehended and being brought to Kawrthah hospital for treatment one knife was recovered from him. The other two BLFM militants identified as (1) SS Pvt. Netorai @ Gosarai and (2) Jondorai both Joymony, Tripura.
+
+ Since these two militants fled towards Tripura, Tripura Police were also informed about the incident and a joint search operation is conducted in the area.
+
+22. Information received on 22.3.2006 from source stated that the so called Cabinet Meeting of BLFM headed by their President Vanlalliana held today at Naisingpara decided to intensify their operation in the Mizoram-Tripura Border areas of Mamit District targeting civilians especially the alleged sympathisers of Mizoram Police who launched an operation against them recently. Further information received indicated that two groups of BLFM operation party are likely to move out from Naisingpara Camp towards Mizoram side on 23.3.2006. This proposed operation is mainly decided by the Cabinet Meeting to retaliate the recent shooting of one BLFM cadre viz Rohila at Thaidawr by the Mizoram Police operation party.
+
+23. On 20.4.2006 joint operation “Black Hound” (Assam Rifles, N. Tripura and Mizoram Police SB operation team arrested the following 4 BLFM leaders on Mizoram - Tripura border :-
+
+ 1) Vanlalliana - President
+
+ 2) Vanrama - Vice President
+
+ 3) Romawia Meska - Army Chief
+
+ 4) Lallawma - SS Lieutenant
+
+ They were released on bail by Addl. District Session Judge, Pi Lucy Lalnunthari, on 24.10.2008. They were taken out from Central Jail by their advocate Pu H. Laltanpuia S/o Valbuanga of Chanmari West on the same day at about 6:00 PM.
+
+24. After the arrest of their top leaders by the joint operation of Assam Rifles and surrender of 38 BLFM cadres including the erstwhile Gen. Secretary and Vice President, the remnants of BLFM cadres got divided into two big factions calling themselves as Lalthazuala faction and Calvin Chorkhy faction. Both the factions claimed to be the genuine BLFM outfit and competed each other to get more members by launching an extensive fresh recruitment drive. Their main slogan and bait to get more recruits is that they are surrendering to the GOM in the near future and surrender benefits to the tune of Rs. 90,000/- per head is at hand. This slogan opened pandora’s box and almost every household in the refugee camp were lured to send one of the family members to get enrolled in the outfit. The recruitment was done as late as this week itself i.e forth week of May, 2006.
+
+ From the latest report received from their leaders, the strength of both the factions are as follows :-
+
+ i) Lalthazuala Faction - 350
+
+ ii) Calvin Chorkhy Faction - 116
+
+25. On 23.5.2006 around 1930 hrs., a group of (9/10) of BLFM extremists under the chairmanship of Apeth Brenth, Chief of Army, BLFM kidnapped 2 persons namely Mohaan Reang (30) s/o Lt. Bakraha Reang of Hajacherra, P.S Kanchapur, North District and Sanjoy Reang (60) s/o Lt. Marthrai Reang of Hajacherra, P.S. Kanchapur, North from Hajacherra Refugee Camp. The miscreants retreated towards Jainbari with the victims.
+
+26. On 9.6.2006 at 0630 hrs. a group of BLFM extremists abducted one Elvis Chorkhy s/o Manika Chorkhy of Naisingpara Refugee Camp, P.S Kanchanpur at the point of gun which hewas proceeding towards Gachirapara from Kanchanpur with his Motor Bike. He was released on 30.6.2006. He was released on 30.6.2006. Accused Balanjoy Reang s/o Kornojoy Reang of Asapara Refugee Camp was arrested by Kanchanpur Police on 26.6.2006.
+
+ In this connection Kanchanpur PS C/No. 27/06 u/s 365/34 IPC has bee registered. He was released on 30.6.2006.
+
+27. Reference to SP Mamit Signal No. CRM/MMT/27/2006/384 dated 4.7.2006, the following BLFM cadres namely - 1) SS Lt. Calvin Chorky 2) SS Crpl. Rozinga 3) SS MI Lalsawmliana have surrendered before SP Mamit yesterday i.e 6.7.2006 without arms and they have been brought to Aizawl today i.e 7.7.2006. An interview and statement from this three surrenderees revealed that they were threatened by Lalthazuala faction of BLFM and constantly been harassed by the Tripura Police on pretext of being used by the surrendered BLFM and Mizoram Police. Hence, sending back to refugee camp may not be advisable and they may be accepted as surenderees with equal benefits as was done to the previous 38 BLFM surrenderees. However, piece-meals surrender without arms from any militant outfit may be discouraged in future.
+
+28. Information received indicated that last evening i.e 13.7.2006 there was an encounter between Tripura Police and BLFM militants at Kaisakau Refugee Camp, Tripura in which 2(two) BLFM militants namely - Indiarai, SS Communication Secy. BLFM and Faka Reang, SS Warrant Officer were killed. One BLFM militant namely Potrojoy s/o Chandra Singh Reang was arrested while Sudom Reang another BLFM militant had absconded. The above incident took place following the rescue operation launched by the Tripura Police due to the abduction of one teacher of Assam State Nirmal Kanti Chakraborty on 8.6.2006, Longai Forest reserve, Assam (Vide Patharkandi PS C/No. 96/06 u/s 365 IPC) reportedly by the BLFM militants. The abducted Nirmal Kanti Chakraborty was killed in the said encounter. After the encounter the Police recovered one Chinese Rifle with Boyonet, one .22 Rifle, one empty magazine of 9mm Carbine detonator stick - 9 with wire, live AK-47 rds. - 7 nos.
+
+29. On 17.7.2006 the following 3 BLFM cadres have voluntarily reported to i/c Tuipuibari Beat Post with a view to surrender to GoM without arms however, possess one Binocular, BLFM letter heads/receipt book.
+
+ 1) SS WO Labiakhlua @ Siva s/o Titoram of Chhimluang ‘S’ P/A Asapara Refugee Camp.
+
+ 2) SS Pvt. Vanlalruata @ Dramai s/o Sipaia of Lungmawi (near Zomuantlang) P/A Asapara Refugee Camp.
+
+ 3) SS Pvt. Lalhmuaka @ Yapha s/o Modomohan (L) of Lenhmuikawn, Kolasib District P/A Asapara Refugee Camp.
+
+30. On 17.9.2006 @ 0400 hrs., 12 nos. of Special Police Organisation (SPO) guided by one unarmed Tripura Police personnel, while on patrol at Naisingpara Refugee Camp (tripura) exchanged firing allegedly with BLFM outfit near Naisingpara Play Ground in which 4 persons of Bru refugees sustained injury as under :-
+
+ 1) Bachung Reang (40) s/o Hari Mohan, Naisingpara.
+
+ 2) Putrojoy Reang (37) s/o Loka Joy Reang (L)
+
+ 3) Doborai Reang (27) s/o Tauhkhop Reang (L)
+
+ 4) Smt. Pirota Reang (40) w/o Joturam Reang.
+
+ On cross-checking all available BLFM lists, it was found out that only Sl.No. 3 i.e. Doborai Reang (27) s/o Tauhkhop Reang (L) seemed to be BLFM outfit and the rest three seemed to be Bru refugees staying at Naisingpara Camp.
+
+ The SPO (Tripura) claimed that the BLFM outfit were undergoing arms training at Naisingpara Playground on the same morning and when the Police Patrol Party went nearby, the militants fired at them which they retaliated resulting in the above 3 persons sustained bullet injury. No weapon was recovered and not a single militant was arrested and also no injury on the part of Police personnel reported in this incident.
+
+31. The Arms Laying /Oath Taking Ceremony of 804 BLFM surrenderees was held on 26.10.2006 at Sidon Transit Camp (Tuipuibari) from 1100 hrs. and at Zodin (Damparengpui) at 1330 hrs. Pu Tawnluia, Hon’ble Home Minister and Pu Haukhum Hauzel, Chief Secretary, Govt. of Mizoram as the Chief Guest and Guest of Honour.
+
+32. On 29.11.2006 @ 0400 hrs., a team of Tripura State Rifles commanded by SDPO Kanchanpur, Tripura launched an operation against Apet Branto Faction of Bru militants at Situk village in which one militant viz. Thanhawla (22) of Asapara Refugee Camp was killed in an encounter. However, Apet Branto and other 4 members managed to escape in the forest.
+
+33. Intelligence report received indicated that some Bru militant groups led by Henry and three others viz. Muikau, Rocket, Keya and other (name not yet known) contacted DHD outfit in the first week of December at North Cachar District near Haflong requesting shelter and some arms to continue their fight against Mizoram Govt. However, the DHD reportedly refused since the DHD are presently under cease-fire with the Army operating in that area.
+
+34. On 1.2.2007, 5 members of the Bru insurgent outfit including their Commander Heroda with .38 Pistol were apprehended by local villagers of Thermapara (Tripura) on 31.1.2007 and were handed over to Post commander 36th Assam Rifles, Sabual. The apprehended Bru insurgents were again handed over to O/C Vanghmun PS. Identities of the arrested Bru insurgents are yet to be ascertained and attempts are being made to bring these Bru insurgents.
+
+35. On March 10, 2007 at about 1530 hrs., 36 AR personnel, Ex-Anandadazar, SI Rana Chatterjee of Kanchanpur PS led by SDPO, Kanchanpur were conducting Special Operation at Ashapara, PS Kanchanpur, a group of BLFM extremists fired from a hut. Operation party also repulsed by firing and an encounter took place. After encounter, on search, the operation party recovered one dead body of extremists namely Gandhi Reang @ Dragon (28) S/o Rabi Bahadur Reang of Ashapara Reang Refugee Camp. The operation party also recovered one country made Pistol, one 9mm Revolver with two live rounds, Pitto etc. from the place of occurrence.
+
+ In this connection Kanchanpur PS Case No. 11/07 u/s 148/149/307 IPC and 25(1-B)(A) of Arms Act has been registered.
+
+36. Information received that on 28.4.2007 the following NLFT (they were one time BLFM Cadres) surrendered to SDPO Damcherra PS, Tripura along with one G-3 Rifle with 6 rounds of ammunition and one .22 Country made pipe gun with 15 rounds of ammunition.
+
+ 1) Zaimawia Reang (35) s/0 Taitea Reang (L), Gosiram, PS Kanchanpur, Tripura
+
+ 2) Sudoram Reang (37) s/0 Kherai Reang of Tuisang, PS Kanchanpur, Tripura
+
+ 3) Hamsorai @ Sinrai (39) s/o Saikhourai, Bukvannei.
+
+37. Information received from source stated that 4 civilians of Bru community staying at Naisingpara Refugee Camp were kidnapped by Apet Branto Faction of Bru Militant outfit on 30.4.2007 at the instance of NLFT operating near Refugee Camp. The motive behind the kidnapping is believed to be to extract tax from the people of Bru Refugees.
+
+ The 36th Bn. Assam Rifles launched an operation against the said kidnappers on 2.5.2007 and nabbed 3 Bru Militants viz. Heroda, SS Dy. Army Chief of Apet Branto Faction and two other (name not yet known).
+
+38. Intelligence input received from source stated that one SS Captain Dokhomoni, the erswhile BLFM who surrendered before the Govt. of Mizoram on 26.10.2006 had been assigned to contact SS Captain Vanlalfela, the former of BLFM outfit at Kutkutti (Assam) last week. It is learnt that the said Dokhomoni was instructed by one BLFM leader Lalthazuala, the former BLFM Information Secretary to consult Vanlalfela and some leaders of United Liberation Front of Barak Valley (ULFB, a militant outfit of predominantly Bru community mainly operated in the Riflemara and Kutkutti area of Assam).
+
+ The BLFM surrenderees sheltered at Damparengpui and Tuipuibari camp have been restless since many months due to the alledged delay and neglect of their resettlements. Besides, they are expecting more rehabilitation funds from the Govt. and family resettlement in their own choice of resettlement. One alarming information received stated that the BLFM surrenderees have no option but to go underground again to form a more organised militant group so that they could be a stronger formidable force to reckon with and pressurise the Govt. in a more effective manner from Assam side. For this purpose, they had contacted some armed groups of Bru community presently operating in the Barak Valley.
+
+ Further information received indicated that the BLFM surrenderees are preparing to form a new outfit by contacting other militant outfits for weapons and shelter. As soon as an able leader like Vanlalliana is set free from jail, they would start insurgent activities soon.
+
+ Latest information received stated that the BNLF surrenderees viz - Sanachandro and Hamsoirai have already joined ULFB and the later has re-surrendered before Tripura Govt. in the month of April 2007.
+
+ Since BNLF and BLFM surrenderees are often in the habit of rejoining other insurgent groups and re-surrender in different capacities to different Govt., the BLFM surrenderees now sheltered at Damparengpui and Tuipuibari Camps needs to be watched carefully and their mass going back to join a new militant groups could not be ruled out in the near future.
+
+39. Information received from source, one member of Apet Branto’s Bru militant outfit viz. Lalthanmawia (20) @ Bruman Molshoy s/o Sorendro of Asapara was nabbed by selected officers of CID(SB) on 21.8.2007 at DC’s office, Aizawl while the said accused was trying to get ST Certificate made for 18 people (all of them belonging Bru community now staying in Tripura Refugee Camp)
+
+ After thorough interview with the accused, the following relevant information about Apet Branto’s faction of Bru militant come to light.
+
+ 1) The total strength of Apet Branto’s faction is a little more than 100 members.
+
+ 2) Weapon holding of the faction at present is as under :-
+
+ a) SBBL Gun - 3 nos.
+
+ b) Local made Gun - 5 nos.
+
+ c) Couontry made Pistol - 1 no.
+
+ 3) The main reason behind the formation of this militant outfit is monetary benefot from surrender package as often been given out by the Govt. for militants who came overground for which the recruitment drive was done by the outfit leaders with a promise to get Rs. 1 lakhs for each member for surrender benfit at the time when the outfit come overground.
+
+ 4) Their Training Camp called ‘Kanan’ is located near Smaih Lui inside Bangladesh bordering Tripura State.
+
+40. Information has been recieved that on 15.9.2007, Tripura Police of Kanchanpur Police Station arrested Lalthara, a Bru insurgnet Cadre of Apet’s faction from the Refugee Camp.
+
+ On 20.9.2007 another Cadres of the same faction namely Zairemmawia was arrested from the Refugee Camp while having a joint meeting with the MBDF leaders/Choudhury pertaining to collection of donation of 5% each froom the monthly monetary assistance disbursed to each members of the Bru Refugees. Further information received revealed that the said Zairemmawia confessed to the Tripura Police that Apet’s faction has already aquired 5 numbers of AK-47 and functioned under the patronage of the NLFT.
+
+41. CID(SB) Operation team intercepted and apprehended the following BLFM members and Dima Halam Deogah (DHD) members today at Thuampui, Falkland Veng who came to Aizawl from Silchar with a motive of buying arms. A cash amounting to Rs. 9,84,000/- (nine lakhs eighty four thousand) was recovered from them.
+
+ 1) S/S Lt. Phaijen Langthasa (29), 3rd Bn. DHD s/o B. Langthasa Divarai, Halflong, Assam.
+
+ 2) S/S Pvt. Pal Dutta (24), DHD s/o Dipankar Dutta (L), Sadarghat, Silchar.
+
+ 3) Lalthazuala (26) s/o Sohudeb, Bukvannei, Information &amp; Publicity Secretary, BLFM.
+
+ 4) Lalsawmliana (49) s/o Thangsai (L), Pangbalkawn.
+
+ 5) A. Kirtijoy @ Chhandama (23) s/o Jenthorai (L), Bukvannei P/A Asapara, Tripura.
+
+ These persons arrived Aizawl @ 12:00 on the night of 24.6.2008 and spent the night in the Sumo they hired from Silchar.
+
+ The CID(SB) team also apprehended the following three persons on 25.6.2008 at 11:30 AM from Dinthar Veng Taxi Stand, who acted as a middle men for the purchase of arms.
+
+ 1) B.Nunmawia (21), Ex-BNLF s/o M. Zutia, Zawlnuam P/A Asapara, Tripura.
+
+ 2) Endoram @ Laldinpuia (30), Ex-BLFM s/o Rosnila, Bukvannei P/A Asapara, Tripura.
+
+  3) Jiten Michael (26), Ex-BNLF s/o mohon Kumar, Damdiai.
+
+42. A report has been received that the following Bru militant Lalruatfela (Shillonga), Lalsawta and Lalchhandama who have been arrested with arms and ammunition by Police at South Chhimluang on 17.5.2011 escaped from Police custody by breaking Bairabi Police Station lock-up around 3:00 AM of 20.5.2011. Bairabi PS registered a case u/s 121 IPC r/w 21(1)(b)(a) dt. 17.5.2011 against them. A number of IR and civil Police have been rendering efforts for rearrest of the escapees.

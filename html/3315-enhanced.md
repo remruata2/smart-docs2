@@ -1,0 +1,3 @@
+**Front page of THE ZOZAM TIMES newspaper Dt. 10.5.2013**
+
+**Around 140 vehicles stranded due to bad condition of Sairang road**: 111HMVs coming to Aizawl were halted at Sairang Road due to the reconstruction/repairing of Kawnpui to Aizawl road. Mud sliding down from the upper side of the road blocked the road and made it slippery. Around 30 Vehicles on their way to Kawnpui side were also blocked. At around 4:00Pm yesterday, ABCI started clearing the road.

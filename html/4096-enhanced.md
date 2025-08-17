@@ -1,0 +1,19 @@
+****BRU ISSUES IN MIZORAM****
+
+****The Bru National Union ( BNU) conference held in September, 1997 at Saipuilui village in Mamit District adopted a resolution for creation of Autonomous District Council for Brus in the western part of Mizoram which was strongly objected by the Mizo community in the concerned area. At the same time a militant outfit called the Bru National Liberation Front (BNLF) which was formed in 1996 under the leadership of Vanlalliana, Tuirum village in Mamit district. It became more and more active and on 21.10.1997 Lalzawmliana, Forest Game Watcher in Dampa Forest Sanctuary was killed and two of his friends were also abducted by the BNLF. The news about the killing had spread like wild fire throughout Mizoram and ignited the prevailing tension in the area due to the demand of an Autonomous District Council by BNU. Tension between the two communities escalated and communal violence broke out and being lesser in numbers, the Bru people started fleeing Mizoram at the instance of the BNLF for their operational convenience.
+
+**Bru insurgencies :**
+
+  _BNLF_: BNLF was formed on 9.11.1996 at Tuirum village, Mamit district to strengthen the repeated demands of Autonomous District Council for Bru people living in western belt of Mizoram by Bru National Union (BNU). Numerous activities like robbing, assault of innocent civilians and endless demand letter for money were served to the people of Mizos living in the western belt of Mizoram by the BNLF. However, Govt. of Mizoram initiated Peace Talk with leaders of BNLF w.e.f. 7.9.2001 and after 12 rounds of peace talks, a Memorandum of Understanding (MOU) was signed between BNLF and Govt. of Mizoram on 26.4.2005 . Arms laying ceremony was also held on 25th July, 2005 wherein as many as 195 BNLF cadres surrendered to Mizoram Government.
+
+  _BLFM_ : Bru Liberation Front of Mizoram (BLFM) was formed in December, 2001 at Naisingpara refugee camp**,**Tripura**,** reportedly at the instance of NLFT. After they broke away from their parent outfit, BNLF took up arms against Mizoram government till the day of their surrendered to the Govt. of Mizoram on 26th October, 2006. As many as 804 BLFM cadres surrendered themselves.
+
+ Presently, there has been no reports of any intention of the formation of a new Bru militant outfit whether it is in Mizoram or Tripura state.
+
+**Bru refugees/ repatriation :**
+
+ After a number of meetings between the Centre and the State authorities were held, date for repatriation of the Bru refugees was fixed i.e. 16th November, 2009. While all preparations for repatriation process were going on smoothly, a Bru militant group who called themselves the Bru Revolutionary Union (BRU) killed a Mizo youth on 13th November, 2009. It was later confirmed that killing was done deliberately by the Bru, who were instigated by the refugee leaders, in order to deter the repatriation process.
+
+ Amidst this type of situation, Mizoram and Central Government devised plans to repatriate these refugees to Mizoram several times but without much success. The Ministry of Home Affairs had also even set the deadline for Repatriation of Bru refugees on 30th September, 2019.
+
+ Finally, a quadripartite agreement to permanently resettle Bru refugees in Tripura was finally signed on 16.1.2020 between Government of India, Government of Tripura, Government of Mizoram and Bru representatives in the presence of then Union Home Minister, Pu Amit Shah, Chief Minister of Tripura, Pu Biplap Kumar Deb and Chief Minister of Mizoram, Pu Zoramthanga regarding the resettlement of Bru refugees. This happened after the Tripura Government allowed permanent resettlement of Bru displaced people who are willing to resettle in Tripura. The Government of Tripura had resettled all Bru displaced people at 17 settlement site spread within 4 (four) different districts, namely - North Tripura district, Gomati district, Dhalai district and South Tripura.

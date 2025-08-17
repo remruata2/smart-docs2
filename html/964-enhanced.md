@@ -1,0 +1,21 @@
+****Interrogation Statement in respect of Lalengzauva @ Patea (accused) in con-with Champhai, CPI PS case No. 44/19 dt. 1.6.2019 u/s 22(c)ND&PS Act.****
+
+Name  - Lalengzauva
+
+ F/Name - Zohmangaiha
+
+ Age - 36 yrs.
+
+ Address - Rawpuichhip, Mamit District, Mizoram.
+
+ Nationality - Indian.
+
+Lalengzauva @ Patea (38 yrs) s/o Zohmangaiha &amp; Rosangpuii was born on 14.3.1983 at Rawpuichhip, Mizoram. He studied till VIII standard at his village. He married one Lalzampuii (36 yrs) d/o Ginzathanga (L), Tahan, Myanmar in 2011 (20.06.2011) and has 02 small children namely Emily Zothanpuii (6 yrs) and Esther Lalnunpuii (3 yrs). In his early days used to work in the paddy field owned by his family and married his wife who come to Mizoram to work as a domestic help and worker, subject has 4 siblings.
+
+As per his revelation, during the month of April, 2019 (first week) he was contacted by one Lunpi (a r/o Kalaymyo, also working as domestic help in the house of Myanmar businessmen). Lunpi also happens to be close relative of his wife, Lalzampuii. Lunpi requested him that her boss (Chi – Tu) had asked her to find a local Mizo in Mizoram to help out one of his friends at Chaltlang locality. The friend/associate of CHi-Tu happens to be Somshul Alam (the main accused) who wants to rent a room at Chaltlang locality. Accoringly, Lalengzauva @ Patea obtained a ‘No Objection Certificate’ from VCP/YMA Rawpuichhip village in his name and rented a room owned by PL Thanga, IAS (Chaltlang Opp. Transport office). Both Somshul Alam and Lalengzauva @ Patea stayed in the rented room/house for about one week by paying Rs. 45000/- as security deposit and Rs. 15000/- for the month of April, 2019. Then, during their stay in Aizawl, Somshul Alam has requested him to help in a business dealing in Betelnut and Mat. Lalengzauva also helped Somshul Alam in his application for Inner Line Permit (ILP) at Aizawl. Shomsul Alam later (during April) shifted to Rawpuichhip where he rented a room for Rs. 3000/- per month in Forest Dept. Qtrs with the help of Lalengzauva @ Patea, and another room in the locality for godown. After about two weeks, Shomsul went to Agartala, Tripura.
+
+During third week of May, 2019 Somshul instructed Lalengzauva to bring his consignment of contraband drugs from Zokhawthar to be delivered to him ( Shomsul Alam) in Agartala. Lalengzauva then engaged Haukhenkham, his relative, (their wives are cousins) who is also a driver by profession. Shomsul Alam had sent a mobile number to Lalengzauva through WhatsApp message to be contacted upon reaching Zokhawthar. Both went to Zokhawthar and after making a call to the number one person came in a bike carrying bags containing 20 (twenty) boxes of contraband drugs. (Each box contains ten thousand tablets of Methamphitamine)
+
+Both transported the consignment from Zokhawthar to Aizawl direct Sumo (20 packs) during May (date could not be ascertained by Patea). Then on reaching Aizawl they boarded another Sumo service to Agartala, and as instructed by Shomsul Alam they got down near Gas pump (Agartala) from where they delivered the consignment. Again for the second time, Somshul Alam tasked the subject to transport another consignment from Zokhawthar to Agartala during the second time, they delivered the consignment near a Gas pump in Agartala (may 24, 2019) Rs. 2,00,000/-(Rs.Two Lakhs) was paid by his handler in cash for the first delivery and Rs. 1,10,000/- Rs. One Lakh, ten thousand) for the second delivery.
+
+On their return, Haukhenkham expressed unwillingness to continue as he feared he could be arrested. Lalengzauva had intimated about Haukhenkham’s reluctance to Somshul Alam. However, Sumshul Alam requested him to go one more time and promised him to buy him a second-hand Bolero. Lalengzauva revealed that the promise made by his handler (Shomsul Alam) had prompted him to go one more time. He rang up Haukhenkham on 30.5.2019 and asked him to take the consignment from one Apuii r/o Zokhawthar He forwarded a Mobile number Shomsul had sent to him. He was later picked up by CID(SB) staff near Power House alongwith Haukhenkham on 01.06.2019.

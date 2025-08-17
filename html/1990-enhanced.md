@@ -1,0 +1,17 @@
+****INTERROGATION REPORT OF****
+
+****STEPHEN SANGLUAIA AND LALRAMNGAII Dt. 14.8.2010****
+
+ Information regarding illegal business in Arms and Improvised Explosive Devices(IED) being carried out in Aizawl was received and surveillance mounted on suspects involved in this business since the last 2 months. Two suspects, viz. 1) Stephen Sangluaia, S/o C. Vanlalsiama, Electric Veng, Aizawl 2) Lalramngaii, W/o Lallawmzuala, Vaivakawn were picked up this morning i.e. 14.8.2010@ 10:30 am and interrogated. Personal details of two persons are attached in separate sheets.
+
+ Ramngaii has been a well known character habitually involved in illegal arms business. Because of her Bangladeshi background she is known to be having secret links with various UG groups based in Bangladesh such as NSCN(IM), NLFT, Shanti Bahini, etc. to whom she often had secret arms deal. Although she is not to be branded as an arm smuggler herself, she usually acted as a middle person helping the illegal arms transaction between the smuggler and the buyers i.e. UG elements and thereby gets commission out of the deal.
+
+ Stephen Sangluaia on the other hand is highly skilled in gunsmithy and IED's having past criminal record of an offence under Arms Act. They knew each other only since June 2010 when Ramngaii was introduced to Stephen Sangluaia by her associates namely Lalnuntluanga of Saron Veng and one Hruaia, a CRPF personnel working in intelligence branch. Since then, Ramngaii regularly met Stephen Sangluaia at his house at Electric Veng. Ramngaii had confessed that she had struck a deal with Sangluaia for making some Letter Bombs which they had planned to dispose off to NSCN(IM). She, however insisted that she was working for an SIB officer named Sangliana to whom she used to give the information on regular basis. It is also obvious that she is also working as informer for various agencies such as BSF and CRPF as well. She also confessed even giving false or exaggerated report by telling him that Stephen Sangluaia had already made more than 80 out of the total demand for 300 Letter Bombs and landmines. Stephen Sangluaia also corroborates the statement of Ramngaii but denied having made such a deal. He insisted that Ramngaii only asked him to make some IED and landmine but he had turned her down.
+
+ Search of the house premises of Stephen Sangluaia was conducted earlier on the previous night i.e. 13.8.2010@ 9:30 pm but no incriminating materials found. It seemed that the raid was conducted either pre-maturely or the IED's were secretly manufactured and concealed in other place. Both were let off after thorough interrogation on the same day.
+
+Inspr.(LALTANPUIA)
+
+CID(SB)
+
+Aizawl

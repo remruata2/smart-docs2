@@ -1,0 +1,29 @@
+****CONFIDENTIAL****
+
+****FAX MESSAGE****
+
+****TO : DCP/SPECIAL BRANCH, DELHI****
+
+**INFO : IGP(INTELLIGENCE), MIZORAM (BY HAND)**
+
+**FROM : SP, CID(SB), MIZORAM, AIZAWL**
+
+**NO: MSB/CB/B-64/ DT.**
+
+**___________________________________________________________________**
+
+**REFERENCE TO YOUR MESSAGE NO.15321/C-3-M/SB DATED 09.09.2019, REGARDING GRAND PUBLIC CONFERENCE NAMED “PEOPLE’S RIGHTS CONFERENCE” TO BE HELD AT NEW DELHI ON 29.09.2019,AS PER INFORMATION RECEIVED, NO NGO FROM MIZORAM INTENDS TO SEND ANY PARTICIPANT OR DELIGATES TO ATTEND THE SAID CONFERENCE (.) THIS IS FOR YOUR KIND INFORMATION AND FURTHER NECESSARY ACTION PLEASE (.)**
+
+**____________________________________________________________**
+
+**Copy to:**
+
+**P.A. to SP CID(SB) for transmission please.**
+
+****
+
+****(B.LALDINGNGHETA)Addl.SP****
+
+****For Sr.Superintendent of Police****
+
+****CID(SB), Mizoram, Aizawl****

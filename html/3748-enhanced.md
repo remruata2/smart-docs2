@@ -1,0 +1,25 @@
+**Internal security situation in Mizoram**
+
+ Mizoram is one of the most peaceful States in the country. In fact in the strife-torn North East India, Mizoram can boast of being the least militant infected State mainly because the budding militancy have been nabbed by Mizoram Police in its infant stage. The last of such militant was the coming overground 64 strong SPLA cadres just after completion of their training somewhere in the border between Myanmar and Manipur under the eagis of PREPAK in 2009.
+
+ The armed groups of Bru refugee which sometimes create problem in the west and north-west part of Mizoram have also been contained and their activities have been rarely heard of during the last many days.
+
+ The HPC'D' Manipuri based militant of Mizo Hmar Community has agreed to come to the negotiating table with the Govt. of Mizoram for the permanent solution of ethnic problem. A truce, termed suspension of operation had also been drafted and the Govt. look forward to having the next round of meeting shortly. Collection of taxes in their so called demand area has also subsided during the recent past.
+
+ Besides, the above noted armed groups operating from across the inter-state boundary which had been more or less contained there are other insurgent outfit like the NLFT, NSCN(IM), ALP having base camp across the international border neighbouring Mizoram. Movement of this militant have been closely watched and have never posed major threat to the internal security in Mizoram except minor kidnapping cases in the border areas of Mizoram-Tripura-Bangladesh.
+
+ It is often said that the above noted militant and other militants of the North East are using Mizoram for the trafficking of arms consignment. Considering seizure of huge cache of arms prior to 2009 some arms and contraband goods after this notion could not be ruled out. However, it could also boldly be said that arms trafficking has been successfully checked during the last two years.
+
+ There was no fresh report of activities of Zomi Revolutionary Army(ZRA) Manipuri based militant operating in the adjacent area of North Eastern part of Mizoram.
+
+ The overall security situation in Mizoram could be said peaceful.
+
+**External security situation in Mizoram**
+
+ Mizoram State although being one of the most peaceful States in the country was sandwiched between two foreign countries(i.e. Myanmar and Bangladesh) and also militant infested States like Manipur, Assam and Tripura are its immediate neighbours which calls for extra alertness in all its border areas. The 700km. plus international border is somewhat porous and are sometimes taken advantage of by various insurgent groups for arms smuggling and also for transit of the militant group themselves. Border security forces as well as Assam Rifles personnel could not fully cover the whole border areas and hence intelligence network and State Police force needs to be strengthened so as to assist para military forces posted in the border areas to check free movement of undesirable elements and also to prevent illegal immigrants from entering Indian soil.
+
+** **Smuggling of arms**: Inspite of all efforts of security agencies in the State, lots of arms smuggling is taking place through Mizoram border on both sides i.e. Myanmar and Bangladesh. Seizure of arms, drugs, arrest of perpetrators etc confirmed that Mizoram is the main transit route of all NE insurgent groups including anti-social elements for procurement of arms both from Bangladesh and Myanmar. In the last 4/5 years, the State Police seized 153 and 124 sophisticated and non-sophisticated arms respectively, total - 277 and total 13637 ammns. during 2008 to Aug, 2012 alone and in fact, seizure of arms, ammns, drugs and the arrest made in this period could have been just a tip of an iceberg.**
+
+ **Smuggling of Narcotic Drugs and other contraband items**: The strategical location of Mizoram has also been fully exploited by drug smugglers for trafficking narcotic drugs through Myanmar and Bangladesh vice versa. During the last 4/5 years, 16.744 kgs. of Heroin, 28.706 kgs. of Opium, 10.37 quintals of Ganja, 2.83 crore of Pseudoephedrine tabs. and others were seized and arrested 2330 persons and prosecuted them.
+
+ All these seizures were made by Police, Narcotic drugs squad and Customs and these seizures has confirmed that Mizoram is the main route of smuggling of Narcotic Drugs and other contraband items and there is urgent need to check this menace for the interest of the nation as a whole.

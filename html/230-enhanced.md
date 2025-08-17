@@ -1,0 +1,9 @@
+_REPORT ON THREAT PERCEPTION ASSESSMENT ON THE RESIDENCE OF ACCOUNTANT GENERAL, MIZORAM_
+
+ It may be recollected that Shri Pravindra Yadav, Accountant General, Mizoram recently had a confrontation with his contractual employees regarding termination of their service from his office, and that he (the Accountant General) was latter warned by the Mizo Zirlai Pawl by threatening him not to return to Mizoram without settling the matter with his contract employees (i.e. to further extent their services). The said imbroglio even caused closure of AG’s office for a few days as the MZP members intended to storm the AG in his office during those days.
+
+It may be noted that, in the above mentioned confrontation, things was flared up sensitively as soon as the MZP interfered on the matter. Had the AG immediately not left Mizoram on that day, worst situation could have happened for him, his family and his office as well. The termination of his 30 contract employees from their services was never a simple matter as the said employees have been relying on their wages to support their families for almost over 8 years.
+
+Since there is no positive news from the AG himself till date and also that there is no news from the MZP about suspension of their warning to the AG, it can be assumed that when the AG resumes his office after his leave, the said matter will surely be raised up again by the MZP as well as the contract employees themselves. If the matter is not settled by then, there is a possibility of another confrontation much worst than the previous one.
+
+Considering the above mentioned points, it was concluded that provision of static CRPF/Police security cover for the residence of the Accountant General, Mizoram is highly recommended for the time being i.e. until the present misunderstanding between AG/MZP/Contract employees is reconciled.

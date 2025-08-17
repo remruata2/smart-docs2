@@ -1,0 +1,7 @@
+A. _Front page of VANGLAINI newspaper Dt. 22.5.2014_
+
+**100 Armed Police Personnel Deployed at Selam – PRISM urged Government to Call Back/Withdraw the Police****:**A****100 Police personnel of 2nd IR Bn. from Khawzawl and Environment &amp; Forest Department staff from Aizawl and Khawzawl left for Selam village yesterday, to find out people who set government’s truck on fire on 16.5.2014 at the outskirt of Selam village. Selam Branch YMA President said that they do not understand the way that the government handles their situation.
+
+ According to reports, the police personnel sent to Selam village are led by Deputy Commandant of 2nd IR Bn. and SDPO of Khawzawl. Around 40 field staff and Forest Protection Squad from Aizawl left for Selam village in 5 trucks and 2 Gypsys at 8:00 am yesterday morning. 8 staff from Khawzawl Forest Division and 6 staff from Champhai Division also left for Selam village.
+
+ Meanwhile, civic organisation PRISM has strongly condemned the deployment of heavily armed police personnel in the village to terrorise the villagers. PRISM said that they demanded the government to withdraw the troops and to send official envoys to the village to find peaceful solution to the standoff.

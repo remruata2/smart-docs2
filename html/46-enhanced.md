@@ -1,0 +1,39 @@
+MIZO LAND TRAVELS &amp; CARGO SERVICE
+
+He Agency hi Pu J. Lalchhawna S/o Dothanga of Zemabawk (Tawngtaimual) a mi ta a ni a, tunah hian Motor, Bus-1 (passenger phur) Cargo-1 (Bungraw phur) leh Winger-2 (Maxi cab) (Passenger phur) nei in Lunglei an service tir a, hei hi an sum hmuhna ber a ni. June, 2007 atang khan an sumdawnna tih changtlun nan mipui hnen atangin pawisa 5% per month a pungin an puk tan a, tun dinhmun takah chuan an hnena pawisa la dah mi 12 la awmin a vai in Rs. 12,71,000/- an kutah hian mi dang pawisa a awm a ni. Pawisa dah te hian 5% interest la thei in , an dah atanga thla thum hnuah a principal nen an la chhuak thei ang tiin agreement an siam thin a ni. Tun thleng hi chuan an customer ten engmah buaina an la nei lo. Heng an pawisa puk te hi an service agency tihchangtlun na atan hmangin 17th December,2008 pawh khan Bus (Passenger phur) pakhat lei in, heng an motor te thawhchhuah atang hian an pawisa puk interest leh capital te hi an pe chhuak thin a ani. Dan ang taka mipui hnena pawisa puk thei turin leh advertisement te siam tur chuan engmah thunei tu lam atangin permit an nei lo.
+
+ An pawisa pukte hi affidavits siamin, an puksak tam dan a zir in an assets neihte dahkham ang rengin affidavits ah hian an ziak lang thin. An motor khal tute tih loh ah chuan counter leh bungraw thawn tur lo ziak fel tur hian mi pathum chhawrin thlakhat ah Rs. 2500/- an hlawh tir a, tunah hian Pu Khawnghinga In Zarkawt Office atan an luah a ni.
+
+NE 10-6 PUBLIC SOFT CORPORATION OF INDIA
+
+Tunlai a Zonet Cable TV kal tlanga in zuar NE 10-6 Public Soft Corporation ah Rs. 629/- in member a nih theih a, Rs. 1 lakh insurance a keng tel ti a rawn inzuar te chhui zui a ni a, hetiang hi thil awmdan a ni.
+
+ NE 10-6 tih awmzia hi NE hi North East tihna niin 10-6 chu working hours tihna a ni. He corporation hi an sawidan chuan California, USA a hmunpui neiin an sawi. Mizoram an office chu Bus Terminal 2nd floor, Thuampui vengah a ni a, a thawktute hriat theih chinah hengte hi an ni:-
+
+ 1) Head Operator  : Rahul Sinha
+
+ 2) Managing Director : Indus Butt
+
+ Heng bakah hian :-
+
+ 1) Administration Department  :  i) Lalduhawma, Chhinga Veng
+
+  ii) Irene, Chhinga Veng
+
+   In Bound :  i) John Lalthafamkima
+
+  bakah midang panga (5)
+
+  Out Bound  :  Hetah hian mi 35 an awm
+
+  Collection Representative  :  Hetah hian mi 13 an awm bawk
+
+ John Lalthafmkima sawi danin
+
+ In bound ho hian telephone a rawn zawt chiang duh te chhan hna an thawk a, out bound ho hian member ni tawh member an nihna atan a pawimawh e.g Identity Cards, stc an buaipui a, phone a biak pawh ngai chi an khawih thung. Tin, he corporation hi ZIDCO nena thawkdun niin thudawnna chuan a sawi bawk. He corporation ah hian tuna hnathawktu awm zawng zawng chu mi 40 vel niin an in sawi.
+
+ He corporation a member nih theih dan chu kum khat atan Rs. 629/- niin leh he member in ama chhungte a dah ve anih chuan concession awmin Rs. 250/- chauh membership fee a ngai tawh thung. An member te vanduai thilah tawhsual lo tawk se Rs. 1 lakh thleng accidental/disability insurance a pek theih a, tin heng bakah hian bonus Rs. 12500/- an la dawng thei. Hei hi Rs. 10000/- hi member te tanpuina a niin leh an fate school admission leh tul dang atan a ni a, Rs. 2500/- hi thlan siamna leh tuldang atan a ni a, hei hi member thi emaw totally a disable te tana tih bik a ni.
+
+ Accidental insurance claim tur hian police lam atangin engmah document a ngai lova, insurance lam khawih tute leh collection and representative te khan an ching fel mai dawn a ni.
+
+ Tunah member 400 bawr vel an nei tawh niin an in sawi bawk. Heng thil zawng zawng ti thei tur hian an documents te check turin an hotute an zin bo rih avangin he lam hi chu hriat theih ala nilo. Tin, chubakah tuna thawktute bio-data pawh lak mai theih ala ni lova, heng thil tul ti thei tur hian hma lak mek a ni. Heta an sum hmuh hi engtianga invest nge tih zawhna pawh an hotute lo haw hma chuan an chhan theih loh thu staff te hian an sawi.

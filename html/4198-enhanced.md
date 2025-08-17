@@ -1,0 +1,9 @@
+****SEIZURE OF ARMS & AMMUNITIONS FOR THE YEAR 1995 - TILL DATE****
+
+| SlNo | **Type of Arms/Weapons** | **Qty** | **No. of Ammns** | **Date of Seizure/ recovery** | Place of Seizure/ recovery | **From whom Seize/recovered** | **By whom** | **Case Ref.** |
+| --- | --- | --- | --- | --- | --- | --- | --- | --- |
+|  |   |  |  |  | 2022 |  |  |  |
+| 1. | (1) AK-47 No.36995  (2) DBBL Gun | 1  1 | 1. 1(one) Magazine &amp; live ammn. 38 rds 2. 11 (eleven) Catridges | 26.3.2022 | Bank of Tiau River near Temporary Refugee Camp | unclaimed | 8th Assam Rifles, Zokhawthar | Zokhawthar PS C/No.4/2022 u/s 25(1B)(a)/1A/1B(f) Arms Act 1959. |
+| 2. | .303 Rifle with Magazine | 1 | 2 nos live rounds of .303 | 4.4.2022 | Bawngkawn, Aizawl | 1) Lalmuanpuia(29) s/o H.Lallianzuala of Edenthar, Aizawl 2) C.Vanlalruata (28) s/o C.Lalbiakzama of Thingsultlangnuam 3) David Lalchhuanawma(46) s/o Thanhranga of Lunglei Zohnuai  | Bawngkawn PS staff &amp; Military intelligence Kolkata Unit | Bawngkawn PS C/No. 243/22 dt.4.4.2022 u/s 25(1A) Arms Act. |
+| 3. | 1) Pistol 2) Revolver Pistol 3) 7 nos. of improvised Hand Grenade 4) 2 nos. of Tac Phone/ RS Walkie Talkie 5) 1 no. of Tac Vest 6) 1 no. of Power Bank  | 2 1 | 15 rds. of ammns. | 10.4.2022 | Tiau River in between Melbuk and Ruantlang |  | 8th Assam Rifles, Champhai Post | Champhai PS C/No.40/22 Dt. 10.4.2022 u/s 25(1B)(F) Ams Act r/w 9B(1)(a) The Explosive Act. |
+| 4. | .303 Rifle with Rifle Cover (Khaki Colour) | 1 |  | 11.4.2022 | Dawrpui, Aizawl | Johny Lalremtluanga(49) s/o PC Lalduhawma of Laipuitlang | District Special Branch (DSB), Aizawl | Aizawl PS C/No.234/22 Dt.11.04.2022 u/s 25(1-A) Arms Act. |

@@ -1,0 +1,29 @@
+To,
+
+ The Superintendent of Police,
+
+ CID(SB)
+
+ Aizawl, Mizoram
+
+Subject: Explanation chhanna.
+
+Ref: No.RSB/PF-LTP/2012/301 dt.3.2.2012.
+
+Ka Pu,
+
+ Khawngaih takin a chunga i letter no. leh subject tarlan anga a hnuaia ka thu han thlen hi min ngaihtuahsak turin ka ngen a che.
+
+ I lehkha ziak ang hian dt.14.12.2011 atanga dt.30.12.2011 thleng hian ka damlohna avangin leave ka la a, ka chawlh a tawp hnu ah hian keima taksa chaklohna avangin in lamah thisen chaw te khaiin ka in enkawl zui zel a. Ni 17 chhung lai mai nangma hnenah engmah ka harsatna te thlen lovin leh phalna la lovin ka awm zui ta a, hetih lai hian ka nupui fanau te tumah ka hnenah an awm lova, thu chhia thu tha pawh thlen hleithei lovin ka awm a, hengah hian i hmaah thiamthu sawi tur engmah ka nei lova, he ka absent thu ah hian khawngaih taka i mi hriatthiamna sang ber ka ngen in min ngaidam turin ka ngen che a ni.
+
+ Tin, explanation vide letter No.RSB/PF-LTP/2012/187 dt.20.1.2012 pawh a hun chhung tiam chinah ka chhan theihloh na pawh ka sawi tak ang khan taksa chaklo leh che thei miah lovin ka awm a, ka nupui in min tlanchhuahsan bawk si a, thisen chaw in lamah theih ang angin ka khai reng a, ka chhungte tumah hma la turin ka kiangah an awm bawk si lova, a hun chhung hian ka rawn chhang theilo che a ni.
+
+ Tin, ka taksa in enkawl zui zel a ngaih avangin dt.25.1.2012 atang khan ni 15 chhung dt.8.2.2012 thleng leave ka la leh a ni a, dt.9.2.2012 ah office zawm leh tura tih ka ni.
+
+ Ka Pu, heng zawng zawngah hian thiamthu sawi tur pakhatmah ka nei lova, khawngaih takin ka tih dikloh leh thiamlohna te hi min hrethiam a min ngaidam turin ka ngen che a ni. Chutih rual chuan tun hnuah hetiang hian vawikhatmah awm leh tawh lo turin ka intiam e.
+
+I rintlak,
+
+ASI (LALTANPUIA)
+
+CID(SB), Aizawl

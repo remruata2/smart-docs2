@@ -1,0 +1,3 @@
+A. _Front page of VANGLAINI newspaper Dt. 24.6.2013_
+
+**3 abducted persons still detained**: 3 (three) persons abducted on 5.6.2013 from Badalsuri near Rajiv Nagar of Mamit Dist. by NLFT are still detained till today. According to Mizoram Police CID, the abductors are believed to be NLFT Parimol’s Faction; the abductors have informed Gautam Construction Company (the employers of the 3 abducted persons) that they demand 1 Crore for ransom.

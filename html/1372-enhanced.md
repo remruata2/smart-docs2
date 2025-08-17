@@ -1,0 +1,31 @@
+**URGENT**
+
+****CONFIDENTIAL****
+
+****FAX MESSAGE****
+
+****TO : DCP/SPECIAL BRANCH, DELHI****
+
+**INFO : DIG, CID, MIZORAM (BY HAND)**
+
+****
+
+**FROM : S.P, CID (SB), MIZORAM, AIZAWL**
+
+**NO: MSB/CB/B-61/ DT.21.02.2020**
+
+**_______________________________________________________________**
+
+****REFERENCE TO YOUR MESSAGE NO. 1191/P(P-IV)/SB, DATED, DELHI THE 12.02.2020, PARTICIPANTS FROM THE STATE OF MIZORAM FOR DHARNA/DEMONSTRATION TO BE HELD ON 25.02.2020 AT JANTAR MANTAR, NEW DELHI BY ALL INDIA FEDERATION OF UNIVERSITY AND COLLEGE TEACHERS ORGANIZATION (AIFUCTO) UNDER THE LEADERSHIP OF SH. ARUN KUMAR, GENERAL SECRETARY, AIFUCTO MAY BE TREATED AS NIL. THIS IS FOR YOUR KIND INFORMATION AND FUTHER NECESSARY ACTION PLEASE.****
+
+**________________________________________________________________**
+
+**Copy to:**
+
+**P.A. to SP CID(SB), Mizoram for quick transmission please.**
+
+****( K.LALREMSANGA )****
+
+****Sr. Superintendent of Police****
+
+****CID(SB), Mizoram, Aizawl****

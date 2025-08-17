@@ -1,0 +1,546 @@
+**4.1.2022 :**
+
+(a) There were 1091 (one thousand and ninety one) new COVID-19 positive cases during the last 120 (one hundred and twenty) hours bringing total number of COVID-19 cases in the state to 142248 (one hundred forty two thousand two hundred and forty eight). At the same time, 139864 (one hundred thirty nine thousand eight hundred and sixty four) COVID-19 positive patients have been discharged/cured and 550 (five hundred and fifty) death occurred due to COVID-19, and the total active cases in the state is 1834 (one thousand eight hundred and thirty four).
+
+(b) 136 (one hundred and thirty six) persons have undergone COVID-19 Screening Test at Vairengte Screening Centres and 126 (one hundred and twenty six) vehicles entered at Vairengte Check gate from 9:00 a.m. to 3:00 p.m. on 4.1.2022.
+
+**5.1.2022 :**
+
+(a) There were 443 (four hundred and forty three) new COVID-19 positive cases during the last 24 (twenty four) hours bringing total number of COVID-19 cases in the state to 142691 (one hundred forty two thousand six hundred and ninety one). At the same time, 139976 (one hundred thirty nine thousand nine hundred and seventy six) COVID-19 positive patients have been discharged/cured and 553 (five hundred and fifty three) death occurred due to COVID-19, and the total active cases in the state is 2162 (two thousand one hundred and sixty two).
+
+(b) 141 (one hundred and forty one) persons have undergone COVID-19 Screening Test at Vairengte Screening Centres and 135 (one hundred and thirty five) vehicles entered at Vairengte Check gate from 9:00 a.m. to 3:00 p.m. on 5.1.2022.
+
+**6.1.2022 :**
+
+(a) There were 502 (five hundred and two) new COVID-19 positive cases during the last 24 (twenty four) hours bringing total number of COVID-19 cases in the state to 143193 (one hundred forty three thousand one hundred and ninety three). At the same time, 140067 (one hundred forty thousand and sixty seven) COVID-19 positive patients have been discharged/cured and 554 (five hundred and fifty four) death occurred due to COVID-19, and the total active cases in the state is 2572 (two thousand five hundred and seventy two).
+
+(b) 204 (two hundred and four) persons have undergone COVID-19 Screening Test at Vairengte Screening Centres and 141 (one hundred and forty one) vehicles entered at Vairengte Check gate from 9:00 a.m. to 3:00 p.m. on 6.1.2022.
+
+**7.1.2022 :**
+
+ A Meeting was held in view of recent surge in COVID-19 Omicron variant in the country under the chairmanship of Pu Lalchamliana, Home Minister on 7.1.2022 @2:00 p.m. at SAD Conference Hall, MINECO. The meeting discussed the international borders entry-exit SOP and opined that the present SOP being in force is still adequate for the time being and a committee will be set up to look into the matter concerning Screening, Testing etc. The meeting was attended by Chief Secy., DGP (M), DCs and SsP of the concerned districts within the state, officials from Assam Rifles, BSF and other concerned officials attended the meeting.
+
+(a) There were 579 (five hundred and seventy nine) new COVID-19 positive cases during the last 24 (twenty four) hours bringing total number of COVID-19 cases in the state to 143772 (one hundred forty three thousand seven hundred and seventy two). At the same time, 140200 (one hundred forty thousand and two hundred) COVID-19 positive patients have been discharged/cured and 554 (five hundred and fifty four) death occurred due to COVID-19, and the total active cases in the state is 3018 (three thousand and eighteen).
+
+(b) 117 (one hundred and seventeen) persons have undergone COVID-19 Screening Test at Vairengte Screening Centres and 159 (one hundred and fifty nine) vehicles entered at Vairengte Check gate from 9:00 a.m. to 3:00 p.m. 7.1.2022
+
+**10.1.2022 :**
+
+(a) There were 2273 (two thousand two hundred and seventy three) new COVID-19 positive cases during the last 72 (seventy two) hours bringing total number of COVID-19 cases in the state to 146045 (one hundred forty six thousand and forty five). At the same time, 140872 (one hundred forty thousand and eight hundred and seventy two) COVID-19 positive patients have been discharged/cured and 561 (five hundred and sixty one) death occurred due to COVID-19, and the total active cases in the state is 4612 (four thousand six hundred and twelve).
+(b) 100 (one hundred) persons have undergone COVID-19 Screening Test at Vairengte Screening Centres and 150 (one hundred and fifty) vehicles entered at Vairengte Check gate from 9:00 a.m. to 3:00 p.m. on 10.1.2022.
+
+****12.1.2022:**A meeting under the chairmanship of Dr. H. Lalthlangliana, DC Kolasib was held on 12.1.2022 @12:00 Noon at Kolasib DC Conference Hall, Kolasib in view of the upcoming KTP General Conference, which is scheduled to be held on 6.3.2022 at Kolasib. During the meeting, DC, Kolasib stated that conduct of large assembly of around 10,000 persons is not feasible considering surge in COVID-19 positive case within the state and in this regard, he requested leaders of Central KTP and KTP General Conference Organizing Committee to reconsider postponement of the scheduled time. He also requested them to first examine the probable number of delegates and available halls/buildings for accommodation within Kolasib. It was also highlighted in the meeting that the district authority intended to conduct COVID test for all delegates upon entering the district. The meeting was attended by Pu Vanlalfaka Ralte, SP Kolasib; CMO Kolasib; leaders of Central KTP and KTP General Conference Organizing Committee members.**
+
+(a) There were 2393 (two thousand three hundred and ninety three) new COVID-19 positive cases during the last 48 (forty eight) hours bringing total number of COVID-19 cases in the state to 148438 (one hundred forty eight thousand four hundred and thirty eight). At the same time, 141235 (one hundred forty one thousand two hundred and thirty five) COVID-19 positive patients have been discharged/cured and 564 (five hundred and sixty four) death occurred due to COVID-19, and the total active cases in the state is 6639 (six thousand six hundred and thirty nine).
+
+(b) 160 (one hundred and sixty) persons have undergone COVID-19 Screening Test at Vairengte Screening Centres and 152 (one hundred and fifty two) vehicles entered at Vairengte Check gate from 9:00 a.m. to 3:00 p.m. on 12.1.2022.
+
+**13.1.2022:**
+
+(a) There were 1054 (one thousand and fifty four) new COVID-19 positive cases during the last 24 (twenty four) hours bringing total number of COVID-19 cases in the state to 149492 (one hundred forty nine thousand four hundred and ninety two). At the same time, 141531 (one hundred forty one thousand five hundred and thirty one) COVID-19 positive patients have been discharged/cured and 564 (five hundred and sixty four) death occurred due to COVID-19, and the total active cases in the state is 7397 (seven thousand three hundred and ninety seven).
+
+(b) 101 (one hundred and one) persons have undergone COVID-19 Screening Test at Vairengte Screening Centres and 117 (one hundred and seventeen) vehicles entered at Vairengte Check gate from 9:00 a.m. to 3:00 p.m. on 13.1.2022.
+
+**14.1.2022** :
+
+(a) There were 1046 (one thousand and forty six) new COVID-19 positive cases during the last 24 (twenty four) hours bringing total number of COVID-19 cases in the state to 150538 (one hundred fifty thousand five hundred and thirty eight). At the same time, 141914 (one hundred forty one thousand nine hundred and fourteen) COVID-19 positive patients have been discharged/cured and 565 (five hundred and sixty five) death occurred due to COVID-19, and the total active cases in the state is 8059 (eight thousand and fifty nine).
+
+(b) 72 (seventy two) persons have undergone COVID-19 Screening Test at Vairengte Screening Centres and 139 (one hundred and thirty nine) vehicles entered at Vairengte Check gate from 9:00 a.m. to 3:00 p.m. on 14.1.2022.
+
+**17.1.2022**.
+
+(a) There were 1940 (one thousand nine hundred and forty) new COVID-19 positive cases during the last 72 (seventy two) hours bringing total number of COVID-19 cases in the state to 152478 (one hundred fifty two thousand four hundred and seventy eight). At the same time, 143486 (one hundred forty three thousand four hundred and eighty six) COVID-19 positive patients have been discharged/cured and 570 (five hundred and seventy) death occurred due to COVID-19, and the total active cases in the state is 8422 (eight thousand four hundred and twenty two).
+
+(b) 90 (ninety) persons have undergone COVID-19 Screening Test at Vairengte Screening Centres and 139 (one hundred and thirty nine) vehicles entered at Vairengte Check gate from 9:00 a.m. to 3:00 p.m. on 17.1.2022.
+
+**18.1.2022**
+
+(a) There were 1280 (one thousand two hundred and eighty) new COVID-19 positive cases during the last 24 (twenty four) hours bringing total number of COVID-19 cases in the state to 153758 (one hundred fifty three thousand seven hundred and fifty eight). At the same time, 144316 (one hundred forty four thousand three hundred and sixteen) COVID-19 positive patients have been discharged/cured and 573 (five hundred and seventy three) death occurred due to COVID-19, and the total active cases in the state is 8869 (eight thousand eight hundred and sixty nine).
+(b) 101 (one hundred and one) persons have undergone COVID-19 Screening Test at Vairengte Screening Centres and 144 (one hundred and forty four) vehicles entered at Vairengte Check gate from 9:00 a.m. to 3:00 p.m. today, i.e., 18.1.2022.
+
+**19.1.2022 :**
+
+(a) There were 1312 (one thousand three hundred and twelve) new COVID-19 positive cases during the last 24 (twenty four) hours bringing total number of COVID-19 cases in the state to 155071 (one hundred fifty five thousand and seventy one). At the same time, 145485 (one hundred forty five thousand four hundred and eighty five) COVID-19 positive patients have been discharged/cured and 574 (five hundred and seventy four) death occurred due to COVID-19, and the total active cases in the state is 9012 (nine thousand and twelve).
+(b) 90 (ninety) persons have undergone COVID-19 Screening Test at Vairengte Screening Centres and 134 (one hundred and thirty four) vehicles entered at Vairengte Check gate from 9:00 a.m. to 3:00 p.m. on 19.1.2022.
+
+**20.1.2022**
+
+ (a)There were 984 (nine hundred and eighty four) new COVID-19 positive cases during the last 24 (twenty four) hours bringing total number of COVID-19 cases in the state to 156054 (one hundred fifty six thousand and fifty four). At the same time, 146403 (one hundred forty six thousand four hundred and three) COVID-19 positive patients have been discharged/cured and 576 (five hundred and seventy six) death occurred due to COVID-19, and the total active cases in the state is 9075 (nine thousand and seventy five).
+
+ (b)65 (sixty five) persons have undergone COVID-19 Screening Test at Vairengte Screening Centres and 153 (one hundred and fifty three) vehicles entered at Vairengte Check gate from 9:00 a.m. to 3:00 p.m. on 20.1.2022.
+
+****21.1.2022 :** (a) There were 1199 (one thousand one hundred and ninety nine) new COVID-19 positive cases during the last 24 (twenty four) hours bringing total number of COVID-19 cases in the state to 157253 (one hundred fifty seven thousand two hundred and fifty three). At the same time, 147330 (one hundred forty seven thousand three hundred and thirty) COVID-19 positive patients have been discharged/cured and 576 (five hundred and seventy six) death occurred due to COVID-19, and the total active cases in the state is 9347 (nine thousand three hundred and forty seven).**
+
+(b) 92 (ninety two) persons have undergone COVID-19 Screening Test at Vairengte Screening Centres and 147 (one hundred and forty seven) vehicles entered at Vairengte Check gate from 9:00 a.m. to 3:00 p.m. on 21.1.2022.
+
+**24.1.2022 :**
+
+(a) There were 2896 (two thousand eight hundred and ninety six) new COVID-19 positive cases during the last 72 (seventy two) hours bringing total number of COVID-19 cases in the state to 160148 (one hundred sixty thousand one hundred and forty eight). At the same time, 150099 (one hundred fifty thousand and ninty nine) COVID-19 positive patients have been discharged/cured and 581 (five hundred and eighty one) death occurred due to COVID-19, and the total active cases in the state is 9468 (nine thousand four hundred and sixty eight).
+
+(c) 91 (ninety one) persons have undergone COVID-19 Screening Test at Vairengte Screening Centres and 133 (one hundred and thirty three) vehicles entered at Vairengte Check gate from 9:00 a.m. to 3:00 p.m. on 24.1.2022.
+
+**25.1.2022 :**
+
+(a) There were 2223 (two thousand two hundred twenty three) new COVID-19 positive cases during the last 24 (twenty four) hours bringing total number of COVID-19 cases in the state to 162371(one hundred sixty two thousand three hundred seventy one). At the same time, 151081 (one hundred fifty one thousand eighty one) COVID-19 positive patients have been discharged/cured and 586 (five hundred eighty six) death occurred due to COVID-19, and the total active cases in the state is 10704 (ten thousand seven hundred four).
+
+(b) 82 (eighty two) persons have undergone COVID-19 Screening Test at Vairengte Screening Centres and 145 (one hundred forty five) vehicles entered at Vairengte Check gate from 9:00 a.m. to 3:00 p.m. on 25.1.2022.
+
+**27.1.2022 :**
+
+(a) There were 3293 (three thousand two hundred ninety three) new COVID-19 positive cases during the last 48 (forty eight) hours bringing total number of COVID-19 cases in the state to 165661(one hundred sixty five thousand six hundred sixty one). At the same time, 152367 (one hundred fifty two thousand three hundred sixty seven) COVID-19 positive patients have been discharged/cured and 591 (five hundred ninety one) death occurred due to COVID-19, and the total active cases in the state is 12703 (twelve thousand seven hundred three).
+
+(b) 55 (fifty five) persons have undergone COVID-19 Screening Test at Vairengte Screening Centres and 135 (one hundred thirty five) vehicles entered at Vairengte Check gate from 9:00 a.m. to 3:00 p.m. on 27.1.2022.
+
+**31.1.2022 :**
+
+(a) There were 4768 (four thousand seven hundred sixty eight) new COVID-19 positive cases during the last 72 (seventy two) hours bringing total number of COVID-19 cases in the state to 172491 (one hundred seventy two thousand four hundred ninety one). At the same time, 157584 (one hundred fifty seven thousand five hundred eighty four) COVID-19 positive patients have been discharged/cured and 606 (six hundred and six) death occurred due to COVID-19, and the total active cases in the state is 14301 (fourteen thousand three hundred one).
+(b) 65 (sixty five) persons have undergone COVID-19 Screening Test at Vairengte Screening Centres and 75 (seventy five) vehicles entered at Vairengte Check gate from 9:00 a.m. to 3:00 p.m. on 31.1.2022.
+
+**1.2.2022 :**
+
+(a) There were 2531 (two thousand five hundred thirty one) new COVID-19 positive cases during the last 24 (twenty four) hours bringing total number of COVID-19 cases in the state to 175022 (one hundred seventy five thousand twenty two). At the same time, 159324 (one hundred fifty nine thousand three hundred twenty four) COVID-19 positive patients have been discharged/cured and 609 (six hundred and nine) death occurred due to COVID-19, and the total active cases in the state is 15089 (fifteen thousand and eighty nine).
+
+(b) 68 (sixty eight) persons have undergone COVID-19 Screening Test at Vairengte Screening Centres and 108 (one hundred and eight) vehicles entered at Vairengte Check gate from 9:00 a.m. to 3:00 p.m. on 1.2.2022.
+
+**2.2.2022 :**
+
+(a) There were 2573 (two thousand five hundred seventy three) new COVID-19 positive cases during the last 24 (twenty four) hours bringing total number of COVID-19 cases in the state to 177595 (one hundred seventy seven thousand five hundred ninety five). At the same time, 161642 (one hundred sixty one thousand six hundred forty two) COVID-19 positive patients have been discharged/cured and 615 (six hundred fifteen) death occurred due to COVID-19, and the total active cases in the state is 15338 (fifteen thousand three hundred thirty eight).
+
+(b) 57 (fifty seven) persons have undergone COVID-19 Screening Test at Vairengte Screening Centres and 119 (one hundred and nineteen) vehicles entered at Vairengte Check gate from 9:00 a.m. to 3:00 p.m. on 2.2.2022.
+
+**28.1.2022 :**
+
+(a) There were 2064 (two thousand and sixty four) new COVID-19 positive cases during the last 24 (twenty four) hours bringing total number of COVID-19 cases in the state to 167725 (one hundred sixty seven thousand seven hundred twenty five). At the same time, 153413 (one hundred fifty three thousand four hundred thirteen) COVID-19 positive patients have been discharged/cured and 591 (five hundred ninety one) death occurred due to COVID-19, and the total active cases in the state is 13721 (thirteen thousand seven hundred twenty one).
+
+(b) 87 (eighty seven) persons have undergone COVID-19 Screening Test at Vairengte Screening Centres and 129 (one hundred twenty nine) vehicles entered at Vairengte Check gate from 9:00 a.m. to 3:00 p.m. on 28.1.2022.
+
+**3.2.2022 :**
+
+ (a) There were 2145 (two thousand one hundred forty five) new COVID-19 positive cases during the last 24 (twenty four) hours bringing total number of COVID-19 cases in the state to 179740 (one hundred seventy nine thousand seven hundred forty). At the same time, 163560 (one hundred sixty three thousand five hundred sixty) COVID-19 positive patients have been discharged/cured and 617 (six hundred seventeen) death occurred due to COVID-19, and the total active cases in the state is 15563 (fifteen thousand five hundred sixty three).
+
+(b) 64 (sixty four) persons have undergone COVID-19 Screening Test at Vairengte Screening Centres and 155 (one hundred fifty five) vehicles entered at Vairengte Check gate from 9:00 a.m. to 3:00 p.m on 3.2.2022.
+
+**4.2.2022 :**
+
+(a) There were 1956 (one thousand nine hundred fifty six) new COVID-19 positive cases during the last 24 (twenty four) hours bringing total number of COVID-19 cases in the state to 181696 (one hundred eighty one thousand six hundred ninety six). At the same time, 165447 (one hundred sixty five thousand four hundred forty seven) COVID-19 positive patients have been discharged/cured and 617 (six hundred seventeen) death occurred due to COVID-19, and the total active cases in the state is 15632 (fifteen thousand six hundred thirty two).
+
+(b) 46 (forty six) persons have undergone COVID-19 Screening Test at Vairengte Screening Centres and 131 (one hundred thirty one) vehicles entered at Vairengte Check gate from 9:00 a.m. to 3:00 p.m. on 4.2.2022.
+
+**7.2.2022 :**
+
+ (a) There were 4189 (four thousand one hundred eighty nine) new COVID-19 positive cases during the last 72 (seventy two) hours bringing total number of COVID-19 cases in the state to 185885 (one hundred eighty five thousand eight hundred and eighty five). At the same time, 171256 (one hundred seventy one thousand two hundred and fifty six) COVID-19 positive patients have been discharged/cured and 623 (six hundred and twenty three) death occurred due to COVID-19, and the total active cases in the state is 14006 (fourteen thousand and six).
+
+(b) 64 (sixty four) persons have undergone COVID-19 Screening Test at Vairengte Screening Centres and 160 (one hundred and sixty) vehicles entered at Vairengte Check gate from 9:00 a.m. to 3:00 p.m. on 7.2.2022.
+
+**8.2.2022:**
+
+**(a)****There were 2224 (two thousand two hundred twenty four) new COVID-19 positive cases during the last 24 (twenty four) hours bringing total number of COVID-19 cases in the state to 188109 (one hundred eighty eight thousand one hundred and nine). At the same time, 173495 (one hundred seventy three thousand four hundred ninety five) COVID-19 positive patients have been discharged/cured and 623 (six hundred and twenty three) death occurred due to COVID-19, and the total active cases in the state is 13991 (fourteen thousand nine hundred ninety one).**
+
+(b) 47 (forty seven) persons have undergone COVID-19 Screening Test at Vairengte Screening Centres and 145 (one hundred forty five) vehicles entered at Vairengte Check gate from 9:00 a.m. to 3:00 p.m. on 8.2.2022.
+
+**9.2.2022 :**
+
+(a) There were 1806 (one thousand eight hundred and six) new COVID-19 positive cases during the last 24 (twenty four) hours bringing total number of COVID-19 cases in the state to 189915 (one hundred eighty nine thousand nine hundred fifteen). At the same time, 175904 (one hundred seventy five thousand nine hundred and four) COVID-19 positive patients have been discharged/cured and 626 (six hundred and twenty six) death occurred due to COVID-19, and the total active cases in the state is 13385 (thirteen thousand three hundred eighty five).
+
+(b) 110 (one hundred and ten) persons have undergone COVID-19 Screening Test at Vairengte Screening Centres and 174 (one hundred seventy four) vehicles entered at Vairengte Check gate from 9:00 a.m. to 3:00 p.m. on 9.2.2022.
+
+**10.2.2022:**
+
+There were 1811 (one thousand eight hundred eleven) new COVID-19 positive cases during the last 24 (twenty four) hours bringing total number of COVID-19 cases in the state to 191726 (one hundred ninety one thousand seven hundred twenty six). At the same time, 178071 (one hundred seventy eight thousand and seventy one) COVID-19 positive patients have been discharged/cured and 631 (six hundred thirty one) death occurred due to COVID-19, and the total active cases in the state is 13024 (thirteen thousand twenty four).
+
+ 73 (seventy three) persons have undergone COVID-19 Screening Test at Vairengte Screening Centres and 145 (one hundred forty five) vehicles entered at Vairengte Check gate from 9:00 a.m. to 3:00 p.m. on 10.2.2022.
+
+**11.2.2022 :**
+
+(a) There were 1641 (one thousand six hundred forty one) new COVID-19 positive cases during the last 24 (twenty four) hours bringing total number of COVID-19 cases in the state to 193367 (one hundred ninety three thousand three hundred sixty seven). At the same time, 180048 (one hundred eighty thousand and forty eight) COVID-19 positive patients have been discharged/cured and 633 (six hundred thirty three) death occurred due to COVID-19, and the total active cases in the state is 12686 (twelve thousand six hundred eighty six).
+
+(b) 64 (sixty four) persons have undergone COVID-19 Screening Test at Vairengte Screening Centres and 154 (one hundred fifty four) vehicles entered at Vairengte Check gate from 9:00 a.m. to 3:00 p.m. on 11.2.2022.
+
+**14.2.2022 :**
+
+(a) There were 3630 (three thousand six hundred thirty) new COVID-19 positive cases during the last 72 (seventy two) hours bringing total number of COVID-19 cases in the state to 196997 (one hundred ninety six thousand nine hundred ninety seven). At the same time, 184516 (one hundred eighty four thousand five hundred sixteen) COVID-19 positive patients have been discharged/cured and 636 (six hundred thirty six) death occurred due to COVID-19, and the total active cases in the state is 11845 (eleven thousand eight hundred forty five).
+(b) 65 (sixty five) persons have undergone COVID-19 Screening Test at Vairengte Screening Centres and 142 (one hundred forty two) vehicles entered at Vairengte Check gate from 9:00 a.m. to 3:00 p.m. on 14.2.2022.
+
+**15.2.2022**
+
+(a) There were 2022 (two thousand twenty two) new COVID-19 positive cases during the last 24 (twenty four) hours bringing total number of COVID-19 cases in the state to 199019 (one hundred ninety nine thousand and nineteen). At the same time, 186504 (one hundred eighty six thousand five hundred four) COVID-19 positive patients have been discharged/cured and 637 (six hundred thirty seven) death occurred due to COVID-19, and the total active cases in the state is 11878 (eleven thousand eight hundred seventy eight).
+
+(b) 72 (seventy two) persons have undergone COVID-19 Screening Test at Vairengte Screening Centres and 150 (one hundred fifty) vehicles entered at Vairengte Check gate from 9:00 a.m. to 3:00 p.m. on 15.2.2022.
+
+**16.2.2022**
+
+(a) There were 1616 (one thousand six hundred sixteen) new COVID-19 positive cases during the last 24 (twenty four) hours bringing total number of COVID-19 cases in the state to 200635 (two hundred thousand six hundred thirty five). At the same time, 188528 (one hundred eighty eight thousand five hundred twenty eight) COVID-19 positive patients have been discharged/cured and 638 (six hundred thirty eight) death occurred due to COVID-19, and the total active cases in the state is 11469 (eleven thousand four hundred sixty nine).
+
+(b) 78 (seventy eight) persons have undergone COVID-19 Screening Test at Vairengte Screening Centres and 128 (one hundred twenty eight) vehicles entered at Vairengte Check gate from 9:00 a.m. to 3:00 p.m. on 16.2.2022.
+
+**17.2.2022**
+
+(a) There were 1571 (one thousand five hundred seventy one) new COVID-19 positive cases during the last 24 (twenty four) hours bringing total number of COVID-19 cases in the state to 202206 (two hundred two thousand two hundred six). At the same time, 190222 (one hundred ninety thousand two hundred twenty two) COVID-19 positive patients have been discharged/cured and 640 (six hundred forty) death occurred due to COVID-19, and the total active cases in the state is 11344 (eleven thousand three hundred forty four).
+
+(b) 67 (sixty seven) persons have undergone COVID-19 Screening Test at Vairengte Screening Centres and 179 (one hundred seventy nine) vehicles entered at Vairengte Check gate from 9:00 a.m. to 3:00 p.m.on17.2.2022.
+
+**24.2.2022**
+
+(a) There were 964 (nine hundred sixty four) new COVID-19 positive cases during the last 24 (twenty four) hours bringing total number of COVID-19 cases in the state to 210253 (two hundred ten thousand two hundred fifty three). At the same time, 200867 (two hundred thousand eight hundred sixty seven) COVID-19 positive patients have been discharged/cured and 650 (six hundred fifty) death occurred due to COVID-19, and the total active cases in the state is 8736 (eight thousand seven hundred thirty six).
+
+(b) 99 (ninety nine) persons have undergone COVID-19 Screening Test at Vairengte Screening Centres and 147 (one hundred forty seven) vehicles entered at Vairengte Check gate from 9:00 a.m. to 3:00 p.m. on 24.2.2022.
+
+**18.2.2022:**
+
+(a) There were 1119 (one thousand one hundred nineteen) new COVID-19 positive cases during the last 24 (twenty four) hours bringing total number of COVID-19 cases in the state to 203325 (two hundred three thousand three hundred twenty five). At the same time, 192093 (one hundred ninety two thousand ninety three) COVID-19 positive patients have been discharged/cured and 640 (six hundred forty) death occurred due to COVID-19, and the total active cases in the state is 10592 (ten thousand five hundred fifty nine).
+
+(b) 85 (eighty five) persons have undergone COVID-19 Screening Test at Vairengte Screening Centres and 143 (one hundred forty three) vehicles entered at Vairengte Check gate from 9:00 a.m. to 3:00 p.m. on 18.2.2022.
+
+**21.2.2022:**
+
+(a) There were 2996 (two thousand nine hundred ninety six) new COVID-19 positive cases during the last 72 (seventy two) hours bringing total number of COVID-19 cases in the state to 206319 (two hundred six thousand three hundred nineteen). At the same time, 195757 (one hundred ninety five thousand seven hundred fifty seven) COVID-19 positive patients have been discharged/cured and 643 (six hundred forty three) death occurred due to COVID-19, and the total active cases in the state is 9919 (nine thousand nine hundred nineteen).
+
+(b) 97 (ninety seven) persons have undergone COVID-19 Screening Test at Vairengte Screening Centres and 148 (one hundred forty eight) vehicles entered at Vairengte Check gate from 9:00 a.m. to 3:00 p.m. on 21.2.2022.
+
+**22.2.2022**
+
+(a) There were 1675 (one thousand six hundred seventy five) new COVID-19 positive cases during the last 24 (twenty four) hours bringing total number of COVID-19 cases in the state to 207994 (two hundred seven thousand nine hundred ninety four). At the same time, 197720 (one hundred ninety seven thousand seven hundred twenty) COVID-19 positive patients have been discharged/cured and 646 (six hundred forty six) death occurred due to COVID-19, and the total active cases in the state is 9628 (nine thousand six hundred twenty eight).
+
+(b) 95 (ninety five) persons have undergone COVID-19 Screening Test at Vairengte Screening Centres and 178 (one hundred seventy eight) vehicles entered at Vairengte Check gate from 9:00 a.m. to 3:00 p.m. on 22.2.2022.
+
+**23.2.2022:**
+
+(a) There were 1295 (one thousand two hundred ninety five) new COVID-19 positive cases during the last 24 (twenty four) hours bringing total number of COVID-19 cases in the state to 209289 (two hundred nine thousand two hundred eighty nine). At the same time, 199394 (one hundred ninety nine thousand three hundred ninety four) COVID-19 positive patients have been discharged/cured and 648 (six hundred forty eight) death occurred due to COVID-19, and the total active cases in the state is 9247 (nine thousand two hundred forty seven).
+
+(b) 64 (sixty four) persons have undergone COVID-19 Screening Test at Vairengte Screening Centres and 157 (one hundred fifty seven) vehicles entered at Vairengte Check gate from 9:00 a.m. to 3:00 p.m. on 23.2.2022.
+
+****25.2.2022:** (a) There were 1057 (one thousand fifty seven) new COVID-19 positive cases during the last 24 (twenty four) hours bringing total number of COVID-19 cases in the state to 211310 (two hundred eleven thousand three hundred ten). At the same time, 202249 (two hundred two thousand two hundred forty nine) COVID-19 positive patients have been discharged/cured and 652 (six hundred fifty two) death occurred due to COVID-19, and the total active cases in the state is 8409 (eight thousand four hundred nine).**
+
+ (b) 90 (ninety) persons have undergone COVID-19 Screening Test at Vairengte Screening Centres and 150 (one hundred fifty) vehicles entered at Vairengte Check gate from 9:00 a.m. to 3:00 p.m. on 25.2.2022.
+
+**28.2.2022:**
+
+(a) There were 2019 (two thousand nineteen) new COVID-19 positive cases during the last 72 (seventy two) hours bringing total number of COVID-19 cases in the state to 213328 (two hundred thirteen thousand three hundred twenty eight). At the same time, 205403 (two hundred five thousand four hundred three) COVID-19 positive patients have been discharged/cured and 657 (six hundred fifty seven) death occurred due to COVID-19, and the total active cases in the state is 7268 (seven thousand two hundred sixty eight).
+
+(b) 30 (thirty) persons have undergone COVID-19 Screening Test at Vairengte Screening Centres and 151 (one hundred fifty one) vehicles entered at Vairengte Check gate from 9:00 a.m. to 3:00 p.m. on 28.2.2022.
+
+**1.3.2022:**
+
+(a) There were 1325 (one thousand three hundred twenty five) new COVID-19 positive cases during the last 24 (twenty four) hours bringing total number of COVID-19 cases in the state to 214653 (two hundred fourteen thousand six hundred fifty three). At the same time, 207116 (two hundred seven thousand one hundred sixteen) COVID-19 positive patients have been discharged/cured and 657 (six hundred fifty seven) death occurred due to COVID-19, and the total active cases in the state is 6880 (six thousand eight hundred eighty).
+
+(b) 114 (one hundred fourteen) persons have undergone COVID-19 Screening Test at Vairengte Screening Centres and 128 (one hundred twenty eight) vehicles entered at Vairengte Check gate from 9:00 a.m. to 3:00 p.m. on 1.3.2022.
+
+**2.3.2022:**
+
+(a) There were 703 (seven hundred three) new COVID-19 positive cases during the last 24 (twenty four) hours bringing total number of COVID-19 cases in the state to 215356 (two hundred fifteen thousand three hundred fifty six). At the same time, 208277 (two hundred eight thousand two hundred seventy seven) COVID-19 positive patients have been discharged/cured and 658 (six hundred fifty eight) death occurred due to COVID-19, and the total active cases in the state is 6421 (six thousand four hundred twenty one).
+
+(b) 122 (one hundred twenty two) persons have undergone COVID-19 Screening Test at Vairengte Screening Centres and 173 (one hundred seventy three) vehicles entered at Vairengte Check gate from 9:00 a.m. to 3:00 p.m. on 2.3.2022.
+
+**3.3.2022**
+
+(a) There were 680 (six hundred eighty) new COVID-19 positive cases during the last 24 (twenty four) hours bringing total number of COVID-19 cases in the state to 216036 (two hundred sixteen thousand thirty six). At the same time, 209363 (two hundred nine thousand three hundred sixty three) COVID-19 positive patients have been discharged/cured and 658 (six hundred fifty eight) death occurred due to COVID-19, and the total active cases in the state is 6015 (six thousand fifteen).
+
+(b) 82 (eighty two) persons have undergone COVID-19 Screening Test at Vairengte Screening Centres and 175 (one hundred seventy five) vehicles entered at Vairengte Check gate from 9:00 a.m. to 3:00 p.m. on 3.3.2022.
+
+**7.3.2022:** ****
+
+(a) There were 1798 (one hundred seven hundred ninety eight) new COVID-19 positive cases during the last 96 (ninety six) hours bringing total number of COVID-19 cases in the state to 217834 (two hundred seventeen thousand eight hundred thirty four). At the same time, 212647 (two hundred twelve thousand six hundred forty seven) COVID-19 positive patients have been discharged/cured and 663 (six hundred sixty three) death occurred due to COVID-19, and the total active cases in the state is 4524 (four thousand five hundred twenty four).
+
+(b) 69 (sixty nine) persons have undergone COVID-19 Screening Test at Vairengte Screening Centres and 143 (one hundred forty three) vehicles entered at Vairengte Check gate from 9:00 a.m. to 3:00 p.m. on 7.3.2022.
+
+**8.3.2022 :**
+
+(a) There were 839 (eight hundred thirty nine) new COVID-19 positive cases during the last 24 (twenty four) hours bringing total number of COVID-19 cases in the state to 218673 (two hundred eighteen thousand six hundred seventy three). At the same time, 213800 (two hundred thirteen thousand eight hundred) COVID-19 positive patients have been discharged/cured and 664 (six hundred sixty four) death occurred due to COVID-19, and the total active cases in the state is 4209 (four thousand two hundred nine).
+
+(b) 40 (forty) persons have undergone COVID-19 Screening Test at Vairengte Screening Centres and 185 (one hundred eighty five) vehicles entered at Vairengte Check gate from 9:00 a.m. to 3:00 p.mon 8.3.2022.
+
+**9.3.2022.**
+
+(a) There were 483 (four hundred eighty three) new COVID-19 positive cases during the last 24 (twenty four) hours bringing total number of COVID-19 cases in the state to 219156 (two hundred nineteen thousand one hundred fifty six). At the same time, 214473 (two hundred nineteen thousand one hundred fifty six) COVID-19 positive patients have been discharged/cured and 665 (six hundred sixty five) death occurred due to COVID-19, and the total active cases in the state is 4018 (four thousand eighteen).
+
+(b) 122 (one hundred twenty two) persons have undergone COVID-19 Screening Test at Vairengte Screening Centres and 185 (one hundred eighty five) vehicles entered at Vairengte Check gate from 9:00 a.m. to 3:00 p.m on 9.3.2022.
+
+**10.3.2022.**
+
+(a) There were 474 (four hundred seventy four) new COVID-19 positive cases during the last 24 (twenty four) hours bringing total number of COVID-19 cases in the state to 219630 (two hundred nineteen thousand six hundred thirty). At the same time, 215252 (two hundred fifteen thousand two hundred fifty two) COVID-19 positive patients have been discharged/cured and 665 (six hundred sixty five) death occurred due to COVID-19, and the total active cases in the state is 3713 (three thousand seven hundred thirteen).
+
+(b) 226 (two hundred twenty six) persons have undergone COVID-19 Screening Test at Vairengte Screening Centres and 162 (one hundred sixty two) vehicles entered at Vairengte Check gate from 9:00 a.m. to 3:00 p.m. on 10.3.2022.
+
+**11.3.2022**
+
+(a) There were 396 (three hundred ninety six) new COVID-19 positive cases during the last 24 (twenty four) hours bringing total number of COVID-19 cases in the state to 220056 (two hundred twenty thousand fifty six). At the same time, 215800 (two hundred fifteen thousand eight hundred) COVID-19 positive patients have been discharged/cured and 666 (six hundred sixty six) death occurred due to COVID-19, and the total active cases in the state is 3560 (three thousand five hundred sixty).
+
+(b) 303 (three hundred and three) persons have undergone COVID-19 Screening Test at Vairengte Screening Centres and 172 (one hundred seventy two) vehicles entered at Vairengte Check gate from 9:00 a.m. to 3:00 p.m. on 11.3.2022.
+
+****14.3.2022:** There were 948 (nine hundred fourty eight) new COVID-19 positive cases during the last 72 (seventy two) hours bringing total number of COVID-19 cases in the state to 220974 (two hundred twenty thousand nine hundred seventy four). At the same time, 217083 (two hundred seventeen thousand eighty three) COVID-19 positive patients have been discharged/cured and 671 (six hundred seventy one) death occurred due to COVID-19, and the total active cases in the state is 3220 (three thousand two hundred twenty).**
+
+****15.3.2022 :** (a) There were 357 (three hundred fifty seven) new COVID-19 positive cases during the last 24 (twenty four) hours bringing total number of COVID-19 cases in the state to 221468 (two hundred twenty one thousand four hundred sixty eight). At the same time, 217895 (two hundred seventeen thousand eigh hundred ninety five) COVID-19 positive patients have been discharged/cured and 671 (six hundred seventy one) death occurred due to COVID-19, and the total active cases in the state is 2902 (two thousand nine hundred two).**
+
+(b) 162 (one hundred sixty two) persons have undergone COVID-19 Screening Test at Vairengte Screening Centres and 168 (one hundred sixty eight) vehicles entered at Vairengte Check gate from 9:00 a.m. to 3:00 p.mon 15.3.2022.
+
+****16.3.2022 :** (a) There were 270 (two hundred seventy) new COVID-19 positive cases during the last 24 (twenty four) hours bringing total number of COVID-19 cases in the state to 221738 (two hundred twenty one thousand seven hundred thirty eight). At the same time, 218417 (two hundred eighteen thousand four hundred seventeen) COVID-19 positive patients have been discharged/cured and 672 (six hundred seventy two) death occurred due to COVID-19, and the total active cases in the state is 2649 (two thousand six hundred fourty nine).**
+
+(b) 235 (two hundred thirty five) persons have undergone COVID-19 Screening Test at Vairengte Screening Centres and 168 (one hundred sixty eight) vehicles entered at Vairengte Check gate from 9:00 a.m. to 3:00 p.m. on 16.3.2022.
+
+****17.3.2022 :** (a) There were 239 (two hundred thirty nine) new COVID-19 positive cases during the last 24 (twenty four) hours bringing total number of COVID-19 cases in the state to 221977 (two hundred twenty one thousand nine hundred seventy seven). At the same time, 218817 (two hundred eighteen thousand eight hundred seventeen) COVID-19 positive patients have been discharged/cured and 672 (six hundred seventy two) death occurred due to COVID-19, and the total active cases in the state is 2488 (two thousand four hundred eighty eight).**
+
+(b) 235 (two hundred thirty five) persons have undergone COVID-19 Screening Test at Vairengte Screening Centres and 181 (one hundred eighty one) vehicles entered at Vairengte Check gate from 9:00 a.m. to 3:00 p.m. today, i.e., 17.3.2022.
+
+****21.3.2022 :**(a) There were 729 (seven hundred twenty nine) new COVID-19 positive cases during the last 96 (ninety six) hours bringing total number of COVID-19 cases in the state to 222706 (two hundred twenty two thousand seven hundred six). At the same time, 220259 (two hundred twenty thousand two hundred fifty nine) COVID-19 positive patients have been discharged/cured and 676 (six hundred seventy six) death occurred due to COVID-19, and the total active cases in the state is 1771 (one thousand seven hundred seventy one).**
+
+(b) 235 (two hundred thirty five) persons have undergone COVID-19 Screening Test at Vairengte Screening Centres and 151 (one hundred fifty one) vehicles entered at Vairengte Check gate from 9:00 a.m. to 3:00 p.mon 21.3.2022.
+
+****22.3.2022 :** (a) There were 287 (two hundred eighty seven) new COVID-19 positive cases during the last 24 (twenty four) hours bringing total number of COVID-19 cases in the state to 222993 (two hundred twenty two thousand nine hundred ninety three). At the same time, 220667 (two hundred twenty thousand six hundred sixty seven) COVID-19 positive patients have been discharged/cured and 677 (six hundred seventy seven) death occurred due to COVID-19, and the total active cases in the state is 1649 (one thousand six hundred fourty nine).**
+
+(b) 306 (three hundred six) persons have undergone COVID-19 Screening Test at Vairengte Screening Centres and 151 (one hundred fifty one) vehicles entered at Vairengte Check gate from 9:00 a.m. to 3:00 p.mon 22.3.2022.
+
+****23.3.2022 :** (a) There were 159 (one hundred fifty nine) new COVID-19 positive cases during the last 24 (twenty four) hours bringing total number of COVID-19 cases in the state to 223152 (two hundred twenty three thousand one hundred fifty two). At the same time, 220988 (two hundred twenty thousand nine hundred eighty eight) COVID-19 positive patients have been discharged/cured and 678 (six hundred seventy eight) death occurred due to COVID-19, and the total active cases in the state is 1486 (one thousand four hundred eighty six).**
+
+(b) 210 (two hundred ten) persons have undergone COVID-19 Screening Test at Vairengte Screening Centres and 139 (one hundred thirty nine) vehicles entered at Vairengte Check gate from 9:00 a.m. to 3:00 p.m. 23.3.2022.
+
+****25.3.2022:** There were 173 (one hundred seventy three) new COVID-19 positive cases during the last 24 (twenty four) hours bringing total number of COVID-19 cases in the state to 223516 (two hundred twenty three thousand five hundred sisteen). At the same time, 221545 (two hundred twenty one thousand five hundred forty five) COVID-19 positive patients have been discharged/cured and 679 (six hundred seventy nine) death occurred due to COVID-19, and the total active cases in the state is 1292 (one thousand two hundred ninety two).**
+
+****24.3.2022 :** (a) There were 191 (one hundred ninety one) new COVID-19 positive cases during the last 24 (twenty four) hours bringing total number of COVID-19 cases in the state to 223343 (two hundred twenty three thousand three hundred forty three). At the same time, 221253 (two hundred twenty one thousand two hundred fifty three) COVID-19 positive patients have been discharged/cured and 678 (six hundred seventy eight) death occurred due to COVID-19, and the total active cases in the state is 1412 (one thousand four hundred twelve).**
+
+(b) 213 (two hundred thirteen) persons have undergone COVID-19 Screening Test at Vairengte Screening Centres and 193 (one hundred ninety three) vehicles entered at Vairengte Check gate from 9:00 a.m. to 3:00 p.m. on 24.3.2022.
+
+****28.3.2022:** There were 340 (three hundred forty) new COVID-19 positive cases during the last 72 (seventy two) hours bringing total number of COVID-19 cases in the state to 223856 (twohundred twenty three thousand eight hundred fifty six). At the same time, 221956 (two hundred twenty one thousand nine hundred fifty six) COVID-19 positive patients have been discharged/cured and 681 (six hundred eighty one) death occurred due to COVID-19, and the total active cases in the state is 1219 (one thousand two hundred nineteen).**
+
+****29.3.2022:** There were 248 (two hundred forty eight) new COVID-19 positive cases during the last 24 (twenty four) hours bringing total number of COVID-19 cases in the state to 224104 (two hundred twenty four thousand one hundred four). At the same time, 222258 (two hundred twenty two thousand two hundred fifty eight) COVID-19 positive patients have been discharged/cured and 684 (six hundred eighty four) death occurred due to COVID-19, and the total active cases in the state is 1162 (one thousand one hundred sixty two).**
+
+****30.3.2022:** There were 157 (one hundred fifty seven) new COVID-19 positive cases during the last 24 (twenty four) hours bringing total number of COVID-19 cases in the state to 224261 (two hundred twenty four thousand two hundred sixty one). At the same time, 222476 (two hundred twenty two thousand four hundred seventy six) COVID-19 positive patients have been discharged/cured and 684 (six hundred eighty four) death occurred due to COVID-19, and the total active cases in the state is 1101 (one thousand one hundred one).**
+
+****31.3.2022:** There were 99 (ninety nine) new COVID-19 positive cases during the last 24 (twenty four) hours bringing total number of COVID-19 cases in the state to 224360 (two hundred twenty four thousand three hundred sixty). At the same time, 222628 (two hundred twenty two thousand six hundred twenty eight) COVID-19 positive patients have been discharged/cured and 684 (six hundred eighty four) death occurred due to COVID-19, and the total active cases in the state is 1048 (one thousand forty eight).**
+
+****31.3.2022:** There were 99 (ninety nine) new COVID-19 positive cases during the last 24 (twenty four) hours bringing total number of COVID-19 cases in the state to 224360 (two hundred twenty four thousand three hundred sixty). At the same time, 222628 (two hundred twenty two thousand six hundred twenty eight) COVID-19 positive patients have been discharged/cured and 684 (six hundred eighty four) death occurred due to COVID-19, and the total active cases in the state is 1048 (one thousand forty eight).**
+
+****1.4.2022 :** There were 162 (one hundred sixty two) new COVID-19 positive cases during the last 24 (twenty four) hours bringing total number of COVID-19 cases in the state to 224522 (two hundred twenty four thousand five hundred twenty two). At the same time, 222797 (two hundred twenty two thousand seven hundred ninety seven) COVID-19 positive patients have been discharged/cured and 685 (six hundred eighty five) death occurred due to COVID-19, and the total active cases in the state is 1040 (one thousand forty).**
+
+****4.4.2022:** There were 266 (two hundred sixty six) new COVID-19 positive cases during the last 72 (seventy two) hours bringing total number of COVID-19 cases in the state to 224788 (two hundred twenty four thousand seven hundred eighty eight). At the same time, 223123 (two hundred twenty three thousand one hundred twenty three) COVID-19 positive patients have been discharged/cured and 687 (six hundred eighty seven) death occurred due to COVID-19, and the total active cases in the state is 978 (nine hundred seventy eight).**
+
+****7.4.2022 :** There were 101 (one hundred one) new COVID-19 positive cases during the last 24 (twenty four) hours bringing total number of COVID-19 cases in the state to 225213 (two hundred twenty five thousand two hundred thirteen). At the same time, 223670 (two hundred twenty three thousand six hundred seventy) COVID-19 positive patients have been discharged/cured and 687 (six hundred eighty seven) death occurred due to COVID-19, and the total active cases in the state is 856 (eight hundred fifty six).**
+
+****8.4.2022 :** There were 123 (one hundred twenty three) new COVID-19 positive cases during the last 24 (twenty four) hours bringing total number of COVID-19 cases in the state to 225336 (two hundred twenty five thousand three hundred thirty six). At the same time, 223813 (two hundred twenty three thousand eight hundred thirteen) COVID-19 positive patients have been discharged/cured and 687 (six hundred eighty seven) death occurred due to COVID-19, and the total active cases in the state is 836 (eight hundred thirty six).**
+
+****11.4.2022:**There were 247 (two hundred forty seven) new COVID-19 positive cases during the last 72 (seventy two) hours bringing total number of COVID-19 cases in the state to 225583 (two hundred twenty five thousand five hundred eighty three). At the same time, 224100 (two hundred twenty four thousand one hundred) COVID-19 positive patients have been discharged/cured and 688 (six hundred eighty eight) death occurred due to COVID-19, and the total active cases in the state is 855 (eight hundred fifty five).**
+
+****12.4.2022:** There were 149 (one hundred forty nine) new COVID-19 positive cases during the last 24 (twenty four) hours bringing total number of COVID-19 cases in the state to 225732 (two hundred twenty five thousand seven hundred thirty two). At the same time, 224215 (two hundred twenty four thousand two hundred fifteen) COVID-19 positive patients have been discharged/cured and 689 (six hundred eighty nine) death occurred due to COVID-19, and the total active cases in the state is 828 (eight hundred twenty eight).**
+
+****13.4.2022:** There were 91 (ninety one) new COVID-19 positive cases during the last 24 (twenty four) hours bringing total number of COVID-19 cases in the state to 225823 (two hundred twenty five thousand eight hundred twenty three). At the same time, 224409 (two hundred twenty four thousand four hundred nine) COVID-19 positive patients have been discharged/cured and 689 (six hundred eighty nine) death occurred due to COVID-19, and the total active cases in the state is 725 (seven hundred twenty five).**
+
+****18.4.2022:** There were 346 (three hundred forty six) new COVID-19 positive cases during the last 120 (one hundred twenty) hours bringing total number of COVID-19 cases in the state to 226172 (two hundred twenty six thousand one hundred seventy two). At the same time, 224891 (two hundred twenty four thousand eight hundred ninety one) COVID-19 positive patients have been discharged/cured and 692 (six hundred ninety two) death occurred due to COVID-19, and the total active cases in the state is 589 (five hundred eighty nine).**
+
+****19.4.2022:** There were 99 (ninety nine) new COVID-19 positive cases during the last 24 (twenty four) hours bringing total number of COVID-19 cases in the state to 226271 (two hundred twenty six thousand two hundred seventy one). At the same time, 225020 (two hundred twenty five thousand and twenty) COVID-19 positive patients have been discharged/cured and 692 (six hundred ninety two) death occurred due to COVID-19, and the total active cases in the state is 559 (five hundred fifty nine).**
+
+****20.4.2022:**There were 125 (one hundred twenty five) new COVID-19 positive cases during the last 24 (twenty four) hours bringing total number of COVID-19 cases in the state to 226396 (two hundred twenty six thousand three hundred ninety six). At the same time, 225118 (two hundred twenty five thousand one hundred eighteen) COVID-19 positive patients have been discharged/cured and 693 (six hundred ninety three) death occurred due to COVID-19, and the total active cases in the state is 585 (five hundred eighty five).**
+
+****21.4.2022 :** There were 103 (one hundred three) new COVID-19 positive cases during the last 24 (twenty four) hours bringing total number of COVID-19 cases in the state to 226499 (two hundred twenty six thousand four hundred ninety nine). At the same time, 225207 (two hundred twenty five thousand two hundred seven) COVID-19 positive patients have been discharged/cured and 694 (six hundred ninety four) death occurred due to COVID-19, and the total active cases in the state is 598 (five hundred ninety eight).**
+
+****22.4.2022 :**There were 91 (ninety one) new COVID-19 positive cases during the last 24 (twenty four) hours bringing total number of COVID-19 cases in the state to 226590 (two hundred twenty six thousand five hundred ninety). At the same time, 225282 (two hundred twenty five thousand two hundred eighty two) COVID-19 positive patients have been discharged/cured and 694 (six hundred ninety four) death occurred due to COVID-19, and the total active cases in the state is 614 (six hundred fourteen).**
+
+****25.4.2022:** There were 296 (two hundred ninety six) new COVID-19 positive cases during the last 72 (seventy two) hours bringing total number of COVID-19 cases in the state to 226886 (two hundred twenty six thousand eight hundred eighty six). At the same time, 225491(two hundred twenty five thousand four hundred ninety one) COVID-19 positive patients have been discharged/cured and 695 (six hundred ninety five) death occurred due to COVID-19, and the total active cases in the state is 700 (seven hundred).**
+
+****26.4.2022:** There were 102 (one hundred two) new COVID-19 positive cases during the last 24 (twenty four) hours bringing total number of COVID-19 cases in the state to 226988 (two hundred twenty six thousand nine hundred eighty eight). At the same time, 225596 (two hundred twenty five thousand five hundred ninety six) COVID-19 positive patients have been discharged/cured and 695 (six hundred ninety five) death occurred due to COVID-19, and the total active cases in the state is 697 (six hundred ninety seven).**
+
+****27.4.2022:**There were 164 (one hundred sixty four) new COVID-19 positive cases during the last 24 (twenty four) hours bringing total number of COVID-19 cases in the state to 227152 (two hundred twenty seven thousand one hundred fifty two). At the same time, 225697 (two hundred twenty five thousand six hundred ninety seven) COVID-19 positive patients have been discharged/cured and 696 (six hundred ninety six) death occurred due to COVID-19, and the total active cases in the state is 759 (seven hundred fifty nine).**
+
+****28.4.2022:** There were 85 (eighty five) new COVID-19 positive cases during the last 24 (twenty four) hours bringing total number of COVID-19 cases in the state to 227237 (two hundred twenty seven thousand two hundred thirty seven). At the same time, 225811 (two hundred twenty five thousand eight hundred eleven) COVID-19 positive patients have been discharged/cured and 696 (six hundred ninety six) death occurred due to COVID-19, and the total active cases in the state is 730 (seven hundred thirty).**
+
+****29.4.2022:**There were 99 (ninety nine) new COVID-19 positive cases during the last 24 (twenty four) hours bringing total number of COVID-19 cases in the state to 227336 (two hundred twenty seven thousand three hundred thirty six). At the same time, 225896 (two hundred twenty five thousand eight hundred ninety six) COVID-19 positive patients have been discharged/cured and 696 (six hundred ninety six) death occurred due to COVID-19, and the total active cases in the state is 744 (seven hundred forty four).**
+
+****2.5.2022 :**  There were 157 (one hundred fifty seven) new COVID-19 positive cases during the last 72 (seventy two) hours bringing total number of COVID-19 cases in the state to 227493 (two hundred twenty seven thousand four hundred ninety three). At the same time, 226129 (two hundred twenty six thousand one hundred twenty nine) COVID-19 positive patients have been discharged/cured and 696 (six hundred ninety six) death occurred due to COVID-19, and the total active cases in the state is 668 (six hundred sixty eight).**
+
+****4.5.2022 :**  There were 107 (one hundred seven) new COVID-19 positive cases during the last 48 (forty eight) hours bringing total number of COVID-19 cases in the state to 227600 (two hundred twenty seven thousand six hundred). At the same time, 226470 (two hundred twenty six thousand four hundred seventy) COVID-19 positive patients have been discharged/cured and 697 (six hundred ninety seven) death occurred due to COVID-19, and the total active cases in the state is 433 (four hundred thirty three).**
+****5.5.2022:** There were 45 (forty five) new COVID-19 positive cases during the last 24 (twenty four) hours bringing total number of COVID-19 cases in the state to 227645 (two hundred twenty seven thousand six hundred forty five). At the same time, 226540 (two hundred twenty six thousand five hundred forty) COVID-19 positive patients have been discharged/cured and 697 (six hundred ninety seven) death occurred due to COVID-19, and the total active cases in the state is 408 (four hundred eight).**
+
+****6.5.2022:**There were 31 (thirty one) new COVID-19 positive cases during the last 24 (twenty four) hours bringing total number of COVID-19 cases in the state to 227676 (two hundred twenty seven thousand six hundred seventy six). At the same time, 226644 (two hundred twenty six thousand six hundred forty four) COVID-19 positive patients have been discharged/cured and 697 (six hundred ninety seven) death occurred due to COVID-19, and the total active cases in the state is 335 (three hundred thirty five).**
+
+****9.5.2022:**There were 60 (sixty) new COVID-19 positive cases during the last 72 (seventy two) hours bringing total number of COVID-19 cases in the state to 227736 (two hundred twenty seven thousand seven hundred thirty six). At the same time, 226804 (two hundred twenty six thousand eight hundred four) COVID-19 positive patients have been discharged/cured and 697 (six hundred ninety seven) death occurred due to COVID-19, and the total active cases in the state is 235 (two hundred thirty five).**
+
+****10.5.2022:**There were 25 (twenty five) new COVID-19 positive cases during the last 24 (twenty four) hours bringing total number of COVID-19 cases in the state to 227761 (two hundred twenty seven thousand seven hundred sixty one). At the same time, 226863 (two hundred twenty six thousand eight hundred sixty three) COVID-19 positive patients have been discharged/cured and 697 (six hundred ninety seven) death occurred due to COVID-19, and the total active cases in the state is 201 (two hundred one).**
+
+****11.5.2022:** There were 33 (thirty three) new COVID-19 positive cases during the last 24 (twenty four) hours bringing total number of COVID-19 cases in the state to 227794 (two hundred twenty seven thousand seven hundred ninety four). At the same time, 226897 (two hundred twenty six thousand eight hundred ninety seven) COVID-19 positive patients have been discharged/cured and 697 (six hundred ninety seven) death occurred due to COVID-19, and the total active cases in the state is 200 (two hundred).**
+
+****12.5.2022:** There were 55 (fifty five) new COVID-19 positive cases during the last 24 (twenty four) hours bringing total number of COVID-19 cases in the state to 227849 (two hundred twenty seven thousand eight hundred forty nine). At the same time, 226943 (two hundred twenty six thousand nine hundred forty three) COVID-19 positive patients have been discharged/cured and 697 (six hundred ninety seven) death occurred due to COVID-19, and the total active cases in the state is 209 (two hundred nine).**
+
+****13.5.2022:**There were 50 (fifty) new COVID-19 positive cases during the last 24 (twenty four) hours bringing total number of COVID-19 cases in the state to 227899 (two hundred twenty seven thousand eight hundred ninety nine). At the same time, 226983 (two hundred twenty six thousand nine hundred eighty three) COVID-19 positive patients have been discharged/cured and 697 (six hundred ninety seven) death occurred due to COVID-19, and the total active cases in the state is 219 (two hundred nineteen).**
+
+****17.5.2022:**There were 123 (one hundred twenty three) new COVID-19 positive cases during the last 96 (ninety six) hours bringing total number of COVID-19 cases in the state to 228022 (two hundred twenty eight thousand twenty two). At the same time, 227057 (two hundred twenty seven thousand fifty seven) COVID-19 positive patients have been discharged/cured and 697 (six hundred ninety seven) death occurred due to COVID-19, and the total active cases in the state is 268 (two hundred sixty eight).**
+
+****18.5.2022:**There were 12 (twelve) new COVID-19 positive cases during the last 24 (twenty four) hours bringing total number of COVID-19 cases in the state to 228034 (two hundred twenty eight thousand thirty four). At the same time, 227081 (two hundred twenty seven thousand eighty one) COVID-19 positive patients have been discharged/cured and 697 (six hundred ninety seven) death occurred due to COVID-19, and the total active cases in the state is 256 (two hundred fifty six).**
+
+****19.5.2022:**There were 26 (twenty six) new COVID-19 positive cases during the last 24 (twenty four) hours bringing total number of COVID-19 cases in the state to 228060 (two hundred twenty eight thousand sixty). At the same time, 227155 (two hundred twenty seven thousand one hundred fifty five) COVID-19 positive patients have been discharged/cured and 697 (six hundred ninety seven) death occurred due to COVID-19, and the total active cases in the state is 208 (two hundred eight).**
+
+****20.5.2022 :**There were 34 (thirty four) new COVID-19 positive cases during the last 24 (twenty four) hours bringing total number of COVID-19 cases in the state to 228094 (two hundred twenty eight thousand ninety four). At the same time, 227197 (two hundred twenty seven thousand one hundred ninety seven) COVID-19 positive patients have been discharged/cured and 697 (six hundred ninety seven) death occurred due to COVID-19, and the total active cases in the state is 200 (two hundred).**
+
+****23.5.2022 :**  There were 43 (forty three) new COVID-19 positive cases during the last 72 (seventy two) hours bringing total number of COVID-19 cases in the state to 228137 (two hundred twenty eight thousand one hundred thirty seven). At the same time, 227299 (two hundred twenty seven thousand two hundred ninety nine) COVID-19 positive patients have been discharged/cured and 698 (six hundred ninety eight) death occurred due to COVID-19, and the total active cases in the state is 140 (one hundred forty).**
+
+****24.5.2022 :**  There were 45 (forty five) new COVID-19 positive cases during the last 24 (twenty four) hours bringing total number of COVID-19 cases in the state to 228182 (two hundred twenty eight thousand one hundred eighty two). At the same time, 227323 (two hundred twenty seven thousand three hundred twenty three) COVID-19 positive patients have been discharged/cured and 698 (six hundred ninety eight) death occurred due to COVID-19, and the total active cases in the state is 161 (one hundred sixty one).**
+
+****25.5.2022 :**  There were 23 (twenty three) new COVID-19 positive cases during the last 24 (twenty four) hours bringing total number of COVID-19 cases in the state to 228205 (two hundred twenty eight thousand two hundred five). At the same time, 227339 (two hundred twenty seven thousand three hundred thirty nine) COVID-19 positive patients have been discharged/cured and 698 (six hundred ninety eight) death occurred due to COVID-19, and the total active cases in the state is 168 (one hundred sixty eight).**
+
+****26.5.2022 :**  There were 21 (twenty one) new COVID-19 positive cases during the last 24 (twenty four) hours bringing total number of COVID-19 cases in the state to 228226 (two hundred twenty eight thousand two hundred twenty six). At the same time, 227366 (two hundred twenty seven thousand three hundred sixty six) COVID-19 positive patients have been discharged/cured and 698 (six hundred ninety eight) death occurred due to COVID-19, and the total active cases in the state is 162 (one hundred sixty two).**
+
+****27.5.2022 :**  There were 29 (twenty nine) new COVID-19 positive cases during the last 24 (twenty four) hours bringing total number of COVID-19 cases in the state to 228255 (two hundred twenty eight thousand two hundred fifty five). At the same time, 227393 (two hundred twenty seven thousand three hundred ninety three) COVID-19 positive patients have been discharged/cured and 698 (six hundred ninety eight) death occurred due to COVID-19, and the total active cases in the state is 164 (one hundred sixty four).**
+
+****30.5.2022 :** There were 43 (forty three) new COVID-19 positive cases during the last 72 (seventy two) hours bringing total number of COVID-19 cases in the state to 228298 (two hundred twenty eight thousand two hundred ninety eight). At the same time, 227439 (two hundred twenty seven thousand four hundred thirty nine) COVID-19 positive patients have been discharged/cured and 698 (six hundred ninety eight) death occurred due to COVID-19, and the total active cases in the state is 161 (one hundred sixty one).**
+
+****31.5.2022 :**There were 19 (nineteen) new COVID-19 positive cases during the last 24 (twenty four) hours bringing total number of COVID-19 cases in the state to 228317 (two hundred twenty eight thousand three hundred seventeen). At the same time, 227477 (two hundred twenty seven thousand four hundred seventy seven) COVID-19 positive patients have been discharged/cured and 698 (six hundred ninety eight) death occurred due to COVID-19, and the total active cases in the state is 142 (one hundred forty two).**
+
+****1.6.2022 :**There were 19 (nineteen) new COVID-19 positive cases during the last 24 (twenty four) hours bringing total number of COVID-19 cases in the state to 228336 (two hundred twenty eight thousand three hundred thirty six). At the same time, 227513 (two hundred twenty seven thousand five hundred thirteen) COVID-19 positive patients have been discharged/cured and 698 (six hundred ninety eight) death occurred due to COVID-19, and the total active cases in the state is 125 (one hundred twenty five).**
+
+****2.6.2022 :**  There were 16 (sixteen) new COVID-19 positive cases during the last 24 (twenty four) hours bringing total number of COVID-19 cases in the state to 228352 (two hundred twenty eight thousand three hundred fifty two). At the same time, 227530 (two hundred twenty seven thousand five hundred thirty) COVID-19 positive patients have been discharged/cured and 698 (six hundred ninety eight) death occurred due to COVID-19, and the total active cases in the state is 124 (one hundred twenty four).**
+
+****3.6.2022 :**  There were 20 (twenty) new COVID-19 positive cases during the last 24 (twenty four) hours bringing total number of COVID-19 cases in the state to 228372 (two hundred twenty eight thousand three hundred seventy two). At the same time, 227548 (two hundred twenty seven thousand five hundred forty eight) COVID-19 positive patients have been discharged/cured and 698 (six hundred ninety eight) death occurred due to COVID-19, and the total active cases in the state is 126 (one hundred twenty six).**
+
+****6.6.2022 :** There were 32 (thirty two) new COVID-19 positive cases during the last 72 (seventy two) hours bringing total number of COVID-19 cases in the state to 228404 (two hundred twenty eight thousand four hundred four). At the same time, 227599 (two hundred twenty seven thousand five hundred ninety nine) COVID-19 positive patients have been discharged/cured and 700 (seven hundred) death occurred due to COVID-19, and the total active cases in the state is 105 (one hundred five).**
+
+****7.6.2022 :**  There were 30 (thirty) new COVID-19 positive cases during the last 24 (twenty four) hours bringing total number of COVID-19 cases in the state to 228434 (two hundred twenty eight thousand four hundred thirty four). At the same time, 227617 (two hundred twenty seven thousand six hundred seventeen) COVID-19 positive patients have been discharged/cured and 700 (seven hundred) death occurred due to COVID-19, and the total active cases in the state is 117 (one hundred seventeen).**
+
+****9.6.2022 :** There were 29 (twenty nine) new COVID-19 positive cases during the last 24 (twenty four) hours bringing total number of COVID-19 cases in the state to 228478 (two hundred twenty eight thousand four hundred seventy eight). At the same time, 227656 (two hundred twenty seven thousand six hundred fifty six) COVID-19 positive patients have been discharged/cured and 700 (seven hundred) death occurred due to COVID-19, and the total active cases in the state is 122 (one hundred twenty two).**
+
+****10.6.2022:** There were 34 (thirty four) new COVID-19 positive cases during the last 24 (twenty four) hours bringing total number of COVID-19 cases in the state to 228512 (two hundred twenty eight thousand five hundred twelve). At the same time, 227671 (two hundred twenty seven thousand six hundred seventy one) COVID-19 positive patients have been discharged/cured and 700 (seven hundred) death occurred due to COVID-19, and the total active cases in the state is 141 (one hundred forty one).**
+
+****13.6.2022:** There were 63 (sixty three) new COVID-19 positive cases during the last 72 (seventy two) hours bringing total number of COVID-19 cases in the state to 228575 (two hundred twenty eight thousand five hundred seventy five). At the same time, 227706 (two hundred twenty seven thousand seven hundred six) COVID-19 positive patients have been discharged/cured and 701 (seven hundred one) death occurred due to COVID-19, and the total active cases in the state is 168 (one hundred sixty eight).**
+
+****14.6.2022:**There were 45 (forty five) new COVID-19 positive cases during the last 24 (twenty four) hours bringing total number of COVID-19 cases in the state to 228620 (two hundred twenty eight thousand six hundred twenty). At the same time, 227729 (two hundred twenty seven thousand seven hundred twenty nine) COVID-19 positive patients have been discharged/cured and 701 (seven hundred one) death occurred due to COVID-19, and the total active cases in the state is 190 (one hundred ninety).**
+
+****16.6.2022:**There were 46 (forty six) new COVID-19 positive cases during the last 48 (forty eight) hours bringing total number of COVID-19 cases in the state to 228666 (two hundred twenty eight thousand six hundred sixty six). At the same time, 227777 (two hundred twenty seven thousand seven hundred seventy seven) COVID-19 positive patients have been discharged/cured and 701 (seven hundred one) death occurred due to COVID-19, and the total active cases in the state is 190 (one hundred ninety).**
+
+****17.6.2022:**There were 19 (nineteen) new COVID-19 positive cases during the last 24 (twenty four) hours bringing total number of COVID-19 cases in the state to 228687 (two hundred twenty eight thousand six hundred eighty seven). At the same time, 227819 (two hundred twenty seven thousand eight hundred nineteen) COVID-19 positive patients have been discharged/cured and 701 (seven hundred one) death occurred due to COVID-19, and the total active cases in the state is 167 (one hundred sixty seven).**
+
+****20.6.2022:**There were 46 (forty six) new COVID-19 positive cases during the last 72 (seventy two) hours bringing total number of COVID-19 cases in the state to 228733 (two hundred twenty eight thousand seven hundred thirty three). At the same time, 227889 (two hundred twenty seven thousand eight hundred eighty nine) COVID-19 positive patients have been discharged/cured and 701 (seven hundred one) death occurred due to COVID-19, and the total active cases in the state is 143 (one hundred forty three).**
+
+****21.6.2022:**There were 18 (eighteen) new COVID-19 positive cases during the last 24 (twenty four) hours bringing total number of COVID-19 cases in the state to 228751 (two hundred twenty eight thousand seven hundred fifty one). At the same time, 227921 (two hundred twenty seven thousand nine hundred twenty one) COVID-19 positive patients have been discharged/cured and 701 (seven hundred one) death occurred due to COVID-19, and the total active cases in the state is 129 (one hundred twenty nine).**
+
+****22.6.2022:**There were 20 (twenty) new COVID-19 positive cases during the last 24 (twenty four) hours bringing total number of COVID-19 cases in the state to 228771 (two hundred twenty eight thousand seven hundred seventy one). At the same time, 227946 (two hundred twenty seven thousand nine hundred forty six) COVID-19 positive patients have been discharged/cured and 701 (seven hundred one) death occurred due to COVID-19, and the total active cases in the state is 124 (one hundred twenty four).**
+
+****23.6.2022:**There were 22 (twenty two) new COVID-19 positive cases during the last 24 (twenty four) hours bringing total number of COVID-19 cases in the state to 228793 (two hundred twenty eight thousand seven hundred ninety three). At the same time, 227969 (two hundred twenty seven thousand nine hundred sixty nine) COVID-19 positive patients have been discharged/cured and 702 (seven hundred two) death occurred due to COVID-19, and the total active cases in the state is 122 (one hundred twenty two).**
+
+****24.6.2022:**There were 12 (twelve) new COVID-19 positive cases during the last 24 (twenty four) hours bringing total number of COVID-19 cases in the state to 228805 (two hundred twenty eight thousand eight hundred five). At the same time, 227985 (two hundred twenty seven thousand nine hundred eighty five) COVID-19 positive patients have been discharged/cured and 702 (seven hundred two) death occurred due to COVID-19, and the total active cases in the state is 118 (one hundred eighteen).**
+
+****27.6.2022:**There were 99 (ninety nine) new COVID-19 positive cases during the last 72 (seventy two) hours bringing total number of COVID-19 cases in the state to 228904 (two hundred twenty eight thousand nine hundred four). At the same time, 228031 (two hundred twenty eight thousand thirty one) COVID-19 positive patients have been discharged/cured and 702 (seven hundred two) death occurred due to COVID-19, and the total active cases in the state is 171 (one hundred seventy one).**
+
+****28.6.2022:**There were 41 (forty one) new COVID-19 positive cases during the last 24 (twenty four) hours bringing total number of COVID-19 cases in the state to 228945 (two hundred twenty eight thousand nine hundred forty five). At the same time, 228054 (two hundred twenty eight thousand fifty four) COVID-19 positive patients have been discharged/cured and 703 (seven hundred three) death occurred due to COVID-19, and the total active cases in the state is 188 (one hundred eighty eight).**
+
+****29.6.2022:**There were 64 (sixty four) new COVID-19 positive cases during the last 24 (twenty four) hours bringing total number of COVID-19 cases in the state to 229009 (two hundred twenty nine thousand and nine). At the same time, 228075 (two hundred twenty eight thousand seventy five) COVID-19 positive patients have been discharged/cured and 703 (seven hundred three) death occurred due to COVID-19, and the total active cases in the state is 231 (two hundred thirty one).**
+
+****01.7.2022: :**There were 97 (ninety seven) new COVID-19 positive cases during the last 48 (forty eight) hours bringing total number of COVID-19 cases in the state to 229106 (two hundred twenty nine thousand one hundred six). At the same time, 228103 (two hundred twenty eight thousand one hundred three) COVID-19 positive patients have been discharged/cured and 703 (seven hundred three) death occurred due to COVID-19, and the total active cases in the state is 300 (three hundred).**
+
+****04.7.2022:**There were 104 (one hundred four) new COVID-19 positive cases during the last 72 (seventy two) hours bringing total number of COVID-19 cases in the state to 229210 (two hundred twenty nine thousand two hundred ten). At the same time, 228226 (two hundred twenty eight thousand two hundred twenty six) COVID-19 positive patients have been discharged/cured and 705 (seven hundred five) death occurred due to COVID-19, and the total active cases in the state is 279 (two hundred seventy nine).**
+****05.7.2022:**There were 138 (one hundred thirty eight) new COVID-19 positive cases during the last 24 (twenty four) hours bringing total number of COVID-19 cases in the state to 229348 (two hundred twenty nine thousand three hundred forty eight). At the same time, 228274 (two hundred twenty eight thousand two hundred seventy four) COVID-19 positive patients have been discharged/cured and 706 (seven hundred six) death occurred due to COVID-19, and the total active cases in the state is 368 (three hundred sixty eight).**
+
+****07.7.2022:**There were 153 (one hundred fifty three) new COVID-19 positive cases during the last 48 (forty eight) hours bringing total number of COVID-19 cases in the state to 229501 (two hundred twenty nine thousand five hundred one). At the same time, 228348 (two hundred twenty eight thousand three hundred forty eight) COVID-19 positive patients have been discharged/cured and 706 (seven hundred six) death occurred due to COVID-19, and the total active cases in the state is 447 (four hundred forty seven).**
+
+****08.7.2022:******There were 108 (one hundred eight) new COVID-19 positive cases during the last 24 (twenty four) hours bringing total number of COVID-19 cases in the state to 229609 (two hundred twenty nine thousand six hundred nine). At the same time, 228406 (two hundred twenty eight thousand four hundred six) COVID-19 positive patients have been discharged/cured and 706 (seven hundred six) death occurred due to COVID-19, and the total active cases in the state is 497 (four hundred ninety seven).**
+
+****11.7.2022:******There were 255 (two hundred fifty five) new COVID-19 positive cases during the last 72 (seventy two) hours bringing total number of COVID-19 cases in the state to 229864 (two hundred twenty nine thousand eight hundred sixty four). At the same time, 228502 (two hundred twenty eight thousand five hundred two) COVID-19 positive patients have been discharged/cured and 706 (seven hundred six) death occurred due to COVID-19, and the total active cases in the state is 656 (six hundred fifty six).**
+
+****12.7.2022:****:**There were 120 (one hundred twenty) new COVID-19 positive cases during the last 24 (twenty four) hours bringing total number of COVID-19 cases in the state to 229982 (two hundred twenty nine thousand nine hundred eighty two). At the same time, 228535 (two hundred twenty eight thousand five hundred thirty five) COVID-19 positive patients have been discharged/cured and 706 (seven hundred six) death occurred due to COVID-19, and the total active cases in the state is 741 (seven hundred forty one).**
+
+****13.7.2022:******There were 142 (one hundred forty two) new COVID-19 positive cases during the last 24 (twenty four) hours bringing total number of COVID-19 cases in the state to 230124 (two hundred thirty thousand one hundred twenty four). At the same time, 228547 (two hundred twenty eight thousand five hundred forty seven) COVID-19 positive patients have been discharged/cured and 706 (seven hundred six) death occurred due to COVID-19, and the total active cases in the state is 871 (eight hundred seventy one).**
+
+****14.7.2022:**There were 105 (one hundred five) new COVID-19 positive cases during the last 24 (twenty four) hours bringing total number of COVID-19 cases in the state to 230229 (two hundred thirty thousand two hundred twenty nine). At the same time, 228559 (two hundred twenty eight thousand five hundred fifty nine) COVID-19 positive patients have been discharged/cured and 706 (seven hundred six) death occurred due to COVID-19, and the total active cases in the state is 964 (nine hundred sixty four).**
+
+****15.7.2022:******There were 119 (one hundred nineteen) new COVID-19 positive cases during the last 24 (twenty four) hours bringing total number of COVID-19 cases in the state to 230348 (two hundred thirty thousand three hundred forty eight). At the same time, 228575 (two hundred twenty eight thousand five hundred seventy five) COVID-19 positive patients have been discharged/cured and 706 (seven hundred six) death occurred due to COVID-19, and the total active cases in the state is 1067 (one thousand sixty seven).**
+
+****18.7.2022:******There were 298 (two hundred ninety eight) new COVID-19 positive cases during the last 72 (seventy two) hours bringing total number of COVID-19 cases in the state to 230646 (two hundred thirty thousand six hundred forty six). At the same time, 228691 (two hundred twenty eight thousand six hundred ninety one) COVID-19 positive patients have been discharged/cured and 706 (seven hundred six) death occurred due to COVID-19, and the total active cases in the state is 1249 (one thousand two hundred forty nine).**
+
+****18.7.2022:******There were 280 (two hundred eighty) new COVID-19 positive cases during the last 24 (twenty four) hours bringing total number of COVID-19 cases in the state to 230926 (two hundred thirty thousand nine hundred twenty six). At the same time, 229172 (two hundred twenty nine thousand one hundred seventy two) COVID-19 positive patients have been discharged/cured and 706 (seven hundred six) death occurred due to COVID-19, and the total active cases in the state is 1048 (one thousand forty eight).**
+
+****19.7.2022:******There were 280 (two hundred eighty) new COVID-19 positive cases during the last 24 (twenty four) hours bringing total number of COVID-19 cases in the state to 230926 (two hundred thirty thousand nine hundred twenty six). At the same time, 229172 (two hundred twenty nine thousand one hundred seventy two) COVID-19 positive patients have been discharged/cured and 706 (seven hundred six) death occurred due to COVID-19, and the total active cases in the state is 1048 (one thousand forty eight).**
+
+****20.7.2022:****:**There were 140 (one hundred forty) new COVID-19 positive cases during the last 24 (twenty four) hours bringing total number of COVID-19 cases in the state to 231066 (two hundred thirty one thousand sixty six). At the same time, 2299475 (two hundred twenty nine thousand four hundred seventy five) COVID-19 positive patients have been discharged/cured and 706 (seven hundred six) death occurred due to COVID-19, and the total active cases in the state is 885 (eight hundred eighty five).**
+
+****21.7.2022:******There were 138 (one hundred thirty eight) new COVID-19 positive cases during the last 24 (twenty four) hours bringing total number of COVID-19 cases in the state to 231204 (two hundred thirty one thousand two hundred four). At the same time, 229618 (two hundred twenty nine thousand six hundred eighteen) COVID-19 positive patients have been discharged/cured and 707 (seven hundred seven) death occurred due to COVID-19, and the total active cases in the state is 879 (eight hundred seventy nine).**
+
+****21.7.2022:******There were 207 (two hundred seven) new COVID-19 positive cases during the last 24 (twenty four) hours bringing total number of COVID-19 cases in the state to 231411 (two hundred thirty one thousand four hundred eleven). At the same time, 229788 (two hundred twenty nine thousand seven hundred eighty eight) COVID-19 positive patients have been discharged/cured and 707 (seven hundred seven) death occurred due to COVID-19, and the total active cases in the state is 916 (nine hundred sixteen).**
+
+****25.7.2022:******There were 303 (three hundred three) new COVID-19 positive cases during the last 72 (seventy two) hours bringing total number of COVID-19 cases in the state to 231714 (two hundred thirty one thousand seven hundred fourteen). At the same time, 230102 (two hundred thirty thousand one hundred two) COVID-19 positive patients have been discharged/cured and 708 (seven hundred eight) death occurred due to COVID-19, and the total active cases in the state is 904 (nine hundred four).**
+
+****26.7.2022:******There were 197 (one hundred ninety seven) new COVID-19 positive cases during the last 24 (twenty four) hours bringing total number of COVID-19 cases in the state to 231911 (two hundred thirty one thousand nine hundred eleven). At the same time, 230289 (two hundred thirty thousand two hundred eighty nine) COVID-19 positive patients have been discharged/cured and 708 (seven hundred eight) death occurred due to COVID-19, and the total active cases in the state is 914 (nine hundred fourteen).**
+
+****27.7.2022:******There were 169 (one hundred sixty nine) new COVID-19 positive cases during the last 24 (twenty four) hours bringing total number of COVID-19 cases in the state to 232080 (two hundred thirty two thousand eighty). At the same time, 230441 (two hundred thirty thousand four hundred forty one) COVID-19 positive patients have been discharged/cured and 708 (seven hundred eight) death occurred due to COVID-19, and the total active cases in the state is 931 (nine hundred thirty one).**
+
+****28.7.2022:******There were 145 (one hundred forty five) new COVID-19 positive cases during the last 24 (twenty four) hours bringing total number of COVID-19 cases in the state to 232225 (two hundred thirty two thousand two hundred twenty five). At the same time, 230601 (two hundred thirty thousand six hundred one) COVID-19 positive patients have been discharged/cured and 709 (seven hundred nine) death occurred due to COVID-19, and the total active cases in the state is 915 (nine hundred fifteen).**
+
+****28.7.2022:**There were 159 (one hundred fifty nine) new COVID-19 positive cases during the last 24 (twenty four) hours bringing total number of COVID-19 cases in the state to 232384 (two hundred thirty two thousand three hundred eighty four). At the same time, 230752 (two hundred thirty thousand seven hundred fifty two) COVID-19 positive patients have been discharged/cured and 710 (seven hundred ten) death occurred due to COVID-19, and the total active cases in the state is 922 (nine hundred twenty two).**
+
+****01.8.2022** There were 416 (four hundred sixteen) new COVID-19 positive cases during the last 72 (seventy two) hours bringing total number of COVID-19 cases in the state to 232800 (two hundred thirty two thousand eight hundred). At the same time, 231060 (two hundred thirty one thousand sixty) COVID-19 positive patients have been discharged/cured and 710 (seven hundred ten) death occurred due to COVID-19, and the total active cases in the state is 1030 (one thousand thirty).**
+
+****02.8.2022:******There were 337 (three hundred thirty seven) new COVID-19 positive cases during the last 24 (twenty four) hours bringing total number of COVID-19 cases in the state to 233137 (two hundred thirty three thousand one hundred thirty seven). At the same time, 231230 (two hundred thirty one thousand two hundred thirty) COVID-19 positive patients have been discharged/cured and 710 (seven hundred ten) death occurred due to COVID-19 and the total active cases in the state is 1197 (one thousand one hundred ninety seven).**
+
+****03.8.2022:******There were 150 (one hundred fifty) new COVID-19 positive cases during the last 24 (twenty four) hours bringing total number of COVID-19 cases in the state to 233287 (two hundred thirty three thousand two hundred eighty seven). At the same time, 231380 (two hundred thirty one thousand three hundred eighty) COVID-19 positive patients have been discharged/cured and 710 (seven hundred ten) death occurred due to COVID-19 and the total active cases in the state is 1197 (one thousand one hundred ninety seven).**
+
+****04.8.2022:******There were 255 (two hundred fifty five) new COVID-19 positive cases during the last 24 (twenty four) hours bringing total number of COVID-19 cases in the state to 233542 (two hundred thirty three thousand five hundred forty two). At the same time, 231540 (two hundred thirty one thousand five hundred forty) COVID-19 positive patients have been discharged/cured and 710 (seven hundred ten) death occurred due to COVID-19 and the total active cases in the state is 1292 (one thousand two hundred ninety two).**
+
+****05.8.2022:******There were 209 (two hundred nine) new COVID-19 positive cases during the last 24 (twenty four) hours bringing total number of COVID-19 cases in the state to 233751 (two hundred thirty three thousand seven hundred fifty one). At the same time, 231715 (two hundred thirty one thousand seven hundred fifteen) COVID-19 positive patients have been discharged/cured and 711 (seven hundred eleven) death occurred due to COVID-19 and the total active cases in the state is 1325 (one thousand three hundred twenty five).**
+
+****08.8.2022:******There were 393 (three hundred ninety three) new COVID-19 positive cases during the last 72 (seventy two) hours bringing total number of COVID-19 cases in the state to 234144 (two hundred thirty four thousand one hundred forty four). At the same time, 232194 (two hundred thirty two thousand one hundred ninety four) COVID-19 positive patients have been discharged/cured and 711 (seven hundred eleven) death occurred due to COVID-19 and the total active cases in the state is 1239 (one thousand two hundred thirty nine).**
+
+****10.8.2022:******There were 378 (three hundred seventy eight) new COVID-19 positive cases during the last 48 (forty eight) hours bringing total number of COVID-19 cases in the state to 234522 (two hundred thirty four thousand five hundred twenty two). At the same time, 232633 (two hundred thirty two thousand six hundred thirty three) COVID-19 positive patients have been discharged/cured and 715 (seven hundred fifteen) death occurred due to COVID-19 and the total active cases in the state is 1174 (one thousand two hundred seventy four).**
+
+****12.8.2022:** There were 226 (two hundred twenty six) new COVID-19 positive cases during the last 24 (twenty four) hours bringing total number of COVID-19 cases in the state to 234926 (two hundred thirty four thousand nine hundred twenty six). At the same time, 233115 (two hundred thirty three thousand one hundred fifteen) COVID-19 positive patients have been discharged/cured and 715 (seven hundred fifteen) death occurred due to COVID-19 and the total active cases in the state is 1096 (one thousand ninety six).**
+
+****16.8.2022:** There were 381 (three hundred eighty one) new COVID-19 positive cases during the last 96 (ninety six) hours bringing total number of COVID-19 cases in the state to 235307 (two hundred thirty five thousand three hundred seven). At the same time, 233869 (two hundred thirty three thousand eight hundred sixty nine) COVID-19 positive patients have been discharged/cured and 717 (seven hundred seventeen) death occurred due to COVID-19 and the total active cases in the state is 721 (seven hundred twenty one).**
+
+****17.8.2022:** There were 222 (two hundred twenty two) new COVID-19 positive cases during the last 24 (twenty four) hours bringing total number of COVID-19 cases in the state to 235529 (two hundred thirty five thousand five hundred twenty nine). At the same time, 234038 (two hundred thirty four thousand thirty eight) COVID-19 positive patients have been discharged/cured and 717 (seven hundred seventeen) death occurred due to COVID-19 and the total active cases in the state is 774 (seven hundred seventy four).**
+
+****18.8.2022:** There were 153 (one hundred fifty three) new COVID-19 positive cases during the last 24 (twenty four) hours bringing total number of COVID-19 cases in the state to 235682 (two hundred thirty five thousand six hundred eighty two). At the same time, 234215 (two hundred thirty four thousand two hundred fifteen) COVID-19 positive patients have been discharged/cured and 717 (seven hundred seventeen) death occurred due to COVID-19 and the total active cases in the state is 750 (seven hundred fifty).**
+
+****19.8.2022:** There were 158 (one hundred fifty eight) new COVID-19 positive cases during the last 24 (twenty four) hours bringing total number of COVID-19 cases in the state to 235840 (two hundred thirty five thousand eight hundred forty). At the same time, 234357 (two hundred thirty four thousand three hundred fifty seven) COVID-19 positive patients have been discharged/cured and 717 (seven hundred seventeen) death occurred due to COVID-19 and the total active cases in the state is 766 (seven hundred sixty six).**
+
+****22.8.2022:** There were 265 (two hundred sixty five) new COVID-19 positive cases during the last 72 (seventy two) hours bringing total number of COVID-19 cases in the state to 236105 (two hundred thirty six thousand one hundred five). At the same time, 234684 (two hundred thirty four thousand six hundred eighty four) COVID-19 positive patients have been discharged/cured and 717 (seven hundred seventeen) death occurred due to COVID-19 and the total active cases in the state is 704 (seven hundred four).**
+
+****23.8.2022:** There were 214 (two hundred fourteen) new COVID-19 positive cases during the last 24 (twenty four) hours bringing total number of COVID-19 cases in the state to 236319 (two hundred thirty six thousand three hundred nineteen). At the same time, 234798 (two hundred thirty four thousand seven hundred ninety eight) COVID-19 positive patients have been discharged/cured and 717 (seven hundred seventeen) death occurred due to COVID-19 and the total active cases in the state is 804 (eight hundred four).**
+
+****24.8.2022:** There were 97 (ninety seven) new COVID-19 positive cases during the last 24 (twenty four) hours bringing total number of COVID-19 cases in the state to 236416 (two hundred thirty six thousand four hundred sixteen). At the same time, 235003 (two hundred thirty five thousand and three) COVID-19 positive patients have been discharged/cured and 717 (seven hundred seventeen) death occurred due to COVID-19 and the total active cases in the state is 696 (six hundred ninety six).**
+
+****25.8.2022:** There were 129 (one hundred twenty nine) new COVID-19 positive cases during the last 24 (twenty four) hours bringing total number of COVID-19 cases in the state to 236545 (two hundred thirty six thousand five hundred forty five). At the same time, 235148 (two hundred thirty five thousand one hundred forty eight) COVID-19 positive patients have been discharged/cured and 717 (seven hundred seventeen) death occurred due to COVID-19 and the total active cases in the state is 680 (six hundred eighty).**
+
+****26.8.2022:** There were 125 (one hundred twenty five) new COVID-19 positive cases during the last 24 (twenty four) hours bringing total number of COVID-19 cases in the state to 236670 (two hundred thirty six thousand six hundred seventy). At the same time, 235257 (two hundred thirty five thousand two hundred fifty seven) COVID-19 positive patients have been discharged/cured and 717 (seven hundred seventeen) death occurred due to COVID-19 and the total active cases in the state is 696 (six hundred ninety six).**
+
+****29.8.2022:** There were 194 (one hundred ninety four) new COVID-19 positive cases during the last 72 (seventy two) hours bringing total number of COVID-19 cases in the state to 236864 (two hundred thirty six thousand eight hundred sixty four). At the same time, 235555 (two hundred thirty five thousand five hundred fifty five) COVID-19 positive patients have been discharged/cured and 720 (seven hundred twenty) death occurred due to COVID-19 and the total active cases in the state is 589 (five hundred eighty nine).**
+
+****30.8.2022:** There were 80 (eighty) new COVID-19 positive cases during the last 24 (twenty four) hours bringing total number of COVID-19 cases in the state to 236967 (two hundred thirty six thousand nine hundred sixty seven). At the same time, 235711 (two hundred thirty five thousand seven hundred eleven) COVID-19 positive patients have been discharged/cured and 720 (seven hundred twenty) death occurred due to COVID-19 and the total active cases in the state is 536 (five hundred thirty six).**
+
+****31.8.2022:** There were 118 (one hundred eighteen) new COVID-19 positive cases during the last 24 (twenty four) hours bringing total number of COVID-19 cases in the state to 237085 (two hundred thirty seven thousand eighty five). At the same time, 235797 (two hundred thirty five thousand seven hundred ninety seven) COVID-19 positive patients have been discharged/cured and 720 (seven hundred twenty) death occurred due to COVID-19 and the total active cases in the state is 568 (five hundred sixty eight).**
+
+****01.9.2022:** There were 93 (ninety three) new COVID-19 positive cases during the last 24 (twenty four) hours bringing total number of COVID-19 cases in the state to 237178 (two hundred thirty seven thousand one hundred seventy eight). At the same time, 235905 (two hundred thirty five thousand nine hundred five) COVID-19 positive patients have been discharged/cured and 722 (seven hundred twenty two) death occurred due to COVID-19 and the total active cases in the state is 551 (five hundred fifty one).**
+
+****02.8.2022:** There were 82 (eighty two) new COVID-19 positive cases during the last 24 (twenty four) hours bringing total number of COVID-19 cases in the state to 237260 (two hundred thirty seven thousand two hundred sixty). At the same time, 235980 (two hundred thirty five thousand nine hundred eighty) COVID-19 positive patients have been discharged/cured and 722 (seven hundred twenty two) death occurred due to COVID-19 and the total active cases in the state is 558 (five hundred fifty eight).**
+
+****5.9.2022:** There were 129 (one hundred twenty nine) new COVID-19 positive cases during the last 72 (seventy two) hours bringing total number of COVID-19 cases in the state to 237389 (two hundred thirty seven thousand three hundred eighty nine). At the same time, 236261 (two hundred thirty six thousand two hundred sixty one) COVID-19 positive patients have been discharged/cured and 722 (seven hundred twenty two) death occurred due to COVID-19 and the total active cases in the state is 406 (four hundred six).**
+
+****6.9.2022:** There were 81 (eighty one) new COVID-19 positive cases during the last 24 (twenty four) hours bringing total number of COVID-19 cases in the state to 237470 (two hundred thirty seven thousand four hundred seventy). At the same time, 236344 (two hundred thirty six thousand three hundred forty four) COVID-19 positive patients have been discharged/cured and 722 (seven hundred twenty two) death occurred due to COVID-19 and the total active cases in the state is 404 (four hundred four).**
+
+****7.9.2022:** There were 64 (sixty four) new COVID-19 positive cases during the last 24 (twenty four) hours bringing total number of COVID-19 cases in the state to 237534 (two hundred thirty seven thousand five hundred thirty four). At the same time, 236426 (two hundred thirty six thousand four hundred twenty six) COVID-19 positive patients have been discharged/cured and 722 (seven hundred twenty two) death occurred due to COVID-19 and the total active cases in the state is 386 (three hundred eighty six).**
+
+****8.9.2022:** There were 49 (forty nine) new COVID-19 positive cases during the last 24 (twenty four) hours bringing total number of COVID-19 cases in the state to 237583 (two hundred thirty seven thousand five hundred eighty three). At the same time, 236493 (two hundred thirty six thousand four hundred ninety three) COVID-19 positive patients have been discharged/cured and 722 (seven hundred twenty two) death occurred due to COVID-19 and the total active cases in the state is 368 (three hundred sixty eighty).**
+
+****9.9.2022:** There were 68 (sixty eight) new COVID-19 positive cases during the last 24 (twenty four) hours bringing total number of COVID-19 cases in the state to 237651 (two hundred thirty seven thousand six hundred fifty one). At the same time, 236552 (two hundred thirty six thousand five hundred fifty two) COVID-19 positive patients have been discharged/cured and 722 (seven hundred twenty two) death occurred due to COVID-19 and the total active cases in the state is 377 (three hundred seventy seven).**
+
+****12.9.2022:** There were 104 (one hundred four) new COVID-19 positive cases during the last 72 (seventy two) hours bringing total number of COVID-19 cases in the state to 237755 (two hundred thirty seven thousand seven hundred fifty five). At the same time, 236735 (two hundred thirty six thousand seven hundred thirty five) COVID-19 positive patients have been discharged/cured and 722 (seven hundred twenty two) death occurred due to COVID-19 and the total active cases in the state is 298 (two hundred ninety eight).**
+
+****13.9.2022:** There were 91 (ninety one) new COVID-19 positive cases during the last 24 (twenty four) hours bringing total number of COVID-19 cases in the state to 237846 (two hundred thirty seven thousand eight hundred forty six). At the same time, 236803 (two hundred thirty six thousand eight hundred three) COVID-19 positive patients have been discharged/cured and 722 (seven hundred twenty two) death occurred due to COVID-19 and the total active cases in the state is 321 (three hundred twenty one).**
+
+****14.9.2022:** There were 36 (thirty six) new COVID-19 positive cases during the last 24 (twenty four) hours bringing total number of COVID-19 cases in the state to 237882 (two hundred thirty seven thousand eight hundred eighty two). At the same time, 236868 (two hundred thirty six thousand eight hundred sixty eight) COVID-19 positive patients have been discharged/cured and 722 (seven hundred twenty two) death occurred due to COVID-19 and the total active cases in the state is 292 (two hundred ninety two).**
+
+****15.9.2022:** There were 52 (fifty two) new COVID-19 positive cases during the last 24 (twenty four) hours bringing total number of COVID-19 cases in the state to 237934 (two hundred thirty seven thousand nine hundred thirty four). At the same time, 236922 (two hundred thirty six thousand nine hundred twenty two) COVID-19 positive patients have been discharged/cured and 722 (seven hundred twenty two) death occurred due to COVID-19 and the total active cases in the state is 290 (two hundred ninety).**
+
+****16.9.2022:** There were 44 (forty four) new COVID-19 positive cases during the last 24 (twenty four) hours bringing total number of COVID-19 cases in the state to 237978 (two hundred thirty seven thousand nine hundred seventy eight). At the same time, 236982 (two hundred thirty six thousand nine hundred eighty two) COVID-19 positive patients have been discharged/cured and 722 (seven hundred twenty two) death occurred due to COVID-19 and the total active cases in the state is 274 (two hundred seventy four).**
+
+****19.9.2022:** There were 73 (seventy three) new COVID-19 positive cases during the last 72 (seventy two) hours bringing total number of COVID-19 cases in the state to 238051 (two hundred thirty eight thousand fifty one). At the same time, 237107 (two hundred thirty seven thousand one hundred seven) COVID-19 positive patients have been discharged/cured and 722 (seven hundred twenty two) death occurred due to COVID-19 and the total active cases in the state is 222 (two hundred twenty two).**
+
+****20.9.2022:** There were 72 (seventy two) new COVID-19 positive cases during the last 24 (twenty four) hours bringing total number of COVID-19 cases in the state to 238123 (two hundred thirty eight thousand one hundred twenty three). At the same time, 237145 (two hundred thirty seven thousand one hundred forty five) COVID-19 positive patients have been discharged/cured and 722 (seven hundred twenty two) death occurred due to COVID-19 and the total active cases in the state is 256 (two hundred fifty six).**
+
+****21.9.2022:** There were 45 (forty five) new COVID-19 positive cases during the last 24 (twenty four) hours bringing total number of COVID-19 cases in the state to 238168 (two hundred thirty eight thousand one hundred sixty eight). At the same time, 237196 (two hundred thirty seven thousand one hundred ninety six) COVID-19 positive patients have been discharged/cured and 722 (seven hundred twenty two) death occurred due to COVID-19 and the total active cases in the state is 250 (two hundred fifty).**
+
+****22.9.2022:** There were 21 (twenty one) new COVID-19 positive cases during the last 24 (twenty four) hours bringing total number of COVID-19 cases in the state to 238189 (two hundred thirty eight thousand one hundred eighty nine). At the same time, 237259 (two hundred thirty seven thousand two hundred fifty nine) COVID-19 positive patients have been discharged/cured and 723 (seven hundred twenty three) death occurred due to COVID-19 and the total active cases in the state is 207 (two hundred seven).**
+
+****23.9.2022:** There were 37 (thirty seven) new COVID-19 positive cases during the last 24 (twenty four) hours bringing total number of COVID-19 cases in the state to 238226 (two hundred thirty eight thousand two hundred twenty six). At the same time, 237294 (two hundred thirty seven thousand two hundred ninety four) COVID-19 positive patients have been discharged/cured and 723 (seven hundred twenty three) death occurred due to COVID-19 and the total active cases in the state is 209 (two hundred nine).**
+
+****26.9.2022:** There were 78 (seventy eight) new COVID-19 positive cases during the last 72 (seventy two) hours bringing total number of COVID-19 cases in the state to 238304 (two hundred thirty eight thousand three hundred four). At the same time, 237394 (two hundred thirty seven thousand three hundred four) COVID-19 positive patients have been discharged/cured and 723 (seven hundred twenty three) death occurred due to COVID-19 and the total active cases in the state is 187 (one hundred eighty seven.**
+
+****27.9.2022:** There were 54 (fifty four) new COVID-19 positive cases during the last 24 (twenty four) hours bringing total number of COVID-19 cases in the state to 238358 (two hundred thirty eight thousand three hundred fifty eight). At the same time, 237423 (two hundred thirty seven thousand four hundred twenty three) COVID-19 positive patients have been discharged/cured and 723 (seven hundred twenty three) death occurred due to COVID-19 and the total active cases in the state is 212 (two hundred twelve).**
+
+****28.9.2022:** There were 38 (thirty eight) new COVID-19 positive cases during the last 24 (twenty four) hours bringing total number of COVID-19 cases in the state to 238396 (two hundred thirty eight thousand three hundred ninety six). At the same time, 237460 (two hundred thirty seven thousand four hundred sixty) COVID-19 positive patients have been discharged/cured and 723 (seven hundred twenty three) death occurred due to COVID-19 and the total active cases in the state is 213 (two hundred thirteen).**
+
+****29.9.2022:** There were 7 (seven) new COVID-19 positive cases during the last 24 (twenty four) hours bringing total number of COVID-19 cases in the state to 238403 (two hundred thirty eight thousand four hundred three). At the same time, 237491 (two hundred thirty seven thousand four hundred ninety one) COVID-19 positive patients have been discharged/cured and 723 (seven hundred twenty three) death occurred due to COVID-19 and the total active cases in the state is 189 (one hundred eighty nine).**
+
+****30.9.2022:** There were 33 (thirty three) new COVID-19 positive cases during the last 24 (twenty four) hours bringing total number of COVID-19 cases in the state to 238436 (two hundred thirty eight thousand four hundred thirty six). At the same time, 237516 (two hundred thirty seven thousand five hundred sixteen) COVID-19 positive patients have been discharged/cured and 723 (seven hundred twenty three) death occurred due to COVID-19 and the total active cases in the state is 197 (one hundred ninety seven).**

@@ -1,0 +1,5 @@
+A. _Front page of THE ZOZAM TIMES newspaper Dt. 25.2.2014_
+
+**Phantom – Sender of Text Message to CM to be Chargesheeted within March****:**K.Chhawnthuama (Mizo Phantom), owner of KV Multipurpose School, Durtlang, who sent controversial text message to Chief Minister of Mizoram Lal Thanhawla, appeared before the court of Chief Judicial Magistrate in the forenoon of Monday. The accused was sent home after signing his name for the case IO was not ready with the chargesheet. The case IO, Vanlalfaka Ralte, Addl.SP of CID(Crime) said that chargesheet will be ready and submitted by the month of March.
+
+ The court will wait for the chargesheet till 4th March and chargesheet is expected to be submitted by CID(Crime), said sources. The case IO said that the accused is out on bail and that does not mean that chargesheet has to be submitted in 60 or 90 days; if necessary, case can be investigated for 5 years. According to report, magistrate has high power in this kind of case under section 167 Cr.PC.

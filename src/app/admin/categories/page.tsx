@@ -1,4 +1,8 @@
 import Link from "next/link";
+import { getServerSession } from "next-auth/next";
+import { redirect } from "next/navigation";
+import { authOptions } from "@/lib/auth-options";
+import { UserRole } from "@/generated/prisma";
 import { PlusCircle } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { getCategories } from "./actions";
@@ -11,6 +15,15 @@ export const metadata: Metadata = {
 };
 
 export default async function AdminCategoriesPage() {
+  const session = await getServerSession(authOptions);
+  if (
+    !session ||
+    !session.user ||
+    (session.user.role !== UserRole.admin && session.user.role !== UserRole.staff)
+  ) {
+    redirect("/unauthorized");
+  }
+
   const categories = await getCategories();
 
   return (

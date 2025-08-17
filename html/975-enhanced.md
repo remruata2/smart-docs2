@@ -1,0 +1,75 @@
+****INSTANCES OF INTER STATE BORDER DISPUTE WITH ASSAM****
+
+**2.11.2005 -**One vehicle bearing registration No.AS-24/4325 appeared at Bairabi Police Check Gate. The driver of the vehicle Nunur Laskar informed that on the same day at about 3:00pm while he was proceeding towards Kolasib, he was detained by MZP Bairabi Sub-Hqrs. at Bairabi and demand a donation of Rs.2000/-, as he did not have money he took loan from his friend and paid the same to MZP members. The MZP had given a kuchha receipt. O/C Bairabi PS seized the receipt and also recovered the extorted money from MZP and paid to the driver. Further it is also confirmed that they did not possess valid plying permit etc and permit for carrying cement so he is pushed back to district boundary.
+
+**3.11.2005** - On 3.11.2005@ 2:00pm, MZP leader of Bairabi appeared at Bairabi PS and informed that vehicle No.MZ-01/C-7497 went to Katlichera for carrying cement/rod etc. But a civilian mob attack the driver and handyman and demanded Rs.2000/-. Meanwhile, due to prompt action of Katlichhera Police, the money was not paid and the vehicle returned safely. However, it is reported that the handyman was manhandled. Doctor examined the handyman and opined as simple injury.
+
+ On the same day at around 3:00pm, MZP volunteers inform all non-Mizo maxi cab drivers not to enter into Mizoram from Hailakandi of Assam. Accordingly the plying of vehicles from Hailakandi district to Bairabi was stopped by non-Mizo drivers of Hailakandi district.
+
+**5.11.2005** - At around 11:00am, MZP Adviser RJ. Lalnuntluanga appeared at PS and informed two Aizawl City Bus No.MZ-01/B-4977 and MZ-01/8927 who were coming form Karawt were stopped by the civilians and collected Rs.200/- at Garmura area, Hailakandi district.
+
+ On the same day at 3:00pm, MZP workers of Bairabi proceeded to railway station with their flag. Immediately O/C Bairabi PS with party rushed to railway station where MZP volunteers did not allow the non-Mizo passengers to get down from train. They stated that they protest against the collection of Rs.200/- from the aforesaid two city bus.
+
+**6.11.2005** - SP Hailakandi, DC Hailakandi and DFO Hailakandi visited Zophai peng and erected one signboard 'Welcome to Assam'. It was noticed that one waiting shed constructed under IWDP of Mozram near roadside at Zophai peng was partially damaged by some unknown miscreants.
+
+ Regarding the damage of waiting shed, a case vide BBI PS C/No.73/05 dt.8.11.05 u/s379/427 IPC was registered on the strength of complaint submitted by Zoramthanga, SDAO Bilkhawthlir.
+
+ Meanwhile, a group called Young Men Association was formed by the people of Katlichhera to protest against the activities of MZP at Bairabi. And the road blockade was launched on both sides.
+
+**14.11.2005 -**At around 10:30am to 11:30am, some unidentified persons caused severe damage to waiting shed constructed under IWDP by Govt. of Mizoram and carried away the materials. Estimated cost of damage caused was Rs.25000/-. In this connection, Bairabi PS C/No.76/05 dt.20.11.2005 u/s 427/379 IPC was registered.
+
+**6.12.2005** - Unidentified person from Assam destroyed 22 trees of Thingrai belonging to Pu H.Vanlalrova of Bairabi North. Accordingly, BBI PS C/No.80/05 dt.13.12.05 u/s 427/379 IPC was registered on 13.12.2005.
+
+**11.12.2005** - Lalvulmawia, President MZP Bairabi and one Lalpiangliana of Bairabi Zophai peng were arrested by Assam Police while trying to blast the watch tower with geletine constructed by Assam Forest near Zophai peng. Assam Police recovered fuse and detonator from their possession.
+
+ In this regard, Katlicherra(Assam) PS C/No.115/05 dt.11.12.05 u/s 5 of ES Act was registered.
+
+****15.12.2005** - Report received from A.Siamhmingthanga, Bairabi North that some unidentified person from Assam extorted 8 kgs. of fish from his employee of WRC Huan from Zophai. In this regard, BBI PS C/No.82/05 dt.15.12.05 u/s 384 IPC was registered.**
+
+****29.12.2005** - Report received from Zakaria of Bairabi Helipad Veng that on 25.12.2012, unidentified person from Assam extorted 9 chicken from his employees at Zophai paddy field value of Rs.100. Hence, BBI PS C/No.84/05 dt.29.12.05 u/s 384 IPC was registered.**
+
+**23.2.2006** - This night at 10:00pm, a bomb exploded under Dholai bridge on NH-54 resulting partial damage of the bridge i.e. some portion of cement work and rod are damaged. It was confirmed that the bomb was fitted by unknown miscreants and it is strongly suspected to be the members of Former Underground Welfare Society as they were seen at Vairengte on today afternoon with badge. The said group also distributed quit order letter to the villagers of Bhaga bazar, Cachar today. The place of occurrence of the aforesaid incident falls under the jurisdiction of Dholai PS, Cachar, Assam and the case also been registered.
+
+ Due to the damage caused on the bridge, the flow of traffic on NH-54 was stopped (specially the loaded vehicle) till the completion of the construction of the Bailey bridge over the damaged one. The flow of traffic continued from 1.3.2006.
+
+****22.4.2006** - Today at 10:00am, Forest officials of Assam dismantled rubber pipe laid in the paddy field pf Pi M.Thangthuami at Zophai at about 3kms. north of Bairabi Police Station and on the same day Pi M.Thangthuami engaged two non-Mizo labourers to lay rubber pipe connecting her paddy field and fish pond and one Forester namely Nandy and party came to the spot and assaulted the labourers causing simple injury on these persons. The Forester forced them to dig out the rubber pipe and also threatened the labourers not to work anymore as the area (paddy field and fish pond) falls under Assam State. The forester and p0arty took away the rubber pipe with them. In this regard, Bairabi PS C/No.26/06 dt.22.4.06 u/s 384/427/323/34 IPC was registered.**
+
+**20.6.2007** - MZP constructed waiting shed "Zorun" at the outskirt of Vairengte. The same was dismantled few hours later by the Assam Police but all the materials were salvaged by the Mizoram Police. In this connection, Vairengte PS Case No.29/07 dt.21.6.2007 was registered against the Assam Authority.
+
+**27.6.2007** - A combined team of Assam Police, Forest officials, CRPF and IR Bn. numbering about 30 headed by Executive Magistrate of Hailakandi District of Assam came to Zophai area and arrested three non-Mizo and one Mizo, a JCB operator who were working at the paddy field of Pu CH.Chhunga. They were booked vide Katlichera PS C/No.55/07 dt.27.6.07 u/s 447/430/506/379 IPC.
+
+**4.3.2009** - The land leveling and canal construction in the paddy field of B.Lalmawia S/o B.Zakhuma of Venghlui at Phaisen, Kolasib district was partially destroyed by Assam Forest department officials and kept in the custody of 6th Assam Armed Bn. BOP located at Bilaipur, Hailakandi district. The land leveling and irrigation canal was undertaken by Minor Irrigation deptt, Govt. of Mizoram using 4 excavators(JCB) with few labourers.
+
+**16.12.2010** - There occurred dispute over broom cultivation between residents of Vairengte village of Mizoram and Bilaipur village of Assam at a place called Aitlang area which falls within Mizoram. In this connection, 3 Mizo persons were taken by civilians of Bilaipur and were kept in Bilaipur Outpost but were taken back by Mizoram Police.
+
+ The matter has been amicably settled later after discussion between the Mizoram and Assam authorities.
+
+****21.1.2011** - Pu Vanlalawmpuia, Field Veng Vairengte (Vice Chairman, Kolasib district Minor Forestry &amp; Marketing Society) submitted a written FIR to Vairengte PS stating that on 21.1.2011 while they were collecting broomsticks at Aitlang area, one Kamrula of Bilaipur and party came with a gun and opened fire towards them. However, they did not report any casualty/injury to any person of Mizoram side. In return, they conducted a search and apprehended one Asaf Ali(19) S/o Afris Ali of Bilaipur with local made gun from the PO and produced him at Vairengte PS. In this connection, VRTE PS C/No.6/11 dt. 23.1.11 u/s 27(1) Arms Act was registered.**
+
+**10.2.2011** - The Assam Police told workers to stop the ongoing Minor Irrigation Project at Mautui Zau area of Kolasib District, Mizoram in the Assam-Mizoram border. On 15.2.2011, a representative with Police and Forest officials went to the disputed site and made a request to halt the on-going work till the matter was settled at higher level.
+
+ Meeting between DC Kolasib District and DC Hailakandi District was held on 10.8.2011 and after cordial discussion, they agreed to maintain status quo in the disputed area.
+
+**20.3.2011** - School building constructed by Assam Govt. at the Mizoram-Assam border near Bairabi was attacked with explosives. No arrest was made. Another school building was also constructed near Zophai.
+
+**11.9.2012** - The recent makeshift boundary pillar reportedly erected by DFO, Cachar on 2nd September 2012 was destroyed early this morning at about 2:00-3:00am by ZNP workers led by Pu KL.Liantlinga, MLA. The pillar in question is located at about 5 kms. north-west of Vairengte town at Aitlang where one Mizo, Pu Lalhmangaiha of Vairengte is having wet paddy field.
+
+**26.9.2012**- The All Barak Youth Students' Association (ABYSA) carried out indefinite total bandh from 26.9.2012 @ 6:00 AM due to the non-receipt of positive response from the DC, Cachar District over their submitted petition regarding the Inner Line Permit (ILP) and Assam-Mizoram border dispute. In order to solve the problem, SDO (Civil) Vairengte, SDPO Vairengte and Ms. Jessica Lalsiam (ACS) went to Lailapur to hold a meeting with the ABYSA but no positive result was achieved. No vehicles reportedly passed through Lailapur on this day. After negatiation of Cachar Addl DC, Pu S.Chaudhury with leaders of ABYSA, ABYSA decided to call off the blockade from 6:45 PM on 27.9.2012.
+
+**29.9.2012**- On 29.9.2012 @ 4:00 PM, Shri. Siddique Ahmed Mazumdar, MoS, Border and Co-operative Society, Govt. of Assam paid a visit to Lailapur and took stock of the situation in connection with the recent road blockade of NH-54 at Lailapur in demand for relaxation of ILP and to solve boundary dispute between Assam and Mizoram near Lailapur. The Hon’ble Minister reportedly assured Lailapur residents that DC level meeting between DC, Cachar and Kolasib would be convened on 5.10.2012 at Silchar and requested them to wait the outcome of the ensuing meeting.
+
+ The residents of Lailapur, spearheaded by ABYSA (All Barak Youth Students’ Association) requested the Hon’ble Minister to visit the alleged disputed boundary in question. The entourage of the Hon’ble Minister accompanied by around 40-50 Lailapur residents proceeded to Vairengte and some of the advance party crossed Vairengte Police Check Gate at around 5:00 PM. They were stopped at the Check Gate by Mizoram Police and some local residents of Vairengte.
+
+**9.3.2013**- Some unknown miscreants blew up Lower Primary School constructed under SSA in Mizoram and Assam states border with bomb/explosives on 9.3.2015 @ around 11:30pm. The blasts heavily damged an Assam Government's run Lower Primary School at Kachurthal Village near the interstate border under Katlicherra block of Hailakandi district near Bairabi, Mizoram. The same school was hit by a similar blast triggered by some miscreants on 20.3.2011.
+
+**27.4.2014**- On 27.4.2014 (Sunday), Assam Police dismantled 4 (four) Farm huts at Mizo paddy fields in Buchangphai area (Near Assam-Mizoram dispute border) belonging to 2 (two) Mizos namely- (i) R.K. Laldawngliana, Buhchangphai and (ii) R. Kapzuala, Falkland, Aizawl.
+
+**29.4.2014 -** On 29.4.2014 @ 9:00 AM, around 160 volunteers of Buhchangphai Branch YMA reconstructed 4 (four) Farm huts belonging to 2 (two) victims, namely- (i) R.K. Laldawngliana, Buhchangphai and (ii) R. Kapzuala, Falkland, Aizawl under the protection of 1st IR Bn. All the volunteers dispersed at around 1:10 PM after having a brief function at the place of incident. During the brief function, Buhchangphai Branch YMA leaders stated that their action is only a sign of claiming the territory of Mizoram and further appealed all the YMA members to keep vigil on the Assam-Mizoram boundary issue.
+
+ At this juncture, around 25 volunteers of Buhchangphai Branch YMA managed to sneak into nearby Genda village (Bru village), Assam and threatened them to evacuate the village within 3 days.
+
+ However, @ 4:00 PM, a group of Assam Police numbering 30 to 40 came to the place of incident and dismantled all the reconstructed Farm huts again, taking advantage of the absence of 1st IR Bn. on duty at the site. At the time of this incident, one platoon of 1st IR Bn. proceeded to Buhchangphai site awaiting for the replacement of another platoon.
+
+****27.4.2015**- Various Barak Valley based NGOs and Student Associations under the umbrella of Amsur Cachar Jilla Committee, Assam launched economic blockade on 27.4.2015 w.e.f. 6:00 AM demanding intervention of the State (Assam) Government to take appropriate steps to protect the non-Mizo (tribal) traders in Mizoram from alleged attacks by Mizo students affecting movement of vehicles along the roads connecting Mizoram and Assam (Vairengte, Bairabi &amp; Kanhmun). However, the economic blockade has been temporarily called off at around 5:30 PM after Addl. DC of Cachar District, Shri. Kamalakhya Dey Purkayastha, MLA and Shri. Siddique Ahmed, MLA gave an assurance to take up the matter with the Government of Mizoram.**
+
+**9.9.2015**- On 9.9.2015, a Joint Verification was conducted by a team of Forest Range Officers of Vairengte, Mizoram and Dholai, Assam on the encroachment site of disputed area between Mizoram and Assam by Lailapur villagers. The Assam Forest officials have dismantled all the 5 (five) huts which have been illegally constructed by some people of Assam and also uprooted saplings of betel nut planted on the disputed area. The joint verification team was led by Pu Chuauzika, RO Vairengte and Shri SU Laska, RO Dholai.

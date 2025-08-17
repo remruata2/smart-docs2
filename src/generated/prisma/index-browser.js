@@ -152,6 +152,31 @@ exports.Prisma.UserScalarFieldEnum = {
   created_at: 'created_at'
 };
 
+exports.Prisma.AiApiKeyScalarFieldEnum = {
+  id: 'id',
+  provider: 'provider',
+  label: 'label',
+  api_key_enc: 'api_key_enc',
+  active: 'active',
+  priority: 'priority',
+  success_count: 'success_count',
+  error_count: 'error_count',
+  last_used_at: 'last_used_at',
+  created_at: 'created_at',
+  updated_at: 'updated_at'
+};
+
+exports.Prisma.AiModelScalarFieldEnum = {
+  id: 'id',
+  provider: 'provider',
+  name: 'name',
+  label: 'label',
+  active: 'active',
+  priority: 'priority',
+  created_at: 'created_at',
+  updated_at: 'updated_at'
+};
+
 exports.Prisma.SortOrder = {
   asc: 'asc',
   desc: 'desc'
@@ -171,10 +196,18 @@ exports.UserRole = exports.$Enums.UserRole = {
   staff: 'staff'
 };
 
+exports.Provider = exports.$Enums.Provider = {
+  gemini: 'gemini',
+  openai: 'openai',
+  anthropic: 'anthropic'
+};
+
 exports.Prisma.ModelName = {
   CategoryList: 'CategoryList',
   FileList: 'FileList',
-  user: 'user'
+  user: 'user',
+  AiApiKey: 'AiApiKey',
+  AiModel: 'AiModel'
 };
 
 /**

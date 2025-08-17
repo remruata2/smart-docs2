@@ -1,0 +1,15 @@
+A. _Front page of THE AIZAWL POST & THE ZOZAM TIMES newspapers Dt. 25.3.2013_
+
+_6 arrested in drug smuggling_:****6 (six) persons have already been arrested by the police in connection with seizure of more than 23 lakhs of pseudoephedrine tablets to be carried into Mizoram. The tablets were loaded in a truck and they were seized on 12th March at Vairengte checkgate. The arrested 6 (six) persons were – Truck driver, Maji Ali(40) s/o Samshya, Bihar; Dharam Pal Chaudhury(55) s/o Lakhsman Rao(L), Area Manager, North East Carrying Corporation, Haryana P/A Babutlang, Aizawl; Zoramsiama(24) s/o Lalhmingliana, New Saiha P/A Chanmari, Aizawl; HP Lalchuailova(40) s/o SK Khama, Chanmari, Owner of HP Enterprise, they were sent to District Jail, Kolasib.
+
+ Lalrinpuii w/o Lalit Kumar, Janakpuri, West Delhi and another woman who were suspected to be involved in the crime were arrested by Vairengte Police and detained them for further investigation. The drugs seized worth Rs. 2 crore in the market rate.
+
+B. _Front page of THE ZOZAM TIMES, THE AIZAWL POST & VANGLAINI newspapers Dt. 25.3.2013_
+
+_MZP visited home of the hostages and demanded to release them unconditionally. 'Their health condition are not good' - MNYF_:****MZP visited home of the hostages (Nelson and his younger brother) yesterday ie, 24.3.2013 and demanded kidnappers to release their hostages unconditionally. MZP felt abduction happened whenever there is a plan of repatriation for Bru refugee from their camp in Tripura. MZP felt bad about the abduction as it distracted the administration and function of the government and MZP is waiting for government to take action.
+
+ The MNF Youth leader PC Laltlansanga, in a press conference on Saturday ie., 23.3.2013 said that the kidnappers talked to the victim's families on Friday ie, 22.3.2013 and expressed their anger against the Mizoram government. One of the hostages, Lalsangmawia of West Phaileng, has become unable to move due to his illness which has worsened due to improper diet. Another one, Nelson Vanlalruatkima had also developed stomach pain, he said. He also urged government to take action as quick as possible to rescue the 5 hostages. Mizoram Earth Movers Association also visited the families of the hostages (Nelson and his younger brother) at Hunthar Veng, Aizawl
+
+C. _Front page of THE ZOZAM TIMES & VANGLAINI newspapers Dt. 25.3.2013_
+
+**_Missing old man found dead_:****R.Zasiama (84), a resident of West Phaileng at Mamit district, who went missing since 8th March, 2013 from Lengpui, was found dead in a highly decomposed state, between Lengpui and Buichali on Sunday ie, 24.3.2013. R.Zasiama went to Zonuam, Aizawl to attend a wedding ceremony on 5th March, 2013. He went back home on 8th March, 2013 and got off a maxi cab at Lengpui to visit a nephew but never reached there. Report from Sairang PS said that even though inquest was done by the police, the corpse was in a high decomposed state that it was hard to tell if he died by accident or suffered from somebody’s hands. Post mortem was done at Lengpui Hospital after that it was taken to West Phaileng.**

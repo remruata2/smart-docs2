@@ -1,0 +1,43 @@
+**West Phaileng PS Case No.2/2025 Dt 15.1.2025 u/s 61(2) (a) BNS R/w 13,16,18,20,23 UAP Act R/w 25(1AA) Arms Act R/w 14 A Foreigner Act**
+
+Statement of Accused arrested on dt15.1.25.
+
+Name: Lalbiakchunga(63)
+
+F/Name: Noer(L)
+
+Add: Thantlang, Myanmar
+
+Ka particulars kimchang chu a chung a mi ang khi ani a. Aizawl ah hian Tuikual ah ka nupui fanau te nen mi in luah in kan lo awm ve tawh thin a, tun ah chuan kan nu nen hian inthen tawh in kei hi Thantlang, Myanmar ah ka awm tawh ani.
+
+Silai leh a mu kan tawlh dan tlangpui.
+
+A vawikhatna: 2024 March thla khan Lalthawmcheua driver nen hian nen picup burma lam ami Mizoram registered nei chuan Silai mu 5000 phur in kan kal a. Thingsai lam atangin North Vanlaiphai lam ah lan kal a, Kalkawng ah hian check kan tawk lo, cement leh suahdur te kan phur a, ahnuai ah hian silaimu kan dah a, dapchhuah(Tut) ah hian Police duty kan pal tlang a, min ringhlel lem lo. Tichuan Silsury ah Alok Bikash Chakma leh athianpa (a hming ka hre lo) kan pe a. Pawisa hi la nghal lo in Aizawl ah kan lo nghak a. Tichuan silai mu man hi Picup in an rawn phur a, dapchhuah ah keini va kal in Mu khat 500 hisap in pawisa kan inhlan ani. Pawisa min rawn pe tur hian Aloka leh a thianpa an lo kal a ni chuan Aizawl lam ah kan let lehnghal ani. Aizawl ah hian Keini hi chu Hotel ah kan thleng kual mai thin a, chawlhna hotel ah te kan thleng thin ani.
+
+A vawihnihna: A vawihnihna hi October 2024 ah kan mu 12000 kan pe leh ah. Picup dang burma lam ami hire leh in Lalthawmcheua hian a khalh leh ani. Kan inpek hma hian Santi Kumar (UPDF) nen kan in be hmasa a, tuchuan kan pek hmasak a kan tih dan tho leh kawng pangai ah bawk kan kal leh a. Santi kumar hi Saithah dai ah hian lo kal in Silai mu leh pawisa hi kan inpe ani. Silaimu 12000 hi Rs60 lakhs man tur ani a. Mahse Santi Kumara hian mum 14000 tiin sawi rawh min tih ang in 14000 ang in ka sawi a, Zan thil te ani a, chhiar a ni lo bawk nen. Tichuan Rs60lakhs ai ah Rs 70lahks ka dawng a, hetah hian Santi Kumar hian Rs 2.5 lakh a dawng ve ani.
+
+A vawithumna: A vawithumna hi kan tihdan pangaiin picup tho in kan phur a( picup hi a hran zel hman a ni a, Silaimu kan thuhruk dan erawh a pangai ang zelin ani) Hemi tum hi chuan Sanga( Lungler burma pa in a rawn khalh a, Aizawl ah kan lo nghak ani). He mi tum hian Santi kumara hian silai leh amu man vel sawi a min rawn be tur in Alok Bikash Chakma hi Aizawl ah a rawn tir ani. Tichuan kei chuan Rualliansanga(sanga) hi ka bia a, lo buaipui tur in ka ti a, Driver Sanga Lungler pa contact no. hi ka pe a, tichuan an in bia a. Tichuan Rualliansanga(sanga) leh Malsawma Loncheu hian scooty in an zui a. Saithah dai kan inpek na thleng hian anin zui ani. An kal hun hi Dt12.1.25 a ni a, hemi tum hian (CPDF) lam a lei tur te hi an rawn kal mai loh avangin Saithah dai ramhnuai ah hian an thukru a, an thuhruk na tak hi chu ka hriatpui lo. Picup hi let leh nghalin sanga leh malsawma hi zanhnih hemi hmun ah hian Silai 10050 leh Ak 47 paruk hi veng in an riak nghe nghe ani.( Ak 47 pakhat hi Rs 825000 man tur leh silai mu hi Mukhat 500 man tur a in bia kan ni a. Hemi tum hian a hma a pawisa kan lo lak tam avangin pek let leh ka tum nghe nghe ani) Tichuan ni 14/15 ah in pe tur in kan inbia a, ni 14 hian a hmun Saithah dai thleng Lalthawmcheua nen hian kan zuk kal a, a leitu tur te an lo lan mai loh avangin West phaileng lam ah kan let leh a, tun tum hian Rualliansanga(Sanga), Malsawma leh Alok Bikash Chakma te hi BDO office ah an riak a, tichuan atuk dar kua vel ah Scooty leh Bike a chhuak in CID te hian Lallen khaw dai ah an lo tiding a, keini hi Lalthawmcheua nen an kal hnu hian kan va kal veleh chu min lo man leh a, tichuan min dawpna atang Saithah dai Silai leh amu kan thuhrukna ah chuan hruaiin silai leh amu hi Police CID te hian min mansak ta ani.
+
+Q.Alok Bikash Chakma hi UPDF mi leh sa ani em.
+
+* UPDF mi chu anih karing, mahse ani chiang tih erawh ka sawi thei lo. An agent/ tirhkah deuh pawh ani mai thei.
+
+Q.Silai mu hi engtin nge i neih theih.
+
+* PDF,CDF etc pawl hrang hrang atang mu 2000 te, 4000 ten ka collect khawm thin a, tin Karen, Kachhin leh MNDA( alampum ka hre ta lo) ah te hian a siamna factory a awm bawk ani.
+
+Q.Ak47 hi khawi atang a i lak nge.
+
+- Heng hi chu private burma lam a smuggler ho hnen atang Pahnih/ khat te te a kan lei khawm ani.
+
+Q.CNF te hian silai leh amu hi engtia hralh nge in nih. In mamawh tawk bak in nei em ni.
+
+* CNF hian silai hi kan mamawh bak kan nei chuang lo a, bakah kan silai neihsa ami hi kan hralh ngai lo. Sum lam ah te kan mamawh phuhru tur in Private ta te leikhawmin sumtuak nan kan hmang ve thin ani.
+
+Q.Group dang ho hian hetiang hian Sialai an hralh ve em.
+
+- Ka hre chiah lo a, mahse Arakan Army te hi chuan an tih ve ka ring, Drugs thleng in an ni hi chuan an tih ka ring a, an ti ngei em tih erawh ka chiang chuang lo.
+
+Q.Ralliansang(Sanga) te nen hian engtia inhruange in nih.
+
+* Kan inhriatna a rei tawh a , Bawm ho ram ah hian tunhma in kumsawm vel ka awm tawh a, ka zin chang pawh hian an in ah te hian chaw te ka ei thin a. Tun tum Parva lam atang a an rawn ral tlan hian min rawn zawngchhuak a, hnathawhtur mumal a neih loh avang leh an harsat avang in inhlawhna ka lo siamsak ve ani. Amah hi ka tan chuan mi fel tak ani a, ka duh hun hun a ka tirh theih a ni.

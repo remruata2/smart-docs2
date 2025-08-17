@@ -1,0 +1,3 @@
+****Threat perception assessment in respect of Pu Hmingchungnunga****
+
+Pu Hmingchungnunga, the Chairman of SHDC tenure has ended on dt. 31.5.2018. Apart from this, the underground outfit, HPC(D) who often posed threats for him had recently signed MoS with the Government of Mizoram and his previous direct/indirect intimidations from the said outfit no longer exist as of now. Because of these factors, it is no longer necessary to provide him with PSO and House Guard as he himself also felt it unnecessary for the continuation of such securities.

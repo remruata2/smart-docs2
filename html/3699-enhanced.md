@@ -1,0 +1,46 @@
+****OFFICE OF THE Sr. SUPERINTENDENT OF POLICE****
+
+****CID (SB), MIZORAM; AIZAWL****
+
+No. MSB/CB/A-7/    Dated Aizawl, the  Feb., 2023
+
+To,
+
+The Assistant Inspector General of Police (Hqrs.),
+
+ Police Headquarters,
+
+ Mizoram, Aizawl
+
+Subj : Press Release and Facebook post-reg.
+
+Ref. : No. CB/PHQ/346/DP/17/76 DT. 16.2.2023.
+
+Sir,
+
+ With reference to the subject and letter No. cited above, I am to state that discreet enquiry had been conducted in connection the Press Release issued by Social Reconstruction and Enlightenment (SORE) on 14.2.2023 condemning DGP Mizoram in connection with transfer of Inspr. H. Lalchawimawia, OC, Vairengte PS, and the same was highlighted in Aizawl Post daily newspaper and Rengkhawpui daily newspaper (Vairengte village) both issued on 15.2.2023. The enquiry report is attached herewith for your kind information and further necessary action.
+
+Enclo: As stated above.
+
+Yours faithfully,
+
+****(K. LALREMSANGA)****
+
+  Sr. Superintendent of Police,
+
+ CID (SB), Aizawl, Mizoram.
+
+****ENQUIRY REPORT****
+
+Transfer Order of Inspr. (UB) H. Lalchawimawia, Kolasib DEF presently posted as OC, Vairengte PS to CID (Crime) and Inspr. Lalnumawia of Aizawl DEF to Kolasib DEF as OC, Vairengte PS was issued vide Office Order No. E/PHQ/B/10/152 Dt. 1.2.2023 and as per the order, they should join their new places of posting within 15 (fifteen) days from the date of issuance of the said transfer order.
+
+In pursuance of the said transfer order, Inspr. Lalnunmawia joined his new place of posting on 13.2.2023 and as instructed by SP, Kolasib he intended to join his new place of posting as OC, Vairengte PS the same day. However, it was reported that Inspr. H. Lalchawimawia was reluctant to handover the charge on that day. On the afternoon of 14.2.2023, Inspr. Lalnunmawia has taken the charge of OC, Vairengte PS, and Inspr. H. Lalchawimawia was reportedly not available in the PS at the time of handing over OC, Vairengte PS charge.
+ It may be mentioned that Inspr. H. Lalchawimawia had taken the charge of OC, Vairengte PS w.e.f. 4.12.2017 and served as OC, Vairengte PS for more than 5 (five) years and 2 months.
+
+ In connection with the above Transfer Order, Social Reconstruction and Enlightenment (SORE) youth group of Vairengte, Kolasib District in its Press Release issued on 14.2.2023 expressed disappointment over transfer of Inspr. H. Lalchawimawia, OC, Vairengte PS and condemned DGP, Mizoram in this regard. It also accused the DGP, Mizoram as personally targeting the said officer. It also expressed disappointment regarding refusal of the request of the said OC, Vairengte PS to extend his tenure upto this month i.e., February, 2023 so as to complete his childrens' school exam. It also expressed disappointment regarding reported issuance of direction from higher authority to hand over charge of OC, Vairengte PS on 13.2.2023 despite requesting extension of his tenure for genuine reason. It further stated that SORE were unable to accept the said direction to immediately handover the charge of OC, Vairengte PS and urged the State Government authority to accept his (Pu H. Lalchawimawia) request for extension of his tenure as OC, Vairengte PS till completion of his children school exam.
+
+ The stated Press Release was highlighted in The Aizawl Post daily newspaper and Rengkhawpui daily newspaper, issued on 15.2.2023.
+
+Upon examination of Pu Lalengkima, Editor Rengkhawpui Daily Newspaper and leaders of SORE, it was found that Pu Lalengkima, Editor Rengkhawpui Daily was one of the member of WhatsApp group created by SORE and he made a whatsapp post regarding the above issue as per his conversation with Inspr. H. Lalchawimawia. It may also be mentioned that Pu Lalengkima stated that Pu Lalrinsanga Ralte, MLA and mother of Inspr. H. Lalchawimawia met the Home Minister to request extension of his tenure as OC, Vairengte PS.
+
+ As per report, Inspr. H. Lalchawimawia has not yet joined his new place of posting till today i.e., 17.2.2023.

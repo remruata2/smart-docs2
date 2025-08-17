@@ -1,0 +1,3 @@
+A. _Front page of THE ZOZAM TIMES newspaper Dt. 29.8.2013_
+
+**Pangolins' scale worth****`****22.9 lakh seized**: Vairengte Police Officer-in-Charge JL Mahto and his team seized 148 kgs. of Pangolins’ scales being passed on one vehicle to another at travelers’ praying spot in IOC veng, Vairengte at 9:00 AM. The police were on their way to Tuirial for Kolasib DC programme. The pangolin’s scales were owned by MCK Thanga of Edenthar, Aizawl who said that he bought the scales from Shillong for ` 21,46,000/- and will sell them in Aizawl for ` 22,94,000/-.

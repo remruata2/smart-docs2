@@ -1,0 +1,7 @@
+**A. Front page of VANGLAINI, THE AIZAWL POST & THE ZOZAM TIMES newspaper Dt.18.2.2013:**
+
+**Zofa Welfare Organisation (ZWO) lodged an FIR****:** Zofa Welfare Organisation (ZWO) has demanded action against "atrocities" that the Cachar district forest officials meted out to farmers and handing over of the controversial Inner Line Forest to Mizoram. ZWO submitted an FIR to Bairabi Police Station on Friday, ie., 15.2.2013 against the recent incidents in which the Cachar forest department allegedly seized teak logs from Mizo farmers and harassed them.
+
+ The incidents took place inside the Inner Line Reserve Forest, the bone of contention between Assam and Mizoram. Alleging that the Mizo families having paddy fields within the inner line forest have been facing difficulties and harassment from the cachar officials, the organisation exhorted the Mizoram government to take immediate steps to get back the land. The inner line reserve forest was put under the administration of the Assam's Cachar district forest, as gazette by the Assam government on October 17, 1878 under the Indian Forest Act, 1865. Now, it has gradually turned into a hub of Bangladeshi immigrants, including arm smugglers and terrorists.
+
+ SWO demanded that action against the Cachar district officials under the Prevention of Atrocity Act 1989, and they also demanded that the 509 sq. km inner line forest, which belongs to Mizos since time immemorial, be handed over to the owners by the cachar forest division.

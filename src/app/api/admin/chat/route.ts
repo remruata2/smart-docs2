@@ -29,7 +29,7 @@ export async function POST(request: NextRequest) {
 
     // Validate request body
     const body = await request.json();
-    const { message, conversationHistory } = body;
+    const { message, conversationHistory, provider, model, keyId } = body;
 
     if (!message || typeof message !== "string") {
       return NextResponse.json(
@@ -52,12 +52,40 @@ export async function POST(request: NextRequest) {
       );
     }
 
+    // Validate optional provider/model
+    let opts: { provider?: "gemini"; model?: string; keyId?: number } = {};
+    if (provider) {
+      if (provider !== "gemini") {
+        return NextResponse.json(
+          { error: "Unsupported provider. Currently only 'gemini' is supported." },
+          { status: 400 }
+        );
+      }
+      opts.provider = provider;
+    }
+    if (model && typeof model === "string") {
+      opts.model = model;
+    }
+    if (keyId !== undefined) {
+      const parsed = Number(keyId);
+      if (!Number.isFinite(parsed)) {
+        return NextResponse.json(
+          { error: "keyId must be a number" },
+          { status: 400 }
+        );
+      }
+      opts.keyId = parsed;
+    }
+
     // Process the chat message
     console.log(`[ADMIN CHAT] User ${session.user.email} asked: "${message}"`);
 
     const result = await processChatMessageEnhanced(
       message,
-      conversationHistory || []
+      conversationHistory || [],
+      undefined,
+      true,
+      opts
     );
 
     // Create response message

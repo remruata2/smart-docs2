@@ -1,0 +1,3 @@
+A. _Front page of VANGLAINI newspaper Dt. 29.4.2014_
+
+****21 Fake LSC Discovered****:**Mualkhang Verification Team re-verify dubious 48 plots of land at Mualkhang which will be passed through by Bairabi-Sairang railway and their owners who expected to receive compensation and found 21 LSC pass without any actual land. Mualkhang Verification Team had a meeting with its Chairman Jitender Yadav, DC of Kolasib at his office yesterday. Verification Team consists of Lalrinawma, ASO of Revenue Dept.; Zoramsanga Hmar, SDC of Kolasib; R.Lalhmingmawia, Inspector of ACB; RH Lalrinhlua, Inspector of ACB; and representatives of North East Frontier Railways. **

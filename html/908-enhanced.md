@@ -1,0 +1,7 @@
+**Comments on NSCS Library News Clipping-North East India’s Newspaper Dt 5.12.2017/ The New Indian Express Dated 4.12.2017:**
+
+(i) On reading the headlines of the news caption i.e _‘India allows 1,300 Buddhists refugees from Myanmar’s Rakhine State to enter Mizoram’_, the readers may believed that the news item was due to the fallout of some incident occurred within Rakhine State like Rohingyas refugees issue, etc. However, it may be clarified that these refugees were not coming from Rakhine State of Myanmar, but they were coming from villages falling under the Paletwa Township of Chin State of Myanmar. Mizoram is not sharing any international border/boundary with Rakhine State of Myanmar.
+
+(ii) According to the Free Movement Regime (FMR), every member of the hill tribes of both citizens of India/Myanmar living within 16 km on either side of the Indo-Myanmar Border are allowed Visa free access on either side. The villages like Laitlang, Dumzautlang, Hmawngbuchhuah, Zochachhuah are located near Indo (Mizoram)-Myanmar border (ie. within 16 Km from the border on Indian side).
+
+(iii) It is observed that the arrival of such members of hill tribes (living near the Indo-Myanmar Border i.e within 16 Km from the border on Myanmar side) to Mizoram from Myanmar due to the ongoing fierce clashes between Arakan Army (AA) militants and the Myanmar Army (MA) along Indo (Mizoram)-Myanmar border may not pose any security threat to Mizoram as of now.

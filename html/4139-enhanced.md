@@ -1,0 +1,96 @@
+****SPECIAL REPORT****
+
+No. MSB/CB/SR/2024/306
+
+Dated: 8th April, 2024
+
+ Inputs received stated that, on 2nd April, 2024 at around 9:30 p.m. of Bangladesh Time (BDT), around 25 (twenty five) armed cadres of Kuki-Chin National Army/ Kuki-Chin National Front (KNA/KNF) led by S/S Major Zorina Bawm of Sunsawng Village robbed Sonali Bank (one of the leading banks in Bangladesh) of Ruma Branch, Bandarban, Bangladesh. They looted about Takka 1 crore 58 lakhs from the bank taking more than an hour to complete the robbery. The Bank Manager, Nizam Uddin was abducted while the bank security personnel's arms consisting of 8 SKS rifles (also known as Chinese rifle), 2 Sub Machine Guns, 4 Shotguns and 415 rounds of ammunition were snatched away by the KNA/KNF cadres. It is reported that, the bank is located in the UNO residential area and is less than 2 kilometers away from the Ruma Army Cantonment (28-BIR). Fortunately, the abducted Bank Manager, Nizam Uddin was released on 04.04.2024 at around 7:30 p.m. (BDT) from the captivity without demanding any ransom money.
+
+ It is further learnt that 2 hours after the robbery, a gunfight took place between the cadres of KNA/KNF and Bangladesh Army at Khamtam Para of Rowangchari Upazila at 11:30 pm (BDT). In the incident, one Bangladesh Army soldier, Shafiqul Islam (25) (Soldier No. 4517700) r/o Mohadevpur, Naogaon District, Bangladesh received bullet injuries and was airlifted to Chittagong Combined Military Hospital.
+
+ 
+
+ Inputs also stated that on 3rd April 2024 at around 12:08 p.m. (BDT), Sonali Bank and Krishi Bank of Thanchi Branches, Bandarban District were also robbed by a group 25 (twenty five) armed cadres of KNA/KNF led by S/S Major Sangpa Bawm. These KNA cadres used 3 vehicles to get to the targeted banks from Baktlai village and reportedly looted Takka-17 lakhs 50 thousand from the two banks (Tk. 15 lakh from Sonali Bank and Tk. 2 lakh 50 thousand from Krishi Bank). The two banks are reported to be located between the Thanchi Police Station and Thanchi Border Guard Bangladesh (BGB) (38-Battalion) Zone Headquarters.
+
+ There are no reports of injuries sustained by the KNA/KNF cadres in the incidents while few bank security personnel, Ansar personnel and police constables are reported to sustain minor injuries.
+
+ Consequent upon these incidents, the Peace Establishment Committee on 3rd April, 2024 expressed its strong condemnation against the bank robberies carried out by the suspected KNA/KNF cadres. Mr. Kya Shew Hla, Zilla Parishad Chairman and Chairman of the peace dialogue in its Press Statement stated that the Peace Establishment Committee is deeply saddened and angered by the incidents and that all the ongoing efforts of the peacekeeping committee have been put into question. He added that KNF did not honored the agreements of the peace dialogue to refrain from all types of armed activities and instead continue to attack, kidnap and extort local residents sporadically at different times and as such the peace dialogue will not be continued at the moment.
+
+ S/S Colonel Solomon, Chief of Media and Intelligence Wing, Kuki-Chin National Front (KNF) in his supposedly justification of the incidents claimed that neither the Peace Establishment Committee or the Bangladesh Government is taking the demands of the KNF seriously and alleged the Bangladesh Government of not fulfilling any terms of the meeting including released of political prisoners, stoppage of usage of civilians as porter by the army and dismantling of army camps at Chhimtlangpui and Pankhiang Villages of Bandarban District.
+
+_Cont/-2....._
+
+- 2-
+
+ It is further learnt that on 6th April 2024, the Hon’ble Home Minister of Bangladesh, Shri. Asaduzzaman Khan Kamal visited Ruma Upazila Parishad, Ansar Barracks, Sonali Bank and Upazila Mosque and told the reporters that the government will take a tough stance on the issue and that security forces will act appropriately. He later visited Bandarban where he attended a meeting with senior officials of the Bandarban administration, public representatives and law and order forces at Bandarban Circuit House. Bangladesh Army Chief, General SM Shafiuddin Ahmed, also visited Ruma and Bandarban Cantonment on 06.04.2024 and told the reporters that no terrorist will be exempted.
+
+ On 7th April, 2024, Rapid Action Battalion (RAB) of Bangladesh arrested Cheusim Bawm (60), President of Bandarban Upazila Division Committee of KNF, from Sharan Para of Sualok Union, Bandarban and reportedly recovered two arms from his possession while conducting search upon his residence.
+
+ Further reliable inputs received stated that all the leaders and cadres of KNA/KNF are still stationed in Bangladesh at the moment. However, once the Bangladesh Government conducted combing exercises which is expected to start just after Eid festival, the possibility of entry of KNA/KNF cadres or influx of refugees from Bangladesh into Mizoram could not be ruled out.
+
+ Situation under close watch.
+
+****DGP(M)****
+
+_Copy to :-_
+
+_1. Hon’ble Chief Minister, Mizoram._
+
+_2. Hon’ble Home Minister, Mizoram._
+
+_3. Chief Secretary, Govt. of Mizoram._
+
+_4. Home Secretary, Govt. of Mizoram._
+
+_5. IGP (Hqrs./Intel./L&O)._
+
+_6. DIG (CID/SR)._
+
+_7. SP (Lunglei/Lawngtlai/Siaha/Mamit)._
+
+[Document Image (Left-aligned): C:\Users\CB\AppData\Local\Temp\msohtmlclip1\01\clip_image001.emz (Left-aligned)]
+
+********(VANLALFAKA RALTE)****
+
+Sr. Superintendent of Police
+
+CID (SB) : Mizoram : Aizawl.
+
+****SECRET****
+
+[Document Image (Left-aligned): C:\Users\CB\AppData\Local\Temp\msohtmlclip1\01\clip_image002.jpg (Left-aligned)]
+
+_Cont/-2....._
+
+- 2-
+
+_Cont/-2....._
+
+- 2-
+
+[Document Image: C:\Users\CB\AppData\Local\Temp\msohtmlclip1\01\clip_image001.emz]
+
+_Cont/-2....._
+
+-2-
+
+****(ZARZOLIANA) Addl. SP****
+
+for Sr. Superintendent of Police
+
+ CID (SB) : Mizoram : Aizawl.
+
+****SECRET****
+
+****(VANLALFAKA RALTE)****
+
+Sr. Superintendent of Police
+
+CID (SB) : Mizoram : Aizawl.
+
+****SECRET****
+
+_Cont/-2....._
+
+-2-
+[Document Image (Left-aligned): C:\Users\CB\AppData\Local\Temp\msohtmlclip1\01\clip_image003.emz (Left-aligned)]

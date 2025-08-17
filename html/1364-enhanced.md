@@ -1,0 +1,27 @@
+****SECRET****
+
+****W.T MESSAGE****
+
+**TO : SO(SB), LAWNGTLAI/SIAHA**
+
+**FROM : SSP, CID(SB), MIZORAM**
+
+**NO. MSB/CB/B-56/ DT. 24.11.2020**
+
+**_______________________________________________________________**
+
+****SHRI KIREN RIJIJU, HONOURABLE UNION MINISTER OF STATE FOR YOUTH AFFAIRS & SPORTS, MINORITY AFFAIRS, GOVT. OF INDIA , CHUAN LADC GENERAL ELECTION AVANGIN DT.25.11.2020 HIAN SANGAU TLAWH IN, CIRCUIT HOUSE, SIAHA DISTRICT AH HEMI ZAN HIAN A RIAK DAWN A(.) TIN, DT.26.11.2020 HIAN, LAWNGTLAI HELIPAD ATANGIN A THLAWK CHHUAK LEH DAWN BAWK(.) CHUVANGIN, VVIP HIAN A PROGRAMME TLUANG TAK LEH HIM TAKA A HMAN ZAWH THEIH NAN, IN JURISDICTION AH THEUH THIL DUHAWM LO A THLEN LOH NAN ALERT TAKA LO AWM TUR A HRIATTIR IN NI E (.)****
+
+**_______________________________________________________________**
+
+**Copy to:**
+
+**O/C Cipher Cell (MPRO) for quick transmission please.**
+
+****(K.LALREMSANGA)****
+
+****Sr. Superintendent of Police****
+
+****CID(SB), Mizoram, Aizawl****
+
+****Telephone : 0389-2335339****

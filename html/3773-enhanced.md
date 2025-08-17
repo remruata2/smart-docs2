@@ -1,0 +1,5 @@
+****BRU/REANG****
+
+****Since 1997, a group of Brus youth took up arms and started demanding a separate Autonomous District Council for the Brus residing in Mizoram and formed an armed group to support their demand. This armed group threatened the Brus of Mizoram to flee Mizoram. The fleeing Brus from Mizoram were designated in various refugee camps in Tripura. Inspite of an all out effort made by the Central Government and Mizoram Government to repatriate these Bru refugees, it appears that they still feel insecure against the Mizo communities and they are still reluctant to return to Mizoram.
+
+Different armed groups of the Brus- BNA/BRA, BNLF or BLFM and BNCT are not active anymore. However, a new group Bru Democratic Front of Mizoram (BDFM) was again formed **recently**under the patronage of NLFT. These BDFM cadres are mainly responsible for the heinous crimes which occurred in the western border areas of Mizoram during the recent past which included kidnapping for ransom, burglary of Government offices, etc. Repatriation process is underway for Bru refugees from Tripura to Mizoram.

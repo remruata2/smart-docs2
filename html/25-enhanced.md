@@ -1,0 +1,76 @@
+****SPLO te nena indawrna leh tunhnaia an dinhmun/ activities zirchianna Dt. 15.5.09****
+
+ March 2009 tawp lam khan SPLO mi leh sate nunphung pangngaia lokir an duh thu palai kaltlangin an rawn sawi a. Hetih lai hian Churachandpur-a HNA-te camp Khawmawiah mi 20 vel an awm a, HT Khawzawl SS Gen. Secreyary, Thuamluaia SS Defence Secretary leh sipai lam hotu SS Lt. Rohluna @ Ignou ten ho khawmin Burma ram chhunga Tamu bula Meitei hel UPPK camp-ah mi 60 vel an awm bawk.
+ An hruaitu ber LZ Hrangchal SS Chairman in a awp loh avangin HT Khawzawl hian hotu nihna la in LZ Hrangchal hriat loh a he indawrna hi kalpui a ni. A tira rawtna leh ruahmanna an rawn neihdan chuan tuna UPPK camp a la tangkhang mekte nen an zavaia inhruai chhuahna tur hian Rs. 5 lakhs vel a ngaih tur thu an sawi a. Fimkhur tak leh uluk taka ngaihtuahna hmang chungin feeler tirh a ni ta a ni.
+
+ MIZORAM SAWRKAR BUM TUMNA:-
+
+ Source hrang hrang atanga intelligence kan dawnte atangin HT Khawzawl leh a thurualpui SS Defence Secretary Thuamluaia leh SS Lt. Rohluna te chuan a chunga rawtna/ruahmanna an siamte hi Mizoram Sawrkar bum an tumna leh Mizoram Sawrkar sum eisak an tumna mai ani tih hriat a ni a, chung mai bakah an tum anga sum engemaw zat an lak hnuah Mizoram Sawrkar chuan hel hnenah pawisa a pe tia tih mualpho theih a nih dawn avangin Sawrkar blackmail zui nan pawh thil remchang tak ani dawn a ni tih ngaihtuahna te an nei a. He an plan tenawm tak kan lo hriat lawk avangin tihtawp/ hlawhchham a ni ta a ni.
+
+ HPC(D) TE NENA INZAWM RUKNA:-
+
+ Mizoram sawrkar a in surrender tura indawrna ah hian SPLO-a PRO ni \hin     HPC (D) zawm ta Chawngthavunga @ CT-a, chu a bul tumtu leh ruahman tu ber nia hriat a ni. A chhan ni theia lang chu an hmelma leh an ngaihmawh ber pawl (SPLO) chu lo \hang lian zela nakinah an tan an lo hlauhawm zui thei ani tih hlauhthawnna vang a ni thei a, silai nena Hmar leh Hmar in ep leh thisen chhuahna la thleng thei tih tawp tuma hma la an nih a rinawm. HPC (D) hruaitu dangte leh HT Khawzawl te hi an indawr lemlo na in SPLO mi hlui CT-a hi hemi atan hian an hmang nia hriat a ni. Tin, he thil ruahmanna hi SS Army Chief Ropuia leh SS Dy. Chief Biaknunga te chiahin an hria tih hriat ani bawk.  CISU NENA INZAWMNA:-
+ Central Intelligence Surveillance Unit (CISU) te nen pawh a ruka inhriatthiamna an nei tih hriat ani a, CISU hian intelligence leh anmahni operation atana hman tangkai theih in beiseina avanga be \ha an ni a hriat a ni, a leh lamah SPLO pawhin SoO (Suspension of Operation) agreement an neih loh avangin Security Force te laka himna an duh vanga be \ha an ni a hriat a ni.
+
+ SPLO CHHUNGKAW BUAINA:-
+
+ An hruaitu ber LZ Hrangchal SS Chairman hi HPC (D) te nena inhuatna thuk tak nei anih avangin Churachandpur emaw Manipur State chhungah hrim hrim pawh awm ngam lovin a biru mek a, tunah hian Nepal ram chhung Kathmandu velah a awm rin a ni. A chang chuan West Bengal leh Assam ramri hrul velah te pawh a biru bawk \hin nia hriat a ni. Hetia hotupa berin a hote awpkhawm thei lova a awmbo avang hian SPLO/SPLA cadre te pawh hi baihvai takin Churachandpur Khawmawi khuaah HNA te belin December 2008 a\ang khan an khawsa a, sum leh pai lamah harsatna an tawh avangin mahni ke a dinga hmalak a theih loh a, Silai/Ralthuam lei chu sawi loh, an mahni   training pe tu Meitei hel UPPK camp a\anga in lak chhuahna tur takngial pawh an neih loh avangin an buairu hle \hin a, an hote thenkhat silai nena rawn tlanchhuak rute avanga an UPPK \hiante nen an boruak a chhiat mek laiin Churachandpur-a awm mek te lo hokhawmtu ber HT Khawzawl SS Gen. Secretary lah chuan LZ Hrangchal chu an mahni ngaihsak lo ah ngaiin mahni a hotu bera invuah tumna rilru an pu ta ni a hriat a ni. LZ Hrangchal an ralkhat a\anga phone-a a biak \hin pawhin \ha taka chhang tho siin a thu zawm duh lovinn \ha a tih angin SPLO chu hruai a tum tih hriat a ni.
+
+ SPLO TE DINHMUN:-
+
+ Tarlan tawh angin tuna an dinhmun hi a mumal lo hle a, an Chairman berin a awp loh avangin HNA-te camp-ah HNA cadre/member angin an awm a. An zingah mi awm \ha duhlo an awm neuh neuh vang nge, an hotute inkar boruak \halo avang te pawh ani thei bawk anga, Dt 9.5.09 khan HNA President Thangsanga chuan HT Khawzawl chu an awmdan ti chiang turin a hrilh nia hriat ani a. HNA member angin an awm zel dawn nge SPLO angin an awm hrang tawh dawn tih tichiang thuai turin a hriattir nia hriat a ni.
+
+ Ralthuam an neih hriat ala nilo a, SS Lt. Rohluna ken thin 9mm Pistol pakhat bak chu engmah an la nei lo a, Arms smuggler te a rukin an dawr \hin tih erawh chu hriat a ni.  An hruaitu SS Chairman LZ Hrangchal pawhin UPPK ten silai-15 pek (lei turin) an tiam tih a hrilh fo \hin a, amaherawhchu an inlaichinna a chhiat deuh tak hnuah phei chuan a beidawng ve tawh hle tih hriat a ni. A hma a tarlan tak UPPK camp a\anga an tlanchhuahpui hi him takin Churachandpur an thlenpui thei ang em tih pawh hriat a ni lo.
+ An sum lakna ber nia hriat chu sawrkar project hrang hrang a\anga 5% lo laksak a ni a. Tipaimukh biala khaw hrang hrang Village Authority te a\angin donation an khawn \hin bawk.
+
+ HNA President Thangsangan an awmdan tur tichiang thuai tura a hriattir avang hian HT Khawzawl chuan Churachandpur DC, SP leh Army hotute hnenah an hriatthiamna ng&gt;n a, Manipur sawrkar do hrim hrim tur an nih loh thu leh Tipaimukh Hydel Project in a nghawng buai tur mipuite venghim a humhalh tum mai an nih thu chhuanlam a lehkha thehluh a tum mek nia hriat a ni.
+
+ Thudawn zel danin LZ Hrangchal hian Dt. 8.5.09 khan HT Khawzawl chu rawn biain an hote zing a mi a bikin Mizoram mite chu an duh a nih chuan nunphung pangngaia an kir leh theihna tur kawng hawnsak a \ha mai lawm ni tiin a rawn rawt a. Amah ngei pawh a beidawn thu leh nunphung pangngaia kir leh mai a duhthu a hrilh a, amaherawhchu, an movement kalpui zela an pawl (SPLO) hruai zel a la inhuam anih chuan HT Khawzawl hnenah hian Rs. 20 to 30 lakhs vel a ngaihtuahsak theih thu a hrilh a. Hei hi Meitei MLA pakhat in an pawl \anpui nana pek a lo tiam tawh ani tih a sawi.
+
+ HT Khawzawl leh a hote hian HNA a inchhunluh ai chuan a SPLO anga a hranga awm an duh zawk a, a nih loh vek pawhin HPC (D) zawm pawh an thlang hial zawk ni a hriat a ni. HPC (D) te erawh chuan hei hi an tum ber a ni chuanglo a, SPLO te hi Mizoram Sawrkar a in surrender tir hi an duh dan zawk chu niin a lang.
+
+ HNA President Thangsanga’n an awmdan tur tichiang tura hun a pek chu chhuanlam siamin HT Khawzawl hian delay pahin Rengkai vel a an awm theihna tur a buaipui ru reng bawk a. Dt. 13.5.09 khan HNA te enkawlna hnuaia SPLO/SPLA cadres (mi 48 vel ni a hriat) te chu Army hotu te nawrna avangin HNA mi leh sa anga ziah luh fel an ni ta tih thu dawn a ni a. SR ah te tarlan thin tawh angin an chhungkaw buai remchanga la a, HNA President Thangsanga hmalakna ni a hriat a ni. Thudawn danin SPLO a awm tawh loh thu leh HNA ah an in chhunluh vek tawh thu hi HNA hian naktuk Dt. 16.5.09, ‘Hmar Martarte Ni’ denchhenin Press release siam an tum tih hriat a ni bawk.
+
+ 
+
+ SPLO Gen. Secretary HT Khawzawl leh HPC (D) hotute ruahman rukna a SPLO te Mizoram a lokir a, in surrender an tumna pawh hei hian rawlkhawlhna a siam dawn avangin HNA Camp atang hian tlanchhuah vek an tum ni a thu dawn a ni a. HPC (D) te controlled area lamah (Rengkai velah) an awmna tur hi an ruahman ru diam tawh ni a hriat a ni a, vawiin chhun hian emaw zanin ah emaw an tlan chhuah rin a ni. Thil hautak tak anih dawn avangin Mizoram lama kir duh (a bikin Mizoram lam mite) chu kir tir a, a bak chu HPC (D) zawm mai turin HPC (D) lam hian rawtna an siampui ni a hriat a ni a. Hemi chungchang hi vawiin hian HPC (D) a SS Dy. C-in-C Biaknunga, SS Comdr. Chawngthavunga @ CT-a leh SPLO hruaitu ten an rel ho dawn ni a hriat a ni.
+
+ Vaiin Dt. 15.5.09 a information kan dawn danin tunhnaia UPPK Camp atanga SPLA cadre 5 silai nena tlan chhuakte kha tunah hian an mahni khaw lamah an haw tir ni a hriat a ni. Heng mite hi tute nge an nih (an hming etc.) hriat ala ni lova finfiah tum mek a ni.
+
+ SPLO HOTUTE INKARA INTHLIMNA
+
+ An Chairman LZ Hrangchala’n ralkhat a\anga a control theih tak lohvah chuan Churachandpur-a hotu pathum awmte pawh an thu a rual thei tak tak lova. SS Gen. Secretary HT Khawzawl hian HPC (D) te be \ha reng chungin Army lam pawh a dawr ru reng bawk a. Duhthlanna nei tam tawhlo mahse Mizoram a engmah intiamkamna awm miah lova lokir ai chuan Army (Assam Rifles) te thlazar hnuaiah SPLO te survive-na tur awmin a ring a, SS Defence Secretary |huamluaia pawhin a thlawp a ni. Amaherawhchu a Army (SPLA) lam hotu SS Lt. Rohluna erawh chu Aizawl a\anga a chhungte’n in surrender mai tura an thlem reng avangin a naute ringa Mizoram lam mi bik, an vaiin mi 25 te chuan Mizorama lokir an tum a. He thu hi Rohluna pa Pu Sailianhawla leh          Pu Seikhothanga @ CS Thanga (Kuki) te chuan Chief Minister hnenah thlenin, ani’n Home Minister hnenah alo reffered leh ta a ni.
+
+ Hemi chungchangah hian Home Minister chuan Police hotute rawn chungin ni 16.5.2009 khan SS Lt. Rohluna leh a naute mi 25 te chu hruai haw dan tur ruahmanna a siam pui ta a. A rukin Rohluna pawh contact ani a, anni lam pawh an inpeih reng tawh tih thu dawn a ni.
+
+ HMINGCHUNGNUNGA HMALAKNA AVANGA RUAHMANNA TLAWLH
+
+ Hmingchungnunga hian SPLO te buai dan alo hriat in an hotu hrang hrangte be kualin SPLO chu kehdarh mai lova a kal zel dan tur rem a ruatpui ta a. LZ Hrangchal leh HT Khawzawl te thu leh hla a ngaihthlak hnuah fing takin SS Lt. Rohluna chu in surrender lo turin a thlem ta a. Amah mai ni lovin BA Mana te pawh a thlem tir a. HT Khawzawl a ngaihdan chu \awmpuiin Army te biak \hat a an \anpuina a an naute thenkhat camp a\anga lo tlanchhuak ramhnuaia la tangkhang mekte hlawhtling taka an zawnchhuah a, an huikhawm leh chuan a ruk a ralthuam te in chhek ngah leh a an survive theih dan a la awm a ni, tiin Rohluna chu an thlemthlu leh ta a.
+
+ SS Lt. Rohluna hi Dt. 17.5.2009 a contact leh anih lai pawh hian chhuanlam eng eng emaw siamin a rawn pha nawi leh ta a ni.
+
+ SS Lt. Rohluna leh a naute mi 25 te hi intiamkamna pakhatmah awm lova lokir duh kha an ni a. Hetianga indawrna neih anih lai khan ama hnen a\ang hian SPLO chanchin/dinhmun information pawh a hnuaia tarlan ang hian hriat a ni:- 1) Churachandpur SPLA Cadre awm zawng zawng zat -47 (Hei hi tun hnaia HNA President Thangsanga nawrna avanga HNA cadre anga inziak lut te mi 32 tiamin a ni) 2) UPPK Camp-a la awm zat - 22 3) UPPK Camp a\angin SPLA 10 leh UPPK 12, an vaiin mi 22 te chu ralthuam nen tunhnai khan an tlan chhuak leh a, Ukhrul velah an biru mek.  (Source dang a\anga kan hriat danin SPLA cadre ten silai an tlan chhuahpui tawh zawng zawng hi 19 a ni) 4) Tunhnaia SPLA cadre 5 silai nena tlanbo te kha Mizoram Khanpui khuaah mi 3 chu an awm mek.
+
+
+
+
+ SS Lt. Rohluna hi a rilru a in lamlet a, a hnuah BA Mana te rawn be pawpin Khanpuia an naute tlanbo an awm thu hi a rawn hrilh a. Hei hi bawhzuiin Hmingchungnunga leh Rochungnunga @ RC-a te chuan Khanpui leh Sesawng velah Dt. 20.5.2009 khan han kalin an han zawng ru thuak thuak a, mahse an hmu lo ni a hriat a ni.
+
+ AR CAMP AH SPLO TE AN LUT
+
+ Dt. 20.5.2009 khan SPLO mi 17 te chu Churachandpur a Assam Rifles Camp-ah “Thawk ho” turin an lut a. Thudawn danin SPLO mi thlanchhuah bik ten AR te hi an operation-ah an pui \hin ang a, Assam Rifles te hian SPLO te hi SoO (Suspension of Operation) agreement siam puiin an duhna hmun ngei (Tipaimukh) ah Designated Camp an neih theih nan hma an lak pui ang, ti a inhriatthiamna thuthlung an siam ni a hriat a ni.
+
+ UPPK CAMP A|ANGIN 8 DANG CHHUAH AN NI  Dt. 20.5.09 vek khan UPPK camp a\angin SPLA Cadre 8 Mizoram mi vek te chu chhuahtir an ni a, tunah hian Moreh ah an awm mek ni a thu dawn a ni. Heng mi 8 te hi SS Chairman LZ Hrangchal a request avanga an chhuahtir ni a hriat a ni a, LZ Hrangchal hian HNA President Thangsanga chu heng an naute ho lo buaipui tur hian a ngen a. SPLO ten Army hotute an hriattir hmaah Army te nen heng mi 8 te hruai chhuahna tur hi an ruahman mek ni a hriat a ni.
+ HPC (D) TE ROLE
+
+ HPC (D) te hian SPLO te hi ralthuam te neiin pawl chak tak an rawn dinchhuak ang tih hi an hlau hle a, an enghelh em em ani tih a hriat theih a. Rorelsanga, Vairengte leh Chawngthavunga @ CT-a (SPLO-a PRO ni \hin) hmangin in surrender tura thlem hna an thawk reng a. HT Khawzawl leh midangte rilru an hriat vek loh avangin hlawhtling mai tura inngaihna te an nei hman a. Hetianga inthlemna bakah invau khanna nen an nawr mek bawk ni a hriat a ni.
+
+ SPLO te tana Designated Camp, Tipaimukh-a siam phei chu an dodal hle ni a hriat a ni a. SPLO te hian Army/Assam Rifles-te thlazarna hnuaia an duhna hmun (Tipaimukh) ngeia Designated Camp nei thei dawn anga a lan chuan an hruaitute an target nghal rin a ni.
+
+ ARMY TE ROLE
+
+ SPLO te hian Army lamin an duh anga an \anpui theih an in rin viau laiin Army hotute hi chuan an service atana tangkai thei tur achievement an zawn avanga be \ha ve mai mai an ni thei bawk a. Army-te leh HPC (D) te hi understanding lo nei tawh sa ve tho an ni a. SPLO leh an kawppui Meitei helte hnen a\anga ralthuam recover tur an beisei rual in a tak tak a SPLO te duh anga SoO sign pui kher lem lovin HPC (D) te duh dan zawk in Mizoram Sawrkar a inpe tura nawr pawh an la tum thei tho bawk. Hetianga an ti anih chuan SPLO te in surrender-na facilitate-tu anga credit lakna tur an ngaihtuah ngei a rinawm bawk.
+
+ ROHLUNA NEN INDAWRNA THARTHAWH LEH A NI
+
+ SS Lt. Rohluna hi AR Camp-a an luh hnuah a ruka contact leh ani a. T^ng ang maia an enkawl dan leh chhuah a huphurh awm dan te a rawn sawi a. In surrender a duh thu hi a rawn sawi nawn leh a. Anni officer-te chu an lenchhuah theih avangin rawn tlan chhuah r&lt;k mai pawh a pawiti lo tih te a rawn sawi a ni. Amaherawhchu an naute pahnih-khat bak rawn chhuahpui a harsat a rin thu a sawi bawk. A \hiante leh Army te thlim a ngaih avangin inbiakpawh pawh a remchang reng tawh lo a ni. Tin, Assam Rifles-te kaltlang hian an vaia in surrender tur erawh chuan indawr theih a rin thu a sawi bawk. Chuvangin Assam Rifle-te in surrender tura facilitate tur hian a tih theih rin a ni.

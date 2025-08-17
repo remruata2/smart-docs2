@@ -1,0 +1,7 @@
+A. _Front page of NEWSLINK newspaper Dt. 28.3.2013_
+
+_Fake Currency Notes Seized_:****Kolasib Police arrested Farooq Ahmed (40) s/o Zahir Ali of Patharkandi, Karimganj district, P/A Kolasib Tuithaveng on 26th March, 2013 at around 2:00PM on charges of possession of 3 (three) fake currency notes of Rs. 500 denominations. Local people of Kolasib Saidan Veng had caught him while using Rs. 500/- notes at 3 (three) different grocery shops and handed over to Kolasib Police.
+
+B. _Front page of THE AIZAWL POST & THE ZOZAM TIMES newspapers Dt. 28.3.2013_
+
+**_Demand For Checkgate_:****Delegates of the 5th Serlui Group YMA Conference, held at Bilkhawthlir Community Hall which came to an end last night ie, 27.3.2013, report that the new highway/road constructed by Assam Government in Phaisen is used for illegal purposes/trading and as such is the condition they demand the Mizoram Government to setup check gate as soon as possible. The conference report that the road is used by several vehicles from outside Mizoram and as there is no check gate, travelers often brought in illegal abusive substances and other stuff without having to pay tax; the road is very convenient for vehicle robbers and they often used it to drive stolen vehicles out of Mizoram. Demand for check gate was also made last year but no action was taken and since the condition worsens, the delegates decided to renew the demand to the Government of Mizoram.**

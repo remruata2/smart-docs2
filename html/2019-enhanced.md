@@ -1,0 +1,5 @@
+****INTERROGATION STATEMENT OF LALTHANGSANGA****
+
+**I, Lalthangsanga Intoate S/o Khamliana played an active role in the various activities of HPC. In the wake of the split in HPC, I took the initiative for peace talk with Mizoram Govt. I was arrested in Manipur in connection with the party activities and subsequently jailed in Mizoram. Following my recluse from jail I founded Sinlung Khul Front which was later renamed as HIAADA. I later formed HNA and held the post of the president. However, the outfit struggled to exist with hardly any activity worth the name. In early 2007, HNA cadres underwent training at Edenthar, Aizawl which was reflected by Pu Lalduhawma, President of ZNP in the assembly house. I also occupied room No. 105 of the MLA House with the knowledge of a certain leader of the ruling MNF party leading to political furor with allegations and counter-allegation.**
+
+**I sent the HNA activist to Hmar dominated area resulting in the killing of 6 of my cadres by HPC(D).**

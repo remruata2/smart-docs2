@@ -1,0 +1,3 @@
+A. _Front page of THE ZOZAM TIMES newspaper Dt. 30.1.2014_
+
+**Total Prohibition of liquour to be loosen****:** At The celebration function of the new government on Tuesday at Tualbung, Home Minister Pu R.Lalzirliana said that The total prohibition of liquour being in force in Mizoram is to be a little bit relaxed. But the churches of Mizoram will not be consulted on the issue as they will never relent to the loosening of MLTP Act.

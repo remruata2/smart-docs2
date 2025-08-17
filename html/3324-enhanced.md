@@ -1,0 +1,3 @@
+A. _Front page of THE AIZAWL POST, VANGLAINI & THE ZOZAM TIMES newspapers Dt. 22.5.2013_
+
+**Government to improve MLTP Act******: Suggestion to improve MLTP Act was accepted by Cabinet Meeting led by Chief Minister, Pu Lal Thanhawla held yesterday at Chief Secretary’s Conference room. The Mizoram Cabinet Meeting passed to improve the ability of better evidence of the seized liquor before the court and to strengthen and equip Excise Department.

@@ -1,0 +1,11 @@
+A. _Inside page of VANGLAINI newspaper Dt. 15.5.2014_
+
+**Heroin Seized****:**Champhai Police seized 15 grams of Heroin worth ` 70 lakh between Mualkawi and Melbuk on Tuesday night. According to reports, Lalpekliana (60) s/o Lalliana of Haimual, Myanmar was seen riding a Japan made bike X-Keiibo towards Champhai; as soon the Police duty saw him, he tried to run away and threw heroin on the road side. The Police ran after him and caught him. Lalpekliana was charged on possessing heroin, riding a Foreign made bike without permission and on being a foreigner. He was brought to CJM yesterday and was sent to Jail.
+
+B. _Front page of THE ZOZAM TIMES newspaper Dt. 15.5.2014_
+
+**Two Wheeler Thief****:**A thief who tried to pushed down his stolen bike down the road side was seen at Lunglei Zobawk in the night of Tuesday by passing by vehicle. The driver of the vehicle thought that there was an accident and stopped to help but as soon as the thief saw this, he pushed the bike down the roadside and ran away. This kind of incident had happened at Lunglei Venghlun, a scooty was stolen from Lunglei Venglai and it was found pushed down the precipice between Rahsi Veng and Venghlun. Is the offender the same person or not is the big question now.
+
+B. _Front page of VANGLAINI & NEWSLINK newspapers Dt. 15.5.2014_
+
+**Counting Hall Inspection****:**Election Observer, Dr. Rakesh Gupta, IAS; DC Aizawl &amp; Returning Officer, Juhi Mukherji, IAS; SP Aizawl, Romil Baniya, and Election Officer, H.Lalchhandami jointly inspected preparation of vote counting room at Assembly Annexe Building on 14th May. The team was satisfied over the arrangement of the counting hall and its counting table. Election observer had a meeting with Returning Officers and Micro Observers at DC committee room and discussed ways for smooth counting of votes on 16th May.

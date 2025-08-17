@@ -1,0 +1,5 @@
+**MIZORAM-MANIPUR BORDER ROAD ISSUE:**
+
+There had been report of hassles over construction/ metalling of highway on Mizoram-Manipur border near Daido (Mizoram) village wherein Manipur Government had done road metalling works beyond the boundary demarcation 130 mts. inside Mizoram territory. The complaint having been raised by VC of Daido village, an enquiry was conducted by Sector Officer of SB, Saitual at the spot on 31.5.2019.
+
+As per the report of S.O., Saitual, metalling works were done 130 mts. of half portion on Parvachawm village (Manipur) side and 25 feet of the other half on Bukpuilawn village (Manipur) side, both the villages bordering Mizoram. The villagers of Daido were worried that Manipur may try to encroach Mizoram territory if it remains unresisted as the boundary pillar which was conspicuously visible on the highway had been bulldozed earlier during the construction. However there had been no further issue of the boundary dispute and the construction/repair works had since been stopped.

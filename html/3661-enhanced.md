@@ -1,0 +1,1 @@
+**14.12.2022 :** Mizoram Secretariat Service Association (MSSA) held its 17th General Conference on 14.12.2022 at Aijal Club. Pu Tawnluia, Hon’ble Dy. CM attended the Conference as Chief Guest. The Conference passed an agenda ‘minimum qualifying service for promotion from Level 13 to 13A be reduced from 2 year to 1 year for all services or exemption be made for MSS.

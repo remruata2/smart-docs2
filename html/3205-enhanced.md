@@ -1,0 +1,5 @@
+A. _Front page of THE ZOZAM TIMES newspaper Dt. 10.7.2013_
+
+**MSU lodged FIR**: Mizo Students’ Union (MSU), Champhai District Headquarters lodged an FIR to Champhai PS against people who object the resumption of education of Saikhumphai’s children.
+
+ There were 35 Primary School students and 17 Middle School students before the arson of Saikhumphai on 29th April, 2013. Champhai District SSA’s District Project Coordinator was informed to take initiatives on 19th June, 2013 for Saikhumphai’s students to resume their education within the month of June by State Project Director of Mizoram SSA Mission. The FIR stated that Vaphai JAC did not allow SSA officials to reach Saikhumphai. The FIR requested that people working against government initiatives and trampled the right of children’s education be found out and punished accordingly.

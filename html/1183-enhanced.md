@@ -1,0 +1,93 @@
+****MLA GENERAL ELECTION -2013 CANDIDATES****
+
+| **AC. No.** | **CONSTITUENCY** | **INDIAN NATIONAL CONGRESS** | **VOTE** | **MIZORAM DEMOCRATIC ALLIANCE (MDA) - MNF/MPC/MDF** | **VOTE** | **ZORAM NATIONALIST PARTY (ZNP)** | **VOTE** | **BHARATYA JANATA PARTY (BJP)** | **VOTE** | **INDEPENDENT/OTHERS** | **VOTE** | **RESULT** |
+| --- | --- | --- | --- | --- | --- | --- | --- | --- | --- | --- | --- | --- |
+|  | **HACHHEK** | LALRINMAWIA RALTE |  | SAIKAPTHIANGA (MNF) |  | L.T. TOCHHAWNG |  | PAZAWNA |  | LALHMINGTHANGA (NCP) |  |  |
+|  | **DAMPA** | LALROBIAKA |  | LIANSUAMA (MNF) |  | LAL RIMAWIA |  | R.LALTAWNLIANA |  |  |  |  |
+|  | **MAMIT** | JOHN ROTLUANGLIANA |  | H.B. LIANMUNGA (MNF) |  | H.LALTANPUIA |  | C.DARLIANTHANGA |  | BIAKTHUAMA MOLSHOY (NCP) |  |  |
+|  | **TUIRIAL** | HMINGDAILOVA KHIANGTE |  | Dr. KENNETH CHAWNGLIANA (MPC) |  | JOSEPH L.RALTE |  |  |  |  |  |  |
+|  | **KOLASIB** | PC ZORAM SANGLIANA |  | LALCHAMLIANA (MNF) |  | LALDUHOMA |  | RAMFANGZAUVI |  |  |  |  |
+|  | **SERLUI** | K.LALRINTHANGA |  | LALHMINGLIANA (MNF) |  | R.LALAWIA |  | H.A. DAWNGLIANA |  |  |  |  |
+|  | **TUIVAWL** | R.L. PIANMAWIA |  | GOGO LALREMTLUANGA (MNF) |  | LALMUANPUIA PUNTE |  | C.RAMKINLOVA |  |  |  |  |
+|  | **CHALFILH** | Dr.H.NGURDINGLIANA |  | L.T. KIMA FANAI (MPC) |  | J.LALCHHANHIMA |  |  |  |  |  |  |
+|  | **TAWI** | R.LALZIRLIANA |  | LALMALSAWMI (MNF) |  | R.LALTHATLUANGA |  |  |  |  |  |  |
+|  | **AIZAWL ‘N’-I** | R.ROMAWIA |  | VANLALHLANA (MPC) |  | C.LALMALSAWMA |  | DAVID LALFAKZUALA |  |  |  |  |
+|  | **AIZAWL ‘N’-II** | H.LIANSAILOVA |  | LALTHANLIANA (MPC) |  | LALCHHANHIMA PAUTU |  | C.LALNUNZIRI |  |  |  |  |
+|  | **AIZAWL ‘N’-III** | LAL THANZARA |  | LALCHHANDAMA RALTE (MNF) |  | RK DANIELA |  | BIAKMAWIA |  |  |  |  |
+|  | **AIZAWL ‘E’-I** | R.LALRINAWMA |  | LALHMANGAIHA SAILO (MPC) |  | ZARZOLIANA |  | THANGCHUNGNUNGA |  |  |  |  |
+|  | **AIZAWL ‘E’-II** | LALSAWTA |  | SAILOTHANGA SAILO (MNF) |  | LALTUVELA |  |  |  |  |  |  |
+|  | **AIZAWL ‘W’-I** | TLANGTHANMAWII |  | K.SANGTHUAMA (MNF) |  | LALDUHOMA |  | KAPMAWIA RALTE |  |  |  |  |
+|  | **AIZAWL ‘W’-II** | Dr.LALMALSAWMA |  | LALRUATKIMA (MNF) |  | C.ROPIANGA |  |  |  |  |  |  |
+|  | **AIZAWL ‘W’-III** | R.SELTHUAMA |  | VANLALZAWMA (MNF) |  | Dr.C.T. TLUANGA |  |  |  |  |  |  |
+|  | **AIZAWL ‘S’-I** | R.VANLALVENA |  | RK LIANZUALA (MNF) |  | K.LIANTLINGA |  |  |  |  |  |  |
+|  | **AIZAWL ‘S’-II** | Lt. Col. ZOSANGZUALA |  | R.TLANGHMINGTHANGA (MNF) |  | RINZAWNA |  |  |  |  |  |  |
+|  | **AIZAWL ‘S’-III** | K.S. THANGA |  | TAWNLUIA (MNF) |  | R.VANLALTLUANGA |  |  |  |  |  |  |
+|  | **LENGTENG** | H.ROHLUNA |  | L.THANGMAWIA (MNF) |  | Er.H.GINZALAL |  | ZORAMCHHANI |  |  |  |  |
+|  | **TUICHANG** | LALRINLIANA SAILO |  | Dr. H. LALLUNGMUANA (MNF) |  | LALBIAKZAMA |  |  |  |  |  |  |
+|  | **CHAMPHAI ‘N’** | T.T. ZOTHANSANGA |  | T.C. KAPHMINGTHANGA (MNF) |  | C.LALREMLIANA |  | C.ROLIANA |  |  |  |  |
+|  | **CHAMPHAI ‘S’** | J.H. ROTHUAMA |  | ROSIAMNGHETA (MPC) |  | Er. VANLALNEIHA RALTE |  |  |  | B.SANGKHUMI (IND) |  |  |
+|  | **EAST TUIPUI** | T.SANGKUNGA |  | ZORAMTHANGA (MNF) |  | W.CHHUANAWMA |  | LALRAWNA |  |  |  |  |
+|  | **SERCHHIP** | LAL THANHAWLA |  | C.LALRAMZAUVA (MNF) |  | P.B. LALSAWMLIANA |  |  |  | LALAWMPUIA RENTHLEI (IND) |  |  |
+|  | **TUIKUM** | K.LIANZUALA |  | LALRINAWMA (MNF) |  | P.C. VANLALRUATA |  |  |  |  |  |  |
+|  | **HRANGTURZO** | LAL THANHAWLA |  | LALTHANSANGA (MPC) |  | H.LALDUHAWMA |  |  |  | LALAWMPUIA RENTHLEI (IND) |  |  |
+|  |  |  |  |  |  |  |  |  |  | F.REMKHUMA (JMP) |  |  |
+|  | **SOUTH TUIPUI** | JOHN SIAMKUNGA |  | Z.H. ROPUIA (MNF) |  | J.LALCHHUANA |  | P.C. LALRAMTHANGA |  |  |  |  |
+|  | **LUNGLEI ‘N’** | P.C. LALTHANLIANA |  | Dr. K. VANLALLAWMA (MNF) |  | R.D. LALRAMMAWIA |  |  |  | S.L.SAILOVA (ZTD) |  |  |
+|  | **LUNGLEI ‘E’** | JOSEPH LALHIMPUIA |  | LALRINZUALA (PAMAMA) (MPC) |  | LALDUHTHLANGA |  |  |  |  |  |  |
+|  | **LUNGLEI ‘W’** | CHALROSANGA RALTE |  | Dr. R. LALTHANGLIANA (MNF) |  | R.LALRAMZAUVA |  |  |  |  |  |  |
+|  | **LUNGLEI ‘S’** | S.LALDINGLIANA |  | Dr. K. PACHHUNGA (MNF) |  | Dr. AICHHUNGA |  |  |  |  |  |  |
+|  | **THORANG** | ZODINTLUANGA |  | JOSEPH LALZAWMLIANA (MNF) |  | ELIS LUNGTIAWIA |  |  |  |  |  |  |
+|  | **WEST TUIPUI** | NIHAR KANTI CHAKMA |  | PRITI RANJAN CHAKMA (MNF) |  | H.LALRINPUIA |  | ZORAMSIAMA CHAKMA |  |  |  |  |
+|  | **TUICHAWNG** | Dr.B.D. CHAKMA |  | R.M. CHAKMA (MNF) |  |  |  | VICTOR TALUKDAR |  |  |  |  |
+|  | **LAWNGTLAI ‘W’** | C.NGUNLIANCHUNGA |  | C. RAMHLUNA (MNF) |  | M.C. LALRAMCHHANA |  |  |  |  |  |  |
+|  | **LAWNGTLAI ‘E’** | H.ZOTHANGLIANA |  | VANUPA ZATHANG (MNF) |  | F.SANGDAWNA |  |  |  |  |  |  |
+|  | **SAIHA** | S.HIATO |  | Dr. K. BEICHHUA (MNF) |  | F.LALHMACHHUANA |  |  |  |  |  |  |
+|  | **PALAK** | HIPHEI |  | P.P. THAWLLA (MDF) |  |  |  |  |  |  |  |  |
+
+
+**BREAK UP:**
+
+| **SL No.** | **NAME OF PARTY** | **NO. OF CANDIDATES** |
+| --- | --- | --- |
+| **1** | **INDIAN NATIONAL CONGRESS (INC)** | **40** |
+| **2** | **MIZORAM DEMOCRATIC ALLIANCE (MDA)** MIZO NATIONAL FRONT (MNF) – 31 MIZORAM PEOPLE’S CONFERENCE (MPC) – 8 MARA DEMOCRATIC FRONT (MDF) – 1 | **40** |
+| **3** | **ZORAM NATIONALIST PARTY (ZNP)** | **38** |
+| **4** | **BHARATYA JANATA PARTY (BJP)** | **17** |
+| **5** | **NATIONALIST CONGRESS PARTY (NCP)** | **2** |
+| **6** | **JAI MAHABHARAT PARTY (JMP)** | **1** |
+| **7** | **ZORAMTHAR DUHDUTE (ZTD)** | **1** |
+| **8** | **INDEPENDENT (IND)** | **3** |
+| **TOTAL** |  | **142** |
+
+
+1. MIZO NATIONAL FRONT (MNF) – 31
+2. MIZORAM PEOPLE’S CONFERENCE (MPC) – 8
+3. MARA DEMOCRATIC FRONT (MDF) – 1
+
+**NAME OF CONSTITUENCIES IN EACH DISTRICT****:**
+
+**1. MAMIT DISTRICT – (1) HACHHEK. (2) DAMPA. (3) MAMIT.**
+
+**2. KOLASIB DISTRICT – (1) TURIAL. (2) KOLASIB. (3) SERLUI**
+
+**3. AIZAWL DISTRICT – (1) TUIVAWL. (2) CHALFILH. (3) TAWI. (4) AIZAWL ‘N’-I. (5) AIZAWL ‘N’-II.**
+
+**(6) AIZAWL ‘N’-III. (7) AIZAWL ‘E’-I. (8) AIZAWL ‘E’-II. (9) AIZAWL ‘W’-I.**
+
+**(10) AIZAWL ‘W’-II. (11) AIZAWL ‘W’-III. (12) AIZAWL ‘S’-I**
+
+**(13) AIZAWL ‘S’-II. (14) AIZAWL ‘S’-III.**
+
+**4. CHAMPHAI DISTRICT – (1) LENGTENG. (2) TUICHANG. (3) CHAMPHAI ‘N’. (4) CHAMPHAI ‘S’.**
+
+**(5) EAST TUIPUI.**
+
+**5. SERCHHIP DISTRICT – (1) SERCHHIP. (2) TUIKUM. (3) HRANGTURZO.**
+
+**6. LUNGLEI DISTRICT – (1) SOUTH TUIPUI. (2) LUNGLEI ‘N’. (3) LUNGLEI ‘E’. (4) LUNGLEI ‘W’.**
+
+**(5) LUNGLEI ‘S’. (6) THORANG. (7) WEST TUIPUI.**
+
+**7. LAWNGTLAI DISTRICT – (1) TUICHAWNG. (2) LAWNGTLAI ‘W’. (3) LAWNGTLAI ‘E’.**
+
+**8. SAIHA DISTRICT – (1) SAIHA. (2) PALAK.**

@@ -1,0 +1,29 @@
+****Land Boundary Dispute with Assam****
+
+The boundary issue with Assam is a long pending impasse for Mizoram. The recent issues are as follows:
+
+On 27.2.2018, Mizo Zirlai Pawl (MZP) constructed "Zofate Chawlhbuk" (Shed) at Zophai, near Bairabi located at Mizoram-Assam border but the same was demolished by some unknown person(s) on the same night. Similarly, Police Duty Post erected by Assam Police at the same disputed site on 2.3.2018 was also dismantled by some persons a few hours after it was constructed.
+
+ On 8.3.2018 @ 7:00 a.m, members of Mizo Zirlai Pawl (MZP) numbering around 70 (seventy) under the leadership of L. Ramdinliana, President, MZP left Aizawl for Zophai near Bairabi, Kolasib District with an intention to reconstruct Zofate Chawlhbuk (Shed) at the disputed site along Mizoram-Assam border, and while unloading their building materials, a minor scuffle broke out between the Assam Police and the students with the police resorting to lathi charge with 15 members of the MZP sustaining minor injuries.
+
+ On 9.3.2018 @ 6:00 p.m. Govt. of Mizoram officials led by the Political Adviser to CM held a meeting with the leaders of MZP at Bairabi. The Govt. officials advised leaders of MZP to approach the Court with matters regarding land dispute to tackle the issue legally, but the leaders of MZP were adamant in their construction of Zofate Chawlhbuk at the disputed site.
+
+ On 10.3.2018 @ 11:00 am the MZP members proceeded to the disputed site at Zophai for the reconstruction of “Zofate Chawlhbuk” but were intercepted by Assam Police who used force to disperse the student’s member.Consequently, on 12.4.2018, Joint Verification Team, comprising of officials from Mizoram and Assam commenced spot verification of Inner Line Reserve Area along Mizoram-Assam border. It was learnt that a total of 108 (one hundred eight) illegal constructions, including 2 (two) Masjids and 1 (one) School, were identified by the Joint Verification Team in Zophai areas. Out of the total 108 illegal constructions, 1 (one) illegal construction was owned by Sangluaia (L) of Bairabi, Mizoram while the rest were owned by residents of Assam. Verification of other areas, such as Vairengte, could not be completed due to failure to find common parameters for identification of illegal construction between officials of Mizoram and Assam.
+
+MZP General Hqrs. decided to pull out of the Core Committee which was set-up to conduct Survey on the actual Boundary on 3.8.2018 as they felt that the Core Committee was unable to make any conclusive report within the stipulated time.
+
+On 6.4.2019, officials from Assam Forest Department started renovation work of one building located at the disputed Mizoram-Assam Forest Reserve area along Aizawl - Silchar National Highway and reported that the building was occupied the same night. Meanwhile, one platoon from 1st IR Bn. of Mizoram Police also occupied old BRTF camp which was approximately 100m from the existing Mizoram Police Check Gate, towards Assam, which was highly welcomed and supported by civilians.
+
+In the intervening night of 23rd – 24th May 2019, there was a bomb blast at a Mosque situated at the disputed site at Zophai at around 2 am in the morning and the blast caused partial damage to the Mosque. Local Bengali Muslims blocked roads in protest of the blast, but was lifted after request from the District Administration from both sides. The Mosque was rebuilt with RCC inspite of the MZP protest, but a meeting of Boundary Core Committee held at the office of the Chief Secretary on 06.09.2019 instructed the DFO of Kolasib to send a letter to the Masjid Committee to halt the construction. The DFO then sent a letter on 10.09.2019 under the Forest Act as the place lies within the Inner Line Reserve Forest Area, as a result of which the construction of the Mosque has now been halted.
+
+The Council of Ministers meeting held on 8.7.2019 re-asserted the Cachar Inner Line, 1875 as enacted as per Section 2 of Bengal Eastern Frontier Regulations, 1873 (Regulation 1 of 1873) as the standpoint of the Government of Mizoram for settlement of border issues.
+
+DC Level Meeting was held between DC Kolasib and DC Hailakandi on 26.8.2019 @ 11:00 a.m. at Bairabi, Kolasib District, Mizoram. The meeting discussed 3 (three) mains issues concerning both the districts. After careful deliberations, the meeting resolved the following points:
+
+1. Construction work of permanent nature is not to be taken up until decision is taken at the Government level.
+2. In case any new activity is proposed to be taken up in the disputed area, both the districts should be informed and no action is to be taken without the consent of both the districts.
+3. Coordination Committee comprising of members from both the districts be constituted involving officials including Panchayat/Village Council Members and NGOs.
+4. Free movement of local farmers in the disputed area should be ensured by both the districts.
+5. The committee agreed to meet after 3 (three) months to review the progress of the decision arrived at the meeting.
+
+ Recapping past development, on 3.9.2015, a meeting between District Administration of Kolasib, Mizoram and Cachar, Assam was held at CIJWS Conference Hall, Vairengte and resolved that Status Quo shall be maintained in the respective Forest Areas. No Department activity/encroachment by any department or public shall be allowed. In case of any illegality which is in violation of the Forest Act/Rules/Regulations in force, the matter shall be brought immediately to the notice of the counterpart Range Officers/ Divisional Forest Officers.

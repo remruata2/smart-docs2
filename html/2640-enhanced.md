@@ -1,0 +1,27 @@
+****SECRET****
+
+****W.T MESSAGE****
+
+**TO : SO(SB), LUNGLEI/CHAMPHAI**
+
+**FROM : SSP, CID(SB), MIZORAM**
+
+**NO. MSB/CB/B-144/ DT.**
+
+**_______________________________________________________________**
+
+****INFORMATION RINTLAK TAK ATANGA THU DAWN ATANGIN, HMEICHHE PAKHAT - PI NEIHI(45) TUICHAWNG KHUA, LUNGLEI DISTRICT CHUAN TUN HNAI HIAN NO.4(HEROIN) TAMTHAM TAK MYANMAR ATANGIN A LALUT NI A HRIAT ANI A (.) TUN HNAI MAI KHAN AMAH HI CHAMPHAI AH A AWM NGEI TIH HRIAT ANI BAWK(.) HENG NO.4 TE HI, A PASAL - PU JAKOBA, BRU HNAM, LUNGLEI KHUA NEN TIH RAL NA TUR AN ZAWNG MEK A NI A HRIAT ANI BAWK (.) MIZORAM A TIH RAL NA AN HRIAT MAI LOH CHUAN, LUNGLEI-AIZAWL-KANHMUN KAL TLANGA, TRIPURA LAM A TAWLH THLAK AN TUM AVANGIN, IN AREA AH LO VERIFY A REPORT RAWN SIAM TUR A TIH IN NI E (.)****
+
+**_______________________________________________________________**
+
+**Copy to:**
+
+**O/C Cipher Cell (MPRO) for quick transmission please.**
+
+****(K.LALREMSANGA)****
+
+****Sr. Superintendent of Police****
+
+****CID(SB), Mizoram, Aizawl****
+
+****Telephone : 0389-2335339****

@@ -1,0 +1,3 @@
+**16.11.2022:** Former Legislators Association of Mizoram (FLAM) organised All Political Party Meeting on 16.11.2022 @11:00 a.m. at Mizoram Legislative Assembly Conference hall. Pu Liansuama, FLAM President presided over the meeting in which 27 (twenty seven) delegates including 10 (ten) representatives (MNF-3, INC-3, ZPM-3, BJP-4 and PC-4) attended. The meeting passed a resolution as under:
+
+ "Support the initiative taken by FLAM for the participation of all the churches/denominations in Mizoram Peoples Forum (MPF) for the strengthening of MPF in their campaign for free and fair election in Mizoram"

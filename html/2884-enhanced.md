@@ -1,0 +1,3 @@
+1. **FOREIGNERS REGISTRATION OFFICE (FRO)/VERIFICATION BRANCH :**
+
+ FRO oversee Foreigners entering into Mizoram and subsequent movement inside the state, and their time of departure from Mizoram. It also deals with verification of Characters and Antecedents (C/A) of Passport applicants from Mizoram and also newly appointed persons to government jobs. The FRO/VB is having a direct link with Foreigners Division, Ministry of Home Affairs, Delhi for on-line verification to Pakistan nationals and post verification of overseas citizens of India (OCI).

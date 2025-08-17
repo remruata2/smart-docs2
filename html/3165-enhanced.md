@@ -1,0 +1,7 @@
+1. _Front page of THE ZOZAM TIMES, THE AIZAWL POST & VANGLAINI newspapers Dt. 18.12.2013_
+
+**Abducted families gave letter to Chief Minister****:** As demanded by the abductors, families of the abducted – Lalzamliana and Sanglianthanga who were abducted on 23rd November 2013 from Dampa Forest by suspected Bru armed gang went to meet Chief Minister of Mizoram yesterday to request him to take steps to rescue the abducted before Christmas. As they could not meet Chief Minister, they gave him a letter signed by relatives of the abducted. Copies of the letter were also sent to Home Minister of Mizoram; Home Secretary of Mizoram; President, CYMA and President, MZP.
+
+B. _Front page of THE ZOZAM TIMES & THE AIZAWL POST newspapers Dt. 18.12.2013_
+
+**Road Mishap****:** Pik Up MZ 04 6705 driven by its owner Thanglura of Dulte met an accident at around 1:00PM yesterday on its way from Aizawl to Dulte. 6 passengers were injured while some of the sustained minor injuries, luckily none of the passenger died. The vehicle rolled down 50 ft. with 30 persons on board. The injured were taken to Greenwood Hospital, Bawngkawn and Synod Hospital, Durtlang, most of them were sent home after receiving first aid.

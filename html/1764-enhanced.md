@@ -1,0 +1,3 @@
+**Supplementary note**:
+
+ SHDC mipuite nawrna leh duhdan anih avangin HPC(D) leh Mizoram sorkar chuan Peace Talk round-I na chu dt.11.11.2010 State Guest House Aizawl ah neih ani a. HPC(D) te nena inremna a awm theih nan leh boruak tha tak hnuaia remna tluantling siam a nih theih nan Suspension of Operation ground rules te siam ani a. Round-II inbiak leh na turah hian HPC(D) te hian rawtna thar siamin inbiakna a tel tur hak an rawn zauh ta deuh tih intelligence report atanga dawn ani a, hetihlai mek hian Ministry of Home Affairs, Govt. of India atanga thuchhuah an rawn siam ah chuan HPC(D) te hi Central Sorkar nen SoO nei mek an nih avangin Mizoram sorkar-in a hranpa a lo be lo tur leh an inbiakna pawh hi titawp nghal turin thu a rawn chhuah a ni.

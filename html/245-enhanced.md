@@ -1,0 +1,25 @@
+To,
+
+**The Superintendent of Police,**
+
+**CID (SB)**
+
+**Mizoram, Aizawl**
+
+Subj  : Threat Perception Report.
+
+Ref : MSB/CB/B-19(A)/632 Dated 14.10.2018
+
+Sir,
+
+ With reference to the letter no. And subject cited above, I hereby submit my assessment of security threat perception report in respect of Pu Thanglianmang, Special Judge, Prevention of Corruption Act, 1988.
+
+According to the petitioner, the provision of Personal Security Officer (PSO) to the Special Judge under Prevention of Corruption Act, 1988, was not taken into consideration during the meeting to Review the Security of Protected Persons in Mizoram held on 13th Dec’ 2017. The petitioner added that the meeting provided PSO to all Judicial Officers in Grade-I exercising Sessions Jurisdiction apart from the Chief Judicial Magistrates. He further added that the jurisdiction vested in him is original criminal jurisdiction with Sessions power and that the threat perception is no less than the other Hon’ble Judges. Moreover, while functioning as Addl. District &amp; Sessions Judge, he has awarded life term in quite a few cases and the present cases in the Court of Special Judge, Prevention of Corruption Act, 1988, involves influential people, rich and powerful and avoidance of probable untoward incident is absolutely necessary. Upon further enquiry, the petitioner had not received any direct or indirect life threatening words or received any threat report from his staffs.
+
+It is concluded that the threat perceived either direct or indirect is minimal at present, but taking into account the nature of his work and his entitlement of Personal Security Officer, he may be provided 1 (One) Personal Security Officer (PSO)
+
+ Yours faithfully,
+
+ **SI (KC. JOSEPH VANLALPEKA)**
+
+**CID(SB); Mizoram, Aizawl**

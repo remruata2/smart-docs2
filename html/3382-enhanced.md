@@ -1,0 +1,21 @@
+A. _Front page of VANGLAINI newspaper Dt. 21.4.2014_
+
+**Tons of Pseudoephedrine Seized****:**310 Kgs. of Pseudoephedrine was seized and 7 persons allegedly involved were sent to Central Jail. Lalrozara, Media Dept. Secy. of MPCC****and Lalremsangi Fanai, member of Mizoram Youth Commission were also allegedly involved. The seized Pseudoephedrine is worth around Rs. 151 lakh in the local market rate.
+
+ 181 kgs of uncoated Pseudoephedrine kept in rice sacks was seized by Mizoram Police - District Special Branch on 17th &amp;18th April night at 11:45pm at Ngaizel in Bolero regd. no. MZ 01 H 7168. The driver Lalruatthanga s/o Hauzapauva of Khawkawn was also arrested. Lalrozara is the owner of the Bolero. Hrangthanzauvi (30) d/o Lalnunmawia of Kulikawn who hailed from Tualte was also arrested on18th April at 2:00am in the morning, she allegedly worked with Lalruatthanga. Another 17 Kgs. of Pseudoephedrine was seized from her godown at Ngaizel. S.Laldini (51) d/o Tlailiana of Mission Veng, Zoliansangi (38) d/o Lalzathuama of Bungkawn Vengthar and Lalrinsangi (41) d/o Biakvela of Ramhlun North were also arrested in connection with the crime.
+
+ From the police investigation, Lalremsangi Fanai (36) d/o Rinchungnunga of Falkawn appeared to be the the main lead in the crime and she was arrested. Another 112 kgs. of Pseudoephedrine was seized at Lalremsangi's godown at Ngaizel at a round 6:00pm to 8:00pm on Friday night. S.Lalrinthanga (27) s/o kamzathanga of Khawkawn, the alleged manager of Lalremsangi who claims to reside at Khatla was also arrested and not sent to Jail.
+
+B. _Front page of VANGLAINI newspaper Dt. 21.4.2014_
+
+**Man Found Dead****:**On Saturday, Ronald Lalrinpuia (25) s/o Lalbiakzuali of Khawzawl vengthar was found dead at their home. Ronald was alone at home as his mother was out of station. The smelly corpse made his neighbours looked for him and found the body. There were wounds on his head and ribs, and he appeared to die due to assault.
+
+C. _Editorial of VANGLAINI newspaper Dt. 21.4.2014_
+
+**Mizoram Police Failed To Maintain Confidentiality****:**There have been Police investigation and interrogation reports which were made public recently but not issued by Police themselves.
+
+ Mizoram Police had been said to be one of the best in India and that may be true to a certain extend. But in recent times regarding certain issues Mizoram Police appeared to be failing in maintaining confidentiality, they seemed to be giving out information about confidential cases to the public secretly. The authorities need to be cautious about this; Police are meant to work for the public and employed by the government for that purpose.
+
+ As such the government should know the Police are not at its beg and call, they are to do their duty under the government in a lawful manner, just because the government is powerful does not mean it can make the police do whatever it wants which is beyond the law. The Police have to remember this, and they should always reflect on what they are about to do to know they are doing things within or beyond the law.
+
+ Mizoram Police should be more careful in maintaining confidentiality in investigating cases and should improve in knowing what to keep confidential. They should know how to separate what the Police should know and where to draw the line for the public. They have to do this so the public know they are reliable and responsible Police.

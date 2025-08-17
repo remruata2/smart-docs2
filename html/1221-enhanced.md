@@ -1,0 +1,53 @@
+****DETAILS OF BOMB BLAST IN MIZORAM STATE (W.E.F 2007- 2008)****
+
+| **Sl No.** | _Case No. with Section of Law_ | **Brief Story** | **ARREST** | **INJURED** | **KILLED** |
+| --- | --- | --- | --- | --- | --- |
+|  |  **2007**  |  |  |  |  |
+| 1 | Saiha PS C/No. 7/07 dt. 18.1.2007 u/s 3 of ES Act. | On the night of 17.1.2007 @ 6:30 PM some unknown persons have blasted gelatine in the house of Pu Siamoh of Saiha Vengpui by fitting in between skirling and post and caused damaged skirting and post. | 1) Samson (20)  s/o Asto Singh (L),  Saiha Vengpui | - | - |
+| 2 | Lunglei PS C/No. 20/07 u/s 3 of IES Act 1908 | On 7.2.2007 @ 1900 hrs. unknown person(s) exploded gelatine at Electric Veng, Lunglei (LDSC Ground No. II). It is ascertained that 2 nos. of gelatine were exploded inside the Gymnasium in two places at LDSC Ground No. II and one no. of unexploded Gelatin fitted with detonator and 4’ 5’ fuse partially burnt were found inside the said Gymnasium. There is no casualty and damage on roof of Mrs. Laksmi Chhetri d/o K.B. Chhetri of Electric Veng, Lunglei town below Gymnasium. | - | - | - |
+| 3 | Bawngkawn PS C/No. 85/07 dt. 23.2.2007 u/s 436 IPC r/w 3(a) of ES Act 1908. | On the night of 22.2.2007 at around 8:00 PM suspected Bomb exploded at Sakawrtuichhun area. On enquiring it was found that 63 KVA Transformer located about 400 mtrs. away from the farm of Pu R. Tlanghmingthanga, Minister, was badly damaged. The damaged transformer was found to be beyond repair. Police party alongwith Forensic experts examined the blast site and collected residues/remnants from the blast site for chemical examination. The matter is under close investigation. | - | - | - |
+| 4 | Aizawl PS C/No. 82/07 dt. 10.3.07 u/s 436 IPC r/w 3/5 ES Act has been registered. | On 10.3.2007 @ 10:30 PM, one Thankhuma (52) s/o Thangtuala of Pawlrang P/A Chanmari had detonated Gelatine at Chanmari near A&amp;T Office. The explosion caused damaged to the window glasses of A&amp;T Office. | 1) Thankhuma (52)  S/o Thangtuala,  Pawlrang,  P/A Chanmari | - | - |
+
+
+| 5 | Lunglei PS C/No. 55/07 Dt. 5.4.2007 u/s 3 of ES Act | On the morning of 5.4.2007 @ 0158 hrs. there was an explosion at FCI Go-down of Luangmual, Lunglei (newly constructed). Preliminary investigation by Police revealed that the explosion is suspected to be caused by Gelatin planted in two places on the outside wall of Verandah where fire extinguishers have been fitted.  The explosion damaged the FCI Godown building as under :-  6 nos. of GCI Sheets of the building were blown off. Majority of window panes were broken Causing two big holes of 10 inches and 8 inches on the wall of Verandah.  The following articles have been seized by the Police from the PO :-  Cortex (Primary code bearing trade mark ‘Shakti’ – 10 SBPL of 25 mtrs. Long. 17 fts. Long of safety fuse.  Four persons who have been engaged as security personnel of FCI Go-down and one non-Mizo who worked as Fitter for weight bridge were picked up by the Police for interrogation. So far no suspected or clue have been apprehended. | Four persons of security personnel. | - | - |
+| --- | --- | --- | --- | --- | --- |
+| 6 | Lawngtlai PS C/No. 25/07 dt. 17.4.2007 u/s 506 IPC r/w 3 E S Act. | On 17.4.2007, at about 2:00 AM, two bombs simultaneously exploded at the office complex of DC Lawngtlai. The first bomb only partially exploded and from the remains recovered, it is known that the type of bomb used is normal explosive (Gelatine) that is used for blasting in stone quarries. No damages have been caused by the explosion. | 1)Lalrinawma (29)  S/o C. Thanghluna,  Lawngtlai 2)Lalawmpuia (25)  S/o Lianhnuna  Thingkah | - | - |
+| 7 | Saiha PS C/No. 68/07 dt. 31.7.2007 u/s 3 of ES Act. | On the night of 30.7.2007 @ 11:20 PM a bomb suspected to be Gelatin exploded near the garage located in front of CEM MADC Bungalow, Saiha. The explosion caused partial damage to the GCI sheet wall of the explosion side and also broke door-glass of the CEM official car parked inside the garage. | - | - | - |
+
+
+1. 6 nos. of GCI Sheets of the building were blown off.
+2. Majority of window panes were broken
+3. Causing two big holes of 10 inches and 8 inches on the wall of Verandah.
+
+1. Cortex (Primary code bearing trade mark ‘Shakti’ – 10 SBPL of 25 mtrs. Long.
+2. 17 fts. Long of safety fuse.
+
+|  |  **2008**  |  |  |  |  |
+| --- | --- | --- | --- | --- | --- |
+| 8 | Aizawl PS C/No. 346/07 dt. 2.10.2007 u/s 436 IPC r/w 3 of ES Act. Aizawl PS C/No. 347/07 dt. 2.10.2007 u/s 436 IPC r/w 3 of ES Act. Bawngkawn PS C/No. 522/07 dt. 2.10.2007 u/s 436 IPC r/w 3 (a) of ES Act.  | On the night of 10.10.2007 @ 11:25 PM explosions occurred in 3 (three) different locations almost simultaneously at Tuikual, Dawrpui and Bawngkawn chhimveng partially damaging the following houses and properties :-  Sayeed Uddin h/o C. Lalthangpuii of Tuikual ‘S’ Ahmed Uddin c/o Upa R. Zodingliana of Dawrpui near New Market. Dinesh Kumar s/o N.B. Lal of Bawngkawn Chhimveng.  The explosives used were suspected to be gelatine planted near the respective buildings, and the damage caused by the explosions are mostly window panes and rolling shutter. Apart from these, one Maruti Car (Zen) No. MN-03-P/0313 parked near Dinesh Kumar’s house and one 407 (Truck) No. MZ-01-C/8434 parked near Sayeed Uddin’s store were partially damaged by the explosions. | - | - | - |
+| 9 | Azl. PS C/No. 427/07 Dt. 7.12.2007 u/s 435 IPC.  | On the night of 6.12.2007 some unknown persons had detonated some explosive substances on a Motor Cycle Rajdoot (MZ-01/1450) as a result of which the Bike got damaged and some window panes of the nearby house of Pu P. Lalthangzauva were also broken. | - | - | - |
+| 10 | Saiha PS C/No. 19/08 Dt. 19.3.2008 u/s 3 (a) of ES Act. | On 13.3.2008 @ 10:00 PM an explosion took place at New Latawh, Maraland Presbyterian Church during Conference. It was a ½ gelatine stick exploded by Pu Chakoana Hlychho (21) s/o H.C. Hrakai. | Chakoana Hlychho(21) S/o H.C. Hrakai, Saiha | - | - |
+| 11 | Saiha PS C/No. 20/08 Dt. 19.3.2008 u/s 296/298 IPC r/w 39a) ES Act. | On 16.3.2008 at 10:30 PM Beipaduo (22) s/o Vachhua exploded gelatine stick procured from Pu Chakaona Hlychho (21) s/o H.C. hrakai during MPC Assembly held at Maraland. | 1) Beipaduo (22)  S/o Vachhua, Saiha | - | - |
+
+
+1. Aizawl PS C/No. 346/07 dt. 2.10.2007 u/s 436 IPC r/w 3 of ES Act.
+2. Aizawl PS C/No. 347/07 dt. 2.10.2007 u/s 436 IPC r/w 3 of ES Act.
+3. Bawngkawn PS C/No. 522/07 dt. 2.10.2007 u/s 436 IPC r/w 3 (a) of ES Act.
+
+1. Sayeed Uddin h/o C. Lalthangpuii of Tuikual ‘S’
+2. Ahmed Uddin c/o Upa R. Zodingliana of Dawrpui near New Market.
+3. Dinesh Kumar s/o N.B. Lal of Bawngkawn Chhimveng.
+
+| 12 | Aizawl PS C/No. 101/08 dt. 25.3.2008 u/s 436 IPC r/w 3 of ES Act.  | On 25.3.2008 at about 7:45 PM there was an explosion suspected to be Gelatin exploded in front of Hnam Run (MNF Party Office) Tuikual ‘S’, Aizawl. As a result of the explosion rolling shutter of the building. 3 nos. of Hawkers sheds and window panes of neighbouring buildings etc. were damaged. No losses of life was reported so far. | - | - | - |
+| --- | --- | --- | --- | --- | --- |
+| 13 | Hnahthial PS C/No. 10/08 dt. 16.4.2008 u/s 435 IPC r/w 3 of ES Act. | On 15.4.2008 a Gelatin bomb planted by some unknown miscreants exploded on the ventilation of SDO (C) Office, Hnahthial at 1130 PM. damaging ventilations. Another Gelatin bomb exploded the on 15.4.2008 at 1100 PM. on the approached road of SDO (C) Office. | - | - | - |
+| 14 | Hnahthial PS C/No. 11/08 dt. 16.4.2008 u/s 435 IPC. | Further information received that the paddy seeds stocked at Govt. Go-down near SDO’s Office to be distributed to the farmers was burnt by unknown miscreant on 15.4.2008 at 1020 hrs. damaging 20 bags of paddy seeds. | - | - | - |
+| 15 | Hnahthial PS C/No. 15/08 dt. 3.5.2008 u/s 3 of ES Act. | An explosion took place on 2.5.08 at Hnahthial Playground near Ropuiliani Hall @ 2300 hrs. The explosive used was suspected to be Gelatine and there was one writing left behind on the spot in a Card-Board which read as “If the next bomb explodes, it will explode in the right place”.   As the exact meaning and significance of the writing left at the spot could not be interpreted, it is felt necessary that security personnel of the CM(M) be briefed to be more vigil and beef up his security particularly during his tour to Southern part of Mizoram and also Pu Lalthanzuala, MLA of Hnahthial Constituency and vital installations in an around Hnahthial Town. | - | - | - |
+| 16 | Hnahthial PS C/No. 17/08 Dt. 8.5.2008 u/s 3 of ES Act. | A gelatine bomb exploded at Hnahthial playground on 7.5.2008 at 11:00 PM. No damaged was however caused by the explosion. A piece of exploded gelatine was recovered. | - | - | - |
+
+
+| 17 | Hnahthial PS C/No. 18/08 dt. 9.5.2008 u/s 3 of ES Act. | On 8.5.2008 @ 12:15 AM an explosion occurred near the house of Pu F. Lalthanzuala MLA at Bazar Veng, Hnahthial. The explosive used was suspected to be gelatine and no damaged either on life or properties have been reported. The explosion that occurred the previous night i.e. 7.5.2008 at 11:00 PM at Hnahthial Field seemed to be targeting the house of Pu P.C. Hmingthanga, Vice President MNF Hnahthial ‘W’ Block who was a close trusties of Pu F. Lalthanzuala MLA. | - | - | - |
+| --- | --- | --- | --- | --- | --- |
+| 18 | Bawngkawn PS C/ No. 270/08 dt. 21.5.2008 u/s 3(a) of ES Act. | On 18.5.2008 at 10:20 AM, one H. Lalruatdika (29) s/o H. Lalengliana of Zemabawk Hmangiahna Veng had blasted gelatine below their house. No casualty/damaged. Recovered 6 nos. of Detonators fitted with safety fuse and 4 nos. of safety fuse 7 inches. | 1) H. Lalruatdika S/o H. Lalengliana, Zemabawk | - | - |
+| 19 | Hnahthial PS C/No. 25/08 Dt. 3.6.2008 u/s 435/34 IPC r/w 3 of ES Act. | On 3.6.2008 at 5:10 PM, youths of Hnahthial village blasted one culvert between Mat bridge and Maudarh village on NH-54 around 10 KMs from Hnahthial PS. The explosion used was suspected to be gelatine that caused some damage to the culvert but vehicle can pass through it. |  |  |  |
+| 20 | Azl. PS C/No. 320/08 Dt. 19.9.08 U/S 436 IPC r/w 3 of ES Act | A Gelatine exploded inside the room of Account Manager room of the State Bank of India Main Branch on 19.9.08. The Explosion damaged two Computer monitors, Table of Account Manager, 7 window glasses and 5 cupboard glasses. There was no human casualty due to the explosion. One Gelatine Stick, Detonator and 2 feet fuse wire was found lying on the table of the Account Manager. | - | - | - |

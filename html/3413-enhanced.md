@@ -1,0 +1,3 @@
+A. _Inside page of VANGLAINI & THE AIZAWL POST newspapers Dt. 10.1.2014_
+
+****Champhai District Police report - 14,32,720 tablets of Pseudoephedrine seized****:** In the year 2013, Champhai district police seized 14,32,720 tablets of Pseudoephedrine, 494 kgs. of Ganja, 1.108 kgs. of Heroin, 686 ltrs. of LML, 261 packets of BEDC, 144 bottles of IMFL, 581 cans of Beer, 22 pails of brewing LML, 8 pails used for brewing LML and 10 packets of China made Yeast. And the amount fined by Traffic rules breakers amounted to Rs. 78,990/-**

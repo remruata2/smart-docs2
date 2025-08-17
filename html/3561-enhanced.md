@@ -1,0 +1,4 @@
+**14.12.2022 :** Mizoram College Teachers Association (MCTA) held its 43rd Annual General Conference on 14.12.2022 @10:30 a.m. at Taxation Department Auditorium, MINECO, Aizawl. Pu Samuel J. Laltlanzauva, Vice President, MCTA president over the morning session and Pu Lalbiakzuala, President, MCTA presided over the afternoon session. The following agenda were passed during the General Conference:
+
+ i) MCTA Headquarters be moved to take urgent initiative and to pressure the authorities regarding the insufficient number of teachers with the onset of the introduction of NEP, 2020.
+ ii) Government of Mizoram be requested to take urgent initiative with regard to infrastructural development of colleges for effective implementation of NEP, 2020.

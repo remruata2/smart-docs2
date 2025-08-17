@@ -1,0 +1,1 @@
+**09.12.2022 :** Mizoram Staff Group 'D' Government Employees Association, General Headquarters held Annual General Conference on 9.12.2022 @10:00 a.m. at Archives Hall, Babutlang, Aizawl. Pu Lalchuailova, President FMGE&amp;W graced the occasion as Chief Guest and around 200 (two hundred) members attended.

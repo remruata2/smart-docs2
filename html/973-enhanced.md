@@ -1,0 +1,109 @@
+****BORDER ISSUE AT ZOPHAI NEAR BAIRABI LOCATED AT****
+
+****MIZORAM-ASSAM BORDER****
+
+**Brief story :**
+
+ On 27.2.2018, around 50 (fifty) members of Mizo Zirlai Pawl (MZP) from Aizawl and Bairabi constructed "Zofate Chawlhbuk" (Shed) at Zophai near Bairabi located at Mizoram-Assam border. The construction work of 12x6 ft. shed was reportedly completed at around 4:00 p.m followed by a short function held at the Shed under the chairmanship of L. Ramdinliana Renthlei, President, MZP. It was also reported that Assam Police, Assam Forest Deptt. Staff and Mizoram Police commanded by Commandant Ist IR Bn., Mualvum were present at the spot during the construction.
+
+ As reported, Zofate Chawlhbuk, constructed by MZP on 27.2.2018 was demolished by some persons reportedly at the instance of Assam Police on the same night it was constructed and the Police Duty Post erected by Assam Police at the same disputed site on 2.3.2018 was also dismantled by some persons reportedly under the aegis of Mizo Students Union, a few hours after it was constructed.
+
+ On 8.3.2018 @ 7:00 a.m, members of Mizo Zirlai Pawl (MZP) numbering around 70 (seventy) under the leadership of L. Ramdinliana, President, MZP left Aizawl for Zophai near Bairabi, Kolasib District with an intention to reconstruct Zofate Chawlhbuk (Shed) at the disputed site along Mizoram-Assam border.
+
+ At around 11:45 a.m, a minor scuffle broke out between the Student union and Assam Police when some members of the student union tried to unload their building materials from the vehicle. The Assam Police had even resorted to Lathi-charge as a result of which around 15 (fifteen) MZP members reportedly sustained minor injuries. The Additional Deputy Commissioner, Hailakandi District, Assam and leaders of MZP hold a brief talk at the site wherein the Student leaders were reportedly asked by the Addl. DC not to go ahead with their intention to reconstruct a Shed at the site but to leave the matter in the hands of higher officials of the two States.
+
+ The Government of Mizoram promptly sent Pu Lalrinmawia Ralte, Political Adviser to Chief Minister and other officials on the night of 8.3.2018 itself to prevent further escalation of dispute at the site.
+
+ On****9.3.2018 at around 6:00 p.m, Pu Lalrinmawia Ralte, Political Adviser to Chief Minister; Pu Lalbiakzama, Addl. Secretary, Home Department; DC, Kolasib and SP, Kolasib held a meeting with leaders of MZP at the residence of Pu Sanghmingthanga, Bairabi. The Government officials advised leaders of MZP to approach the Court with matters regarding the land dispute to tackle the issue legally. Appeals have been reportedly made to the students not to go ahead with their intention to reconstruct the shed at Zophai in order to avoid further escalation of Law and Order problems and to leave the issue in the hands of higher officials between the two states. In this regard, it has been reported that leaders of MZP appealed and appraised the proposal to their members present at the disputed site. In order to prevent any untoward incident, hundreds of Mizoram Police under the command of SP, Kolasib and Commandant, 1st IR Bn. were performing duty in and around the disputed site.
+
+ On****10.3.2018 @ around 11:00 a.m, a scuffle broke out again between Assam Police and members of Mizo Zirlai Pawl (MZP) when around 100 (hundred) strong MZP members proceeded to the disputed site at Zophai near Bairabi along Assam - Mizoram border with their building materials to reconstruct ‘Zofate Chawlhbuk’ at the site. The students were intercepted by Assam Police before they reached the disputed site and they subsequently used force to disperse them. It has been reported that the Assam Police initially used Lathi but later on resorted to firing and around 8 (eight) shots were reportedly fired as a result of which one Ricky Lalchhandama, Secretary i/c Establishment, MZP reportedly sustained gunshot injury on his right ankle and around 49 (forty nine) others sustained injuries on their persons. Out of 49 (forty nine) injured MZP members, 7 (seven) of them reportedly sustained serious injuries and were referred to other Hospitals for necessary treatment. I was also reported that 8 (eight) media persons also sustained injuries. The Assam Police burnt down the temporary shed constructed by the MZP near the disputed site and the following vehicles belonging to MZP members were also ransacked by Assam Police :-
+
+(1) Sumo - 1 no. (2) Taxi -1 no. (3) Car (Nano) - 1 no. (4) M/Cycles -3 nos.
+
+ At the same time, Mizo Students’ Union (MSU), Aizawl City Colleges Joint Students’ Union (ACCJSU) and Hnam Pual (Sub-Tribe Student) Leaders issued a Joint Resolution on 10.3.2018 @ 5:30 p.m in which the following points were highlighted :-
+
+ (1) Assam Police should withdraw from Zophai within 24 hours.
+
+ (2) Government of Assam should give compensation and bear all medical expenses of  the injured students.
+
+ (3) All non-Mizos living in the State should remain indoors with immediate effect for  their own safety.
+
+ (4) Railway construction under North East Frontier Railway should be stopped until  further notice.
+
+** (5) Mizoram Police should be deployed by the State Government at the disputed site.******
+
+******On 12.3.2018 @ 10:30 a.m, a procession called ‘Ram Humhalh Kawngzawh’ was organised under the aegis of Mizo Zirlai Pawl (MZP) in Aizawl and in other towns of the State such as Lunglei, Champhai, Serchhip, Kolasib, Thenzawl, Vairengte, Sairang, Saitual, Tlabung, Bairabi, Bilkhawthlir, Zawlnuam and Mamit wherein a large number of students took to the streets. Situation was peaceful in all the towns and it has been reported that an effigy of Shri. Adil Khan, DC of Hailakandi District, who had reportedly given the firing order against MZP members on 10.3.2018, was burnt by MZP at Tlabung.**
+
+ In Aizawl, the procession began at 10:30 am from Chandmari in the North and from Sikulpuikawn in the South and converged at Vanapa Hall. Around 6,000 (six thousand) students participated in the procession who shouted slogans condemning the State Government for its alleged inaction relating to the border issue and their strong intention to construct Zofate Chawlhbuk at Zophai.
+
+ MZP passed the following resolutions on this day :-
+
+ (1) MZP strongly condemned the Assam Government for invoking Section 144CrPC  on the soil of Mizoram and also condemned the State Government for turning a  deaf ear to the border issue.
+
+ (2) Government of Mizoram should protect the boundary of the State.
+
+ (3) MZP will continue to render utmost effort to protect Mizoram and her people.
+
+ (4)'Zofate Chawlhbuk' should be reconstructed.
+
+ The procession peacefully dispersed @ 1:30 p.m and no untoward incident has been reported from any part of the State.
+
+ Mizo Zirlai Pawl (MZP), General Headquarters, Aizawl organised a Sit-in demonstration in front of Vanapa Hall, Aizawl on 22.3.2018 @ 1:00 p.m in protest against the brutal assault on Students and Journalists by Assam Police at Zophai, Bairabi. The demonstration was led by B. Vanlaltana, Vice President, MZP and was attended by about 30 (thirty) persons. L. Ramdinliana Renthlei, President, MZP Gen. Hqrs., V.L. Krosshnehzova, Adviser, MZP, Lalhruaitluanga Chawngte, Adviser, MZP, Ricky Lalbiakmawia, Fin. Secretary, NESO delivered speeches on this demonstration. The demonstration concluded at 2:00 pm peacefully.
+
+ A Joint Verification Team meeting chaired by Joint Secretary (North East), Ministry of Home Affairs, Government of India and members comprising of Home Secretaries of Mizoram and Assam, SsP &amp; DCs of Kolasib and Hailakandi Districts; representatives of Central YMA and MZP General Headquarters was held at the disputed site, viz. Zophai, Bairabi on 27.3.2018. The meeting discussed and agreed on the following points :-
+
+(i) Identification of alleged illegal structures within Inner Line Reserve area of three  districts namely - Kolasib, Cachar and Hailakandi shall be carried out by a team headed by Conservator of Forest from both states (Mizoram and Assam) and assisted by  representatives of SP and DC of the concerned Districts and also representatives of Civil  Society and NGO. Identification should be completed before 30.4.2018.
+
+(ii) No new construction be erected inside Inner Line Reserve area.
+
+(iii) As requested by the by Joint Secretary (North East), Ministry of Home Affairs,  Government of India to withdraw Police forces deployed in the disputed area, both  Mizoram and Assam Police Officers deployed on the spot held a short meeting and  simultaneously withdrawal of the deployed Police forces commenced from today, i.e.  27.3.2018 @ 3:30 p.m onwards from Zophai, Bairabi.
+
+ In a Press Release issued on 28.3.2018, Mizo Zirlai Pawl (MZP), General Headquarters, Aizawl expressed gratitude to Zo ethnic communities across the world for their immense contribution in supporting MZP’s endeavour to protect the territory of Mizoram. MZP reiterated their intention to take necessary initiatives for the reconstruction of Zofate Chawlhbuk at Zophai, Bairabi.
+
+ MZP stated that a 'Memorandum' was submitted to Shri. Satyendra Garg, Joint Secretary (North East), Ministry of Home Affairs, Government of India who visited Zophai, Bairabi on 27.3.2018. The Memorandum highlighted that Bengal Eastern Frontier Regulation of 1875 has already demarcated Mizoram boundary with Assam and demanded Assam Government to cease and dismantle their alleged illegal constructions within Mizoram territory. It also condemned brutal assault and firing on Students and Journalists by Assam Police at Zophai, Bairabi and demanded Assam Government to pay compensation to the victims. Leaders of MZP were apprised by the Central Government official that the matter has already been acknowledged and is being processed by the Union Home Ministry.
+
+ The Press Release stated that identification of alleged illegal structures within Inner Line Forest Reserve Area of three districts namely, Kolasib, Cachar and Hailakandi shall be carried out by a Committee which should complete its findings before 30.4.2018.
+
+ The Press Release also added that the Joint Verification Team meeting held on 27.3.2018 will be reviewed by a meeting of Chief Secretaries of Mizoram and Assam scheduled to be held on 5.4.2018 and urged Government of Mizoram to pay utmost attention on the issue. MZP also appealed the Mizo public to carefully monitor the developments and to render assistance to MZP if the needs so arises.
+
+ In a Memorandum addressed to the Hon'ble President of India, Hon'ble Prime Minister of India and Hon'ble Union Home Minister on 3.4.2018, leaders of Mizo Zirlai Pawl (MZP) Gen. Hqrs., Aizawl highlighted the incidents of the illegal encroachment on the territory of Mizoram by Assam Government. They also stated that the 46 (forty six) boundary pillars which were erected in 1875 along the Mizoram-Assam border are the only boundary pillars accepted by the Mizos. Leaders of MZP stated that MZP had legally constructed 'Zofate Chawlhbuk' (waiting shed) within the territory of Mizoram and the land site was also officially documented by the Revenue Department, Government of Mizoram.
+
+ MZP, in its Memorandum, highlighted the reports that majority of Hailakandi District inhabitants are illegal immigrants from Bangladesh as per National Register of Citizen (Prime Minister Vision Report, Guwahati dated 21.3.2018) and MZP expressed their optimism with the Hon'ble Prime Minister to resolve the issue of illegal immigrants residing in India.
+
+ MZP demanded strong action against the District officials of Hailakandi for issuing orders that led to the brutal attack on Students and Journalists by Assam Police at Zophai, Bairabi.
+
+ Leaders of MZP also highlighted their intention to undertake reconstruction of 'Zofate Chawlhbuk' (waiting shed) if the Government of Assam fails to maintain 'status quo' and demanded the Assam Government to dismantle all the illegal constructions within the Inner Line Forest Reserve Area before 15.4.2018.
+
+ MZP also strongly contested the paper documentation of **'Zophai'** as Kachurtal in the official meeting and urged the Government of India to respect the feelings of the local citizens.
+
+ Leaders of MZP requested the Central Government leadership to preserve and safeguard the indigenous territory of Mizoram and to resolve the deadlock of Mizoram-Assam border disputes.
+
+ On 9.4.2018 @ 2:00 p.m, a meeting of Joint Verification Team on Inner Line Reserve was held at Dholai Forest IB. The meeting was attended by officials from Cachar District, Assam headed by Deputy Commissioner, Cachar District from Assam and from Mizoram, a team headed by Deputy Commissioner, Kolasib District accompanied by officials, a member of Joint Village Council, Vairengte and Presidents of MZP Sub-Hqrs., Vairengte and Kolasib. The meeting decided to conduct Joint Verification of Inner Line Reserve Area at Zophai, Phaisen, Aitlang (Vairengte) and Vairengte-Lailapur area on 12-13.4.2018 starting at 9:00 a.m at Zophai on 12.4.2018. 15 (fifteen) Policemen from both states will accompany the party during the joint verification and in case of failure to complete the task during the two stipulated days, the process may be resumed from 16.4.2018 onwards.
+
+ An Executive Committee meeting of MZP held on 11.4.2018 @ 12:00 noon at MZP Conference Hall, Aizawl, they reiterated its stand to reconstruct Zofate Chawlhbuk and MZP also decided to send representatives to participate in the spot verification within the Inner Line Reserve Area to be conducted by the Joint Verification Team.
+
+ On 12.4.2018, the Joint Verification Team comprising of officials from Mizoram and Assam started conducting spot verification of Inner Line Reserve Area along Mizoram-Assam border. It has been reported that a total of 34 (thirty four) illegal constructions, including 2 (two) Masjids and 1 (one) School, were identified by the Joint Verification Team. Out of the total 34 illegal constructions, 1 (one) illegal construction was owned by Sangluaia (L) of Bairabi, Mizoram while the rest were owned by residents of Assam.
+
+ On 16.4.2018, Mizo Zirlai Pawl (MZP) Gen. Hqrs., Aizawl highlighted the progress of identification of illegal constructions within Inner Line Reserve Forest Area by the Joint Verification Team. MZP stated as many as 74 (seventy four) illegal constructions including 5 (five) Assam Police Check Posts and 2 (two) religious structures, which were identified in the second day of verification held on 13.4.2018. Leaders of MZP stated that as many as 108 (one hundred eight) illegal constructions have been identified at Zophai, Bairabi area by the Joint Verification Team. The Joint Verification Team is also expected to conduct identification/verification at Lailapur/Vairengte area by this week. Leaders of MZP also lauded the officials from Mizoram engaged in the Joint Verification works for effectively discharging their duties in identifying illegal constructions within Inner Line Reserve Forest Area.
+
+ MZP Press Release issued on 1.5.2018 highlighted that an Executive Meeting of MZP Gen. Headquarters was held today and it was presided by Ramdinliana Renthlei, President, MZP. The meeting decided to construct Zofate Chawlhbuk at Bairabi Zophai at the earliest convenient time as MZP found the action taken by both Mizoram and Assam Governments in connection with boundary issues unsatisfactory. The MZP also alleged that a number of non-tribal traders have employed locals to claim ownership over their business to avoid detection. MZP appealed to all local residents not to tie up with non-tribal traders and they also termed such people as traitors. The Press Release also added that the MZP appealed to all Mizos to cooperate with their campaign against illegal migrants doing business in the State.
+
+__MZP has put a lot of trust in the Joint Verification Team under the guidance of Central Government and hopeful for positive results but since the Joint Verification Team do not have review meeting till today, MZP is doubtful about the measures taken by Government. This has prompted MZP to reconstruct Zofate Chawlhbuk at Zophai.
+
+ Intelligence report indicated that the Office Bearers of MZP General Hqrs. are likely to fix the date for reconstruction of Zofate Chawlhbuk(Waiting Shed) at Bairabi Zophai during the fourth week of May i.e. 21st – 26th May, 2018. At the same time, the MZP are expecting ‘REVIEW MEETING’ at Chief Minister level with all NGOs/Govt. Officials on boundary issue. Intelligence reported also indicated that if the aforesaid review meeting can be conducted in the near future, the MZP are likely to defer their intention to reconstruct Zofate Chawlhbuk which would pave the way for honourable exit on the part of MZP leaders.
+
+** An Executive meeting of MZP General Hqrs was held on 3.8.2018 @ 12:00 noon at MZP Conference Hall which was presided over by L. Ramdinliana Renthlei, President and attended by about 30 (thirty) members. The meeting discussed issues pertaining to Mizoram-Assam boundary and felt that the Core Committee which had been set up to conduct survey on the actual boundary, in which MZP is also a member, is unable to make any conclusive report within the stipulated time, i.e. July, 2018, and **hence decided to pull out of the Core Committee**. The meeting also resolved that they are committed to constructing 'Zofate Chawlhbuk' at Zophai.**
+
+ MZP President L. Ramdinliana Renthlei accompanied by B. Vanlaltana, Vice President and two Secretaries went to Bairabi (Zophai) on **6.5.2019**, and visited the disputed site. They were joined by Zosangliana Rokhum, President, MZP Hqrs., Kolasib and leaders of Bairabi MZP Sub-Hqrs. A banner claiming construction site for ‘Zofate Chawlhbuk’ was displayed on a tree branch om 6.5.2019, a move opposed by the Joint V/C and NGOs of Bairabi, who on 4.5.2019 served a notice to the MZP Sub-Hqrs., Bairabi, urging the MZP General Hqrs. to exercise restraint in the area so as not to violate MHA’s direction to maintain a ‘status quo’ while efforts are on to find a solution to this contentious issue.
+
+** A joint meeting of Joint V/C and NGOs was convened later in the afternoon at 1:30 p.m. at the office of Sub-Deputy Commissioner, Bairabi which was chaired by Pu Samuel Zodinsanga, SDC and attended by 17 (seventeen) persons. Leaders of MZP General Hqrs. however did not attend the meeting. The meeting was learnt to have observed the MZP’s display of banner at Zophai uncalled for. **It was also learnt that the NGO leaders are intending to remove the banner without informing the MZP leaders of their intention.****
+
+ The MZP General Hqrs., consequent to their display of banner earlier on 6.5.2019 has issued a Press Release staking a claim that their intended construction site at Zophai is located inside a land belonging to the first Chief Minister of Mizoram, Pu Ch. Chhunga (L) and the site had been given to the MZP by his widow, Pi Lalrothangi, urging the Government of Mizoram to protect the “Site Banner”. MZP also asserted their commitment to construct ‘Zofate Chawlhbuk’, regretting the V/C’s appeal, and asked them to render support instead. MZP in its Press Release also urges the Government to enable Core Committee to expedite action to solve Mizoram-Assam boundary issue.
+
+ Information has been received that the “Site Banner“put up by MZP at Zophai on 6.5.2019 **had disappeared on 7.5.2019**, apparently removed by unknown person/persons. The MZP were understood to have resented this indicating their intention to re-visit Zophai in the near future. Input received indicated that there is a likelihood of the MZP deliberately trying to blame the Bengali settlers on Assam side of being responsible for removing their “Site Banner” even though they also suspect that it was done by the NGOs of Bairabi. The MZP General Hqrs. has instructed Bairabi Sub-Hqrs to first submit an FIR in this regard.
+
+ Mizo Zirlai Pawl General Headquarters issued a Press Release on 12.3.2020 mentioning the visit of Bairabi, Zophai by Pu Lalnunmawia Pautu, General Secretary, Mizo Zirlai Pawl General Headquarters where the previously suspended construction of the alleged illegal Masjid was resumed recently. Accompanied by leaders of Mizo Zirlai Pawl Headquarters, Kolasib and Mizo Zirlai Pawl Sub-Headquarters, Bairabi, Pu Lalnunmawia Pautu and his party dismantle some of the bamboo stakes which were positioned for supporting the intended slab construction of the Masjid. The Press Release also demanded the State Government to put more efforts in safeguarding the State border and that the Mizo Zirlai Pawl were ever willing to resort to any means to protect Mizoram border.
+
+ Consequence to the Bairabi Zophai incident on12.3.2020 report has been received that from around 3:30 p.m, local non-Mizo residents of Zophai areas organised a sit in demonstration in protest against the action of the Mizo Zirlai Pawl and blocked the National highway. Meanwhile, Pu Vanlaltana, President, Mizo Zirlai Pawl General Headquarters with several Mizo Zirlai Pawl members are stationed in Mizo Zirlai Pawl General Headquarters Office, Aizawl awaiting latest news from Zophai at the time of preparing this report.
+
+ In another report received, Mizo Zirlai Pawl General Headquarters intended to call an extended meeting including all its advisers on 13.3.2020 @ 10:00 a.m in their office. The meeting is likely to condemn the road blockade organised at Zophai and to mobilize "Hnam Hnatlang" - a mass deployment of its members to the disputed area if the blockade is not called off before or during the intended meeting.

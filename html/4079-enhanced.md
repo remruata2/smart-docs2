@@ -1,0 +1,95 @@
+01.02.2024 On dt.01.02.2024 CID(SB) seized and recovered 3(three) nos. of soap cases (36 grams) of suspected Heroin v/o Rs.1,08,000/- from the possession of Malsawmmawia(19) s/o Lalbiakhlua of Edenthar, V-Section, Aizawl. The accused person was arrested. Special Narcotic PS C/No.05/2024 Dt. 01.02.2024 u/s 21(b) ND &amp; PS Act 1985 was registered.
+
+06.02.2024: On 06.02.2024 CID(SB) Operation team seized suspected Crystal Methamphetamine totally weights 10.385 kgs, value of Rs 31,15,50,000/- at Ui Lui, Zokhawthar road, Champhai District. The suspected Crystal Methamphetamine was seized from the joint possession of (1) Malsawmzuali(38) d/o ZD Lalvunga of Lengpui (2) Lalchhandama(19) s/o Lalthlamuana of Lengpui, Mizoram. Hence Zokhawthar PS Case No.06/2024 Dt. 06.02.2024 u/s 22(c)/29 ND &amp; PS Act, 1985 was registered.
+
+25.03.2024 : A special operation team of CID (SB) led by Pu LP Zohmangaiha, Dy. SP (Field), CID (SB) had apprehended cadres of Hmar People’s Convention (Democratic), HPC (D), (Lalhmingthanga Sanate faction) on the morning of 25.03.2024 at 07:40 a.m. at Saipum, Kolasib District. The special operation team left Aizawl on the night of 23.03.2024 with a task of apprehending the cadres of HPC (D) who are recently involved in extortions of money from non-local traders travelling between Mauchar Village and NEEPCO establishments.
+
+ The three HPC (D) cadres were apprehended from the residence of  Lalsiamthanga Buhril (49) s/o B. Liana of Saipum Chhimveng, Saipum,  Kolasib District, who reportedly hired them for some casual work not related to their activities. The apprehended HPC (D) cadres were as  under :-
+
+1. Name : Lalzarzova (45)
+
+ Present Address : Hmarkhawlian, Assam
+
+ Rank at HPC (D) : No Rank
+
+1. Name : Lalmuankima (32)
+
+ Present Address : Mauchar, Mizoram
+
+ Rank at HPC (D) : No Rank
+
+1. Name : Lalropieng (38)
+
+Alias : Lalropianga, Pianga
+
+ Present Address : Thingpuikual,Manipur
+
+ Rank at HPC (D) : Army Chief
+
+ The three HPC (D) cadres were apprehended without any arms or  ammunition. Searches of their place of stay at Saipum village and their  area of operation which lies between Mauchar Village and NEEPCO did not revealed any arms or ammunitions as reported by some non-local traders. The three apprehended persons were handed over to Sakawrdai Police on 25.03.2024 at 02:30 p.m. A case, vide Sakawrdai PS Case No.5/24 dt.22.3.2024 u/s397/395/34 IPC has been registered against the accused persons.
+
+18.04.2024: On 18.04.2024 CID(SB) Operation team seized 1.9lakhs (19.66 kgs) value of Rs. 225.58 lakhs Tablets of Methamphetamine near Israel Filling Station, Sairang from one i10 B/R No. MZ- 01 - F 9865 driven by Tanlian Tlaisun (34) S/o Khuangluai of Khawmawi, Myanmar and second driver Biakluai (28) S/o Thangsawn of Khawmawi Myanmar. Along with the accused, two suspected buyer, Joynul Abedin Tapadar (42) S/o Abdul Mukit Tapadar of Mahakal, Assam and Salim Uddin (40) S/o Moyna Mia of Mamadpur Village Karimgang District Assam were also aprehended. The seized items and accused persons were handed over to OC Spl.Narcotic PS. Hence Spl. Narcotic PS C/No 16/24 Dt. 109.04.2024 u/s 22(c)/29(i)/25 ND &amp; PS Act r/w 14 Foreigner Act was registered.
+
+18.04.2024:  On dated 07.06.2024 CID  (SB) operation team accompanied by staff from Serchhip Police Station seized 1980 nos. of live rounds ammunitions, 7.62 x 39mm caliber, meant for AK 47 rifle from the possession of (i) Lalchhanhima (44yrs.) S/o Zabiaka (L) of Leisen, Thantlang District, Myanmar and (ii) Lalnunnema (31yrs.) S/o Lalkima (L) of Thantlang, Thantlang District, Myanmar in the residence of Pi Lalduhzuali of Darnam veng, Serchhip.
+
+The value of the ammunitions were estimated to be @ Rs. 10,89,000/- (Rs. 550 per piece) in the illegal market rate. The illegal 1980 nos. of live rounds Ammunitions, 7.62x39 mm and CANDA 125 Bike (Registration no. - NIL) used for transportation were seized in the presence of reliable witnesses and after attaining all legal formalities.
+
+The arrested accused and the seized items were then produced to Serchhip PS where Serchhip PS Case No. 56/2024 Dt. 07.06.2024 u/s 25(1-A) Arms Act 1959 r/w 34 IPC / 192 MV Act r/w 14 Foreigner Act was registered.
+
+10.06.2024 On dt.10.06.2024 CID(SB) operational team seized and recovered 7(seven) nos. of soap cases (78 grams) of suspected Heroin v/o Rs.2,30,400/- from the possession of Lalhmangaiha (27) s/o Dengthuama (L) of Myohla,Kalay district, Myanmar and Malsawmdawngzela (21) s/o Ramdinthara, Salem veng, Aizawl at Kulikawn West, Aizawl. The accused persons were arrested and Special Narcotic PS C/No.25/2024 Dt. 10.06.2024 u/s 21(b)/29(1) ND &amp; PS Act 1985 r/w 14 A Foreigner Act 1946 was registered.
+
+15.07.2027 On dt. 15.07.2024 Joint operation team of CID(SB) and Zokhawthar Police were seized and recovered 72 soaps cases (841 gms) of suspected Heroin v/o Rs 2523000/- into the ditch below the two alleged accused persons residence which was covered by rusty iron sheet and wet paper box and the contraband items were seized from the possession of Lalramchuani (32) d/o T.Vanlalsiama and Lalhmunthanga (53) s/o Mangduma, both of Zokhawthar, Khuangchera Section. Hence ZKTR PS C/no 63/24 dt. 15.07.2024 u/s 21(c)/29 ND&amp;PS Act. was registered.
+
+10.08.2024 On dt. 10.08.2024 CID (SB) operation party seized and recovered 2.021 kgs of Ganja (Cannabis) and estimated local market value of Rs 20000 (approximately) at Bawngkawn South near UPC Church in North -East India, Operation party approched and intercepted two (2) individuals viz, Ramdinthara (22) s/o Lalramliana of Keifang and Samuel Dawngliana (21) s/o N.K Pauva of Leisenzo. They were hiding illegal cannabis in two (2) black rucksacks. Hence Bawngkawn PS C/No 266/2024 US 20 b (ii) B/ 29 (1) ND&amp;PS Act 1985. was registered.
+
+12.08.2024 On 12.08.2024 CID (SB) operation party seized and recovered 208 grams of suspected Heroin value of Rs 624000 from the possession of Ngurnunmawii (22) d/o Zarzova of Thingsai, Hnahthial Dist at the rented house of R.Lalremruata at F. Lalrawna's building, Khatla South, Aizawl. The suspected items were seized from Blue Suitcase (Safari trolley) and inside which there was one Rambo polythene. On opening the Rambo polythene, 17 plastic soap cases were packed in transparent polythene were found. The possesor of suspected Heroin was arrested infront of witnesses. Hence, Aizawl PS C/No. 293/2024 Dt. 13.08.2024 U/S 21(b) ND&amp;PS Act 1985 was registered.
+
+27.08.2024 On 27.08.2024 at around 5:00 PM, CID (SB) operation party launched a covert operation and intercepted one goods carrier truck (TATA 407 bearing Regn. No. MZ-04-A-6063) near Kulikawn East Presbyterian Church, Aizawl. The team seized 39.257 Kgs (Total 4 lakhs tablets) of suspected Methamphetamine (yaba), valued Rs.5,10,34,100/- concealed inside 17 electric air coolers which were transported from Zokhawthar, Champhai District. The possesor of suspected Heroin was arrested infront of witnesses. Hence, Spl. Narcotics PS C/No.33/2024 dt.27.08.2024 U/S 22(c)/25/29(1) ND&amp;PS Act 1985 was registered.
+
+16.09.2024  On 18.09.2024 at around 06:00 PM, CID (SB) operation team seized the following contraband items:-
+
+1. 32 bundles of methamphetamine tablets weighing 32.013 kilograms valued of Rs. 41416900 and 21 packets of heroin weighing 249 grams valued of Rs. 747000 which were conceiled inside the door panels of Renault Kwid car were discovered and seized from the driver of the said vehicle, lalthansiama (26) s/o Zomanthanga (L) of Kawmawi Myanmar.
+2. 8 bundles of methamphetamine tablets weighing 8.021 kilograms valued of Rs 10427300 and 47 packets of heroin 565 grams valued of Rs 1695000 which were concealed inside the door panels of Datsun Redi Go car were discovered and seized from the driver of the said vehicle, Zoremmawia (23) s/o S. Lalhmangaiha of Kawmawi, Myanmar, P/A Muana veng Aizawl.
+3. 196 packets of Heroin weighing 2.284 kilograms valued of Rs 6852000 which were concealed inside the door panels of Datsun Redi Go car were discovered and seized from the driver of the said vehicle, at Muana veng, Zuangtui at around 01;00 a.m of Dt. 17.09.2024.
+
+ The seized Narcotics Drugs worth Rs. 61338200 in total were handed over to Special Norcotiv Police Station. Hence, Special Narcotic PS C/no 36/2024 dated 17.09.2024 u/s 21©/29(1)/25 ND&amp;PS Act read with 14A Foreigners Act.
+
+18.09.2024 On 18.09.2024 at around 06:00 PM, CID (SB) operation team seized 1000 live rounds ammunitions, 7.62x39mm rounds meant for AK-47 Rifle at Zuangtui Veng, Aizawl nearby Zuangtui YMA Run from the illegal possession of Thung Thung-a (33) s/o Chhannawl, Salen Village, Thantlang District, Myanmar v/o Rs.6,00,000/-. Hence, Bawngkawn-PS C/No.302/24 dt.17.09.2024 u/s 25(1A)/25(1AA) Armes Act r/w section 14 of Foreigner Act was registered.
+
+19.09.2024 On 19.09.2024 at around 07:45 AM, Joint operation team of CID (SB) and Spl. Narcotics PS staff were seized and recovered 30 soaps cases (378 gms) of suspected Heroin v/o Rs. 11,34,000/- concealed inside one rackshack and inside the gear box which were transported from Manipur. The possesor of suspected Heroin was arrested infront of witnesses. Hence, Spl. Narcotics PS C/No.37/2024 dt.19.09.2024 U/S 21(c)/25/29(1) ND&amp;PS Act 1985 was registered.
+
+27.09.2024  Joint operation team consists of staff from CID (SB), Vairengte Post and  Vairengte Police Station intercepted two auto rickshaws on 27.09.2024 at around 08:30PM at Vairengte Police check gate. A thorough search of their vehicles led to the seizures of the following:-
+
+(i) 17 bundles of methamphetamine tablets weighing 17 kilograms  valued at Rs. 2,21,00,000/- which were kept inside backpack was  recovered from auto rickshaw bearing registration no. MZ 05A – 8955 driven by Lalhmangaihzuala (40) s/o Zova of Vengthar, Vairengte.
+
+ (ii) 18 bundles of methamphetamine tablets weighing 18 kilograms valued at Rs.  2,34,00,000/- which were kept inside backpack was also  recovered from auto  rickshaw bearing registration no. MZ 05B – 1904 driven by Lalfakzuala (24) s/o Vanlaltlana of Vengthar, Vairengte.
+
+ Hence, Vairengte PS C/No 44/2024 Dt 27.09.2024 u/s 22©/24/29 ND&amp;PS Act.
+
+15.10.2024 Joint operation team consists of staff from CID (SB), SO Lunglei and Lunglei Police Station intercepted Sumo or Maxi Cab on 15.10.2024 at around 11:33PM at Christian Hospital Serkawn, Lunglei recovered and Seized 41.05gms. of white powder suspected to be Heroin from the possession of Lalrampari (38) d/o Lalremthanga of Lunglawn, Lunglei. Which was kept inside Rice Cooker. The accused was arrested in front of witnesses. Hence, Lunglei PS C/No 206/2024 Dt. 16.11.2024 u/s 219b) ND&amp;PS Act was registered.
+
+22.11.2024 On 22.11.2024 at around 11:00 AM, CID (SB) information received from a reliable source stating that some unknown persons strongly suspected of possessing contraband drugs which was to be dispatched at Electric Veng from Champhai Sumo Stand, Aizawl. On reaching the spot, found 01 (one) suspected person namely John Lalchungnunga (28) S/o Malsawmkima of Venghlui, Aizawl who was carrying one percel Divya water filter (written Zuali, Dinthar, Aizawl ph. No.9233736124 on the percel) and detained him. 01 (one) no. of soap case concealed inside Divya water filter which was packed in transparent polythene. Weight of suspected heroin was taken and totally weights 13 grams value of Rs.39,000/-. The accused was arrested in front of witnesses.
+
+26.11.2024 On 26.11.2024 at 01:00 AM at Cheuva Hill, Thuampui, Aizawl opposite to Presbyterian Pastor Quarters, CID (SB) operation team intercepted a white Bolero vehicle bearing registration No.MZ-04-A-9872 coming from Tlangsam Champhai and one pick-up truck B/R No.MZ-06-6021. CID (SB) operation team seized 664 nos. soap cases each containing orange powder suspected heroin, weighing a total of 8.058 Kgs v/o Rs.2,41,74,000/- in the local market rate. Hence, Special Narcotic PS Case No.46/2024 dt.26.11.2024 was registered. The following three persons were arrested in front of witnesses.
+
+ 1. Lalrohnuna Fanai (33) s/o ST Kapa of Tlangsam, Champhai.
+
+ 2. Lalmuanzuala (41) s/o H. Bulliana (L) of Tlangsam, Champhai.
+
+ 3. Tlanghmingthangi (43) d/o Hrangkianlova of Tlangsam, Champhai.
+
+29.11.2024 On 28.11.2024 @ 8:00 PM at Tawngtai mual, Zemabawk MZ-01-AB-5750 was intercepted. Spl. Narco. PS conducted search of the vehicle and as a result 30 packets, containing a total of 3,00,000 tablets of suspected Methamphetamine, total weight of 29.289 kgs and value of Rs.3,80,75,700/- in local market rate were seized from the vehicle on 28.11.2024 at12:30 AM. Tlangthanmawia (30) s/o Lalrampana of Tahan E Group P/A Bawngkawn near Helipad was arrested and Sp. Narco. PS Case No.47/2024 dt.28.11.2024 u/s 22(c)/25 ND&amp;PS Act r/w Sec.14 Foreigners Act was registered.
+
+05.12.2024 On 04.12.2024 Dungtlang Police staff had recovered 202 tablets of suspected Methamphetamine weighing a total of 24 kgs from one vehicle BR No.MZ-03-6529 (Tiago Car) driven by Lalthlanmawia (39) s/o Hranghlimpuia of Ngentiang, Serchhip District. In this connection, another vehicle BR No.MZ-01-AC-4835 suspected the handler’s (coordinator/excort) vehicle was also intercepted and the under mentioned occupants were further arrested: (1) Lalthawmthanga s/o Thansanga, Zonuam, Aizawl (2) Lalkungpuii d/o Lalnunthanga, Khawmawi, Myanmar P/A Thuampui, Aizawl and (3) Esther Lalpekmawii d/o Lallianthanga, Khawmawi, Myanmar.
+
+ Hence, on 05.12.2024 @ 01:00 PM after attaining all legal formalities 90 grams (8 soap cases) of suspected heroin v/o Rs.2,70,000/- (Local market rate) and 9.595 kgs of suspected methamphetamine tablet (approx. 1,00,000 tabs) v/o Rs. 150 lakhs (local market rate) which were concealed inside the door panel of a vehicle Hyundai i10 BR No. MZ-01-J-6240 (white colour) were seized/recovered. Alleged driver of the vehicle Rodintluanga (25) s/o Khawpuimawia (L) of Champhai, Zotlang P/A Bawngkawn Shalom Vengthar was arrested. Hence, Special Narcotic PS Case No.48/2024 dt.05.12.2024 u/s 21(c)/21(b)/25 ND&amp;PS Act was registered.
+
+13.01.2025 On 09.01.2025 CID (SB) operation party seized and recovered 101 grams of suspected Heroin value of Rs.3,03,000/- from the possession of Boichung Bik Thawng (26) s/o Moe Aung Kyaw of Khawmawi Myanmar. The suspected items were seized from Black Air bag and inside which there was one Rambo polythene. On opening the Rambo polythene, 9 plastic soap cases were packed in transparent polythene were found. The possesor of suspected Heroin (101 gm) was arrested infront of witnesses. Hence, Spl Narcotic PS C/No. 01/2025 Dt. 09.01.2025 U/S 21(b) ND&amp;PS Act 1985 r/w 14A Foreigners Act was registered.
+
+15.01.2025 On 15th January 2025, a joint operation by the State Intelligence Bureau (SIB) and CID (SB), Mizoram, led to the seizure of arms and ammunition valued at â‚¹ 62,17,500 on the outskirts of Saithah village, under West Phaileng Police Station, Mamit District. The recovery included six AK-47 rifles (â‚¹27,00,000), 10,050 rounds of 7.62mm ammunition (â‚¹35,17,500), and 13 magazines (11 empty, 2 loaded) and West Phaileng PS Case No.2/2025 Dt 15.1.2025 u/s 61(2) (a) BNS R/w 13,16,18,20,23 UAP Act R/w 25(1AA) Arms Act R/w 14 A Foreigner Act was registered.
+
+25.02.2025 On 25.02.2025, the operation team of CID (SB) staff @ 9:56 PM, Vairengte Police Check Gate, Kawngthar Veng intercepted one vehicle Brezza Car MZ-01-AC-9669 as per the provisions of section 42 ND&amp;PS Act, 1985. 20 Packets of suspected Methamphetamine (23.43 kgs v/o Rs.299 lakhs) was seized from accused Vanlalfela (23) S/o Lalhmunmawii of Zokhawthar, Champhai District and Zingengmawia (27) S/o Laldinpuia of Zokhawthar, Champhai District was arrested. Hence, Vairengte PS C/No.8/25 dt.26.02.2025 u/s 22 (c)/25/29 of ND&amp;PS Act was registered.
+
+26.02.2025 On Dt.26.02.2025, the Operation Team left for Zemabawk Aizawl to conduct search, seizure and arrest of the suspected person(s) as per the provisions of section 42 ND &amp; PS Act, 1985. Operation Team intercepted one vehicle Ashok Leyland, Mini Truck (black colour) B/R No. AS 11/FC-0236 on the roadside near Presbyterian Church Zemabawk North, which was suspected of carrying contraband drugs. The suspected person, driver of the vehicle introduced himself as Abdul Rahman Laskar (26) s/o Annar Uddin Laskar of Hawaithang, Sonai District, Cachar. He took out the contraband drug, 45 bundles suspected Methamphetamine which was hidden inside a secret compartment made inside the dashboard of the vehicle, all the sachets contained 200 tablets, totaling to 4,50,000 tablets of suspected Methamphetamine. The tablets in each bundle was bunched into a package (45 packages). Weight of the suspected Methamphetamine was taken and totally weighs 44.300kgs, value of Rs. 57,590,000/- in local market rate.
+
+ The suspected person Abdul Rahman Laskar (26) s/o Annar Uddin Laskar of Hawaithang. Sonai District, Cachar, was arrested after observing all formalities, Intimation of his arrest was communicated to his wife. Hence, Special Narcotic PS. Spl. Narcotics PS Case No.06/25 Di. 26.02.2025 u/s 22(c)/25 ND&amp; PS Act, 1985 was registered.

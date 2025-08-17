@@ -1,0 +1,21 @@
+_Report on Seizure of Explosive Substances at Farkawn, Champhai District_
+
+  8th Assam Rifles personnel, who were on duty at Farkawn Mobile Check Post seized the following explosive substances on 21.6.2021 @ 10:00 a.m. and in this connection, FIR was lodged at Dungtlang Police Station.
+
+1) Special Detonator  - 3,000 Nos. (packed in 6(six) Cartoons)
+
+2) Electric Detonator  - 925 Nos. (37 packs containing 25 each of   electric detonators)
+
+3) Safety Fuse  - 2000 Mtrs (4(four) boxes, each box containing   50 coils of 10 mtrs each)
+
+4) Explosive powder  - 63 sacks of explosive powder (13,104 Tonnes).
+
+  The above explosive substances were seized from TATA 207 B/R No. MZ-01 M-9258 driven by Zothanpuia (48) S/o Lenghnuna of Farkawn, Champhai District, while en route towards Tiauriver, Indo-Myanmar border. Later, Pu Lallawmawma (43) s/o Vanlalsawma of Kelsih (accused as owner of the seized items), who was stationed at Farkawn was apprehended by Assam Rifles for interrogation. In this connection, Dungtlang PS case No. 5/2021 Dt. 21.6.2021 u/s 5(a) Explosive Substances Act was registered. Dungtlang Police released the two accused persons after executing Bail Bond as the Hon’ble Court granted anticipatory bail to them. It is reported that the seized explosive substances are intended to be delivered to Camp Victoria (Chin National Army (CNA) Camp), Myanmar.
+
+  The seized items along with ration supply for refugees (dal, potatoes, edible oil, rice bags etc.) were transported to Farkawn by 5 (five) CNA members on the evening of 19.6.2021 by using 2 (two) vehicles viz. SML Truck and Mahindra Pickup. The items were arranged by Pu Rokhawma (CNA member) presently staying at Bawngkawn, Aizawl. Due to heavy rainfall, they had a night halt at the outskirt of Khawlailung and arrived Farkawn the next evening i.e., 20.6.2021 and stayed at Tourist Lodge, Farkawn as per arrangement of VCP, Farkawn. The next day i.e., 21.6.2021 the consignments were loaded into TATA 207 B/R No. MZ-01 M-9258 driven by Zothanpuia (48) S/o Lenghnuna of Farkawn and they were intercepted and seized by Assam Rifles en route to Tiau river, Indo-Myanmar border.
+
+  Information received also stated that Pu Lallawmawma of Kelsih, one of the accused and his wife Lalrampari possessed Shot Firer's Certificate (valid upto 25.5.2023) and Explosive License (valid upto 31.3.2022) issued by Petroleum &amp; Explosive Safety Organization (PESO), Ministry of Commerce and Industry, Guwahati Assam. They used to procure explosive substances from Guwahati and stored at their Godown, located at Lengpui. They normally received order through phone as they have not yet opened their explosive shop at Kulikawn, Aizawl due to enforcement of lockdown.
+
+Pu Lallawmawma’s Shot Firer’s Certificate was issued on 25.5.2018 by Petroleum &amp; Explosive Safety Organization (PESO), Ministry of Commerce and Industry, Guwahati Assam after clearing interview and other formalilities conducted by PESO. NOC was issued by DC, Aizawl and recommendation was given by Ajay Kodal (explosive distributor), North East Expo, Narangi, Guwahati.
+
+Pi Lalrampari Sailo’s (wife of Pu Lallawmawma) Explosive License was issued on 6.2.2018 by Ministry of Home Affairs, GOI. Her application was recommended by Deputy Controller, PESO and NOC was given by DC, Aizawl.

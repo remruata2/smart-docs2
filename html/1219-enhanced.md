@@ -1,0 +1,25 @@
+To,
+
+  The Superintendent of Police
+
+  CID(SB), Mizoram, Aizawl
+
+Subject:  Report.
+
+Ref: Custom Champhai C/No. 02/CL/Expl/LCS/ZKT 2013-14 dt. 30.5.2013  u/s 104/110 of Custom Act.
+
+Ka Pu,
+
+ A chunga custom case no. tarlan ang hian dt.30.5.2013@ 4:00am khan Champhai Tuipui khaw bulah Custom, Assam Rifles leh SIB Champhai ten Sumo(Maxi Cab) pakhatah Detonator 15000nos. leh Cortex 7350 metres Pu F. Lalthanhranga(33) S/o Sangthuama(L) of Puilo hnen atangin an man a, a chunga tarlan Custom Case hi registered niin investigate mek ani. Hemi chungchangah hian Lalthanhranga hi Champhai District Jail ah dah niin ala tang mek bawk. He thil hi uluk taka chhui zui ani a, hetiang hi thil awm dan chu a ni.
+
+ F. Lalthanhranga(33) S/o Sangthuama(L) of Puilo khua hi Dawrpui Biakin kawt a parking fee Pu TBC. Lalthatluanga hnuaia collect tu ani a, Dinthar, Aizawl a khawsa mek ani bawk. Pu F. Lalthanhranga hian Champhai Custom te hnena statement a pek dan chu hetiang hi ani.
+
+ F. Lalthanhranga hi TBC Lalthatluanga hnuaiah parking fee collector in Dawrpui Biakin kawtah a thawk a, hetihlai may thla bul lamah khan Dinsanga inti parking fee khawn ve tho nia hriat nen an in hre tanin a hnuah chuan an inhmu zui lemlo niin F. Lalthanhranga hian a sawi a. Tichuan, 20 May 2013 hnu lam khan inhmu lehin Zokhawthar a bungraw bawm pakhat dah a Rs.2000/- hlawh tura Dinsanga hian a sawm thu a sawi a, tichuan dt.29.5.13 chuan Aizawl Electric Veng ah bungrua chu inpe in Champhai lam Maxicab ah a kalpui ta niin a sawi a, hetihlai hian Dinsanga bakah Mizo dang pahnih bakah vai pakhat pawhin an buaipui ve niin a sawi bawk. Pu F. Lalthanhranga hian Dinsanga hi khawilam khua/veng nge ni tih pakhatmah a hriatloh thu custom te hnenah hian a sawi bawk. Tin heng bungrua an in pek lai hian amah Dinsanga chuan Zokhawthar ah alo nghah tur thu leh Pressure Cooker leina pawisa a pek anga cooker pakhat 3 litres a leisak bawk thu F. Lalthanhranga hian a sawi bawk. Hemi chungchangah hian helai area parking fee contractor Pu TBC.Lalthatluanga chu biak pawh ani a, helai parking fee collector atana a rawih zingah Dinsanga hmingpu an awm loh thu leh April 2013 tawp lama Dinsanga inti nia a hriat tak chuan parking fee khawn a hnena a dil ve thu leh a pek tak loh thu bakah, helai area collector te hi a hma kum a contractor Pu Biakchhawna of Upper Republic hnen atanga a chhawm te niin a sawi bawk.
+
+ He thil thleng a mawhphurtu a puh F. Lalthanhranga hian a neitu nia a puh Dinsanga chanchin chiang engmah a hriatloh avang leh amah ala tan avangte, helai area parking fee contractor ten Dinsanga awm ang an hriat lo avangin engmah chhui zui theih ani rih lova, theih ang ang erawh chuan la chhui zui zel a ni.
+
+Yours faithfully,
+
+Inspr(LALRINTHANGA)
+
+CID(SB) Aizawl

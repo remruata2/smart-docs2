@@ -1,0 +1,9 @@
+A. _Front page of VANGLAINI newspaper Dt. 5.2.2014_
+
+****Court informed DGP & Home Secretary to take action****:** Aizawl Special Court (ND&amp;PS Act) informed DGP Mizoram and Home Secretary to take action against police personnel who beat****Henry Lalthlamuana s/o VL Zuia of Khatla and his wife Varthanmawii at Aizawl Police Station on 31st January 2014.**
+
+ Special Court (ND&amp;PS Act) Judge KL Liana made an order yesterday regarding Henry Lalthlamuana’s case; as it appeared on the order, Special Narcotic Police seized abusive drug from the possession of one person and Henry Lalthlamuana, abusive drug peddlers was arrested in connection with the case on 30.1.2014 and was detained at Aizawl Police Station lock-up. He was beaten on the night of 31.1. 2014 by Police and had to be admitted to Aizawl Civil Hospital and remained there till date, his shoulder’s bone is reported to have been fractured.
+
+ Varthanmawii, wife of Henry Lalthlamuana who went to Aizawl Police Station to give her husband's Tiffin/dinner in the evening of 31.1.2014 was also detained and made to stay the night at Aizawl Police Station by the Police on duty. The court's order said that she was also beaten by the Police that night. The court also received medical certificate on the beating of the couple, Court order also stated that no abusive drug was seized from Henry Lalthlamuana’s possession.
+
+ Special Court (ND&amp;PS Act) informed DGP and Home Secretary to take action against the Police on duty who were responsible in the beating of Henry Lalthlamuana and his wife; the court also ordered Henry Lalthlamuana who remains in the hospital to be released with a bond of Rs. 30,000/-.

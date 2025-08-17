@@ -1,0 +1,3 @@
+****MAP OF PROPOSED KHAWZAWL DISTRICT****
+
+[Photo]

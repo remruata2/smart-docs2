@@ -1,0 +1,154 @@
+| **DATE OF DETECTION** | **NO. OF PERSONS NEWLY INFECTED** | **RECOVERED/CURED** | **GRAND TOTAL** **Active****+****Cured****+****Death=Total** | **MIGRATED/** **DEATH** |
+| --- | --- | --- | --- | --- |
+| 25.10.2020 | **46** (Male - 29; Female - 17) Azl Dist. - 46   | Recovered **5**   |  **290 + 2203= 2493**  **(Male : 1978** **Female : 515)**  |  |
+| 26.10.2020 | **34** (Male - 20; Female - 14) Azl Dist. - 30 Sha Dist. - 1 Mmt Dist. - 2 Lti Dist. - 1 | Recovered **9**   |  **315 + 2212= 2527**  **(Male : 1998** **Female : 529)**  |  |
+| 27.10.2020 | **80** (Male - 46; Female - 34) Azl Dist. - 76 Stl Dist. - 1 Kzl Dist. - 1 Lti Dist. - 2 | Recovered **21**   |  **374 + 2233= 2607**  **(Male : 2044** **Female : 563)**  |  |
+| 28.10.2020 | **49** (Male - 28; Female - 21) Azl Dist. - 43 Stl Dist. - 4 Kzl Dist. - 1 Lti Dist. - 1 | Recovered **5**   |  **417+2238+1 = 2656**  **(Male : 2072** **Female : 584)**  **368+2238=2607**  (-1 dead) (+5 cured) (@ 5:00pm)  | **1** **Pu Sangkhuma (62) of Dawrpui, Aizawl (ZOFA)** **Who was admitted at ZMC's ICU on 18.10.2020 and then expired on 28.10.2020** |
+| 29.10.2020 | **38** (Male - _21 ?_; Female - _17 ?_) Azl Dist. - 35 Mmt Dist. - 1 Lli Dist. - 2  | Recovered **20**   |  **435+2258+1 = 2694**  **(Male : 2093 ?** **Female : 601 ?)**    |  |
+| 30.10.2020 | **28** (Male - 19; Female - 9) Azl Dist. - 26 Mmt Dist. - 1 Lli Dist. - 1  | Recovered **26**   |  **437+2284+1 = 2722**  **(Male : 2112 ?** **Female : 610 ?)**    |  |
+| 31.10.2020 | **34** (Male - 18; Female - 16) Azl Dist. - 32 Lti Dist. - 2  | Recovered **7**   |  **464+2291+1 = 2756**  **(Male : 2130 ?** **Female : 626 ?)**    |   |
+| **DATE OF DETECTION** | **NO. OF PERSONS NEWLY INFECTED** | **RECOVERED/CURED** | **GRAND TOTAL** **Active****+****Cured****+****Death=Total** | **MIGRATED/** **DEATH** |
+| 01.11.2020 | **0**  | Recovered **32**   |  **433+2323+1 = 2757**  **(Male : 2133** **Female : 624)**  | **Discharged zinga mi 1 hi 20.10.2020-a RAgT test ah COVID-19 +ve anih thu an la dawn loh avangin +ve hmuhchhuah tawh zat zingah telh thar leh a ni.** **ZMC laboratory fumigate anih avangin Sample Test ani lo.** |
+| 02.11.2020 | **35** (Male - 15; Female - 20) Azl Dist. - 33 Cpi Dist. - 1 Stl Dist. - 1  | Recovered **24**   |  **444+2347+1 = 2792**  **(Male : 2148** **Female : 644)**  |  |
+| 03.11.2020 | **101** (Male - 81; Female - 20) Azl Dist. - 71 Cpi Dist. - 30 (Shyam-a) (Non-Mizo from Jharkhand = 60)  | Recovered **29**   |  **516+2376+1 = 2893**  **(Male : 2229** **Female : 664)**  | **60 non-Mizos from Jharkhand are tested positive on this day.** |
+| 04.11.2020 | **65** (Male - ??; Female - ??) Azl Dist. - ?? Cpi Dist. - ?? Lli Dist. - ?? Lti Dist. - ??  | Recovered **59**   |  **522+2435+1=2858**  **(521+2435+2=2858)**  **(Male : ????** **Female : ???)**  | **(Ni 5.11.2020 zinga mi 1 thi hi ni 4.11.2020 a report, ni 5.11.2020 zinga pekchhuah ah hian tih lan tel a ni. BRACKET CHHUNGA DAH ANI E)** |
+| 05.11.2020 | **32** (Male - 13; Female - 19) Azl Dist. - 28 Cpi Dist. - 3 Lli Dist. - 1 (Johny &amp; Pa Biaka)  | Recovered **38** | **515+2473+2 = 2990**  **(Male : 2279** **Female : 711)**  | **1** **Pi Darhawni (78) of Durtlang Leitan who was admitted at ZMC's ICU on 23.11.2020 expired at 1:30am on 05.11.2020** |
+| 06.11.2020 | **42** (Male - 22; Female - 20) Azl Dist. - 40 Cpi Dist. - 1 Lli Dist. - 1  | Recovered **22** | **545+2495+2 = 3042**  **(Male : 2301** **Female : 731)**  | **???** |
+| 07.11.2020 | **57** (Male - 31; Female - 26) Azl Dist. - 53 Cpi Dist. - 1 Lti Dist. - 3  | Recovered **31** | **562+2526+2 = 3090**  **(Male : 2338** **Female : 757)**  | **Covid 19 enkawl, -ve tawh, 7.11.20 a BSUP CCC atanga discharge zinga 1 chu 27.10.20 a +ve , report la dawn si loh ani tih hriatchhuah ani a, hei vang hian +ve hmuhchhuah tawh zingah telh belh a ni.** |
+| **DATE OF DETECTION** | **NO. OF PERSONS NEWLY INFECTED** | **RECOVERED/CURED** | **GRAND TOTAL** **Active****+****Cured****+****Death=Total** | **MIGRATED/** **DEATH** |
+| 08.11.2020 | **06** (Male - 5; Female - 1) Azl Dist. - 3 Klb Dist. - 2 Mmt Dist. - 1  | Recovered **92** | **476+2618+2 = 3096**  **(Male : 2338** **Female : 758)**  |  |
+| 09.11.2020 | **60** (Male - 29; Female - 31) Azl Dist. - 57 Cpi Dist. - 1 Lti Dist. - 2  | Recovered **38** | **498+2656+2 = 3156**  **(Male : 2367** **Female : 789)**  |  |
+| 10.11.2020 | **61** (Male - ??; Female - ??) Azl Dist. - 43 Htl Dist. - 1 Lti Dist. - 17  | Recovered **30** | **529+2686+2 = 3217**  **(Male : 2397** **Female : 820)**  |  |
+| 11.11.2020 | **25 *** (Male - 15; Female - 10) Azl Dist. - 17 Klb Dist. - 3 Lti Dist. - 17  | Recovered **2** | **552+2688+2 = 3242**  **(Male : 2412** **Female : 830)**  |  |
+| 12.11.2020 | **67** (Male - 47; Female - 20) Azl Dist. - 65 Stl Dist. - 1 Lli Dist. - 1 (PTS Tzl &amp; 4th IR = 17)  | Recovered **51** | **568+2739+2 = 3309**  **(Male : 2459** **Female : 850)**  |  |
+| 13.11.2020 | **59** (Male - 48; Female - 11) Azl Dist. - 32 Stl Dist. - 1 Lli Dist. - 10 Mmt Dist. - 3 Kzl Dist. - 11 Srcp Dist. - 1 Lti Dist. - 1 | Recovered **53** | **573+2792+3 = 3368**  **(Male : 2507 ?** **Female : 861 ?)**  | **1** **Pu C.Lalthanga (70) 0f Dinthar, Aizawl was died at 10:40 pm at ZMC** |
+| 14.11.2020 | **25** (Male - 19; Female - 6) Azl Dist. - 21 Lli Dist. - 1 Srcp Dist. - 1 Lti Dist. - 2 | Recovered **28** | **569+2820+4= 3393**  **(Male : 2525** **Female : 868)**  | **Dr. Lalnuntluanga (34) 0f Durtlang was died at 10:30 pm at ZMC** |
+| 15.11.2020 | **03** (Male - 3; Female - 0) Stl Dist. - 2 Mmt Dist. - 1  | Recovered **56** | **516+2876+4= 3396**  **(Male : 2528** **Female : 868)**  |  |
+| **DATE OF DETECTION** | **NO. OF PERSONS NEWLY INFECTED** | **RECOVERED/CURED** | **GRAND TOTAL** **Active****+****Cured****+****Death=Total** | **MIGRATED/** **DEATH** |
+| 16.11.2020 | **48** (Male - 32; Female - 16) Azl Dist. - 29 Lli Dist. - 4 Cpi Dist. - 2 Lti Dist. - 13  | Recovered **39** | **524+2915+5= 3444**  **(Male : 2560** **Female : 884)**  | **1** **Pu Rengchhuana (79) 0f Seling was died at 02:40pm at ZMC** |
+| 17.11.2020 | **37** (Male - 26; Female - 11) Azl Dist. - 20 Srcp Dist. - 7 Htl Dist. - 1 Lti Dist. - 9  | Recovered **57** | **504+2972+5= 3481**  **(Male : 2586** **Female : 895)**  |  |
+| 18.11.2020 | **32** (Male - 26; Female - 6) Azl Dist. - 7 Srcp Dist. - 8 Klb Dist. - 8 Stl Dist. - 1 Lti Dist. - 8  | Recovered **49** | **487+3021+5= 3513**  **(Male : 2612** **Female : 901)**  |  |
+| 19.11.2020 | **28** (Male - 23; Female - 5) Azl Dist. - 14 Mmt Dist. - 2 Lti Dist. - 3 Cpi Dist. - 6 Kzl Dist. - 3  | Recovered **4** | **511+3025+5= 3541**  **(Male : 2635** **Female : 906)**  |  |
+| 20.11.2020 | **66** (Male - 44; Female - 22) Azl Dist. - 46 Mmt Dist. - 3 Lti Dist. - 8 Lli Dist. - 1 Klb Dist. - 2 Srcp Dist. - 6  | Recovered **86** | **491+3111+5= 3607**  **(Male : 2679** **Female : 928)**  |  |
+| 21.11.2020 | **40** (Male - 31; Female - 9) Azl Dist. - 14 Mmt Dist. - 2 Lti Dist. - 6 Lli Dist. - 2 Srcp Dist. - 16  | Recovered **46** | **485+3157+5= 3647**  **(Male : 2710** **Female : 937)**  |  |
+| 22.11.2020 | **13** (Male - 12; Female - 1) Azl Dist. - 2 Lli Dist. - 10 Srcp Dist. - 1 | Recovered **35** | **463+3192+5= 3660**  **(Male : 2722** **Female : 938)** |  |
+| **DATE OF DETECTION** | **NO. OF PERSONS NEWLY INFECTED** | **RECOVERED/CURED** | **GRAND TOTAL** **Active****+****Cured****+****Death=Total** | **MIGRATED/** **DEATH** |
+| 23.11.2020 | **50** (Male - 25; Female - 25) Azl Dist. - 9 Lti Dist. - 22 Srcp Dist. - 9 Sha Dist. - 2 Cpi Dist. - 8 | Recovered **11** | **502+3203+5= 3710**  **(Male : 2747** **Female : 963)** | **Vanglaini reported that R.Hrangthanga(40), PTS, Thenzawl Quarantine Centre was died at PTC QC after he was released from CCC Serchhip on 22.11.2020 with -ve result, but after his death, he was retest with TrueNat and the result is still +ve.**  **Govt issued notification that the exact cause of death will be investigated thoroughly. (He was not added on the no. of death due to Covid 19)** |
+| 24.11.2020 | **35** (Male - 23; Female - 12) Azl Dist. - 9 Lti Dist. - 16 Srcp Dist. - 10  | Recovered **95** | **442+3298+5= 3745**  **(Male : 2770** **Female : 975)** |  |
+| 25.11.2020 | **20** (Male - 14; Female - 6) Azl Dist. - 11 Cpi Dist. - 2 Lti Dist. - 6 Srcp Dist. - 1  | Recovered **21** | **441+3319+5= 3765**  **(Male : 2784** **Female : 981)** |  |
+| 26.11.2020 | **23** (Male - 10; Female - 13) Azl Dist. - 4 Lli Dist - 3 Cpi Dist. - 4 Klb Dist. - 2 Lti Dist. - 9 Srcp Dist. - 1  | Recovered **33** | **431+3352+5= 3788**  **(Male : 2794** **Female : 994)** |  |
+| 27.11.2020 | **18** (Male - 12; Female - 6) Azl Dist. - 10 Srcp Dist. - 4 Lti Dist. - 4  | Recovered **15** | **434+3367+5= 3806**  **(Male : 2806** **Female : 1000)** |  |
+| 28.11.2020 | **16** (Male - 13; Female - 3) Azl Dist. - 8 Lli Dist. - 1 Mmt Dist. - 1 Cpi Dist. - 1 Lti Dist. - 5 | Recovered **58** | **392+3425+5= 3822**  **(Male : 2819** **Female : 1003)** |  |
+| **DATE OF DETECTION** | **NO. OF PERSONS NEWLY INFECTED** | **RECOVERED/CURED** | **GRAND TOTAL** **Active****+****Cured****+****Death=Total** | **MIGRATED/** **DEATH** |
+| 29.11.2020 | **03** (Male - 3; Female - 0) Azl Dist. - 3  | Recovered **15** | **380+3440+5= 3825**  **(Male : 2822** **Female : 1003)** |  |
+| 30.11.2020 | **22** (Male - 11; Female - 11) Azl Dist. - 13 Cpi Dist. - 4 Stl Dist. - 1 Lti Dist. - 4  | Recovered **59** | **343+3499+5= 3847**  **(Male : 2833** **Female : 1014)** | **Ni 19.11.2020 a +ve 6 awm zinga CCC-a awm mek chu retest anih hnuah a +ve leh a, hei hi an lo chhiar tel palh avangin hriatchhuah anih veleh siamthat nghal niin active case ah leh total no ah hian 1 in an tlem ta a ni.** |
+| 01.12.2020 | **22** (Male - 18; Female - 4) Azl Dist. - 13 Srcp Dist. - 1 Lli Dist. - 2 Stl Dist. - 3 Lti Dist. - 3 | Recovered **73** | **291+3572+6= 3869**  **(Male : 2851** **Female : 1018)** | **1** **Tv Lalbiakliana (41) of Falkland was died @ 7:30 am at ZMC** |
+| 02.12.2020 | **12** (Male - 11; Female - 1) Azl Dist. - 8 Klb Dist. - 1 Lli Dist. - 1 Lti Dist. - 2 | Recovered **12** | **291+3584+6= 3881**  **(Male : 2862** **Female : 1019)** |  |
+| 03.12.2020 | **7** (Male - 6; Female - 1) Cpi Dist. - 2 Lli Dist. - 1 Lti Dist. - 4  | Recovered **63** | **235+3647+6= 3888**  **(Male : 2868** **Female : 1020)** |  |
+| 04.12.2020 | **25** (Male - 17; Female - 8) Azl Dist. - 10 Klb Dist. - 1 Lli Dist. - 10 Lti Dist. - 2 Mmt Dist. - 2  | Recovered **43** | **217+3690+6= 3913**  **(Male : 2885** **Female : 1028)** |  |
+| 05.12.2020 | **21** (Male - 15; Female - 6) Azl Dist. - 7 Klb Dist. - 1 Lli Dist. - 4 Lti Dist. - 8 Srcp Dist. - 1  | Recovered **18** | **220+3708+6= 3934**  **(Male : 2900** **Female : 1034)** |  |
+| 06.12.2020 | **2** (Male - 2; Female - 0) Srcp Dist. - 2  | Recovered **20** | **202+3728+6= 3936**  **(Male : 2902** **Female : 1034)** |  |
+| **DATE OF DETECTION** | **NO. OF PERSONS NEWLY INFECTED** | **RECOVERED/CURED** | **GRAND TOTAL** **Active****+****Cured****+****Death=Total** | **MIGRATED/** **DEATH** |
+| 07.12.2020 | **32** (Male - 20; Female - 12) Azl Dist. - 15 Srcp Dist. - 6 Lli Dist. - 3 Lti Dist. - 8 | Recovered **29** | **205+3757+6 = 3968**  **(Male : 2922** **Female : 1046)** |  |
+| 08.12.2020 | **9** (Male - 8; Female - 1) Kzl Dist. - 1 Srcp Dist. - 1 Lli Dist. - 5 Lti Dist. - 2 | Recovered **15** | **199+3772+6 = 3977**  **(Male : 2930** **Female : 1047)** |  |
+| 09.12.2020 | **17** (Male - 13; Female - 4) Azl Dist. - 5 Srcp Dist. - 3 Lli Dist. - 3 Lti Dist. - 6 | Recovered **12** | **204+3784+6 = 3994**  **(Male : 2943** **Female : 1051)** |  |
+| 10.12.2020 | **14** (Male - 10; Female - 4) Azl Dist. - 10 Lli Dist. - 3 Lti Dist. - 1 | Recovered **16** | **202+3800+6 = 4008**  **(Male : 2953** **Female : 1055)**   |  |
+| 11.12.2020 | **16** (Male - 10; Female - 6) Azl Dist. - 6 Klb Dist. - 4 Lti Dist. - 6 | Recovered **20** | **197+3820+7 = 4024**  **(Male : 2963** **Female : 1061)**   | **Pu MK Roy (83), Durtlang Veng passed away at 1:00 PM at ZMC. He was admitted on 9.12.2020** |
+| 12.12.2020 | **11** (Male - 7; Female - 4) Azl Dist. - 5 Srcp Dist. - 3 Lti Dist. - 2 Lli Dist. - 1 | Recovered **16** | **192+3836+7 = 4035**  **(Male : 2970** **Female : 1065)**   |  |
+| 13.12.2020 | **5** (Male - 3; Female - 2) Azl Dist. - 5  | Recovered **11** | **186+3847+7 = 4040**  **(Male : 2973** **Female : 1067)**   |  |
+| 14.12.2020 | **9** (Male - 6; Female - 3) Azl Dist. - 5 Lti Dist. - 3 Lli Dist. - 1 | Recovered **22** | **173+3869+7 = 4049**  **(Male : 2979** **Female : 1070)**   |  |
+
+
+| **DATE OF DETECTION** | **NO. OF PERSONS NEWLY INFECTED** | **RECOVERED/CURED** | **GRAND TOTAL** **Active****+****Cured****+****Death=Total** | **MIGRATED/** **DEATH** |
+| --- | --- | --- | --- | --- |
+| 14.12.2020 | **9** (Male - 6; Female - 3) Azl Dist. - 5 Lti Dist. - 3 Lli Dist. - 1 | Recovered **22** | **173+3869+7 = 4049**  **(Male : 2979** **Female : 1070)**   |  |
+|    15.12.2020   | **31** (Male - 24; Female - 7) Azl Dist. - 11 Srcp Dist. - 1 Lti Dist. - 8 Lli Dist. - 11 | Recovered **25** | **179+3894+7 = 4080**  **(Male : 3003** **Female : 1077)**   |  |
+|    16.12.2020   | **5** (Male - 2; Female - 3) Azl Dist. - 1 Lti Dist. - 3 Lli Dist. - 1 | Recovered **13** | **171+3907+7 = 4085**  **(Male : 3005** **Female : 1080)**   |  |
+|    17.12.2020   | **9** (Male - 8; Female - 1) Azl Dist. - 2 Lti Dist. - 3 Lli Dist. - 2 Klb Dist. - 1 Srcp Dist. - 1 | Recovered **16** | **164+3923+7 = 4094**  **(Male : 3013** **Female : 1081)**   |  |
+|    18.12.2020   | **16** (Male - 8; Female - 8) Azl Dist. - 10 Lti Dist. - 1 Lli Dist. - 2 Cpi Dist. - 2 Htl Dist. - 1 | Recovered **20** | **160+3943+7 = 4110**  **(Male : 3021** **Female : 1089)**   |  |
+|    19.12.2020    | **12** (Male - **11**/12; Female - **1**/0) Azl Dist. - 1 Stl Dist. - 1 Lli Dist. - 7 Klb Dist. - 3 | Recovered **14** | **158+3957+7 = 4122**  **(Male : 3032/**3033 **Female : 1090/**1089**)**   |  |
+|  20.12.2020    | **2** (Male - 2; Female - 0) Lli Dist. - 1 Stl Dist. - 1 | Recovered **6** | **154+3963+7 = 4124**  **(Male : 3034** **Female : 1090)** |  |
+|    21.12.2020    | **9** (Male - 7; Female - 2) Azl Dist. - 4 Klb Dist. - 1 Lli Dist. - 1 Lti Dist. - 3 | Recovered **10** | **153+3973+7 = 4133**  **(Male : 3041** **Female : 1092)** |  |
+| **DATE OF DETECTION** | **NO. OF PERSONS NEWLY INFECTED** | **RECOVERED/CURED** | **GRAND TOTAL** **Active****+****Cured****+****Death=Total** | **MIGRATED/** **DEATH** |
+|    22.12.2020    | **8** (Male - 5; Female - 3) Azl Dist. - 6 Lli Dist. - 2  | Recovered **17** | **144+3989+8 = 4141**  **(Male : 3041** **Female : 1092)** | Pu Hrangthanga of Thenzawl (4th Grade at PTS, Thenzawl) who died on 23.11.2020 is declared as his death was due to Covid-19 |
+|    23.12.2020    | **15** (Male - 11; Female - 4) Azl Dist. - 11 Lti Dist. - 1 Klb Dist. - 3  | Recovered **19** | **140+4008+8 = 4156**  **(Male : 3057** **Female : 1099)** |  |
+|    24.12.2020    | **22** (Male - 16; Female - 6) Azl Dist. - 14 Lli Dist. - 6 Srcp Dist. - 1 Htl Dist. - 1 (S.Vlp)  | Recovered **16** | **146+4024+8 = 4178**  **(Male : 3073** **Female : 1105)** |  |
+|    25.12.2020    | **0**  | Recovered **12** | **134+4036+8 = 4178**  **(Male : 3073** **Female : 1105)** |  |
+|    26.12.2020    | **4** (Male - 2; Female - 2) Azl Dist. - 1 Lli Dist. - 1 Lti Dist. - 2  | Recovered **10** | **128+4046+8 = 4182**  **(Male : 3075** **Female : 1107)** |  |
+|    27.12.2020    | **2** (Male - 0; Female - 2) Lti Dist. - 2  | Recovered **3** | **127+4049+8 = 4184**  **(Male : 3075** **Female : 1109)** |  |
+|    28.12.2020      | **6** (Male - 1; Female - 5) Azl Dist. - 4 Lti Dist. - 2  | Recovered **19**  | **114+4068+8 = 4190**  **(Male : 3076** **Female : 1114)**  |  |
+| **DATE OF DETECTION** | **NO. OF PERSONS NEWLY INFECTED** | **RECOVERED/CURED** | **GRAND TOTAL** **Active****+****Cured****+****Death=Total** | **MIGRATED/** **DEATH** |
+|    29.12.2020    | **9** (Male - 8; Female - 1) Azl Dist. - 1 Lli Dist. - 4 Srcp Dist. - 2 Klb Dist. - 1 Htl Dist. - 1  | Recovered **20** | **103+4088+8 = 4199**  **(Male : 3084** **Female : 1115)** |  |
+|    30.12.2020    | **5** (Male - 4/**3*;**Female - 1/**2*)** Azl Dist. - 3 Lli Dist. - 2  | Recovered **3** | **105+4091+8 = 4204**  **(Male : 3088/3087*** **Female : 1116/1117*)** | *** DIPR** |
+|    31.12.2020    | **12** (Male - 12**;**Female - 0**)** Azl Dist. - 10 Lli Dist. - 1 Klb Dist. - 1  | Recovered **7** | **110+4098+8 = 4216**  **(Male : 3088/3087*** **Female : 1116/1117*)** |  |
+| TOTAL on December, 2020 | **369** | 600 |  |  |
+
+
+****DETECTION OF COVID-19 POSITIVE PERSON/CASES - 2021****
+
+| **DATE OF DETECTION** | **NO. OF PERSONS NEWLY INFECTED** | **RECOVERED/CURED** | **GRAND TOTAL** **Active****+****Cured****+****Death=Total** | **MIGRATED/** **DEATH** |
+| --- | --- | --- | --- | --- |
+|    01.01.2021    | **3** (Male - 1; Female - 2) Azl Dist. - 2 Klb Dist. - 1  | Recovered **2** | **111+4100+8 = 4219**  **(Male : 3100** **Female : 1119)** |  |
+|    02.01. 2021    | **4** (Male - 2**;**Female - 2) Azl Dist. - 1 Lli Dist. - 1 Srcp Dist. - 1 Lti Dist. - 1  | Recovered **11** | **104+4111+8 = 4223**  **(Male : 3102** **Female : 1121)** |  |
+|    03.01. 2021    | **0**   | Recovered **16** | **88+4127+8 = 4223**  **(Male : 3102** **Female : 1121)** |  |
+|    04.01. 2021    | **11** (Male - 8**;**Female - 3) Azl Dist. - 8 Lli Dist. - 2 Klb Dist. - 1 | Recovered **20** | **79+4147+8 = 4234**  **(Male : 3110** **Female : 1124)** |  |
+|    05.01. 2021    | **13** (Male - 9**;**Female - 4) Azl Dist. - 13 | Recovered **6** | **86+4153+8 = 4247**  **(Male : 3119** **Female : 1128)** |  |
+|    06.01. 2021    | **9** (Male - 8**;**Female - 1) Azl Dist. - 6 Lli Dist. - 2 Klb Dist. - 1 | Recovered **7** | **88+4160+8 = 4256**  **(Male : 3127** **Female : 1129)** |  |
+|    07.01. 2021   | **3** (Male - 1**;**Female - 2) Azl Dist. - 3 | Recovered **12** | **79+4172+8 = 4259**  **(Male : 3128** **Female : 1131)** |  |
+| **DATE OF DETECTION** | **NO. OF PERSONS NEWLY INFECTED** | **RECOVERED/CURED** | **GRAND TOTAL** **Active****+****Cured****+****Death=Total** | **MIGRATED/** **DEATH** |
+|    08.01. 2021   | **16** (Male - 7**;**Female - 9) Azl Dist. - 11 Lli Dist. - 1 Stl. Dist. - 1 Lti Dist. - 2 Sha Dist. - 1 | Recovered **13** | **82+4185+8 = 4275**  **(Male : 3135** **Female : 1140)** |  |
+|    09.01. 2021   | **17** (Male - 12**;**Female - 5) Azl Dist. - 11 Lli Dist. - 2 Lti Dist. - 4  | Recovered **1** | **98+4186+8 = 4292**  **(Male : 3147** **Female : 1145)** |  |
+|    10.01. 2021   | **1** (Male - 1**;**Female - 0) Lli Dist. - 1  | Recovered **6** | **92+4192+9 = 4293**  **(Male : 3148** **Female : 1145)** | **Lakhi Dhan Chakma(57) of Silsury Mamit District died at 2:30pm. He was admitted at ZMC on 21.12.2020** |
+|    11.01. 2021   | **6** (Male - 4**;**Female - 2) Azl Dist. - 3 Lli Dist. - 1 Klb Dist. - 2  | Recovered **2** | **96+4194+9 = 4299**  **(Male : 3152** **Female : 1147)** |  |
+|    12.01. 2021   | **4** (Male - 4**;**Female - 0) Azl Dist. - 1 (Puankhai, Lli Dist.) Lli Dist. - 1 Klb Dist. - 2  | Recovered **6** | **94+4200+9 = 4303**  **(Male : 3156** **Female : 1147)** |  |
+|    13.01. 2021   | **7** (Male - 4**;**Female - 3) Azl Dist. - 6 Lti Dist. - 1  | Recovered **0** | **101+4200+9 = 4310**  **(Male : 3160** **Female : 1150)** |  |
+|    14.01. 2021   | **0**  | Recovered **5** | **96+4205+9 = 4310**  **(Male : 3160** **Female : 1150)** |  |
+|    15.01. 2021   |   **4** (Male - 4**;**Female - 0) Azl Dist. - 3 Lti Dist. - 1   | Recovered **25** | **80+4225+9 = 4314**  **(Male : 3164** **Female : 1150)** |  |
+| **DATE OF DETECTION** | **NO. OF PERSONS NEWLY INFECTED** | **RECOVERED/CURED** | **GRAND TOTAL** **Active****+****Cured****+****Death=Total** | **MIGRATED/** **DEATH** |
+|    16.01. 2021   |  **8** (Male - 4**;**Female - 4) Azl Dist. - 7 (Ramlaitui, Lli - 1) Klb Dist. - 1   | Recovered **3** | **85+4228+9 = 4322**  **(Male : 3168** **Female : 1154)** |  |
+|    17.01. 2021   |  **1** (Male - 0**;**Female - 1) Azl Dist. - 1   | Recovered **7** | **79+4235+9 = 4323**  **(Male : 3168** **Female : 1155)** |      |
+| 18.01.2021 | **6** (Male - 4**;**Female - 2) Azl Dist. - 5 Lti Dist,-1  | Recovered **6** | **79+4241+9 = 4329**  **(Male : 3172** **Female : 1157)** |  |
+| 19.01.2021 | **5** (Male - 3**;**Female - 2) Azl Dist. - 3 Lli Dist. -1 Sha Dist. -1   | Recovered **17** | **67+4258+9 = 4334**  **(Male : 3175** **Female : 1159)** |  |
+| 20.01.2021 | **12** (Male - 7**;**Female - 5) Azl Dist. - 10 Cpi Dist. -1 Lti Dist. -1   | Recovered **10** | **69+4268+9 = 4346**  **(Male : 3182** **Female : 1164)** |  |
+| 21.01.2021 | **3** (Male - 1**;**Female - 2) Azl Dist. - 2 Sha Dist. -1   | Recovered **8** | **64+4276+9 = 4349**  **(Male : 3183** **Female : 1166)** |  |
+| 22.01.2021 | **0**   | Recovered **6** | **58+4282+9 = 4349**  **(Male : 3183** **Female : 1166)** |  |
+| 23.01.2021 | **2** (Male - 1**;**Female - 1) Azl Dist. - 2   | Recovered **2** | **58+4284+9 = 4351**  **(Male : 3184** **Female : 1167)** |  |
+| 24.01.2021 | **0**   | Recovered **5** | **53+4289+9 = 4351**  **(Male : 3184** **Female : 1167)** |  |
+| **DATE OF DETECTION** | **NO. OF PERSONS NEWLY INFECTED** | **RECOVERED/CURED** | **GRAND TOTAL** **Active****+****Cured****+****Death=Total** | **MIGRATED/** **DEATH** |
+| 25.01.2021 | **5** (Male - 3**;**Female - 2) Azl Dist. - 5 | **9** | **49+4298+9 = 4356**  **(Male : 3187** **Female : 1169)** |  |
+| 26.01.2021 | **3** (Male - 3**;**Female - 0) Azl Dist. - 3 | **5** | **47+4303+9 = 4359**  **(Male : 3190** **Female : 1169)** |  |
+| 27.01.2021 | **3** (Male - 2**;**Female - 1) Azl Dist. - 3 | **8** | **42+4311+9 = 4362**  **(Male : 3192** **Female : 1170)** |  |
+| 28.01.2021 | **1** (Male - 0**;**Female - 1) Azl Dist. - 1 | **2** | **41+4313+9 = 4363**  **(Male : 3192** **Female : 1171)** |  |
+| 29.01.2021 | **3** (Male - 2**;**Female - 1) Azl Dist. - 2 Htl Dist. - 1 | **5** | **39+4318+9 = 4366**  **(Male : 3194** **Female : 1172)** |  |
+| 30.01.2021 | **6** (Male - 4**;**Female - 2) Azl Dist. - 5 Klb Dist. - 1 | **5** | **40+4323+9 = 4372**  **(Male : 3198** **Female : 1174)** |  |
+| 31.01.2021 | **0**  | **7** | **33+4330+9 = 4372**  **(Male : 3198** **Female : 1174)** |  |
+| 1.2.2021 | **1** (Male - 0**;**Female - 1) Azl Dist. - 1  | **3** | **31+4333+9 = 4373**  **(Male : 3198** **Female : 1175)** |  |
+| 2.2.2021 | **3** (Male - 3**;**Female - 0) Azl Dist. - 1 (W.Serzawl) Sha Dist. - 1 Lti Dist. - 1 | **1** | **33+4334+9 = 4376**  **(Male : 3201** **Female : 1175)** |  |
+| 3.2.2021 | **0**  | **3** | **30+4337+9 = 4376**  **(Male : 3201** **Female : 1175)** |  |
+| 4.2.2021 | **4** (Male - 3**;**Female - 1) Azl Dist. - 3 Lli Dist. - 1  | **5** | **29+4342+9 = 4380**  **(Male : 3204** **Female : 1176)** |  |
+| 5.2.2021 | **1** (Male - 1**;**Female - 0) Azl Dist. - 1 (BSF)  | **3** | **27+4345+9 = 4381**  **(Male : 3205** **Female : 1176)**  |  |
+| **DATE OF DETECTION** | **NO. OF PERSONS NEWLY INFECTED** | **RECOVERED/CURED** | **GRAND TOTAL** **Active****+****Cured****+****Death=Total** | **MIGRATED/** **DEATH** |
+| 6.2.2021 | **1** (Male - 0**;**Female - 1) Azl Dist. - 1  | **5** | **23+4350+9 = 4382**  **(Male : 3205** **Female : 1177)** |  |
+| 7.2.2021 | **1** (Male - 1**;**Female - 0) Azl Dist. - 1  | **0** | **24+4350+9 = 4383**  **(Male : 3206** **Female : 1177)** |  |
+| 8.2.2021 | **3** (Male - 3**;**Female - 0) Azl Dist. - 2 Lti Dist. - 1  | **3** | **24+4353+9 = 4386**  **(Male : 3209** **Female : 1177)** |  |
+| 9.2.2021 | **2** (Male - 2**;**Female - 0) Azl Dist. - 2  | **5** | **21+4358+9 = 4388**  **(Male : 3211** **Female : 1177)** |  |
+| 10.2.2021 | **2** (Male - 2**;**Female - 0) Lli Dist. - 1 Lti Dist. - 1  | **1** | **22+4359+9 = 4390**  **(Male : 3213** **Female : 1177)** |  |
+| 11.2.2021 | **1** (Male - 0**;**Female - 1) Lli Dist. - 1  | **2** | **21+4361+9 = 4391**  **(Male : 3213** **Female : 1178)** |  |
+| 12.2.2021 | **1** (Male - 1**;**Female - 0) Azl Dist. - 1  | **2** | **20+4363+9 = 4392**  **(Male : 3214** **Female : 1178)** |  |
+| 13.2.2021 | **0**  | **0** | **20+4363+9 = 4392**  **(Male : 3214** **Female : 1178)** |  |
+| 14.2.2021 | **0**  | **3** | **17+4366+9 = 4392**  **(Male : 3214** **Female : 1178)** |  |
+| 15.2.2021 | **3** (Male - 1**;**Female - 2) Azl Dist. - 1 Cpi Dist. - 1 Lti Dist. - 1  | **1** | **18+4367+10 = 4395**  **(Male : 3215** **Female : 1180)** |  **Pu T.Pazawna(82) of Ramhlun North, Aizawl passed away at ZMC @ 06:00 am. He was admitted on 30.1.2021.**  |
+| 16.2.2021 | **1** (Male - 1**;**Female - 0) Azl Dist. - 1  | **1** | **18+4368+10 = 4396**  **(Male : 3216** **Female : 1180)**  |  |
+| **DATE OF DETECTION** | **NO. OF PERSONS NEWLY INFECTED** | **RECOVERED/CURED** | **GRAND TOTAL** **Active****+****Cured****+****Death=Total** | **MIGRATED/** **DEATH** |
+| 17.2.2021 | **3** (Male - 3**;**Female - 0) Lti Dist. - 2 Stl Dist. - 1  | **1** | **20+4369+10 = 4399** **(Male : 3219** **Female : 1180)** |  |
+| 18.2.2021 | **6** (Male - 2**;**Female - 4) Azl Dist. - 1 Lti Dist. - 4 Cpi Dist. - 1  | **3** | **23+4372+10 = 4405** **(Male : 3221** **Female : 1184)** |  |
+| 19.2.2021 | **2** (Male - 1**;**Female - 1) Lli Dist. - 1 Cpi Dist. - 1  | **1** | **24+4373+10 = 4407** **(Male : 3222** **Female : 1185)** |  |
+| 20.2.2021 | **2** (Male - 0**;**Female - 2) Cpi Dist. - 2 | **4** | **22+4377+10 = 4409** **(Male : 3222** **Female : 1187)** | **DIPR Instagram ah a awm chiah lo naa, report dang atangin hemi ni bik hi chu lak a ni.** |
+| 21.2.2021 | **0**  | **0** | **22+4377+10 = 4409** **(Male : 3222** **Female : 1187)** |  |
+| 22.2.2021 | **1** (Male - 0**;**Female - 1) Azl Dist. - 1  | **2** | **21+4379+10 = 4410** **(Male : 3222** **Female : 1188)** |  |
+| 23.2.2021 | **3** (Male - 2**;**Female - 1) Azl Dist. - 2 (Vrte &amp; Pangzawl) Lli Dist. - 1 (Bualpui NG)  | **0** | **24+4379+10 = 4413** **(Male : 3224** **Female : 1189)** |  |
+| 24.2.2021 | **0**  | **1** | **23+4380+10 = 4413** **(Male : 3224** **Female : 1189)** |  |
+| 25.2.2021 | **6** (Male - 3**;**Female - 3) Azl Dist. - 4 Cpi Dist. - 1 Lti Dist. - 1 | **2** | **27+4382+10 = 4419** **(Male : 3227** **Female : 1192)** |  |
+| 26.2.2021 | **3** (Male - 1**;**Female - 2) Azl Dist. - 2 Mmt Dist. - 1 | **4** | **26+4386+10 = 4422** **(Male : 3228** **Female : 1194)** |  |
+| 27.2.2021 | **1** (Male - 0**;**Female - 1) Cpi Dist. - 1  | **2** | **25+4388+10 = 4423** **(Male : 3228** **Female : 1195)** |  |
+| 28.2.2021 | **0**  | **5** | **20+4393+10 = 4423** **(Male : 3228** **Female : 1195)**  |  |

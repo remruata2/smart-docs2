@@ -1,0 +1,17 @@
+**A. Front page of VANGLAINI newspaper Dt.16.1.2013**
+
+**Pu Lalhmingliana, MP(Rajya Sabha) inaugurated Tailoring Training Institute**: Tailoring Training Institute building built at Police Hqrs., Khatla by Mizoram Police Wife Welfare Association(MPWWA) was inaugurated yesterday by Pu Lalhminngliana, MP(Rajya Sabha). Pu Lalhminngliana, MP(Rajya Sabha) funded Rs.6,00,000/- for the building.
+
+ The inaugural function was presided over by Pi Biakthuami, Vice President, MPWWA, Pu Alok Kumar, DGP and Pi Lalmuankimi W/o Pu Lalrokhuma Pachuau, IPS also delivered speeches.
+
+ MPWWA had opened a number of Tailoring Training Institute in several places and plans to open Weaving Training Institute in Thenzawl this year.
+
+**B. Front page of THE AIZAWL POST newspaper Dt.16.1.2013**
+
+****Sufficient/Adequate Police in Mizoram**: According to Union Home Ministry report, depending on the population and Police ratio, Mizoram stood second to Andaman &amp; Nicobar Island as the place where Police is most adequate.**
+
+ Union Home Ministry records the number of Police in each State and UT. In Andaman &amp; Nicobar Island where Police are the most adequate, 1064 Police serve 1 lakh people, in Mizoram where Police are the second most adequate, 994 Police for 1 lakh people, and in Manipur which stood third in adequacy of Police there are 887 for 1 lakh people.
+
+**C. Second page of THE ZOZAM TIMES newspaper Dt.16.1.2013**
+
+**Lunglei Police Station Charge-sheeted 130 cases of 153 cases**: Lunglei PS registered 153 cases in 2012, out of which 130 cases are charge-sheeted while 19 cases are pending. Pu Romuana, Sherista, Lunglei PS said that the number of cases registered is the least in 15 years and that they had a peaceful atmosphere in Christmas with no big cases.

@@ -1,0 +1,5 @@
+A. _Front page of VANGLAINI & THE ZOZAM TIMES newspapers Dt. 13.2.2014_
+
+**MPSA Demands Secretary Post in the Government****:**Mizoram Police Service Association (MPSA) Executive meeting held yesterday at 1st Bn. MAP Headquarters, Armed Veng, Aizawl made a demand that MPS, for promotion, be given Secretary Post in the Government as being done with other services like MCS, MF&amp;AS, MES, MSS and MJS.
+
+ MPSA was very happy that Cabinet Meeting held on 11.9.2013 allowed MPS for the function of Mizoram Home Guard Director General (Secretary level) and for granting them DIG (Arms) (Additional Secretary level); but MPSA’s expectation was declined by DP&amp;AR without any particular reason. MPSA will talk to the government about the issue and if they do not succeed, necessary action will be taken.

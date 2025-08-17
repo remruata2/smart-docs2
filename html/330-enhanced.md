@@ -1,0 +1,7 @@
+****PEACE TALK BETWEEN GOVT. OF MIZORAM AND HPC(D)****
+
+| **Date** | **Place** | **HPC(D) delegates** | **Government of Mizoram delegates** | **Agenda points** |
+| --- | --- | --- | --- | --- |
+| 11.11.2010 | State Guest House, Aizawl | 1. Lalropuia - Commander-in-Chief 2. Lalbiaknunga Hmar - Dy. Army Chief 3. Robert Hmar - Secretary, Info. &amp; Publication Officer 4. Lalthanglien - PRO 5. David Hmar | 1. Lalmalsawma - Home Secretary 2. PC. Lalchhuanawma - AIG-I 3. C. Thanchhuma - DC, Aizawl 4. C. Laldina - SP, CID(SB) 5. Lalhriatpuia - Under Secy. Home | 7(seven) points of agreement between representatives of GOM and delegates of HPC(D) for holding Talks. |
+| 31.2.2013 | State Guest House, Aizawl | 1. Hrangneihkung - PRO 2. Lalbeisei Hmar - PRO 3. Lalthalien 4. Francis Songate - Consultant | 1. Lalbiakzama, Jt.Secy. Home 2. Lalhriatpuia, Dy.Secy. Home 3. H.Ramthlengliana, SP CID(SB) 4. David Lalthangliana, OSD Home 5. Laltanpuia Sailo, Inspr.  | 9(nine) points of agreement between GOM and HPC(D) for a period of 6(six) months. |
+| 18.7.2013 | Tourist Logde, Aizawl | 1. LT. Hmar 2. Lalthalien 3. Joseph L. Hmar 4. Lalmuanpuia Punte 5. Rohringa 6. Lalremruata Varte 7. F. Sanhim | 1. Lalbiakzama, Jt.Secy. Home 2. H.Ramthlengliana, SP CID(SB) 3. David Lalthangliana, OSD Home 4. Laltanpuia Sailo, Inspr. CID(SB)  | 8(eight) points of agreement between representatives of GOM and delegates of HPC(D). |

@@ -1,6 +1,9 @@
 #!/usr/bin/env node
 
-import { SemanticVectorService } from "../src/lib/semantic-vector.js";
+// Register ts-node to allow requiring TypeScript modules from JS
+require("ts-node").register({ transpileOnly: true });
+
+const { SemanticVectorService } = require("../src/lib/semantic-vector.ts");
 
 async function generateSemanticVectors() {
   try {

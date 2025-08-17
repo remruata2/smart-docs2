@@ -1,0 +1,21 @@
+_Tripura – Mizoram Border_
+
+Mizoram shares a 66-km border with Tripura. Phuldungsei village falls under the Mamit District, Mizoram and the same is claimed by Tripura as falling under the Kanchanpur sub-division in North Tripura district.
+
+The standoff between Tripura and Mizoram over Phuldungsei Village in the Zampui Hill range, started in August, 2020 when Tripura Administration identified that 130 (one hundred thirty) people living in Phuldungsei Village were registered both in Tripura and Mizoram, in electoral roll, ration card and other public welfare benefit schemes of both states. Later, Tripura claimed Phuldungsei and adjoining parts (Thaidawr Tlang) are parts of Tripura.
+
+The tension flared up after an announcement by SONGRONGMA, a local tribal organisation, which said it would construct a Shiv Mandir at Thaidawr Tlang and do community activities in the area on 19 - 20.10.2020. Mizo Students Union (MSU) and Mizo Convention, Tripura expressed their opposition. DC, Mamit issued prohibitory orders u/s 144 CrPC in and around the village. The prohibitory order was contested by Tripura on grounds of administrative command. Subsequently, after dialogue, the temple construction and the prohibitory order were both cancelled.
+
+On 27.10.2020 @ 3:00 p.m. Post Commander, New Kawnpui BOP, 5th IR Battalion and party, who intended to conduct spot verification at Thaidawr Tlang as per instruction of SP, Mamit were stopped by TSR personnel on their way to Thaidawr Tlang and they then returned. TSR personnel on duty told them that visit of Thaidawr Tlang was not allowed without prior permission from Tripura Government.
+
+Mizoram Home Secretary sent a letter to its counterpart Tripura Home Secretary on 28.10.2020 wherein it reiterated that Thaidawr Tlang is a part of Mizoram, and requested to shift a contingent of about 100 Tripura State Rifles (TSR) personnel stationed at Thaidawr Tlang be shifted inside Tripura and any construction work at the area should be removed.
+
+Tension also mounted again in February, 2021 as Tripura Forest Department has taken initiative for construction of Forest Check Post at Khantlang Junction (Mizoram side), Mizoram-Tripura border which is around 1 km towards east from New Kawnpui BOP on 11.2.2021. In this regard, VC Khantlang and Young Chakma Association (YCA) submitted a written petition to Mizoram Home Minister and Forest Minister on 13.2.2021 which stated their opposition to construction of Tripura Forest Check Post at Khantlang Junction as the area fell under Khantlang VC jurisdiction and requested to take necessary action.
+
+In connection with the above, SDPO (Civil), West Phaileng and SDPO, West Phaileng visited the area on 15.2.2021 and they held a short interaction with Tripura Forest RO and staff, who were available at the area. Officials of Mizoram informed Tripura Forest RO not to resume their initiative for construction of Forest Check Post at Khantlang Junction, Mizoram-Tripura border as the area fell under Mizoram jurisdiction.
+
+Further, SDPO, Kanchanpur, North Tripura, Range Officer and officials of Tripura Forest Department, personnel of BSF and Tripura State Rifles came at Khantlang Junction (Mizoram side), Mizoram-Tripura border, which is located around 1 km towards east from New Kawnpui BOP on 23.2.2021 @ 12:00 noon with an intention to construct Tripura Forest Check-Post at the said area.
+
+Upon learning the stated development, SI Liantluanga, Post Commander, New Kawnpui BOP rushed to the area and informed officials of Tripura government not to take any initiative for construction of Forest Check Post at the area without the approval of Mamit DC. However, Tripura Forest Officials erected signboard bearing 'Forest Check Post Kawnpui, Kanchanpur Forest Sub-Division, Kanchanpur, North Tripura' at the area, and the signboard was subsequently removed by Post Commander, New Kawnpui BOP while in presence of officials of Tripura State Government. After a short period, Officials of Tripura government left the area without any untoward incident. 
+
+After the above incidents, there has been no report of tension along Mizoram-Tripura border.

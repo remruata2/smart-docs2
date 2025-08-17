@@ -1,0 +1,3 @@
+A. _Inside page of THE AIZAWL POST newspaper Dt. 15.4.2014_
+
+**An Armed Criminal Arrested****:**Dipan Ghosh (21) s/o Dilip of Naga Pati, Kailakandi District broke into PB Vanlalzawmi’s house at Bairabi near train station on 12.4.2014 at around 4:30am with arm. He snatched two mobile phones and a digital camera. PB Vanlalzawmi fought him back; Dipan Ghosh ran away after hitting her with the gun. PB Vanlalzawmi went to receive first aid at the hospital and then lodged FIR to Bairabi Police Station. Bairabi Police arrested the culprit after much hard work.

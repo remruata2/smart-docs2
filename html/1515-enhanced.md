@@ -1,0 +1,9 @@
+**OPERATION DETAILS OF CID (SB) w.e.f 26.8.2021**
+
+| S/N | DATE | PLACE OF OCCURANCE | OPS TEAM MEMBERS | RESULT | SEIZED ITEM | ACCUSED | CASE REFERENCE | DATE OF CHARGE SHEET | REMARKS |
+| --- | --- | --- | --- | --- | --- | --- | --- | --- | --- |
+| 1. | 26.8.2021 | Near Buichali bridge, Sairang | i) SI Lalchhuanmawia ii) HC.H.Lalawmpuia iii) C/57 RCS Denghmingthanga | Success | Methamphetamine (50 Kg) | i) Mantu Kumar Deb, Karimgaj ii) Subhas Das, Karimganj, Assam | Special Narcotic PS Case No.20 Dt. 26.8.2021 u/s 22(c) /29 ND&amp;PS Act  |  |  |
+| 2. | 5.9.2021 | Zeambawk, Aizawl | i) SI Lalchhuanmawia ii) C/57 RCS Denghmingthanga iii) C/62 Lallianpuia iv) C/53 Lalenkawla | Success | Heroin (296.6 gms) | Lallianmawia of Khawmawi,Myanmar | Bkn PS C/No. 510/21 Dt.5.9.21 u/s 21 (c)/25 ND&amp;PS Act, r/w Foreigners Act |  |  |
+| 3. | 19.9.2021 | Chanmari Veng, Lawngtlai | i) HC R.Lalramliana ii)C/64 CT Lalthanzama iii) C/98 Lalchhanhima Chhangte iv) C/102 Lalroliana | Success | 7.63mm Pistol with megazine and 2 rounds of ammunition | C.Lalsanghluna s/o Hrangkawlha(L) of MC Donald Hill, Zarkawt, Aizawl. | LTI PS C/No.34/21 Dt.19.09.2021 u/s 25(1B)(a) Arms Act. |  |  |
+| 4. | 22.9.2021 | Zemabawk | i) SI Lalchhuanmawia ii) ASI Lalthlanfela iii) C/57 RCS Denghmingthanga iv) C/53 Lalenkawla | Success | Heroin (127.7 gms) | Lalrinawma (26) s/o Vanlalchhuana(L) of Zokhawthar and Chhingvan @Kima (26) s/o Dalteka of Zokhawthar | Bawngkawn P/S Case No. 534/21 dt.22.9.2021 u/s 21(b)/25 ND&amp;PS Act |  |       |
+| 5. | 16.10.2021 | Zemabawk Tawngtaina Mual | i) Inspr. JH Chunglianthanga ii) SI Lalchhuanmawia iii) HC Lalnghakliana iv) HC Shyam Kumar v) C/57 RCS Denghmingthanga vi) C/53 Lalenkawla vii) C/70 F.Lalhmingsanga viii) C/42 Joseph L. Hmar  | Success | 58.3 gms of Heroin | Lalhmangaihzuala (30) s/o Rinawma (L) of Dulte, Champhai District | Bawngkawn PS C/No. 578/21 Dt.15.10.2021 u/s 21 (b) ND&amp;PS Act. |  |  |

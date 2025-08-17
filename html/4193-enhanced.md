@@ -1,0 +1,6 @@
+****SEIZURE OF ARMS & AMMUNITION****
+
+| Sl. No. | **Type of Arms/Weapons** | **Qty** | **No. of Ammns.** | **Date of Seizure/ recovery** | Place of Seizure/ recovery | **From whom Seize/recovered** | **By whom** | **Case Ref** |
+| --- | --- | --- | --- | --- | --- | --- | --- | --- |
+| **1** | 7.62mm Ammunition |  | 7200 rds | 22.3.2025 | Chanmari, Lunglei | 1.Zonunpari (42) W/o Chanchinmawia of Sairep. 2.Lalremtluanga (40) S/o Vanlalchhuanga of New Diakkawn, Kolasib Dist. 3. Jakaria Lalramdinpuia (38) S/o Rohnunga of New Siaha 4. F.Laltlanmawii (40) W/o Zorampianga of Sairep. 5. Vanciso (35) D/o K. Hilao of New Colony Siaha. | DSB Lunglei &amp; 92Bn BSF | Lunglei PS C/No. 45/25 dt. 23.03.2025 u/s 25(1AA) Arms Act r/w 5(a) Explosive Substance Act. |
+| **2** | 1) 12 Bore SBBL Gun  2)12 Bore Live Cartridge (70mm 4.8) |  1 no. | 4 rds | 08.04.2025 | Siaha | Chhandama (64) s/o Ralsua (L), Niawhtlang II | Assam Rifle | Siaha PS C/no 28/25 dt. 06.04.2025 u/s 5 of Explosive Substance Act. r/w 25(1B)(a) of Arms Act. |

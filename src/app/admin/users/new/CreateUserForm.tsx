@@ -90,7 +90,7 @@ export default function CreateUserForm() {
 									value={formData.username}
 									onChange={handleInputChange}
 									required
-									className="shadow-sm focus:ring-blue-500 focus:border-blue-500 block w-full sm:text-sm border-gray-300 rounded-md"
+									className="shadow-sm focus:ring-blue-500 focus:border-blue-500 block w-full text-base border-gray-300 rounded-md h-8 px-4"
 								/>
 							</div>
 						</div>
@@ -110,7 +110,7 @@ export default function CreateUserForm() {
 									value={formData.password}
 									onChange={handleInputChange}
 									required
-									className="shadow-sm focus:ring-blue-500 focus:border-blue-500 block w-full sm:text-sm border-gray-300 rounded-md"
+									className="shadow-sm focus:ring-blue-500 focus:border-blue-500 block w-full text-base border-gray-300 rounded-md h-8 px-4"
 								/>
 							</div>
 						</div>
@@ -128,7 +128,7 @@ export default function CreateUserForm() {
 									name="role"
 									value={formData.role}
 									onChange={handleInputChange}
-									className="shadow-sm focus:ring-blue-500 focus:border-blue-500 block w-full sm:text-sm border-gray-300 rounded-md"
+									className="shadow-sm focus:ring-blue-500 focus:border-blue-500 block w-full text-base border-gray-300 rounded-md h-8 px-4"
 								>
 									<option value="staff">Staff</option>
 									<option value="admin">Admin</option>

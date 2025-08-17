@@ -1,6 +1,9 @@
 "use server";
 
 import { prisma } from "@/lib/prisma";
+import { getServerSession } from "next-auth/next";
+import { authOptions } from "@/lib/auth-options";
+import { UserRole } from "@/generated/prisma";
 import { revalidatePath } from "next/cache";
 import { LlamaParseDocumentParser } from "@/lib/llamaparse-document-parser";
 import { z } from "zod";
@@ -305,6 +308,14 @@ export type ActionResponse = {
 export async function createFileAction(
   formData: FormData
 ): Promise<ActionResponse> {
+  const session = await getServerSession(authOptions);
+  if (
+    !session ||
+    !session.user ||
+    (session.user.role !== UserRole.admin && session.user.role !== UserRole.staff)
+  ) {
+    return { success: false, error: "Unauthorized" };
+  }
   ensureUploadDirExists();
 
   const file = formData.get("doc1") as File | null;
@@ -407,6 +418,14 @@ export async function updateFileAction(
   id: number,
   formData: FormData
 ): Promise<ActionResponse> {
+  const session = await getServerSession(authOptions);
+  if (
+    !session ||
+    !session.user ||
+    (session.user.role !== UserRole.admin && session.user.role !== UserRole.staff)
+  ) {
+    return { success: false, error: "Unauthorized" };
+  }
   ensureUploadDirExists();
 
   // 1. Extract file and validate the rest of the form data
@@ -548,6 +567,14 @@ export async function updateFileAction(
 }
 
 export async function deleteFileAction(id: number): Promise<ActionResponse> {
+  const session = await getServerSession(authOptions);
+  if (
+    !session ||
+    !session.user ||
+    (session.user.role !== UserRole.admin && session.user.role !== UserRole.staff)
+  ) {
+    return { success: false, error: "Unauthorized" };
+  }
   try {
     await prisma.fileList.delete({
       where: { id },

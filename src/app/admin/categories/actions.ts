@@ -40,7 +40,10 @@ export async function getCategoryById(id: number) {
 
 export async function createCategoryAction(formData: FormData): Promise<{ success: boolean; error?: string; fieldErrors?: Record<string, string[]> }> {
   const session = await getServerSession(authOptions);
-  if (!session || session.user.role !== UserRole.admin) {
+  if (
+    !session ||
+    (session.user.role !== UserRole.admin && session.user.role !== UserRole.staff)
+  ) {
     return { success: false, error: "Unauthorized" };
   }
 
@@ -71,7 +74,10 @@ export async function createCategoryAction(formData: FormData): Promise<{ succes
 
 export async function updateCategoryAction(id: number, formData: FormData): Promise<{ success: boolean; error?: string; fieldErrors?: Record<string, string[]> }> {
   const session = await getServerSession(authOptions);
-  if (!session || session.user.role !== UserRole.admin) {
+  if (
+    !session ||
+    (session.user.role !== UserRole.admin && session.user.role !== UserRole.staff)
+  ) {
     return { success: false, error: "Unauthorized" };
   }
 
@@ -108,7 +114,10 @@ export async function updateCategoryAction(id: number, formData: FormData): Prom
 
 export async function deleteCategoryAction(id: number): Promise<{ success: boolean; error?: string }> {
   const session = await getServerSession(authOptions);
-  if (!session || session.user.role !== UserRole.admin) {
+  if (
+    !session ||
+    (session.user.role !== UserRole.admin && session.user.role !== UserRole.staff)
+  ) {
     return { success: false, error: "Unauthorized" };
   }
 

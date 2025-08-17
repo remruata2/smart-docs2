@@ -1,0 +1,133 @@
+****CONFIDENTIAL****
+
+****OFFICE OF THE SUPERINTENDENT OF POLICE****
+
+****CID(SB), MIZORAM, AIZAWL****
+
+****
+
+**No. MSB/CB/B-82/ Dated Aizawl, the June, 2016**
+
+**To,**
+
+****The State Protocol Officer &****
+
+**Deputy Secretary to the Govt. of Mizoram**
+
+****
+
+****Subject: Materials for Independence Day Speech of Chief Minister, Mizoram to be delivered on 15th August, 2016.****
+
+**Ref: No.F.20016/4/2015-Protocol (GAD) dt.13.6.2016.**
+
+**Sir,**
+
+****With reference to your letter no. and subject cited above, I am sending herewith the required materials for Independence Day Speech of Chief Minister, Mizoram to be delivered on 15th August, 2016 for your kind information and necessary action.****
+
+**Enclo. : As above.**
+
+****
+
+****
+
+****Yours faithfully,****
+
+****(LALRINPUIA VARTE) Addl.SP****
+
+****For Superintendent of Police****
+
+****CID(SB), Mizoram, Aizawl****
+
+****ACHIEVEMENTS OF CID(SB) W.E.F. 1st. January, 2015 - till date****
+
+****1.** On 12.1.2015@ 7:30pm, Special Operation Team of CID(SB) assisted by CID(Crime) seized 4,73,000 strips of Pseudoephedrine costing around Rs.71 lakhs(local market rate) from the possession of Lalrammuana S/o Ramthara, Baktawng Tlangnuam at Tuikhurhlu in Tuirial area. In this connection, Spl Narcotic PS C/No.1/15 dt.12.1.15 u/s 25A ND&amp;PS Act had been registered.**
+
+**2.** On 16.1.2015@ 3:15pm, a joint Operation Team of CID(SB) and CID(Crime) recovered 1985 rounds of 5.56mm(M-16) ammunitions (value of Rs.5,95,800/-) from the possession of Laldinnghaka(28) S/o Albert Bawm of Bungtlang South and Rohmingthanga(38) S/o Sankiplala of Tanhril from a taxi near Sairang. In this connection Sairang PS C/No.4/15 dt.16.1.15 u/s 25(1B) Arms Act r/w 34 IPC has been registered.
+
+**3.** A combined operation team of Mizoram Police (CID SB &amp; Mamit DEF) assisted by Tripura Police arrested one cadre of Bru Democratic Front of Mizoram (BDFM) namely, Lianmawia @ Bishno (45 yrs), S/o Uday Manik on 19.2.2015 @ 7:40 AM at the outskirt of Tongsnampara, North Tripura. Lianmawia @ Bishno had taken part in the abduction of two employees of BRTF by NLFT and BDFM on 2.2.2015. He has been arrested in connection with West Phaileng PS Case No.03/2015 Dt.2.2.2015 u/s 364/34 IPC r/w 25(1A) Arms Act.
+
+**4.** On 23.2.2015**,**Sector Officer, CID(SB) Vairengte and Vairengte Police staff arrested the following HPC(D) cadres (Lalhmingthanga's faction) along with 2 (two) numbers of 0.22 country made pistol with 2 (two) live ammunitions.
+
+**1) John Francis@Amos(30) S/o Lalpanliana, Mauchar, NC.Hills, Assam**
+
+**2) Tlangmawia@ LT.Hmar(35) S/o Huliana, Saiphai Venglai**
+
+**3) Israel Lalthlengliana(28) S/o Chalneihthanga, College Veng, Kolasib**
+
+**4) Robert Malsawmthanga(30) S/o Vungkhawthang, Saiphai, Saipum Road.**
+
+**In this connection, Vairengte PS C/No. 9/15 dt.23.2.15 u/s 384 IPC r/w 25(1B)(a)/27(2) Arms Act has been registered.**
+
+**5. On 29.3.2015 @ 4:30 pm, an operation team of Mizoram Police led by Sector Officer, CID(SB), Champhai recovered 1,348 rounds of 7.62x39mm live ammunitions at the residence of Engkhanchin (47), Ngaizawl village, Champhai District. In this connection, Khawzawl PS CaseNo.18/2015, dt. 29.3.2015 u/s 25(1B)(a) Arms Act has been registered.**
+
+****6. On 10.4.2015 @ 4:00 pm, a combined team of CID(SB) and Eastern Command Counter Intelligence Unit (ECCIU) recovered 8,66,400 tablets of pseudoephedrine from the possession of J.H. Golden-a (54), S/o Sanglura (L), Tuirial Airfield Veng and Lalthasanga (28), S/o Thangthuama (L), Tuirial Airfield Veng at Durtlang Leitan, Aizawl. The recovered pseudoephedrine is estimated to be around Rs.60,64,800/- at the local market. In this connection, Special Narcotic Police Station Case No.8/15, dated 10.4.2015 u/s 25(A)/29 ND&PS Act has been registered.****
+
+**7. On 16.4.2015 CID(SB) Operation Team led by Pu H.L. Thangzuala, Addl.SP, CID(SB) apprehended the following cadres of HPC-D on 16.4.2015 @ 11:00 AM at Ramnagar, Silchar, Assam.**
+
+****
+
+**(1) S/S Army Chief, Lalropui Famhoite (47 yrs)**
+
+**S/o Rimoi, Saikot, Churachandpur, Manipur**
+
+**(2) S/S Finance Secretary, Norbar Sanate (46 yrs)**
+
+**S/o Khupa (L), Hmarkhawlian, Cachar District, Assam**
+
+**(3) S/S Pvt. Ngurthantluanga Sanate (29 yrs)**
+
+**S/o Siamlien, Ngurte, Churachandpur, Manipur**
+
+**These three (3) cadres of HPC-D are indirectly involved in the recent ambush of convoy of three (3) MLAs and killing of three (3) Mizoram Policemen near Zokhawthiang/Kani on 28th March, 2015 (Vide Sakawrdai PS Case No.6/15 Dt.29.3.2015 u/s 302/307/396/397/120(B)/326 r/w 25(1A)/27(3) Arms Act) and also responsible for attacking of 1st Bn. MAP BOP at Khawlian on 5th March, 2015 (vide Saitual PS Case No.7/15 Dt.6.3.2015 u/s 121(A)/427 IPC r/w 25(1A)/27(2) Arms Act. They are also wanted in several cases registered under SP, Aizawl District and SP, Kolasib District.**
+
+**It may be mentioned that on 26th June, 2014, Smt. Sylvia Z. Ralte, Chief Judicial Magistrate (CJM), Aizawl District had also issued Warrant of Arrest against Lalropuia Famhoite in connection with his involvement in Sakawrdai PS Case No.12/2012 u/s 384/506(a) IPC (Crl.Tr.No.1367/12).**
+
+**8. In the aftermath of the recent ambush by HPC-D elements at Zokhawthiang (Kani), Mizoram on 28.3.2015 wherein three (3) Mizoram Police personnel including O/C Sakawrdai PS were killed and six others injured, the Operational Teams of Mizoram Police have been patrolling the area of Mizoram bordering Manipur, to prevent recurrence of another incident and to apprehend the accused of this ambush who were repeatedly visiting the villages in this area of Mizoram, threatening the villagers, extorting money, intimidating candidates of the recent Village Council Elections within the entire HPC-D affected area of Mizoram.**
+
+**On the night of 7.5.2015, the Operational Party which was patrolling the area of Mizoram bordering Manipur received specific information that the main persons accused in the ambush, who were wanted in FIR No.6/15 dated 29/3/2015 u/s 302/307/396/397/120(B)/326 IPC r/w 25(1A)/27(3) Arms Act of Sakawrdai PS, were hiding in Tiaulian village of Manipur, just across the border. The information was very specific and the accused would have slipped away, therefore, Operation Team decided to verify the information and approached Tiaulian village, early on the morning of 8.5.2015 at the break of dawn. On seeing the approaching Police party, some persons started running and were asked to stop. Instead of stopping, these persons started unprovoked firing on the Police party who had no option but to return fire in self-defense. One of the attackers was hit by the defensive fire while others managed to escape. The attacker, who was hit, succumbed to his injuries and was identified as deserter Constable H.C. Malsawmkima of Mizoram Police who had deserted along with two service weapons and ammunitions of Mizoram Police on 11.7.2014 and joined HPC-D. The deceased has also been identified as one of the main accused in the ambush of 28.3.2015.**
+
+**9. On 12.5.2015 @ 2:00 pm, a Joint Operation Team of Champhai Police & CID (SB) Staff, Champhai conducted random checking at Khankawn Police Check Gate and recovered one 0.22 Pistol (Smith & Wesson) without license from the possession of Lalnunziri w/o H.Lalrinawma of Champhai Venglai. In this connection, Champhai PS Case No. 48/15 dt. 16.5.2015 u/s 25 (1B)(A) Arms Act has been registered.**
+
+****10. On 2.6.2015 @ 6:30 pm, a Special Operation Team of CID(SB) accompanied by leaders of Dinthar YMA Branch recovered 1 no. of AK-47 (MA-3 MK-II) and 2 nos. of empty magazines along with 40 nos. of ammunition (7.62x39mm) from the possession of G.K. Khup (38 yrs.) s/o Thangchinhan, Tuithang village, Tiddim District, Myanmar from Dinthar-II, Aizawl. In this connection, Vaivakawn Police Station Case No. 54/15 dt. 2.6.2015 u/s 25(1AA) Arms Act r/w 6(1)(a) PP (Entry into India) Rule, 1950 has been registered.****
+
+**11. On 31.7.2015, SO CID(SB), Champhai and Champhai police recovered 4,80,000 tablets of suspected Pseudoephedrine weighing 54.500 kgs. worth Rs. 50 lakhs (approx.) from the house of R.Lalremruata (36) s/o Chhiarthangpuia of New Champhai. The owner of the house R.Lalremruata said that all the seized articles are belongs to Janet Lalduhzuali(36) d/o Sangthanga of College veng, Aizawl. In this regards, Champhai PS C/No. 110/15 dt. 31.7.2015 u/s 21(C)/9(a) ND&PS Act has been registered.**
+
+**12. On 4.8.2015 @8:10pm, acting on intelligence input from CID(SB), a carrier for extortion letters of HPC(D) was intercepted by OC and staff of New Vervek OP before they could be served to the target individuals. In this conncetion, the carrier of the extortion letters Jehova Hmar(32) s/o Laltuklien of Chaltlang Lily Veng originally of Taithu, Manipur who is also the owner and driver of a pick-up truck MZ-O1 J-1693 was arrested and the extortion letters and the vehicle used for the delivery were also seized.**
+
+**The extortion letters were meant for various individuals @ Rs.50,000/- per individual and PDS Retailers @ Rs.20,000/- per retailer of Sakawrdai area (i.e, 15 Retailers). Enquiry into the extortion bid by HPC(D) have also led to the arrest of Pu Zarzoliana(48) s/o Lalduailova of New Vervek who is found to be dispatcher of the extortion letters to the target individuals. In this connection, Sakawrdai PS C/No.14/15 dt.5.8.2015 u/s 384/511/506/120B has been registered.**
+
+**13. Acting on intelligence input from CID(SB) on 4.9.2015, 20 (twenty) bags of rice grains to be delivered to HPC(D) or its agent at the boundary of Mizoram and Manipur was intercepted by New Vervek Police on 4.9.2015 @ 12:30pm at the outskirts of New Vervek. These rice grains were despatched by Zonunsanga, retailer of New Vervek by hiring a vehicle owned and driven by Malsawmropuia (35) s/o HK Zathuama. The main culprit, Zonunsanga, retailer of New Vervek was arrested. In this connection, Sakawrdai PS Case No. 16/15 dt. 4.9.2015 u/s 406/120B IPC r/w 7(i)(a)(ii) EC Act has been registered.**
+
+****14. On 4.9.2015 @ 12:10pm, a joint Operation Team of CID(SB) staffs and ECCIU staffs recovered Heroin i.e., 43 grams worth Rs. 1,65,000/- in local market rate at Zemabawk from the possession of Dalmunga (40) s/o Padoa of Sialtui, Myanmar. In this connection, Special Narcotic PS Case No. 21/15 dt.4.9.2015 u/s 21(b) ND&PS Act has been registered.****
+
+**15. Acting on a specific intelligence input regarding presence of HPC(D) cadres at Hmarkhawlian /Lakhipur Assam, a team of Mizoram Police conducted raid in the wee hours of 22.9.2015 @ 12:15 AM and apprehended the following HPC(D) cadres from Hmarkhawlian/Lakhipur, Assam.**
+
+(i) S/s Sgt.Lalchuailova (36 yrs) @ L.C Hmar S/o Thuamliana Lungthulian, Manipur.
+
+(ii) S/s Pte Reuben Lalromawia ( 19 yrs) S/o Samuel Saipum, Mizoram.
+
+**During preliminary interrogation, S/S Pte Reuben has confessed that he was one of the members of the HPC(D) armed group who laid ambush on Mizoram Police / entourage of 3 (three) MLA’s on 28th March 2015 near Zokhawthiang vide. Sakawrdai Police Station Case No.6/15 dt 29.03.2015 u/s 302/307/396/397/120(B)/326 IPC r/w 25(1A)/27(3) Arms Act. He also confessed that he was involved in looting of explosive materials (220 gelatin sticks, 100 nos. of detonators) from Labour Camp, near Tinghmun village on the intervening night of 22-23.11.2014 vide Sakawrdai PS Case No. 12/14 Dt. 25.1.2014 u/s 447/506/397 IPC r/w 25(1A) Arms Act. Meanwhile, S/S Sgt. Lalchuailova has also disclosed to the Police that he was among the group that opened fire towards 2nd IR BOP at Khawlian on Dt. 05.03.2015 vide Saitual Police Station Case No. 7/2015 Dt 6/3.2015 u/s 121A/427 IPC r/w 25(1A)/29(2) Arms Act and he was also known to be involved in several cases of extortion by the name of L.C. Hmar, Commander HPC(D).**
+
+****In addition, the Operation team also apprehended H. Lala (68 yrs) S/o D. Dala(L), Vairengte, State Veng from Hmarkhawlian who took active part in recruitment of fresh cadres of HPC(D).They are produced before the Court of Chief Judicial Magistrate(CJM), Aizawl District on 22.9.2015.****
+
+****16. Acting on specific intelligence report, a joint operation team of CID(SB) and CID(Crime) recovered 3,56,000 tablets of pseudoephedrine worth Rs. 5,69,600/-(local market rate) on the night of 12.10.2015 at Ngaizel, Aizawl from the possession of Ramengmawii(34) D/o Lalmuana(L), Khawlailung. In this connection SPL Narcotic PS C/No.26/15 dt.12.10.15 u/s 25(A) ND&PS Act has been registered.****
+
+****17. Acting on a specific intelligence input originated from SP CID(SB), Mizoram, a team of Bravo Company of 27 Assam Rifle stationed at Goakhal, Manipur apprehended S/S HPC(D) Commander Lalbiakliana @ L. Biek Hmar, S/o H. Lala, Vairengte State Veng on 16.10.2015 at around 5:15 PM and he has been handed over to the custody of Mizoram Police on 17.10.2015 @ 9:30 PM at IG AR East Headquarters, Srikona, Silchar. During the preliminary interrogation, S/S HPC(D) Commander Lalbiakliana has admitted his involvement in sensational criminal activities of HPC(D) within the State of Mizoram like, (i) Ambush of Pay escort party of 1st IR Bn on 2.9.2008 at the outskirt of Saipum where 4 (four) Policemen were killed and 3 (three) others sustained injuries, (ii) Ambush of entourage party of MLA on 28.3.2015 near Zokhawthiang village where 3 (three) Policemen had lost their lives and inflicting injuries to 6 (six) others. S/S HPC(D) Commander Lalbiakliana @ L. Biek Hmar has actively indulged in various subversive and unlawful activities like intimidation, extortion, kidnapping/abduction within the State of Mizoram. In addition, a standing Warrant of Arrest has been issued against him by Chief Judicial Magistrate, Aizawl District on 15.5.2015 and a reward of Rs. 2 Lakhs has been offered by Government of Mizoram on 23.4.2015 for the capture or information leading to his arrest.****
+
+**18. Acting on a specific intelligence of CID(SB), Mizoram input, a team of Mizoram Police led by SDPO, Vairengte conducted raid at Dolakhal, Cachar District, Assam on 4.11.2015 @ 11:45 AM and recovered the following small arms and ammunitions hidden by HPC-D :-**
+
+**(i) 1 No. of .38 Revolver (Ruger) Regn. No. 161-33735 with 5 rounds of ammunition.**
+
+**(ii) 1 No. of 9 mm Pistol CZ 75 (North Korean version) with 3 rounds of ammunition.**
+
+**It may be mentioned that the recovered .38 Ruger Revolver was snatched away by HPC-D outfit from the possession of Constable Robert Lalfamkima, PSO to Pu Lalthanliana, MLA during the incident of ambush near Zokhawthiang village, Mizoram on 28.3.2015.**
+
+**19. A team of CID(SB) apprehended Lalvarmawii (35) D/o Thangroliana of Tizit Town, Nagaland at Ch.Chhunga Bus Terminal, Thuampui on 18.11.2015@8:00am and seized Neogel (gelatin) – 1,250 sticks, cordex (fuse) – 20 coils and detonator – 5,000 nos. (50 boxes) total value of Rs. 1,50,000/- in local market rate which were concealed inside Mizo Cooker (Baktawng Bel) from her possession. In this connection, Bawngkawn PS Case No. 290/15 dt. 18.11.2015 u/s 5(a) Explosive Substances Act has been registered.**
+
+**20. A team of CID(SB) seized suspected Fake Indian Currency Notes (FICN) of face value of Rs. 6,83,000/- (565 notes of Rs. 1,000/- denomination and 236 notes of Rs. 500/- denomination) on 20.11.2015 @ 12:30 pm near the Apex Bank, Treasury Square, Aizawl from the illegal possession of Lalchawimawii (36) d/o Lalfakzuala of Durtlang North. In this connection, Aizawl PS Case No. 540/15 dt. 20.11.2015 u/s 489B/489C IPC has been registered.**
+
+**21. On 8.12.2015, acting on a specific intelligence of SO SB, Champhai, a joint team of SB Staff, Champhai and Champhai Police laid mobile check post at the outskirt of Hmunhmeltha Village and recovered a huge quantity of Pangolin scale weighing 140 kgs. worth Rs. 21, 00,000/- from the suspected vehicle B/R No. MZ-04 7685 driven by Lalhlimpuia(25) s/o Thangrehlova of Hnahlan Village, Champhai District. The alleged owner of the said Pangolin Scale, Vanrothanga(36) s/o Pathiauva of Tahan, Myanmar was also arrested from the vehicle. In this connection, Champhai Police Station C/No. 190/15 dt. 8.12.2015 u/s 39(2)(3)/40/44/49(B)(a) Wildlife Protection Act 1972 r/w 14 Foreigner Act has been registered.**
+
+**22. On 19.2.2016, at around 3:30PM, acting on a specific input from a reliable source, the CID(SB) team seized 2 kgs of suspected Gold bars (2 nos.) worth Rs. 30 lakhs at local market from the possession of Lalhmangaiha(42) S/o Vanneia of Damparengpui, Mamit District while he was trying to sell the gold bars (smuggled gold bars) within the locality of Republic Veng, Aizawl. As instructed by higher authority, on 27.2.2016, a team of CID(SB) produced the recovered Gold bars before Assistant Commissioner, Custom Division, Aizawl. The local Goldsmith who conducted assessment on the purity of suspected gold bar in question found that the said substances were not gold bars, but of bronze bar. However, during the course of enquiry, a team of CID(SB) busted one network of Gold smuggling racket across Mizoram-Myanmar border.**
+
+****23. Acting on the specific input received, staff of CID(SB), Champhai Sector Office has seized 93(ninety three) kgs. of Pangolin Scales worth Rs.20,35,080/- on 2.6.2016@ 9:35am at the outskirts of Champhai from Maxi Cab bearing registration no. MZ-01/H-2745 driven by PC. Lalramchhuanmawia(24), Muanna Veng, Aizawl and the accused C.Thanga(38) S/o Chalkhuma of Kolasib Venglai was also apprehended. The seized Pangolin Scales were later handed over to Divisional Forest Officer(DFO), Champhai District by O/C, Champhai PS.****

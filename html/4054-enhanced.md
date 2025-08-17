@@ -1,0 +1,51 @@
+****I. Report in connection with the seizure of explosives at Pang Khua, Lawngtlai District on dt.06.02.2024. Ref. Sangau PS Case No.3/24 dt.05.02.2024 u/s 4 of Explosives Substances Act r/w 34 IPC and 14 Foreigners Act****
+
+On dt.05.02.2024, 42nd Assam Rifles, Sangau post intercepted one Bolero B/R No. MZ01 B 6369 driven by Siamthanga(50) S/o Chhanerha, Sentetfiang village, Lawngtlai District along with his wife Chimengi(40) near Pangkhua village, Lawngtlai District from where they seized the following items :
+
+1. Provision of explosive - 6 Boxes (1200 nos.)
+2. Detonator  - 1800 nos.
+3. Detonating Fuse   - 3750 m
+
+ These items were transported from Sentetfiang village at the instance of one Suichung @ Pasuia, Salen village, Mynamar. It was found that the explosives items were purchased by Suichung @ Pasuia and TunTun(32) S/o Chhanawl, both belonging to Salen village, Myanmar from Chawnpui Veng, Aizawl.
+
+ It was further revealed that the contraband items were purchased from Pi Lalsangpuii w/o Lawmzuala of Chawnpui, Aizawl and the couple were later arrested on dt.13.02.2024 and forwarded for judicial remand on dt.14.02.2024. In this regard, the following persons were also arrested and remanded in judicial custody.
+
+1. Siamthanga(50) h/o Amengi, Sentetfiang, Lawngtlai District
+2. Amengi(40) w/o Siamthanga, Sentetfiang, Lawngtlai District
+3. Suichung(50) @ Pasuia s/o Hrangthanga, Salen village, Myanmar
+4. TunTun(32) s/o Chhanawl, Salen village, Myanmar
+5. Bawihleiuka(28) s/o Siamthanga, Sentetfiang, Lawngtlai District
+6. Lalsangpuii(60) w/o Lawmzuala of Chawnpui, Aizawl
+7. Lawmzuala h/o Lalsangpuii of Chawnpui, Aizawl. He is presently posted as Technical Assistant at the Directorate of Geology &amp; Mining, Government of Mizoram.
+
+**Source of explosives**
+
+ Upon enquiring into the matter, it has come to light that the explosives were bought from M/S Trustwell, Thakthing Veng, Aizawl, which is the sole explosives dealer in Mizoram which is licensed to possess as well as sale of explosives by Petroleum and Explosives Safety Organisations (PESO).
+
+ It was ascertained that Lalsangpuii of Chawnpui had on several occasions purchased explosives using the licences of RS Laltlanthangi w/o Patrick VL. Finga Sailo, Venglai Kolasib. These licences were in possession of Lalsangpuii and was authorised by RS Laltlanthangi for making explosives purchases. The invoice details maintained by M/S Trustwell also bear the signature and phone number of Lalsangpuii. It is to be mentioned that Patrick VL. Finga Sailo is a muster roll employee under Directorate of Geology &amp; Mining, Government of Mizoram and presently posted at Kolasib.
+
+ The nature and purpose of licenses viz. No.E/MZ/KOL/LE3/25 (E148645) and No.E/MZ/KOL/LE3/20(E145703) issued to RS Laltlanthangi, Kolasib Venglai are meant for possession for use in small quarry, with the quantity of explosives permitted to be procured not exceeding 25 kgs of class 1 or 2 or 3 and 1500 nos. detonators; and 1500 mtrs of detonation fuse or safety fuse at any one time in a magazine. The number of times explosives are permitted to be purchased in a calendar month for License No. E/MZ/KOL/LE3/25 (E148645) is 5 (five) times for the above quantities while in the case of Licence No. E/MZ/KOL/LE3/20(E145703) is 3 (three) times. The transaction details during January and February i.e. uptill 21st February, 2024 obtained from M/S Trustwell indicated that the explosives purchased using these two licences have not exceeded its purchasing limits.
+
+Enclosed :
+
+1. Photo copy of explosives licences issued to RS Laltlanthangi.
+
+2. Transaction details of explosives at M/S Trustwell using licences viz. No.
+
+ E/MZ/KOL/LE3/25(E148645) and No.E/MZ/KOL/LE3/20(E145703).
+
+**II. **Report in connection with seizured of explosives at Bawngkawn (Sairang road), Aizawl on dt.15.02.2024. Ref. Bawngkawn PS Case No.53/24 dt.15.02.2024 u/s 5(a) of the Explosives Substances Act, 1908.****
+
+ On dt.15.02.2024, Assam Rifles had seized 165 boxes of detonators and safety fuse of 993 cm from the possession of Lalrunmawia (30) s/o Seibula, Durtlang Mual Veng, Aizawl and was handed over to Bawngkawn Police Station. The accused Lalrunmawia is a driver by profession who handles his own vehicle-Tata Yodha (Pick-up) B/R No. MZ01 Y 6016.
+
+ Interrogation report of the accused stated that on dt.15.02.2024 he had received phone call from an unknown number which asked him to collect a certain commodity from Phulpui/Sateek village. The caller further disclosed that there would be someone waiting for him from whom he would collect the article as well as pay the vehicle hiring charge. On proceeding toward Phulpui/Sateek, he was halted by one male person at Paikhai road waiting shed. The stranger loaded 2 packets of certain commodity at the back seat of the vehicle and instructed him to deliver to Falkland-Zemabawk junction, where it would be pickup by someone else. He further told him that the vehicle hiring charge will also be paid by the person collecting it. The accused then headed towards Aizawl, however on reaching Falkland-Zemabawk junction and despite waiting for around two hours with no one turning out to collect the commodity. He then proceeded to pickup stand, Bawngkawn (Sairang road), Aizawl wherein he was arrested by Assam Rifles team shortly after reaching it.
+
+ The accused stated that he is ignorant about the nature of the commodities he had transported as well as the identities of the persons involved. He came to know that the items were explosives substances only after the packets were unwrapped and opened by the Police. He further stated that he had not received any transportation charge from the persons involved.
+
+ It is pertinent to be mentioned that despite conducting join interrogation by various agencies and rigorous investigation by the Police, the source of explosives as well as the identities of the persons involved could not be sorted out as of now. However, the accused (transporter) has been remanded in judicial custody.
+
+**(ZARZOLIANA)**
+
+for Sr. Superintendent of Police
+
+CID(SB), Mizoram ; Aizawl

@@ -1,0 +1,11 @@
+****REPORT****
+
+ Information has been received that remnants of BLFM led by Apet Branto are actively involved in procuring arms mostly local made from Tripura Mizoram border as well as Assam Mizoram border. As per information received they are intending to procure as many as 30 numbers of Grenade, 40 numbers of long barreled gun (local made) and at least 5 numbers of AK-47 and a large number of small arms. The motive behind these recent activities though not confirmed but strongly believed to be encouraged by some army officers whom they contacted to make easy way for acceptance as militant Surrenderees. Further information received stated that Apet Branto faction of BLFM has been trying to approach various central intelligence agencies, Police officers of both Assam and Tripura Govt. and also CID (SB) Mizoram Police for quite some time to be accepted as militant Surrenderees. They had even enrolled many young Brus from refugee camp Tripura with a promise with handsome rehabilitation package of Rs. 1,00,000/- per head. It was also reported that he had collected Rs. 3000/- per head for enrolment fee.
+
+ It may be pointed out that Apet Branto himself was the former Dy. Army Chief of Ex-BLFM under the leadership of Vanlalliana. Apet Branto was the mastermind of the sensational abduction of Zoramsanga and Charanjit Singh employees of Teirei Mini-Hydel Project on 8.8.05 and was wanted in connection with WPLG Case No. 35/05 Dt. 9.8.2005 U/S 365/34 IPC r/w 25 (1)-A Arms Act.
+
+**(H.L. THANGZUALA)**
+
+Addl. Superintendent of Police
+
+CID (SB), Mizoram, Aizawl

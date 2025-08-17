@@ -1,0 +1,216 @@
+****AGENDA POINTS FOR THE NORTH EASTERN REGIONAL POLICE****
+
+****CO-ORDINATION COMMITTEE (NERPCC) MEETING****
+
+****OF THE DsGP OF NE STATES****
+
+**1) INSURGENCY PROBLEM :**
+
+**Insurgent groups operating in and around Mizoram in the recent years**
+
+1. Mizoram itself experiences low level insurgencies in the North Eastern and the North Western regions.
+
+1. However, Government of Mizoram and HPC(D) (The insurgent group from the northern parts) had signed a Memorandum of Settlement (MoS) on 2nd April 2018. The signing of MoS brought about an end to over two-decades armed insurgency of the HPC(D). The Arms Laying Ceremony of HPC-D was held on 13th April, 2018 where around 102 Cadres and 12 Council Members of HPC(D) came to over ground at the ceremony.
+
+1. However the other faction of HPC(D) led by Lalhmingthanga Sanate have started resurfacing and planning to reorganise themselves which could, in due course of time, pose security problems especially in the northern most and North Eastern parts of Mizoram. This outfit is under constant monitoring.
+
+1. As for the North-Western region, the Bru insurgency has been contained to a great extent so much so that this insurgent Group has become more or less a group of Bandits without any specific demands or objectives. Bru National Liberation Front(BNLF) which was formed in 1997 signed Peace Accord with Govt.of Mizoram on 26.4.2005 and surrendered to the Government on 25.7.2005 and 195 Cadres came overground along with 9 Weapons.
+
+1. Bru Liberation Front of Mizoram(BLFM) surrendered to the Government on 26.10.2006. About 804 Cadres came overground with 66 weapons and 45 ammunitions.
+
+1. There has been many instances of clash between Myanmar Army (MA) and Arakan Army (AA) along Mizoram-Myanmar border in the recent past. TheArakan Armyis aRakhine InsurgentinMyanmar, founded on the 10th April 2009.It is the armed wing of theUnited League of Arakan (ULA). The purpose of the AA is to protect Arakan people and to establish peace, justice, freedom and development within their domain. As a result of exchange of fires between MA and AA, Mizoram has witnessed influx of refugees at Hmawngbuchhuah, Zochachhuah, etc. coming from Myanmar.
+2. Presently, the Peoples' Liberation Army (PLA) and Zomi Revolutionary Army (ZRA) (Manipur based insurgent groups) are having permanent camp inside Myanmar adjacent to Mizoram. This matter needs to be discussed seriously with Myanmar government since the PLA and ZRA are imparting training to various underground outfit of the Northeast. It has also been ascertained that different Northeast insurgent groups like United National Liberation Front(UNLF), National Democratic Front of Bodo Land(NDFB), United Liberation Front of Assam(ULFA) and National Liberation Front of Tripura(NLFT) etc occasionally have meetings inside Myanmar and used Mizoram as a conduit for illegal movements and activities. Alertness must be maintained regarding this matter.
+
+**2) DRUG SMUGGLING PROBLEM :**
+
+ Mizoram has a long international boundary with two countries (496.531 kms. with Myanmar and 319.791 kms. with Bangladesh) and 284 kms. of inter-state natural boundaries with three other states – Assam, Tripura and Manipur. Interestingly, Mizoram lies at the periphery of the Golden Triangle historically known for its drug manufacturing and trade. Mizoram has also always been a socio-cultural corridor because, historically as well as recently, populations ethnically related to the residents of the state reside in the neighbouring regions of both foreign countries and within India. This creates favourable conditions for economic and financial interactions both legal and illicit making it both a destination as well as transit point for various goods.
+
+Among the narcotic drugs known/seized in Mizoram are substances such as Heroin, Opium, Ganja etc., while psychotropic substances include Amphetamine-Type Stimulants (ATS). Besides these, there are various synthetic drugs that are being abused and are causing socio-cultural problems among the youth.
+
+In recent years there has been an alarming trend of smuggling of Pseudoephedrine from mainland India through Mizoram into Myanmar. The smuggled Pseudoephedrine is used for preparation of Methamphetamine in jungle labs in Myanmar. The finished products i.e. Methamhetamine tablets are then smuggled back into Mizoram from Myanmar for local consumption or further distribution in other states. Meanwhile, almost all Ganja seized by Drug law enforcement agencies in Mizoram have entered via Manipur.
+
+******Trafficking Route :**Due to geographic and cultural proximity with the Golden Triangle region, drugs available in Golden Triangle are more or less also available in Mizoram from across the neighbouring country of Myanmar due to unfenced international boundary.
+
+(i) Pharmaceutical Drugs, Marijuana (Ganja) which is most commonly abused are being smuggled into the state through neighbouring states of Assam and Tripura in a case of Pharmaceutical Drugs and Manipur in case of Marijuana (Ganja).
+
+(ii) Precursor drugs such as Pseudo Ephedrine are smuggled to Myanmar through Mizoram from North India. The pre-cursor drug is manufactured as Amphetamine-Type Stimulants that is, Meth Amphetamine in simple laboratories at Myanmar. The seizure of large quantity of Meth Amphetamine by Mizoram Police during 2015 – 2020 (till date) manifest the fact that pre-cursor drugs viz. Pseudo-Ephedrine smuggled to Myanmar through Mizoram is manufactured as Meth-Amphetamine (a dangerous banned substance) across the border and pushed back into Mizoram. The reverse trend needs serious attention by Drugs Law Enforcing agencies.
+
+**Details of seizure of drugs during the last 5 years (2015 - May, 2020) is enclosed as Annexure-I.**
+
+**3) HUMAN TRAFFICKING ISSUE :**
+
+**A.** **Introduction:**
+
+ Human Trafficking is a worldwide Crime, United Nations Office on Drugs and Crime (UNODC) in its Anti Human Trafficking Project in partnership with Govt. of India Ministry of Home Affairs proposed to establish Anti-Human Trafficking Units in 50% districts in the country. As per the instruction of Govt. of India, four Anti-human Trafficking Units (AHTU) has been established in Aizawl District, Lunglei District, Champhai District and Kolasib District under Mizoram Police Department.
+
+**B. Present Scenario:**
+
+Action taken by Govt. of Mizoram and Mizoram Police Department in the field of Anti-Human Trafficking are as follows:
+
+1. Superintendent of Police CID (Crime) was appointed as state Anti Human Trafficking Nodal Officer by Police Headquarters, Mizoram vide order No. CB/PHQ/C/307/ 2010/75 dt. 02/11/2010.
+2. Police Headquarters order No. CB/PHQ/C/307/08/311 dt.12/07/2010 appointed all Addl. SP and Dy. SP as Anti-Human Trafficking Nodal Officers in their respective district.
+3. Whenever information is received regarding Human Trafficking, the case will be taken up by Anti-Human Trafficking Unit(AHTU) Team set up at Aizawl, Lunglei, Champhai and Kolasib District along with representative of State Department and NGOs, within their respective jurisdictions under the supervision of concerned District Superintendent of Police and the Nodal Officer, Anti-Human Trafficking, Mizoram. However, in regards to remaining District where AHTUs are not set up viz. (Serchhip, Mamit, Lawngtlai and Siaha), if such report is received, AHTU Team will be temporarily set up by the concerned District Superintendent of Police in consultation with the Nodal Officer, Anti-Human Trafficking, Mizoram and the Team so setup will take up the Human Trafficking cases.
+4. Recently, Mizoram State have some inter-state Human Trafficking cases. The Investigating Officer/Senior Officer along with lady officer is usually dispatched to conduct rescue operation in such cases. Co-operation with NGOs is required for rescue and rehabilitation of trafficked victims and to have a successful combat against Human Trafficking.
+
+**C. TRAFFICKING OF NEPALESE WOMEN:**
+
+On 21.4.2019, fourteen(14) Nepali women reached Zokhawthar to cross Indo-Myanmar border. However, they were prevented from crossing the border. On 24.4.2019 at about 10:00 am, ten(10) Nepalese women left Zokhawthar and proceeded to Aizawl. They arrived on the night of 24.4.2019 @ 9:45 pm and were produced at Protective Home on the same night. Four(4) other Nepalese women left Zokhawthar on the evening of 24.4.2019 and arrived Aizawl on 25.4.2019 @ 2:25 am who were sent to the Court along with all the Nepalese in Protective Home. In the meantime, one Bal Bahadur, a Nepali citizen was apprehended by Bawngkawn Police Station on the evening of dt.23.4.2019 who is suspected to be involved in human trafficking of these Nepali women.
+
+On the evening of 23.4.2019, CID Crime staff located seven(7) Nepalese women who were staying in Hotel Joy, Thuampui.
+
+On the evening of dt.24.4.2019, two Nepalese women were located by Vaivakawn Police Station at Hotel Green View, Phungchawng. They were shifted to Protective Home on the same night.
+
+It is highly suspected that the mode of mass movement of Nepalese women into Mizoram and entering into Myanmar for employment in Middle East to be human trafficking. Those who do not possess Nepali Passport in Aizawl were found to possess Nepali Passport in Zokhawthar. Immigration Seal bearing Sunauli Check post located at Uttar Pradesh was also forged in Aizawl. So, it is suspected that these Nepalese women are being recruited for the purpose of exploitation in various forms.
+
+In this regard, FIR was submitted to Bawngkawn Police Station by DySP, CID(Crime) and Bawngkawn PS C/No 107/19 dt.24.4.2019 u/s 370(3), 468 IPC was registered.
+
+On dt.25.4.2019, Pu Lalringliana Pachuau, SDPO Aizawl North who is the Investigating Officer of the case submitted an application to the Chief Judicial Magistrate (CJM), Aizawl for detention of twenty three (23) Nepalese women at Protective Home, Hunthar for their safe custody. The CJM allowed the prayer submitted by the Investigating Officer and order was passed for detention of the twenty three (23) Nepalese women at Protective Home, Hunthar for a period of twenty (20) days.
+
+**D. ENTRY OF MYANMAR REFUGEES**
+
+- On 23.4.2019 at 11:30 PM, one Sumo Maxi Cab vehicle bearing Registration Number AS 01- BC 0951 carrying 8 (eight) females, proceeding towards Aizawl was detained at Vairengte Police Check Gate. The driver of the vehicle Sojol Roy s/o Kutinenu Roy of Kabuganj, Cachar, Assam stated that on the evening of the same day, Amrul, owner of the vehicle, had directed him to carry the girls from Sumo Counter, Silchar and drop them at Zemabawk Petrol Pump, Aizawl where one unknown person will pick them up.
+- The mode of transportation raised suspicion and the girls along with the driver were taken to Vairengte PS. It was learnt that the girls spoke Rohingya language and upon examination of the girls (aged between 15-22) with the help of an interpreter, they stated that they were all from Myanmar and presently residing in Kutupalong Refugee Camp, Bangladesh and that they had been enticed to go to Malaysia for a prosperous future by one Anamal Hussain and they had agreed.
+- Vairengte PS Case No. 42/19 dt. 24.04.2019 u/s 14 Foreigners Act was registered against the 8 persons for illegal entry into India.
+- The accused persons were produced before the Fast Track Court, Kolasib and the Hon’ble Judge passed an order dt. 25.04.2019 convicting the accused persons u/s 14 Foreigners Act, sentencing them to undergo Simple Imprisonment for a period of 1 day with fine of Rs. 50 each. The Court further ordered that after the term of conviction and sentence is over, the accused persons shall be detained at Foreigner Detention Centre at Silchar until their deportation and legal formalities for their deportation shall be processed by the concerned authorities.
+- Home Dept. Govt. of Mizoram vide its letter dt. 30th April,2019 has requested Assam Government to convey approval to facilitate the detention of the foreigners at Foreigner Detention Centre, Silchar. Till date, there is no response from Govt. of Assam.
+- PHQ has written to Home Dept., Govt of Mizoram on 9th May, 2019 requesting to notify one vacant building at Vairengte Police Station Complex as a Temporary Foreigner Detention Centre and also to take steps for setting up an official Foreigner Detention Centre in Mizoram. In reply to PHQ letter, Home Department in its letter dated 23rd May, 2019 conveyed approval of the Government to designate new vacated building at Vairengte Police Station complex as Foreigners Detention Centre on temporary basis.
+- The eight(8) Rohingyas are presently detained at the Temporary Foreigner Detention Centre at Vairengte till date.
+
+1. **Foreigners located at Edenthar Veng, Aizawl**
+
+- On the basis on inputs from local NGOs of EdentharVeng, Aizawl, on 05.05.2019 12 non-indigenous persons (4 males and 8 females) were found staying at the residence of Pi Denghliri of EdentharVeng without any ILP.
+- Upon enquiry it was revealed that the twelve(12) persons were being illegally trafficked by Madiki of Tahan Myanmar from Bangladesh to Mizoram from where they will be further transported to foreign countries. The said Madiki had contacted her relative Pi Denghliri of Edenthar who had received the said twelve (12) persons.
+- Upon examination Pi Denghliri she revealed that she had received 6(six) batches of such persons as per the directions of Madiki of Tahan through one sumo driver named Dawnga.
+- Bawngkawn PS Case No. 117/19 dt. 06.05.2019 u/s 370(3)(5)/34 IPC was registered in this regard.
+- The foreigners (victims) were produced before the Chief Judicial Magistrate, Aizawl on 06.05.2019 and as per Court’s Order, the 8 (eight) females have been placed in State Social Welfare and Rehabilitation Centre under Social Welfare Department and the 4 (four) males are kept in Hermon Children’s Home who were later shifted to Muanna In Boys Home, Mualpui. As on date they are still detained at TNT, pending their deportation.
+- 2 (two) accused persons have been arrested in connection with the case.
+
+1. **Rohingyas intercepted by Dungtlang OP, Champhai**
+
+- On 15.06.2019 one Tata Sumo bearing registration no. MZ 01 K 4816 carrying eight(8) non- Mizo girls who are suspected to be trafficked towards Myanmar, was intercepted at Dungtlang Police Check Gate. Champhai PS Case No 59/19 dt. 17.6.2019 u/s 370 (3)(4)(5) IPC was registered in this regard.
+- As per the statement of the driver H Lalzamawia s/o Lakamlova of Leithum Village, the girls were to be taken uptoSaikhumphai village (Mizoram-Myanmar border) where they were to handed over some other person.
+- Dungtlai Police laid a trap in Saikhumphai and manged to arrest one Suidinliana s/o Thathawmliana of Khawthlir, Myanmar aka Jonathan and Nguntindawng s/o Thabuantai of Khawthlir, Maynmar aka Dawnga who came to Saikhumphai to pick up the girls.
+- Unfortunately, the two arrested persons managed to escape on the way to Champhai PS.
+- The arrested driver stated that this was the second time he had transported non-Mizo girls to Saikhumphai and in the first instance the girls were also handed over to Dawnga.
+- The victims stated that they were from Kutupalong Refugee Camp, Bangladesh and were taken out from the Refugee Camp on the pretext of shopping and had been forcible transported from Cox Bazar, Bangladesh.
+- On 25th June, 2019, the eight(8) victims were transferred to State Social Welfare and Rehabilitation Centre, Aizawl as per CJM, Champhai Order No. C.31013/1/2019-CWC(CPI) dt. 24.6.2019.
+
+1. **Rohingyas intercepted at Bawngkawn, Aizawl on 04.07.2019**
+
+- On the night 04.07.2019 based on inputs received from Kawnpui PS, Bawngkawn PS staff intercepted one Maxi Cab bearing Registration Number AS II 1899 transporting 4(four) Rohingya females (one minor) at Selesih.
+- Due to the suspicious nature of transportation, Bawngkawn PS Case No. 158/19 dt. 04.07.2019 was registered to ascertain if these girls were victims of human trafficking.
+- The driver of the Maxi Cab, one Taj Uddin Borbhuiya s/o M.A. Borbhuiya of Silchar was arrested and he stated that he had been offered Rs. 10000 by unknown handlers to transport the girls from Silchar to Aizawl where they would be picked up by another Maxi Cab.
+- Another Maxi Cab driver, Lallawmpuia(36) s/o Hranghlira of Bawngkawn who was supposed to pick up the girls for further transportation from Aizawl to Zokhawthar was also identified and arrested. His Maxi Cab bears Registration Number MZ 01 H 4623.
+- Four(4) temporary ILPs issued by the Dy. Resident Commissioner, Mizoram House Silchar with photograph of the girls but with different names were seized from the possession of the girls.
+- On 8.7.2019 Lalhmingmawia @ Kawlmawia(51) s/o Manglianchhuma(L) of TahanVutbuak, Myanmar, who contact the mizo sumo driver from Zokhawthar regarding transportation of Rohingyas was arrested at Zokhawthar and was forwarded to Aizawl.
+
+1. **Rohingyas intercepted at Champhai**
+
+Champhai PS C/No. 83/19 dt. 6.8.2019 u/s 370(4) IPC
+
+- FIR was submitted by HC F.Lalrinmawia of Champhai PS stating that on 18.6.2019 at 1:00 pm, HC Thanpara of Champhai PS Outpost produced one minor boy named Arof Ullah 14 years, at Champhai PS who was found at Zokhawthar Village and was suspected to be kidnapped and taken to Myanmar by unknown traffickers.
+- Champhai PS C/No. 83/19 dt. 6.8.2019 u/s 370(4) IPC was registered accordingly.
+
+1. **Rohingyas intercepted at Champhai**
+
+- FIR submitted by SI Robert Lalhmuakliana of Zokhawthar OP stating that on the night of 26.8.2019 @7:00 pm, three minor girls namely Purbima, Zubeira and Sudhikun Nahar were found at Tahan Hotel, Zokhawthar who were suspected to be trafficked and proceeding towards Myanmar.
+- In this regard Champhai PS C/No. 89/19 dt. 27.8.2019 u/s 370(2)(3)(4)(5) IPC was registered
+- One Farooq Ahmed of Assam was arrested at Champhai.
+
+1. **Rohingyas intercepted at Champhai**
+
+- On 4.11.2019, David Zothanmawia(26) s/o Thangchungnunga of RabungVillange, P/A Bethel VengChamphai driver of Hotel Chawngthu sumo informed Champhai Police that three minor girls suspected to be Rohingyas boarded his sumo (Maxicab) R/No. MZ-04-4283.
+- Champhai Police were despatched to Melbuk and intercepted the sumo.
+- One Thawngsianmanga (50) s/o Rokhawlian of Laitui, Myanmar was arrested as he was coming to collect the three minor girls who was accompanied by two minor boys (both of 16 years) from Myanmar at the outskirts of Melbuk Village, Champhai Dist.
+- On checking the sumo, three minor girls suspected to be Rohingyas were found inside the sumo and were later identified. All the three victims were rescued and were kept at Rose Home.
+
+**Findings of investigation**
+
+- Mode of transport – Hired Maxi-Cabs (Sumo)
+- Movement controlled from Myanmar side through calls made to local Mizo Maxi Cab drivers with directions for pick and drop of Rohingyas.
+- As per investigation reports, involvement of locals to the extent of harbouring and transporting of victims for financial gain with little knowledge of further movement of victims. Contacted through mobile from Myanmar.
+- All the Rohingyas detected in Mizoram are placed in Temporary Foreigner Detention Center, Vairengte, State Social Welfare and Rehabilitation Centre under Social Welfare Department, Aizawl and TNT, Thuampui as per orders of the Hon’ble Court and steps are being taken for their deportation.
+- In some cases the victims stated they were taken by deception while some victims state that they intend to go to Malaysia through Myanmar for better employment opportunities.
+- So far, the main traffickers are yet to be arrested.
+
+**Details of Human Trafficking case in Mizoram for the year 2001 - May, 2020 is enclose as Annexure - II.**
+
+**4) INDO-MYANMAR BORDER ISSUE :**
+
+Kaladan Multi-Modal Transit Transport Project initially faced problems such as under estimation of the road length inMyanmarand plans to construct hydro-electric projects —Chhimtuipui RiverandLungleng River— on two tributaries of theKaladan Riverfollowed by another project downstream. That the first two projects are being built by one public sector undertaking and the third is being constructed by another PSU (Public Sector Unit) has also led to coordination issues. Due to construction of this hydro-electrical project, Navigation of boats could be effected.
+
+ The project includes a waterway component of 158kms. on Kaladan River from Sittwe to Paletwa in Myanmar and a road component of 109kms. from Paletwa to Zorinpui along the India-Myanmar border in Mizoram.
+
+**Challenges and Preparedness:**
+
+1. _Slow Progress of the KMMTTP_ :
+
+There are many factors which attributed the slow progress to the project which are (i) long rainy season which resulted in shorter duration of construction of road in a year (ii) remoteness of the region in Mizoram which causes delays in the supply of fuel and spare parts, and further delaying the project.
+
+The factor which concerned with security is demand of compensation as many landlords in Lawngtlai are demanding compensation for the highway that supposedly passed over their lands and has resulted in blockades of the ongoing construction work on numerous occasions. Lawngtlai District Land Owners Association (LDLOA) was formed and commenced picketing against staff/workers of RDS Company and ARSS Company, Contractors engaged under KMMTTP on many occasions and sometimes blockade of road in protest against the alleged undue payment of compensation to LDLOA members.
+
+1. _Militancy challenge in Myanmar_ :
+
+Myanmar government was hesitant to begin KMMTTP work since the highway would pass through some areas where a rebel group called Arakan Army (AA) has a presence. R.D.S. Pvt. Ltd undertook road construction in between Zorinpui and Paletwa Myanmar and they are presently constructing 4.9 kms. out of the total 49 kms. to be constructed. This project would pass through Arakan Army (AA) Operational Area under Rakhine State. On the morning of 19.6.2020, while the construction work was going under the guard of Myanmar Army (MA), Arakan Army (AA) opened fire to Myanmar Army (MA), as per report some MA personnel sustained injury due to the attack. Manager and workers of company took shelter inside Mizoram and the work could not be resumed till date.
+
+After the incident, resumption of the work was not allowed by Arakan Army (AA). It has been learnt that as long as India’s cooperate with Myanmar Army (MA), they would not allow continuing the work and demanded signing of tripartite agreement of representatives of Govt. of India, Official of Construction Company and Arakan Army (AA) in order to resume the work.
+
+1. _Refugee problems_ :Hundreds of refugees streamed into Mizoram following clashes between the Myanmar Army (MA) and the Arakan Army (AA) in the year 2017. The same case may happen again due to major attack of Myanmar Army (MA) by Arakan Army (AA) and also if the Myanmar Army (MA) launches any major operation there may be influx of refugees/AA into Mizoram. After completion of the KMMTTP there may be unabated influx of foreigner into Mizoram due to Free Movement Regime (FMR) between India and Myanmar.
+2. _Cross Border Crime_ :There may be increase in cross border crimes due to better road connectivity after completion of KMMTTP. This may open door for illegal activities such as Arms Smuggling, Human Trafficking, Drugs Smuggling and illegal migration of foreigners due to the very strategic location of Mizoram. It would be necessary to beef up the security along Myanmar and Mizoram border in order to restrain cross border crime once the project is completed.
+3. _Beefing up of Border Security_ :The open unfenced border and the Free Movement Regime(FMR) between India and Myanmar allows Myanmarese nationals to enter up to 16 kms. into Mizoram Territory without any Visa restrictions and this may facilitated unabated influx of foreigners, smuggling of drugs, arms and other illegal activities from Myanmar. At present, Assam Rifle guard Indo-Myanmar Border and BSF guard Indo-Bangladesh border. Mizoram shared 496.531 Kms. with Myanmar and 319.791 Kms. with Bangladesh. In order to check these illegal cross border crime activities, it is necessary to beef up security along the border of Mizoram and Myanmar.
+4. _Setting up Battalion Headquarters_ :The 3rd Indian Reserve Battalion currently deployed at Assam is planning to set up its Headquarters at Thingkah, Lawngtlai District. Construction work of infrastructural need is going on, and it is expected to be completed soon. Once they are stationed at the new headquarters, they will be an important asset to maintain peace and security in the southern part of Mizoram. They would be very useful in Maintenance of Law &amp; Order and guarding of international boundary and cross border crime.
+
+****5) INTER-STATE BORDER ISSUES :****
+
+****Inter-state border dispute with Assam at Zophai, Bairabi, Kolasib District****
+
+1. On 27.2.2018, around 50 (fifty) members of Mizo Zirlai Pawl (MZP) from Aizawl and Bairabi constructed "Zofate Chawlhbuk" (Shed) at Zophai near Bairabi located at Mizoram-Assam border. The same was demolished by some persons reportedly at the instance of Assam Police on the same night. Similarly, Police Duty Post erected by Assam Police at the same disputed site on 2.3.2018 was also dismantled by some persons reportedly under the aegis of Mizo Students Union, a few hours after it was constructed.
+2. On 8.3.2018 @ 11:45 a.m, a minor scuffle broke out between the Student union and Assam Police at the disputed site when some members of the Students Union tried to unload their building materials from the vehicle. The Assam Police had even resorted to Lathi-charge as a result of which around 15 (fifteen) MZP members reportedly sustained minor injuries.
+3. On 10.3.2018 @ around 11:00 a.m, a scuffle broke out again between Assam Police and members of Mizo Zirlai Pawl (MZP) when around 100 (hundred) strong MZP members proceeded to the disputed site at Zophai near Bairabi along Assam - Mizoram border with their building materials to reconstruct ‘Zofate Chawlhbuk’ at the site. The students were intercepted by Assam Police before they reached the disputed site and they subsequently used force to disperse them. The Assam Police initially used Lathi but later on resorted to firing and around 8 (eight) shots were reportedly fired. 49 (forty nine) MZP members were injured along with 8 (eight) media persons. The Assam Police burnt down the make-shift shed for taking shelter on this day made by the MZP near the disputed site and several vehicles belonging to MZP members were also ransacked by Assam Police.
+4. On 12.3.2018 @ 10:30 a.m, a procession called ‘Ram Humhalh Kawngzawh’ was organised under the aegis of Mizo Zirlai Pawl (MZP) in Aizawl and in other towns of the State such as Lunglei, Champhai, Serchhip, Kolasib, Thenzawl, Vairengte, Sairang, Saitual, Tlabung, Bairabi, Bilkhawthlir, Zawlnuam and Mamit.
+5. Mizo Zirlai Pawl (MZP), General Headquarters, Aizawl organised a Sit-in demonstration in front of Vanapa Hall, Aizawl on 22.3.2018 @ 1:00 p.m in protest against the brutal assault on Students and Journalists by Assam Police at Zophai, Bairabi.
+6. A Joint Verification Team meeting chaired by Joint Secretary (North East), Ministry of Home Affairs, Government of India and members comprising of Home Secretaries of Mizoram and Assam, SsP &amp; DCs of Kolasib and Hailakandi Districts; representatives of Central YMA and MZP General Headquarters was held at the disputed site, viz. Zophai, Bairabi on 27.3.2018.
+7. MZP submitted a 'Memorandum' to Shri. Satyendra Garg, Joint Secretary (North East), Ministry of Home Affairs, Government of India on 27.3.2018 and to the Hon'ble President of India, Hon'ble Prime Minister of India and Hon'ble Union Home Minister on 3.4.2018.
+8. On 12.4.2018, Joint Verification Team, comprising of officials from Mizoram and Assam started conducting spot verification of Inner Line Reserve Area along Mizoram-Assam border. It was reported that a total of 34 (thirty four) illegal constructions, including 2 (two) Masjids and 1 (one) School, were identified by the Joint Verification Team. Out of the total 34 illegal constructions, 1 (one) illegal construction was owned by Sangluaia (L) of Bairabi, Mizoram while the rest were owned by residents of Assam.
+9. There was an incident of assault on one Pu Lalhmingmawia, resident of Phaisen at Dolchhora, Assam on 7.4.2019 @ 4:00 p.m as a result of which NGOs of Phaisen village issued a diktat to non-Mizo (Vai) residents presently engaged as labourers in paddy fields owned by Mizos at Phaisen village to leave Phaisen, and ordered blockade of road from 8.4.2019. The victim, Pu Lalhmingmawia (32) S/o Sangluaia, a Church Elder of UPC, NEI (United Pentecostal Church, North East India), who also happened to be an Auto-rickshaw driver was allegedly attacked from behind while attempting to mediate in a fracas between fellow Mizo tractor driver and a local cyclist of Dolchhora over an accidental collision earlier that day at Dolchhora, as a result of which he had sustained head injury. The following Mizo tractor driver, along with other two Mizos also sustained minor injuries : –
+
+1. Lalrozamliana (25) S/o Lalhmangaiha
+
+2. Zosangzuala (45) S/o P. Kawlthangvunga
+
+3. Michael Zochhuanmawia (30) S/o Zohmingthanga
+
+ Police team led by Addl. SP, Kolasib and SDPO, Vairengte, accompanied by BDO, Bilkhawthlir immediately rushed to Phaisen and a meeting between V/C, NGOs of Phaisen and Dolchhora Gram Panchayat accompanied by In-charge, Police Out Post, Dolchhora and Bilaipur was held at V/C House, Phaisen. An agreement was subsequently made in which the assailant, Malibur Rikman (54) will pay Rs. 15,000/- (Rupees fifteen thousand) as compensation to the victim, Pu Lalhmingmawia, and Rs. 1,500/- (Rupees one thousand five hundred) each to the other three who sustained minor injuries. Other medical expenses would also be paid by Malibur Rikman. The diktat issued by NGOs of Phaisen also stands cancelled. Situation is reported to be normal and peaceful.
+
+1. Information has been received that on 6.7.2019, Forest Department officials of Assam (around 10 in number) headed by a Forest Range Officer has started renovation work of one building located at the disputed Mizoram-Assam Forest Reserve area along the Aizawl-Silchar National Highway. It was reported that the building used to be utilized as Cinema Hall/Movie Theatre some 20 years back and has been lying unoccupied since then. It is learnt that the building is being renovated for housing of Assam Forest Border Post.
+
+ On having learnt the news, around 20 (twenty) Mizos and 80 (eighty) residents of Lailapur, Assam gathered at the spot. However, no untoward incident occurred. Mizoram Police under the command of Addl. SP, Kolasib and SDO(C), Vairengte also immediately rushed to the spot. They informed the Assam Forest staff engaging in the work to cease their activity as the area falls under disputed Forest Reserve area. However, the workers refused to comply stating that they are acting according to the instruction of Divisional Forest Officer, Cachar.
+
+** Both the DC and the SP, Kolasib have also proceeded to Vairengte. A meeting was held at SDO(C) Office, Vairengte in which District authorities and NGOs of Vairengte held a discussion on possible Law &amp; Order situation and its prevention. Thereafter, SP, Kolasib held a meeting with DFO, Cachar at Lailapur on****6.7.2019****@ 6:30 p.m. After thorough discussion, the meeting resolved to stop the ongoing renovation work for the time being.**
+
+ It may be recalled that a meeting between District Administration of Kolasib, Mizoram and Cachar, Assam held on 3.9.2015 @ 11:00 a.m at CIJWS Conference Hall, Vairengte resolved issue regarding Forest Reserve area, quoted:
+
+‘Status Quo ante shall be maintained in the respective Forest areas. No department activity/ encroachment by any department or public shall be allowed. In case of any illegality which is in violation of the Forest Act/Rules/Regulations in force, the matter shall be brought immediately to the notice of the counterpart Range Officers/Divisional Forest Officers.’
+
+****Inter-state border dispute with Assam at Vairengte, Kolasib District****
+
+_According to Bengal Eastern Frontier Regulation, 1873 (V of 1873) under Form No. (Forest Department of Assam – Area of Reserved and Unclassed State Forest, 1896-97), 325,760 acres (equivalent to 509 square miles) under Sonai and Matijuri Range of Cachar Division were within the then Lushai Territory (now Mizoram)._
+
+1. On 20.6.2007, MZP constructed waiting shed "Zo Run" at the outskirt of Vairengte. The same was dismantled few hours later by the Assam Police but all the materials were salvaged by the Mizoram Police. In this connection, Vairengte PS Case No.29/07 dt.21.6.2007 was registered against the Assam Authority.
+2. There was a dispute over broom cultivation between residents of Vairengte village of Mizoram and Bilaipur village of Assam at a place called Aitlang area which falls within Mizoram on 16.12.2010. In this connection, 3 Mizo persons were taken by civilians of Bilaipur and were kept in Bilaipur Outpost but were taken back by Mizoram Police. The matter has been amicably settled later after discussion between the Mizoram and Assam authorities.
+3. The recent makeshift boundary pillar reportedly erected by DFO, Cachar on 2nd September 2012 was destroyed on the early morning of 11.9.2012 @ 2:00-3:00am by ZNP workers led by Pu KL.Liantlinga, MLA. The pillar in question is located at about 5 kms. North-west of Vairengte town at Aitlang where one Mizo, Pu Lalhmangaiha of Vairengte is having wet paddy field.
+4. 1) The 4 (four) Farm Huts at Buhchangphai belonging to 2 (two) Mizo farmers had been dismantled by Assam Forest officials and Assam Police on 27th April, 2018 creating a fresh tension over the long-standing border dispute.
+
+2) On 29.4.2014 @ 9:00am, around 160 volunteers of Buhchangphai Branch YMA reconstructed 4(four) Farm huts belonging to 2 (two) victims under the protection of 1st IR Bn. to show a sign of claiming the territory of Mizoram.
+
+3) At around 4:00 pm on the same day, a group of Assam Police numbering 30 to 40 came to the place of incident and dismantled all the reconstructed Farm Huts again, taking advantage of the absence of 1st IR Bn. on duty at the site.
+
+1. 1) 5 (five) Farm Huts have been constructed by public of Lailapur, Cachar District near Auto rickshaw stand of Vairengte along the National Highway during August &amp; September, 2015.
+
+2) These Farm Huts were dismantled by the personnel of Assam Forest Dept. on 9.9.2015 after they had a meeting with E&amp;F Range Officer, Vairengte and Range Officer of Dholai.
+
+1. Information received from SDPO(Vairengte) indicated that while he was conducting checking of border sealing points in and around Vairengte Town on 27.05.2020, he had observed that there are 11(eleven) newly constructed temporary sheds, constructed with bamboo and silpouline, and 7(seven) temporary shed under construction at about 2 Kms. from Vairengte towards Lailapur (Assam) on the roadside of NH-306, within the disputed area of Mizoram and Assam border. On enquiry, it was found that these temporary sheds are constructed by localities of Lailapur.
+
+ On receiving this information, the matter was immediately taken up with SP Cachar District, Assam by SP Kolasib over phone and a strong objection into the illegal construction was conveyed. Pursuant to the discussion over phone, a joint Police team from Assam and Mizoram comprising of Mr.Jakir Das, Addl SP Cachar and Mr. Ramtharnghaka, SDPO(Vairengte) and their teams conducted spot verification on 28.05.2020. Addl SP Cachar stated that the sheds were constructed by localities of Lailapur for selling water and other eatables to stranded migrant workers coming(returning) from Mizoram as well as to drivers and handymen who are waiting for permission to enter Mizoram. He assured that all the sheds will be dismantled as and when the ongoing Covid-19 pandemic is over. A strong objection to the illegal construction was raised by SDPO(Vairengte) as it is a clear violation of point no-(ii) of the minutes of the discussion held at CIJW Conference Hall on 03/09/2015 @ 11:00AM between the District Administration of Kolasib, Mizoram and Cachar, Assam, wherein it is stated that "Status Quo Ante shall be maintained in the respective forest areas. No departmental activity/encroachment by any department or public shall be allowed". The Addl SP (Cachar) was requested to dismantle all the sheds, which are illegally constructed in the disputed area. Thereafter, SP Kolasib discussed the matter with SP Cachar over phone. SP Cachar stated that Mizoram Excise Department official are conducting checking at temporary check point located at Vairengte-Lailapur Auto Stand which lies within the disputed area and if Kolasib District Administration are willing to withdraw these excise officials, he will order dismantling of the sheds. This message was conveyed to DC Kolasib. However, withdrawing of Mizoram Excise Department personnel who are sealing the border and checked for drugs trafficking at the border is not suggested at this time.
+
+ As per decision of joint meeting of SDPO, Vairengte and three members of MSU party visited the area on 26.6.2020. 2(two) small shops made of bamboos and silpauline were found at approximately 120 mtrs. before reaching Lailapur Playground.

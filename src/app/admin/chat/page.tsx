@@ -48,6 +48,10 @@ export default function AdminChatPage() {
   const [inputMessage, setInputMessage] = useState("");
   const [isLoading, setIsLoading] = useState(false);
   const [error, setError] = useState<string | null>(null);
+  const [provider, setProvider] = useState<"gemini">("gemini");
+  const [model, setModel] = useState<string>("gemini-2.5-pro");
+  const [models, setModels] = useState<Array<{ name: string; label: string }>>([]);
+  const [modelsLoading, setModelsLoading] = useState<boolean>(false);
   const [lastResponseMeta, setLastResponseMeta] = useState<{
     queryType?: string;
     searchQuery?: string;
@@ -58,6 +62,36 @@ export default function AdminChatPage() {
   const [expandedSources, setExpandedSources] = useState<
     Record<string, boolean>
   >({});
+
+  // Load available models for current provider
+  useEffect(() => {
+    let cancelled = false;
+    async function loadModels() {
+      try {
+        setModelsLoading(true);
+        const res = await fetch(`/api/admin/ai/models?provider=${provider}`);
+        if (!res.ok) throw new Error("Failed to load models");
+        const data = await res.json();
+        if (cancelled) return;
+        const list: Array<{ name: string; label: string }> = Array.isArray(data.models)
+          ? data.models
+          : [];
+        setModels(list);
+        // If current model not in list, set to first available
+        if (list.length > 0 && !list.some((m) => m.name === model)) {
+          setModel(list[0].name);
+        }
+      } catch (e) {
+        console.error("[AdminChat] Failed to fetch models", e);
+      } finally {
+        if (!cancelled) setModelsLoading(false);
+      }
+    }
+    loadModels();
+    return () => {
+      cancelled = true;
+    };
+  }, [provider]);
   const scrollAreaRef = useRef<HTMLDivElement>(null);
   const inputRef = useRef<HTMLInputElement>(null);
 
@@ -104,6 +138,8 @@ export default function AdminChatPage() {
         body: JSON.stringify({
           message: userMessage.content,
           conversationHistory: messages,
+          provider,
+          model,
         }),
       });
 
@@ -839,16 +875,60 @@ export default function AdminChatPage() {
       )}
 
       <Card className="h-[calc(100vh-24px)] flex flex-col">
-        <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-4 flex-shrink-0">
-          <CardTitle className="flex items-center gap-2">
-            <MessageSquare className="h-5 w-5" />
-            Chat History
-          </CardTitle>
-          {messages.length > 0 && (
-            <Button variant="outline" size="sm" onClick={clearChat}>
-              Clear Chat
-            </Button>
-          )}
+        <CardHeader className="flex flex-col space-y-3 pb-4 flex-shrink-0">
+          <div className="flex items-center justify-between">
+            <CardTitle className="flex items-center gap-2">
+              <MessageSquare className="h-5 w-5" />
+              Chat History
+            </CardTitle>
+            <div className="flex items-center gap-2">
+              {messages.length > 0 && (
+                <Button variant="outline" size="sm" onClick={clearChat}>
+                  Clear Chat
+                </Button>
+              )}
+            </div>
+          </div>
+          <div className="flex flex-wrap items-center gap-3">
+            <div className="flex items-center gap-2">
+              <label htmlFor="provider" className="text-sm text-gray-600">
+                Provider
+              </label>
+              <select
+                id="provider"
+                className="h-9 rounded-md border border-gray-300 bg-white px-2 text-sm focus:outline-none focus:ring-2 focus:ring-indigo-500"
+                value={provider}
+                onChange={(e) => setProvider(e.target.value as "gemini")}
+              >
+                <option value="gemini">Gemini</option>
+              </select>
+            </div>
+            <div className="flex items-center gap-2">
+              <label htmlFor="model" className="text-sm text-gray-600">
+                Model
+              </label>
+              <select
+                id="model"
+                className="h-9 w-56 rounded-md border border-gray-300 bg-white px-2 text-sm focus:outline-none focus:ring-2 focus:ring-indigo-500"
+                value={model}
+                onChange={(e) => setModel(e.target.value)}
+                disabled={modelsLoading || models.length === 0}
+              >
+                {modelsLoading && (
+                  <option>Loading models...</option>
+                )}
+                {!modelsLoading && models.length === 0 && (
+                  <option>No models configured</option>
+                )}
+                {!modelsLoading &&
+                  models.map((m) => (
+                    <option key={m.name} value={m.name}>
+                      {m.label || m.name}
+                    </option>
+                  ))}
+              </select>
+            </div>
+          </div>
         </CardHeader>
 
         <CardContent className="flex-1 flex flex-col p-0 min-h-0">

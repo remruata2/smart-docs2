@@ -12,7 +12,7 @@ datasource db {
 
 model CategoryList {
   id         Int       @id @default(autoincrement())
-  file_no    String    @unique(map: "uq_category_file_no") @db.VarChar(100)
+  file_no    String    @db.VarChar(100)
   category   String    @db.VarChar(255)
   created_at DateTime? @default(now()) @db.Timestamptz(6)
   updated_at DateTime? @default(now()) @db.Timestamptz(6)
@@ -22,12 +22,12 @@ model CategoryList {
 
 model FileList {
   id              Int                      @id @default(autoincrement())
-  file_no         String                   @db.VarChar(100)
-  category        String                   @db.VarChar(150)
-  title           String                   @db.VarChar(255)
+  file_no         String                   @db.Text
+  category        String                   @db.Text
+  title           String                   @db.Text
   note            String?
   content_format  String?                  @db.VarChar(20) // 'html' or 'markdown'
-  doc1            String?                  @db.VarChar(150)
+  doc1            String?                  @db.Text
   entry_date      String?                  @db.VarChar(50)
   entry_date_real DateTime?                @db.Date
   search_vector   Unsupported("tsvector")?
@@ -58,4 +58,45 @@ enum UserRole {
   staff
 
   @@map("user_role")
+}
+
+/// Provider enum for AI key management
+enum Provider {
+  gemini
+  openai
+  anthropic
+}
+
+/// Stores encrypted API keys and metadata for AI providers
+model AiApiKey {
+  id            Int        @id @default(autoincrement())
+  provider      Provider
+  label         String     @db.VarChar(100)
+  api_key_enc   String     @db.Text
+  active        Boolean    @default(true)
+  priority      Int        @default(0)
+  success_count Int        @default(0)
+  error_count   Int        @default(0)
+  last_used_at  DateTime?  @db.Timestamptz(6)
+  created_at    DateTime   @default(now()) @db.Timestamptz(6)
+  updated_at    DateTime   @updatedAt @db.Timestamptz(6)
+
+  @@index([provider, active, priority], map: "idx_ai_api_keys_active_priority")
+  @@map("ai_api_keys")
+}
+
+/// Lists available models per provider, manageable by admin
+model AiModel {
+  id         Int       @id @default(autoincrement())
+  provider   Provider
+  name       String    @db.VarChar(100) // internal model id used by API calls
+  label      String    @db.VarChar(150) // human-friendly label
+  active     Boolean   @default(true)
+  priority   Int       @default(0)
+  created_at DateTime  @default(now()) @db.Timestamptz(6)
+  updated_at DateTime  @updatedAt @db.Timestamptz(6)
+
+  @@unique([provider, name], map: "uq_ai_model_provider_name")
+  @@index([provider, active, priority], map: "idx_ai_models_active_priority")
+  @@map("ai_models")
 }

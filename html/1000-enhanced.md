@@ -1,0 +1,23 @@
+****ABDUCTION OF 3 WORKERS OF GAUTAM CONSTRUCTION COMPANY FROM RAJIVNAGAR ON****5.6.2013 @ AROUND 10:00 AM****
+
+ On 5.6.2013 at around 10:00 AM, three (3) persons of Gautam Construction Company workers were kidnapped by a combined militants group of NLFT (National Liberation Front of Tripura) and BNDLFM (Bru National Development Liberation Front of Mizoram) from the village of Bodalsuri (4Km from Rajiv Nagar), Mamit District. Sources said that the abductors are around 8 members.
+
+Name of person abducted:-
+
+1. Nizam Uddin(28) of Karimganj(Labour supervisor)
+2. Mitun Bagani(18) of silchar (Labourer)
+3. Dairgudon Chakma(30) @Sanjoy of Rajiv nagar(Driver)
+
+ In this connection, **West Phaileng****PS C/No. 10/13 dt. 6.6.2013 u/s 364(A)/34 IPC r/w 25(1) Arms Act** has been registered.
+
+A team of CID(SB) led by Pu Lalrinpuia Varte DySP rushed to Tuipuibari on the same day @10:00pm and arrived at the P/O i.e. Tuipuibari II (Rajiv Nagar) the next day i.e. 06.06.2013 @ 07:00 am.
+
+****On 09.06.2013, S/S Lt. Parimol Debbarma contacted Sandeep Bhagaria, Project I/c, Gautam Construction Company at 09:31 am urging him to pay the ransom i.e. Rs. 1 crore immediately. The Caller spoke in Bengali.
+
+ On 21.06.2013, surveillance has been mounted by a team of CID (SB). Places visited and places of stay of the target recorded and photographs taken. The target left Aizawl on 22.06.2013 and returned to Refugee Camp. On 25.06.2013, a team of CID (SB) has been sent this morning to locate Sanjoy Chakma who had returned home from Tripura.
+
+** On 26.06.2013, Sanjoy Chakma and Marisa both of Rajivnagar were picked up by SB Team and brought to Aizawl. Interrogation was done at CID (SB) Office. Sanjoy admitted having called back a missed call which he received on 06.06.2013 which was a Bangladesh SIM which was earlier thought to be a Pakistani number. Sanjoy corroborated earlier report that the abductors made their first ransom demand of Rs. 25 lakhs and also instructed him to make further contact to Mobile Number**.**They were released on 28.06.2013 as their involvement in the case could not be established during the interrogation.**
+
+ On 25.08.2013, one Sanjoy Chakma Driver, Gautam Construction Company, Rajiv Nagar who was abducted by NLFT (Parimal faction) on 05.06.2013 from Rajiv Nagar was released on the night of 24.6.2013 from Udalsury village near Bangla-India border and reached BSF Camp, Rajiv Nagar safely on 25.6.2013 @ 11:00 am. Debriefing report from the freed hostage revealed that the other two hostages being held hostage are expected to be released in the next few days.
+
+ On 10.11.2013, two abducted labours of Gautam Construction Company who were abducted on 5th June, 2013 near Indo-Bangladesh Border of Rajiv Nagar, Mamit District, Mizoram by National Liberation Front of Tripura (NLFT) militants were released. The two hostages namely Mr. Nizam Uddin and Mr. Mitun Bagani reached Border Security Force (BSF) Camp, Rajiv Nagar, Mizoram safely on 10.11.2013 at around 3:00 PM. Further report received stated that the family of the hostages after prolong negotiation paid Rs.3 lakhs and seven mobile handsets as a ransom for safe release of the hostages. The two captives were handed over to Mizoram Police by BSF personnel at West Phaileng Police Station on 11.11.2013.

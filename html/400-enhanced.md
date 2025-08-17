@@ -1,0 +1,11 @@
+****ARREST OF H.ZOSANGBERA, S/S CHAIRMAN, HPC(D) ON 17.7.2012 AT IGI AIRPORT, NEW DELHI****
+
+ Inputs received that the HPC-D (H.Zosangbera Faction) were planning to have a meeting somewhere in Churachandpur (Manipur) on 12.7.2012 to discuss ways and means to secure the unconditional release of their 2 (two) jailed top leaders (S/S Army Chief Ropuia and S/S Dy. Army Chief Bieknung who were now detained in Central Jail Aizawl) and to this effect they were planning to abduct officials or any other soft targets to swap their two jailed top leaders with the abducted persons. The inputs received further indicated that the Acting S/S Army Chief C.T Sungte of HPC-D and so-called Bru National Army leader Lalthazuala also intended to have a meeting sometime in July 2012 to chalk out their secret plan wherein it was reported that the HPC-D may entrust Bru extremists to blast railway track between Silchar and Bairabi to cut off essential commodities line to Mizoram and also to commit acts of economic sabotage against vehicles plying from Silchar to Mizoram. The input received further added that the HPC-D cadres may infiltrate into Aizawl city to carry out certain subversive activities with the help of their sympathisers. Meanwhile, as per fresh input received, H. Zosangbera, Chairman HPC-D was planning to go to Delhi reportedly to submit Memorandum to the MHA.
+
+ Promptly acting on the above inputs, Mizoram CID(SB) team as detailed proceeded to Delhi on 15.7.2012 and with the cooperation from Delhi Police apprehended H. Zosangbera, S/S Chairman HPC-D on 17th July 2012 at 6:50 PM at IGI Airport Delhi who was en-route to Delhi from Imphal. After observing/performing necessary formalities at Palam Airport Police Station Delhi the arrested S/S Chairman has been brought to Aizawl by flight on 18th July 2012. He has been instantly arrested in connection with Aizawl PS C/No. 322/12 dt. 13.7.2012 u/s 121(A)/34 IPC and in addition he is also involved and wanted in another 32 criminal cases at various Police Stations in Mizoram for various forms of threat, criminal intimidation extortion and other criminal offences. He was released on bail on 6.2.2013. The executions of an excellent workout plan of the team are:
+
+ 1. HL Thangzuala, Addl.SP, CID(SB)
+
+ 2. Inspr. Laltanpuia Sailo, CID(SB)
+
+ 3. SI JH Chunglianthanga, CID(SB)

@@ -1,0 +1,6 @@
+**22.11.2022 :** P&amp;E Engineering Officers' Association (PEOA) Annual General Conference was held on 22.11.2022 @10:30 a.m. at Aijal Club. Er. Benjamin L. Tlumtea, President, PEOA presided the Conference and Pu R. Lalzirliana, P&amp;E Minister graced the occasion as Chief Guest. During the function, discussion was held on filling up of vacant post, self-sufficiency in power through Hydel Power Generation and Electrical accident and safety measures. The conference was attended by around 70 (seventy) members.
+
+****1.12.2022 :** Mizoram Engineering Service Association (MESA) held its 41st Annual General Conference on 1.12.2022 @ 10:00 a.m. at Multipurpose Hall, Berawtlang. Pu Tawnluia, Deputy Chief Minister graced the occasion as Chief Guest and around 120 (one hundred twenty) members attended. During the conference, the following agendas concerning the state government were passed:**
+ (i) To take necessary action for filling up of the most numbers of vacant  posts.
+
+ (ii) To take necessary action of conduct of Mizoram Engineering Service  (MES) common exam for PHE, PWD and P&amp;E.

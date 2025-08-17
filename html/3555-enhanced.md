@@ -1,0 +1,26 @@
+**21.2.2022 :** Information received stated that Mizoram Government Doctor's Association (MGDA) intended to resort to the following agitations :-
+
+(i) To wear black badge on 21.2.2022
+
+(ii) To take mass half day (afternoon) casual leave on 24.2.2022
+
+(iii) To take mass half day (afternoon) casual leave on 1-3.3.2022
+
+ MGDA intended to organize the above mentioned agitations in demand of the following :-
+
+(i) Creation of Secretary, Joint Secretary, Under Secretary Posts at state Secretariat for Mizoram Health Service (MHS).
+
+(ii) Restructuring of MHS Post such as creation of some posts as functional post out of 63 (sixty three) non-functional Selection Grade posts; creation of 10 (ten) Supertime Grade-B Non-Functional Posts; re-designation of MHS post equivalent to their grade pay and creation of additional 3 (three) District Medical Superintendent Post for new districts.
+
+(iii) Setting up of District Hospital and Chief Medical Office (CMO) in the new districts.
+
+(iv) It stated that no weightage was given to rural contract employees in Medical Officer (MO) Recruitment held in 2021 despite having provision for giving weightage to rural service under MO Recruitment Rules.
+
+(v) Opposed the initiative taken to decadre the post of Medical Superintendent and Dy. Medical Superintend, State Referral Hospital Falkawn (MHS cadre post) to Zoram Medical College (ZMC).
+
+****18.2.2022:**  Mizoram Government Doctor Association (MGDA) held its Emergency Meeting on 18.2.2022 @ 7:30 p.m. at Doctors' Seminar Room, Civil Hospital, Aizawl. Dr. Chawngthanchhunga, President MGDA presided the meeting and 15 (fifteen) members attended. The meeting expressed gratitude for constitution of a Committee to review their grievances under the initiative of Dy. Chief Minister and decided to temporarily suspend their intended agitation. The meeting also decided that Cadre Restructuring Committee should be given 2(two) months time to submit its report instead of 3 (three) months and at least 1 (one) officer from Mizoram Health Service (MHS) should be included in the stated Committee. In this connection, a written petition was submitted to Deputy Chief Minister on 18.2.2022.**
+
+****8.4.2022 :** Leaders of Clinical Pharmalogist Association of Mizoram (CPAM) led by Dr. C. Ramdina, President, CPAM met Pu Zoramthanga, Hon'ble Chief Minister of Mizoram at the latter's Office Chamber on 8.4.2022 @ 12:00 noon. During the meeting, they requested the Chief Minister to create Clinical Pharmacist Post for the development of health sector within the state.**
+****18.8.2022 :** Indian Medical Association, Mizoram Branch held a Meeting on 18.8.2022 @ 4:00 p.m. at Civil Hospital Aizawl Seminar Room to discuss a video that went viral on social media concerning physical attack of Dr. Zonuna by one lady on 17.8.2022. The meeting is still going on at the time of writing the report.**
+
+****19.8.2022 :** Indian Medical Association, Mizoram Branch Meeting held on 18.8.2022 @ 4:00 p.m. at Civil Hospital Aizawl Seminar Room expressed regret over incident of physical assault against their fellow member. It also expressed their desire that such incident do not recur in future. The meeting decided that in protest of the said incident, all IMA members should wear black badge on 20.8.2022 at their respective work places. The meeting further urged the State government to immediately implement 'The Mizoram Protection of Medical Service Personnel and Medical Service Institution (Prevention of Violence and Damage or Loss of Property) Act', which was already submitted to the State government in line with similar act enacted by the Central government.**

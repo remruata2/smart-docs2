@@ -1,0 +1,5 @@
+A. _Front page of VANGLAINI newspaper Dt. 19.5.2014_
+
+**Timber Seized at Selam - Villagers burnt one Truck****:**Staff of Environment &amp; Forest Department seized sawn timber at the outskirt of Selam village on 16th May. Tata 1109 truck of Forest Dept. used for carrying/loading sawn timber was burnt by Selam villagers.
+
+ According to report, Protection Squad and Forest Staff from Aizawl went to Selam in a bus and 2 trucks to seize sawn timber and they seized more than 400 cubic of illegal sawn timber at the outskirt of Selam village. While Forest staff were loading timbers into the truck, Selam villagers flocked together and forced the Forest staff to unload the timber, after this the villagers set fire to one truck. A bus and a truck were used by Forest staff to flee the place; some Forest staff were injured by the crowd. FIR was lodged at Ngopa Police Station regarding the issue, and a number of Police from Ngopa and Champhai also went to Selam village,

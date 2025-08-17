@@ -1,0 +1,49 @@
+****SECRET****
+
+****W.T MESSAGE****
+
+**TO : SO(SB), SHA/LTI/LLI/TLB/CWTE/SRCP/CPI/STL/ VRTE/KLB/SKDI/MMT/ZLNM/WPLG/BBI**
+
+**FROM : SSP, CID(SB) MIZORAM**
+
+**NO. MSB/CB/B-77/ DT.**
+
+**_____________________________________________________________________**
+
+**A HNUAIA HMING LEH A PARTICULARS TARLAN HI IN JURISDICTION THEUH AH A AWM EM TIH LO NGAIHVEN TUR A TIH IN NI A (.) A CHINCHANG IN HRIA A NIH CHUAN LO DETAIN A, A RANGTHEI ANG BER A HEADQUARTERS LAM HRIATTIR TUR A NI E -**
+
+**1. NAME : TIMOTHY LALHMUNMAWI CHANGSAN**
+
+**2. FATHER : THANZAKHAM CHANGSAN (L)**
+
+**3. OCCUPATION :ADMINSTRATOR OF NORTH EASTERN CHILDREN HOME, RENGKAI, CHURACHANDPUR, MANIPUR**
+
+**4. DATE OF BIRTH : 12/12/1966**
+
+**5. PHYSICAL DESCRIPTION :**
+
+**(a) EYES - BLACK**
+
+**(b) HAIR - BLACK**
+
+**(c) HEIGHT - 168 Cm (5'6")**
+
+**6. PASSPORT NUMBER : K1150556**
+
+**7. PLACE OF ISSUE : PRO, GUWAHATI**
+
+**8. DATE OF ISSUE : 31/10/2012**
+
+**9. DATE OF EXPIRY : 31/10/2020**
+
+**_____________________________________________________________________**
+
+**Copy to:**
+
+**O/C MPRO for transmission please.**
+
+****(K.LALREMSANGA)****
+
+****Sr.Superintendent of Police****
+
+****CID(SB), Mizoram, Aizawl****

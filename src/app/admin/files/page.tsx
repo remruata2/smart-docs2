@@ -11,7 +11,11 @@ import FileListClient from './FileListClient';
 export default async function FilesPage() {
   const session = await getServerSession(authOptions);
 
-  if (!session || !session.user || session.user.role !== UserRole.admin) {
+  if (
+    !session ||
+    !session.user ||
+    (session.user.role !== UserRole.admin && session.user.role !== UserRole.staff)
+  ) {
     redirect('/unauthorized');
   }
 

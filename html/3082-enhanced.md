@@ -1,0 +1,7 @@
+A. _Front page of THE AIZAWL POST & VANGLAINI newspapers Dt. 9.4.2013_
+
+_Pseudoephedrine seized_:****109 Kgs. of Pseudoephedrine, ie, 7,69,950 tablets was seized at Bairabi Police checkgate @ 2:00AM yesterday ie, 8.4.2013 from Alto car bearing regd. No. MZ-01 G 1728. The alleged owners Lalramhluna(33) s/o Lalramliana of Kulikawn, Lalhmingsanga(32) s/o Lalramliana of Kulikawn, Lalrempuii (24) d/o Lianthuami of Kulikawn and Jonathana s/o Lalmuana of Tahan C group, Myanmar P/A Chanmari West were all arrested and case was registered at Bairabi Police Station.
+
+B. _Front page of THE ZOZAM TIMES & VANGLAINI newspapers Dt. 9.4.2013_
+
+_NIOS Principal & Students made agreement_: MZP intervened and made agreement between students and principal of National Institute of Open Schooling (NIOS). The problems arose as students were not allowed to appear in an exam this year after paying all the necessary fees. NIOS will pay back all the fees to students who had filled up examination form but disqualified to sit for the exam in return FIR lodged against NIOS principal at Vaivakawn Police station will be withdrawn by the students in writing to the authorities. If a student wants to sit for the exam he/she can do so by using fees he/she had already paid to NIOS.

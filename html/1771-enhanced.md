@@ -1,0 +1,9 @@
+On 2.4.2018 @ 10:00 a.m, around 150 (one hundred fifty) students of National Institute of Technology (NIT), Mizoram staged a Sit-in demonstration in front of NIT, Mizoram office at Chaltlang, Aizawl in protest against the alleged mismanagement of NIT Mizoram by officials of NIT, Mizoram. The Sit-in demonstration continued till 6:00 p.m and was resumed @ 9:00 am on 3.4.2018. Leaders of Mizo Zirlai Pawl (MZP) and North East Students' Organization (NESO) also expressed their support to the students of NIT in their agitation. In a letter addressed to the Hon'ble Chief Minister of Mizoram and to the Ministry of Human Resource Development (HRD) dated 2.4.2018, students of NIT, Mizoram accused NIT, Mizoram of mismanaging NIT administration especially that of the hostel which led to the death of Devsharan Kumar (B.Tech Ist Yr) on 31.3.2018. Students of NIT, Mizoram urged the Hon'ble Chief Minister of Mizoram and authorities of HRD Ministry to take steps towards improving the NIT administration and also to take necessary action against the erring officials. Students of NIT, Mizoram also intended to meet the Hon'ble Governor of Mizoram at the earliest.
+
+ It has been reported that the Competent Authority of NIT, Mizoram has agreed to make the following decision based on the demands made by the students of NIT, Mizoram:
+
+ (i) In compliance to request made by Director, NIT, Mizoram to visit the Institute, 1 (one) Official from Ministry of Human Resource Development arrived Aizawl on 3.4.2018 for conducting official visit at NIT, Mizoram.
+
+ (ii) An Enquiry Committee has been constituted for conducting inquiry into the whole incident and report is expected to be submitted within 15 (fifteen) days effective from 2.4.2018.
+
+ (iii) Some of the wardens of NIT, Mizoram will be changed accordingly.

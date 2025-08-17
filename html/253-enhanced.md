@@ -1,0 +1,25 @@
+1. **K.LIANTLINGA & ROCHHUNGA RALTE**
+
+With reference to the subject cited above, threat perception assessment in respect of Pu K.Liantlinga (Ex-MLA), Vice Chairman, Social Rehabilitation Board and Pu Rochhunga Ralte (Ex-MLA), Vice Chairman, Land Revenue &amp; Survey Board was conducted for which sources, contacts and operatives were approached. The information is as under.
+
+That they are both Ex-MLAs and are presently holding the post of Advisers at the Mizo National Front (MNF) Gen. Hqrs, presently residing at Electric Veng and Venghlui respectively. They were recently appointed to the post of Vice Chairman, Social Rehabilitation Board and Land Revenue &amp; Survey Board, though the powers and functions, entitlements of their appointed Boards or its members is yet to be notified by the concerned authority.
+
+It is concluded that the threat perceived, either direct or indirect against them during their term as MLAs or after is non-existent, be it from insurgent groups, rival political parties, student organizations, NGO’s or even from personal enmity.
+
+II With reference to the subject cited above, threat perception assessment in respect of Pu. C. Ramhluna, Ex-MLA, Vice Chairman, Industrial Development Board and Dr. Vanlaltanpuia, Chairman, Mizoram Youth Commission was thoroughly conducted and the results of which are as mentioned below –
+
+1. **C.RAMHLUNA**
+
+Pu C. Ramhluna, Ex-MLA, the newly appointed Vice Chairman for Industrial Development Board does not have direct or indirect threat from any source at present as well as in the past. He personally felt that urgent provision of PSO might not be necessary since the Industrial Development Board itself do not yet have an office of its own. He further stated that such PSO may be needed by him only after having a permanent office. It is therefore concluded that since there exist no possible enmity/competition for power etc against him and also by considering his own statement, provision of PSO for Pu C. Ramhluna is not urgently necessary for the time being.
+
+1. **Dr.VANLALTANPUIA**
+
+The newly appointed Chairman of MYC – Dr. Vanlaltanpuia, MLA did not have any direct or indirect threat from any source in the past or present. However, he is being provided one PSO at present that is the permanent residence of Lunglei city. It may be noted that from his statement, Pu Tanpuia indeed wanted to have an additional PSO since he felt that bringing his PSO along (and away from his permanent residence i.e. Lunglei city wherein his family/wife and kids lives) every where he travelled/journeyed around and outside the state was highly tiresome for only one PSO. Apart from the mentioned reason, no other particular ground is found as to why he need an additional PSO. Hence, it is then considered that instead of providing him an additional PSO (which is viewed as unnecessary), his present PSO may be changed by any other officer whi is the residence of Aizawl city.
+
+III **TC PACHHUNGA**
+
+ With reference to the subject cited above, threat perception assessment in respect of Pu TC Pachhunga (Ex-MLA), Vice chairman Sports, Youth Affairs &amp; Tourism Board was conducted as for which sources, contacts and operatives were approached. The information are collated and analysed.
+
+ It is concluded that the threat perceived either direct or indirect against Pu TC Pachhunga is minimal be it from insurgent groups, rival political parties, student organisations, NGOs, home grown extremism or even from personal enmity.
+
+ Pu TC Pachhunga is an Ex-MLA and present General Secretary of Mizoram National Front (MNF) party. He is a resident of Zotlang, Aizawl and active functionary of Zotlang Presbyterian Church. However, recently he was appointed as the Vice Chairman, Sport, Youth Affairs &amp; Tourism Board under the Government of Mizoram. It is learnt that the power and functions besides entitlements of the newly formed Boards or its members are not notifed as yet by the concerned authority though.

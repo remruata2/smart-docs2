@@ -1,0 +1,33 @@
+****SECRET****
+
+**URGENT**
+
+****W.T MESSAGE****
+
+**TO : SO SB, CHAWNGTE**
+
+****
+
+**FROM : SP CID(SB)**
+
+**REF. : MSB/CB/B-59/626 Dt. 17.10.2017**
+
+**NO: MSB/CB/A-59/ DT. 08.11.2017**
+
+**_______________________________________________________________**
+
+**INFORMATION KAN DAWN DAN IN MYANMAR ARMY (MA) LEH ARAKAN LIBERATION ARMY (ALA) TANGKAWP TE CHUAN NOVEMBER, 2017 THLA TIR LAM HIAN ARAKAN ARMY (AA) TE LAKAH BEIHPUI THLAK AN TUM A(.) HEI VANG HIAN ARAKAN LIBERATION ARMY (ALA) TE CHUAN FIMKHUR THU AH PARVA-I LEH PARVA-IV, LAWNGTLAI DISTRICT A AWM TE CHU MYANMAR LAM SIDE A AN HUAN LEH LO TE CHHUAHSAN RIH TURIN AN HRIATTIR A(.)**
+
+****HE THIL HI A HMUNAH CHIANG TAKA ENFIAH TUR LEH THIL AWMDAN KIMCHANG REPORT RAWN THAWN TURA HRIATTIR I NI E (.)****
+
+**_______________________________________________________________**
+
+**Copy to:**
+
+**O/C, Cipher Cell MPRO for transmission please.**
+
+****(ZARZOLIANA) Dy.SP (F-I)****
+
+****for Superintendent of Police****
+
+****CID(SB), Mizoram, Aizawl****

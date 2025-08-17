@@ -1,0 +1,54 @@
+**Notes on objectives of Standing Focus Group on CT Operations in NE Region**
+
+**(SFG - NER)**
+
+**A**. **Intelligence generation and planning operations against Insurgent groups**
+
+ Mizoram experiences low level insurgencies in the North Eastern and the North Western regions. However, Government of Mizoram and HPC(D) (the insurgent group from the northern parts) had signed a Memorandum of Settlement (MoS) on 2nd April 2018. The signing of MoS brought about an end to over two-decade armed insurgency of the HPC(D). The Arms Laying Ceremony of HPC-D was held on 12th April, 2018 where around 102 (one hundred two) Cadres and 12 (twelve) Council Members of HPC(D) came to over ground at the ceremony. However, the other faction of HPC(D) led by Lalhmingthanga Sanate have started resurfacing and reorganise themselves although it does not pose major security problems at the moment. Their activities and movements were closely monitored especially in the aftermath of their involvement extortion activities in the northern most and north eastern parts of Mizoram.
+
+ A special operation team of CID (SB) led by Pu LP Zohmangaiha, Dy. SP (Field), CID (SB) had apprehended cadres of Hmar People’s Convention (Democratic), HPC (D), (Lalhmingthanga Sanate faction) on 25.03.2024 at 07:40 a.m. at Saipum, Kolasib District. The special operation team left Aizawl on the night of 23.03.2024 with a task of apprehending the cadres of HPC (D) who are recently involved in extortions of money from non-local traders travelling between Mauchar Village and NEEPCO establishments.
+
+ As for the North-Western region, the Bru insurgency has been contained with the signing of peace accord between Bru National Liberation Front(BNLF) which was formed in 1997 and Govt. of Mizoram on 26.4.2005 wherein 195 (one hundred ninety five) Cadres came over ground and surrendered to the Government on 25.7.2005 along with 9 (nine) weapons. Another Bru insurgent group, Bru Liberation Front of Mizoram(BLFM) also surrendered to the Government on 26.10.2006. About 804 (eight hundred four) Cadres came over ground with 66 weapons and 45 ammunitions.
+
+ In fact in the strife-torn North East India, it is commendable of being the least militant infected State and it is mainly due to the swift action of Mizoram Police in nabbing militancy in its early stage.
+
+ The prevailing turmoil in the neighboring Myanmar, Bangladesh and Manipur has resulted influx of refugees and internally displaced persons in Mizoram which needs to be closely monitored as infiltration from various insurgent groups of those strife torn areas cannot be ruled out.
+
+**B: Inter linkages between illegal migration from Myanmar and Bangladesh with narco and arms smuggling funding insurgency in the NE Region :**
+
+ Mizoram shares an unfenced porous international border with Myanmar which is often taken advantage by drug smugglers and illegal traders. Due to the long stretch border and porosity in the absence of physical barrier combined with Free Movement Regime (FMR) , people across the border can move freely cross the border at many locations resulting in an easy route for smugglers. The increase in the illegal trafficking of narcotic drugs in the recent time can be attributed due to the ethnic clash in Manipur which did not allows trafficking these contraband items through the state and increasing demand of fund by many ethnic armed groups of Myanmar who are fighting the State Administrative Council (SAC) to overthrow the Myanmar Army from the current political administration.
+
+**MOVEMENT OF CONTRABAND ITEMS****:**
+
+** Smugglers and traffickers of contraband items took advantage of the long stretch of unfenced porous international border along the Indo-Myanmar Border in trafficking illegal items across the border. Apart from Mizoram Police, the Border Guarding Force had seized large consignments of Narcotic drugs at regular intervals. A brief summary of the seizures of Arms and Ammunitions and Explosive Substances is as under: ******
+
+1. **Drugs:**The total value of seized narcotic drugs in the year 2021 is Rs. 2474 Lakhs and its increases to Rs. 4342.2 Lakhs in 2022 which is an increase of 75% and yet increases to a little over Rs. 1,84,67 Lakhs in 2023 (upto November) which is another increase of 325%. The number of foreigners arrested in connection with ND&amp;PS Act cases increases from 12 (twelve) persons in 2021 to 50 (fifty) foreigners in 2022 and rises to 52 (fifty) foreigners in 2023.
+2. **Arms Ammunition and Explosives:**The number of cases registered in the year 2021 under Explosive Substances Act is 03 (three) in which no foreigners were arrested while the number of foreigners arrested in 2022 where 12 (twelve) cases were registered increases to 04 (four) and in 2023 where 09 (nine) cases were registered the number of arrested foreigners increases to 08 Myanmar nationals. The number of cases registered under Arms Act in 2021 is 18 (eighteen) in which 07 (seven) foreigners were arrested, 28 (twenty) cases were registered in 2022 in which 09 (nine) foreigners were arrested while 27 (twenty seven) cases were registered in 2023 (Upto November) where 04 (four) foreigners were arrested.****
+
+ Increase of smuggling of narcotic drugs in Mizoram with a rise in seizure of narcotic drugs and other contrabands items can be attributed to the consequences of the civil war in Myanmar and internal conflict in Manipur and the subsequent influxes of refugees from Myanmar and displaced persons from Manipur. A few cases had also been registered against Myanmar nationals who are obtaining unauthorized Aadhaar card, PAN card, vehicle registration card, voters’ identity card etc. illegally.
+
+The interrogation of the accused persons in the cases of the above seized arms, ammunitions and explosives substances revealed that these contrabands were meant for the involved conflict groups of Myanmar and Manipur. Inputs strongly suggested that the sale proceeds of these seized narcotic drugs were mostly meant to financially support these groups.
+
+**C. Coordinate role of SFs and Intelligence Agencies in areas where IIGs are in SoO/ negotiation/temporary ceasefire or in Peace Agreements.**
+
+ Although the state police share and enjoys a close coordination with central security forces as well as the intelligence agencies to certain extent, however, the SFs and counterpart agencies does not play much role nor do the state police seek their support in handling and tackling insurgent groups activities as well as intelligence particularly with regard to Hmar and Bru insurgent groups. At present, the state of Mizoram does not have any home grown insurgent groups.
+
+****D. Study the state wise IIGs, factions, their inter dependence and interaction with MNA and the other non-state factions in Myanmar.****
+
+ The Government of Mizoram and HPC-D (Zosangbera faction) signed a Memorandum of Settlement (MoS) on 2.4.2018 at the function held at the State Guest House, Aizawl. Shri. Arvind Ray, the then Chief Secretary of Mizoram and Pu H. Zosangbera, Chairman, HPC-D signed the MoS on behalf of the State Government and HPC-D respectively. The signing of MoS brought an end to the over two-decades armed conflict of the HPC-D. The Arms Laying Ceremony of HPC-D was held at CTI, Sesawng on 13th April, 2018 wherein 102 Cadres and 12 Council Members of HPC(D) come to over ground at this ceremony. 44 different Firearms with 48 magazines and 2892 rounds of different ammunitions along with Radio Sets with charger were surrendered by HPC(D) at this ceremony.
+
+Meanwhile, Lalhmingthanga Sanate, Founder President of Hmar People Convention (Democratic),who refused to come over ground during the Peace Accord signed by HPC(D) and government of Mizoram in the year 2018 still operated as HPC(D) with a handful of his followers.
+
+ After he was ousted as President, Lalhmingthanga Sanate, with a handful of his followers continued their low profile activities in and around Assam (Hmarkhawlian) and Manipur (Jeribam) sides, mainly collecting donations by teaming up with members of Jeliang Rong United Front (JRUF), an outfit which was formed by some deserters of NSCN(IM) /NSCN(K).
+
+ From 2012, JC.Hmar, Secretary and Ramchanlova @ RC.Singson, Army Chief, both of Lalhmingthang’s faction started entering Mizoram state and based themselves at Sunhluchhip and Sailutar villages. They began collecting donations from Vairengte and Suangpuilawn areas untill JC.Hmar was arrested by Kolasib District Police and sent to judicial custody. S/S Army Chief, RC.Singson was also arrested along with 5 of his men in Sailutar village on 4.2.2016. They were all later released on bail after which most of them started leading a normal life, even the Army Chief, RC.Singson settled down at Thenzawl, Mizoram with his family. Army Chief, RC.Singson was again arrested by Mizoram police at Thenzawl on 19th January 2024 as he was suspected to be involved in making threatening phone calls to local community leaders in Hmar dominated areas on the eve of 2023 Mizoram MLA General election.
+
+ Lalhmingthanga Sanate, S/S President, HPC-D was arrested at Cachar district, Assam on 24.10.2022 by a joint operational team of Assam police and Assam Rifles for his involvement in the murder of Norbar Sanate, former member of HPCD. After serving several months in judicial custody at Tejpur, he was later released on bail on dt. 15.05.2023.
+
+Recently, on the evening of 16.02.2024 and 18.02.2024, suspected cadres of HPC (D). Lalhmingthanga Sanate faction conducted extortion activities mostly in between NEEPCO, Tuirial Hydel Project establishments and Mauchar Village and mainly targeted the non-indigenous traders plying through this road and at times collected money from illegal areca nut traders transporting areca nuts via Tuisenchhuah, Turial River towards Assam. It is learnt that these miscreant strike again on the evening of 05.03.2024 at around 04:00 p.m. and collected some amount of money from non-indigenous traders plying through Mauchar Village.
+
+ The activities of Lalhmingthanga Sanate led HPCD is constantly being monitored.
+
+**E. Monitor vulnerable hotspots in NE region to avoid potential escalation into a Manipur like situation .**
+
+ Vulnerable hotspots likely to witness potential escalation into Manipur like situation may be treated as Nil.

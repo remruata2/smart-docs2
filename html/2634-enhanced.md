@@ -1,0 +1,27 @@
+_REPORT ON THE ACTIVITIES OF ZOMI REVOLUTIONARY ARMY(ZRA)_  _EASTERN COMMAND_
+
+ The operational areas of ZRA Eastern Command, who are commanded by SS Colonel Kham Min Thang includes the areas around Tidim,Tonzang and Chikha inside Myanmar.
+
+ For a long period, ZRA had prohibited the establishment of any armed group within their operational areas. However, after the creation of Civil Disobedience Movement as a result of the 2021 military coup of Myanmar, several armed groups have sprung up which includes People Defence Force (PDF) Zoland inside the operational areas of ZRA. This greatly displeased ZRA who strongly opposed the activities of PDF Zoland, often resulting in threats and even violence against these PDF Zoland members.
+
+ Below are some of the instances when ZRA resorted to intimidation and violence against PDF members :
+
+1. From the month of May 2021,elected MLA/MP from Tidim and Tonzang township who fled to Mizoram have received repeated threatening calls through mobile phones.
+
+2. Five (5) persons from Khawzimpui village were severely beaten on September 2021.
+
+3. During the month of June/July 2021, PDF cadres, who were undergoing training inside Ngur Village Council areas on the banks of Tiau river were scattered and their belongings destroyed by ZRA.
+
+4. On 5.12.2021(Sunday), one Cin Siam Sum,who is a former Personal Secretary to an Ex-Minister, Mr.Mang Hen Dal, was murdered in his residence of Tidim township by 2 ZRA cadres.
+
+ Apart from the above mentioned incidents, PDF members have often received threats and warning from ZRA multiple times through direct verbal and mobile phone calls.
+
+_REPORT ON INPUT ABOUT THE ENTRY OF SS COLONEL KHAM MIN THANG_ _@ JOSHUA @ KO MIN THANG WITH 5 ZRA CADRES INSIDE MIZORAM_
+
+ It has been confirmed that, SS Colonel Kham Min Than, along with 5 ZRA cadres have indeed arrived at the Indo-Myanmar bordering areas. They, accompanied by some Myanmar Army personnel recently visited Rihkhawdar, Khawzimte and Khawzimpui , all of which are located within the boundary of Myanmar. Not only this, on 15.12.2021, they entered Haimual village along with 20 ZRA cadres and 10 Myanmar Army personnel where they prepared a dinner by requisitioning one pig which extremely frightened the villagers, according to the telephonic reports of these villagers to their MP who had fled to Mizoram.
+
+ Till the morning of Dt.16.12.2021@ 9:00am, SS Colonel Kham Min Thang has been using his mobile phone with a contact number as +918415978711 which is an Airtel company SIM card. Further technical report also indicated the mobile phone tower location utilised by this number as Ruantlang tower.
+
+CONCLUSION : To this day, there has been no reports of SS Colonel Kham Min Thang and his men entering Mizoram territory be it the district of Champhai nor Saitual district. To corroborate this, when ZRA agent in Champhai and their PRO at Hrianghmun were contacted, they clearly express their unawareness of any ZRA Eastern Command personnel entering inside Mizoram.
+
+ As for the Myanmar Political leaders in Mizoram, they had not been receiving any threat or intimidation from ZRA from the past few days.

@@ -1,0 +1,13 @@
+A. _Front page of THE ZOZAM TIMES & THE AIZAWL POST newspapers Dt. 21.3.2013_
+
+_FICN seized_:****Mizoram Police seized Fake Indian Currency Notes (FICN) worth Rs. 49,000/- at Sangau on the night of 18th March, 2013. All the notes were of Rs. 500/- denomination and the owner Babul Hussein (18) of Karimganj was arrested, Mizoram Police are still probing the case as they suspect him to have more.
+
+B. _Front page of THE ZOZAM TIMES, THE AIZAWL POST, VANGLAINI & NEWSLINK newspapers Dt. 21.3.2013_
+
+_Fraudsters arrested_:****Mizoram Police arrested Thangliana (66) s/o Saihlira (L) of Ramhlun North, Aizawl and his female accomplice S.Laldini (50) d/o Tlailiana of New Saiha for swindling money from different people with fake promise of contract works. Police said that Thangliana posing as a vendor contractor of North East Vision Infratel Pvt. Ltd., awarded contract works for construction of towers and laying of optical fibre cables at the cost of Rs. 1.5 to 4 lakhs. The victims realised that they had been cheated after they completed the works and could not get bills. In this connection, a certain number of FIRs were lodged at the Aizawl Police Station and cases were being registered. The accused were arrested from Guwahati on 19.3.2013 and have been brought to Aizawl yesterday morning ie, 20.3.2013.
+
+C. _Front page of THE ZOZAM TIMES, THE AIZAWL POST & VANGLAINI newspapers Dt. 21.3.2013_
+
+**_Burglar returns stolen money_: Out of Rs. 23 lakhs stolen from Aizawl Hospital &amp; Research Centre office at Mission Veng on 11.3.2013, an amount of Rs. 22,72,000/- was returned on 19.3.2013 by an unknown burglar.**
+
+ While the Mizoram Police are investigating the case; on the evening of 19.3.2013, Dr.Lalrinmawia Hnamte, Director of the hospital received a text message from a person who claimed to be the culprit revealing he/she had stolen the money and felt guilty, and wanted to return all the money and told the location where he/she kept. On the same night, authorities of Aizawl Hospital along with the Police went to the mentioned location and found Rs. 22, 72,000/- wrapped in polythene bag near syntax (water tank) close to the hospital. After Police performed important formalities, the money was handed over to the Hospital authorities. Although, the burglar said that all the money was returned, the amount of money recovered was found to be less than the actual amount stolen.

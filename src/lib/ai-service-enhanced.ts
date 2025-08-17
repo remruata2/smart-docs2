@@ -1,6 +1,7 @@
-import { GoogleGenerativeAI } from "@google/generative-ai";
 import { prisma } from "@/lib/prisma";
+import { getGeminiClient, recordKeyUsage, getActiveModelNames } from "@/lib/ai-key-store";
 import { HybridSearchService, HybridSearchResult } from "./hybrid-search";
+import { getSettingInt } from "@/lib/app-settings";
 import {
   processChunkedAnalyticalQuery,
   isAnalyticalQuery,
@@ -71,8 +72,8 @@ function devLog(message: string, data?: any) {
   }
 }
 
-// Initialize Gemini AI
-const genAI = new GoogleGenerativeAI(process.env.GEMINI_API_KEY!);
+// Gemini client is now constructed per-call via getGeminiClient() to support
+// admin-managed key rotation and dynamic provider/model selection.
 
 export interface ChatMessage {
   id: string;
@@ -108,7 +109,8 @@ export interface SearchResult {
  */
 export async function analyzeQueryForSearch(
   currentQuery: string,
-  conversationHistory: ChatMessage[] = []
+  conversationHistory: ChatMessage[] = [],
+  opts: { provider?: "gemini"; model?: string; keyId?: number } = {}
 ): Promise<{
   coreSearchTerms: string;
   instructionalTerms: string;
@@ -120,6 +122,8 @@ export async function analyzeQueryForSearch(
     | "recent_files"
     | "analytical_query";
   contextNeeded: boolean;
+  inputTokens: number;
+  outputTokens: number;
 }> {
   try {
     // First check if this is a recent/latest files query
@@ -138,12 +142,14 @@ export async function analyzeQueryForSearch(
         instructionalTerms: "",
         queryType: "recent_files",
         contextNeeded: false,
+        inputTokens: 0,
+        outputTokens: 0,
       };
     }
 
-    const model = genAI.getGenerativeModel({
-      model: "gemini-2.5-pro",
-    });
+    const { client, keyId } = await getGeminiClient({ provider: "gemini", keyId: opts.keyId });
+    const dbModels = await getActiveModelNames("gemini");
+    const attemptModels = Array.from(new Set([opts.model, ...dbModels].filter(Boolean)));
 
     // Build conversation context
     const recentHistory = conversationHistory.slice(-6); // Last 3 exchanges
@@ -198,9 +204,46 @@ Examples:
 
 `;
 
-    const result = await model.generateContent(prompt);
-    const response = await result.response;
-    const text = response.text().trim();
+    let text: string = "";
+    let analysisInputTokens = 0;
+    let analysisOutputTokens = 0;
+    let lastError: any = null;
+    for (const modelName of attemptModels) {
+      try {
+        const model = client.getGenerativeModel({ model: modelName as string });
+        console.log(`[AI] provider=gemini model=${modelName} keyId=${keyId ?? "env-fallback"}`);
+        // Count input tokens using provider-native method
+        try {
+          const countRes: any = await model.countTokens({
+            contents: [
+              {
+                role: "user",
+                parts: [{ text: prompt }],
+              },
+            ],
+          });
+          analysisInputTokens = (countRes?.totalTokens ?? countRes?.totalTokenCount ?? 0) as number;
+        } catch (e) {
+          analysisInputTokens = estimateTokenCount(prompt);
+          console.warn("[QUERY ANALYSIS] countTokens failed; using heuristic", e);
+        }
+        const result = await model.generateContent(prompt);
+        const response = await result.response;
+        text = response.text().trim();
+        // Capture output tokens from usage metadata if available
+        const usage: any = (response as any)?.usageMetadata;
+        analysisOutputTokens = (usage?.candidatesTokenCount ?? usage?.totalTokenCount ?? estimateTokenCount(text)) as number;
+        if (keyId) await recordKeyUsage(keyId, true);
+        lastError = null;
+        break;
+      } catch (e) {
+        lastError = e;
+        if (keyId) await recordKeyUsage(keyId, false);
+        console.warn(`[AI] model attempt failed: ${modelName}`, e);
+        continue;
+      }
+    }
+    if (lastError) throw lastError;
 
     console.log("[QUERY ANALYSIS] Raw AI response:", text);
 
@@ -232,6 +275,8 @@ Examples:
       instructionalTerms: analysis.instructionalTerms || "",
       queryType: analysis.queryType,
       contextNeeded: analysis.contextNeeded || false,
+      inputTokens: analysisInputTokens,
+      outputTokens: analysisOutputTokens,
     };
   } catch (error) {
     console.error("Query analysis error:", error);
@@ -249,6 +294,8 @@ Examples:
       instructionalTerms: "",
       queryType: "specific_search",
       contextNeeded: false,
+      inputTokens: 0,
+      outputTokens: 0,
     };
   }
 }
@@ -982,7 +1029,8 @@ export async function generateAIResponse(
   question: string,
   context: string,
   conversationHistory: ChatMessage[] = [],
-  queryType: string = "specific_search"
+  queryType: string = "specific_search",
+  opts: { provider?: "gemini"; model?: string; keyId?: number } = {}
 ): Promise<{ text: string; inputTokens: number; outputTokens: number }> {
   // Ensure queryType is one of the allowed types, default to specific_search
   const allowedQueryTypes = [
@@ -996,9 +1044,9 @@ export async function generateAIResponse(
   if (!allowedQueryTypes.includes(queryType)) {
     queryType = "specific_search";
   }
-  const model = genAI.getGenerativeModel({
-    model: "gemini-2.5-pro",
-  });
+  const { client, keyId } = await getGeminiClient({ provider: "gemini", keyId: opts.keyId });
+  const dbModels = await getActiveModelNames("gemini");
+  const attemptModels = Array.from(new Set([opts.model, ...dbModels].filter(Boolean)));
 
   // Build conversation context for follow-up questions
   const recentHistory = conversationHistory.slice(-4); // Last 2 exchanges
@@ -1053,36 +1101,60 @@ export async function generateAIResponse(
 
   const prompt = `You are a helpful AI assistant for the CID (Criminal Investigation Department) database system.\n\n${historyContext}\n\nCURRENT QUESTION: "${question}"\n\n${context}\n\nINSTRUCTIONS:\n${roleInstructions}\n\n- Always be professional and factual\n- If asked about specific cases, provide file numbers and relevant details\n- If no relevant information is found, say so clearly\n- Keep responses concise but informative\n- Use bullet points or numbered lists when presenting multiple items\n\nPlease provide a helpful response based on the database records above.`;
 
-  // Estimate input tokens (prompt size)
-  const inputTokens = estimateTokenCount(prompt);
+  let lastError: any = null;
+  for (const modelName of attemptModels) {
+    try {
+      console.log(
+        `[AI-GEN] Sending request to Gemini API, model=${modelName}, prompt size: ${prompt.length} characters`
+      );
+      const apiCallTiming = timeStart("Gemini API Call");
+      const model = client.getGenerativeModel({ model: modelName as string });
+      // Use Gemini native token counter for input tokens
+      let inputTokens = 0;
+      try {
+        const countRes: any = await model.countTokens({
+          contents: [
+            {
+              role: "user",
+              parts: [{ text: prompt }],
+            },
+          ],
+        });
+        inputTokens = (countRes?.totalTokens ?? countRes?.totalTokenCount ?? 0) as number;
+      } catch (e) {
+        // Fallback to heuristic only if countTokens fails
+        inputTokens = estimateTokenCount(prompt);
+        console.warn("[AI-GEN] countTokens failed; using heuristic", e);
+      }
+      const result = await model.generateContent(prompt);
+      const response = await result.response;
+      const text = response.text();
+      timeEnd("Gemini API Call", apiCallTiming);
 
-  try {
-    console.log(
-      `[AI-GEN] Sending request to Gemini API, prompt size: ${prompt.length} characters`
-    );
-    const apiCallTiming = timeStart("Gemini API Call");
-    const result = await model.generateContent(prompt);
-    const response = await result.response;
-    const text = response.text();
-    timeEnd("Gemini API Call", apiCallTiming);
+      // Prefer usage metadata from Gemini for output tokens
+      const usage: any = (response as any)?.usageMetadata;
+      const outputTokens = (usage?.candidatesTokenCount ?? usage?.totalTokenCount ?? estimateTokenCount(text)) as number;
 
-    // Estimate token counts
-    const outputTokens = estimateTokenCount(text);
+      devLog("AI response generated successfully", { inputTokens, outputTokens, modelName });
+      if (keyId) await recordKeyUsage(keyId, true);
 
-    devLog("AI response generated successfully", { inputTokens, outputTokens });
-
-    return {
-      text: text,
-      inputTokens,
-      outputTokens,
-    };
-  } catch (error: any) {
-    console.error("AI response generation error:", error);
-    if (error.message && error.message.includes("429")) {
-      throw new Error("RATE_LIMIT_EXCEEDED");
+      return {
+        text: text,
+        inputTokens,
+        outputTokens,
+      };
+    } catch (error: any) {
+      lastError = error;
+      if (keyId) await recordKeyUsage(keyId, false);
+      console.warn(`[AI-GEN] model attempt failed: ${modelName}`, error);
+      continue;
     }
-    throw new Error("Failed to generate AI response.");
   }
+  console.error("AI response generation error (all models failed):", lastError);
+  if (lastError?.message && lastError.message.includes("429")) {
+    throw new Error("RATE_LIMIT_EXCEEDED");
+  }
+  throw new Error("Failed to generate AI response.");
 }
 
 /**
@@ -1091,8 +1163,9 @@ export async function generateAIResponse(
 export async function processChatMessageEnhanced(
   question: string,
   conversationHistory: ChatMessage[] = [],
-  searchLimit: number = 100,
-  useEnhancedSearch: boolean = true
+  searchLimit?: number,
+  useEnhancedSearch: boolean = true,
+  opts: { provider?: "gemini"; model?: string; keyId?: number } = {}
 ): Promise<{
   response: string;
   sources: Array<{
@@ -1126,8 +1199,14 @@ export async function processChatMessageEnhanced(
   let queryType = "specific_search"; // Default
   let searchLimitForRecent = 10; // Default for recent files
 
+  let analysisInputTokens = 0;
+  let analysisOutputTokens = 0;
   try {
-    const analysis = await analyzeQueryForSearch(question, conversationHistory);
+    const analysis = await analyzeQueryForSearch(
+      question,
+      conversationHistory,
+      opts
+    );
     console.log("[CHAT ANALYSIS] Processing query:", `"${question}"`);
     console.log(
       "[CHAT ANALYSIS] Conversation history length:",
@@ -1147,6 +1226,11 @@ export async function processChatMessageEnhanced(
     analysisUsed = true;
     queryForSearch = analysis.coreSearchTerms;
     queryType = analysis.queryType;
+    analysisInputTokens = analysis.inputTokens || 0;
+    analysisOutputTokens = analysis.outputTokens || 0;
+    console.log(
+      `[TOKENS] Analysis phase — input: ${analysisInputTokens}, output: ${analysisOutputTokens}`
+    );
 
     // Check for a number in instructional terms for recent files query
     if (analysis.queryType === "recent_files" && analysis.instructionalTerms) {
@@ -1175,9 +1259,19 @@ export async function processChatMessageEnhanced(
     console.log(`[CHAT ANALYSIS] Found ${records.length} recent files.`);
   } else {
     // Use the new Hybrid Search Service
+    // Determine effective search limit: prefer explicit argument; otherwise use admin-configured setting
+    const configuredLimit = await getSettingInt("ai.search.limit", 30);
+    let effectiveSearchLimit =
+      Number.isFinite(searchLimit as any) && (searchLimit as number) > 0
+        ? Math.floor(searchLimit as number)
+        : configuredLimit;
+    // Clamp to sensible bounds
+    if (effectiveSearchLimit < 1) effectiveSearchLimit = 1;
+    if (effectiveSearchLimit > 200) effectiveSearchLimit = 200;
+
     const hybridSearchResponse = await HybridSearchService.search(
       queryForSearch,
-      searchLimit
+      effectiveSearchLimit
     );
     records = hybridSearchResponse.results;
     searchMethod = hybridSearchResponse.searchMethod;
@@ -1214,9 +1308,13 @@ export async function processChatMessageEnhanced(
     question,
     context,
     conversationHistory,
-    queryType
+    queryType,
+    opts
   );
   aiTime = timeEnd("AI Response Generation", aiTiming);
+  console.log(
+    `[TOKENS] Response phase — input: ${aiResponse.inputTokens}, output: ${aiResponse.outputTokens}`
+  );
 
   // Extract sources from the context that were used in the AI response
   console.log(`[CHAT PROCESSING] Starting source extraction`);
@@ -1295,8 +1393,8 @@ export async function processChatMessageEnhanced(
     queryType,
     analysisUsed,
     tokenCount: {
-      input: aiResponse.inputTokens,
-      output: aiResponse.outputTokens,
+      input: (analysisInputTokens || 0) + (aiResponse.inputTokens || 0),
+      output: (analysisOutputTokens || 0) + (aiResponse.outputTokens || 0),
     },
     stats: searchStats,
   };

@@ -1,0 +1,7 @@
+A. _Front page of VANGLAINI newspaper Dt. 09.09.2013_
+
+**Landslide swept two houses****:** A landslide of Zanlawn village on 08.09.2013 swept away two houses belonging to Lalrohlua and Varmawii which resulted in the injuries of two persons. These injured persons were later admitted to Aizawl Cilvil hospital.
+
+B. _Front page of THE ZOZAM TIMES/ THE AIZAWL POST newspapers Dt. 09.09.2013_
+
+****Clarification of total bandh****:** The Mizo National Front in a press conference on 07.09.2013 clarified that the main reasons behind their intention of calling a total bandh on 10.09.2013 was due to the alleged involvement of Mizoram health Minister, Pu Lalrinliana Sailo in dealing with banned narcotic business. In the press conference, Dr. R.Lalthangliana, MNF Vice President added that the present Congress Govt. is not competent enough to deal with daily needs, communication problems and financial difficulties faced by the state.**

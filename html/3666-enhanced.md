@@ -1,0 +1,44 @@
+**18.5.2022 :** The Aam Aadmi Party (AAP) convened a Press Conference on 16.5.2022 @ 11:30 a.m. at Aizawl Press Club and around 10 (ten) media persons were present. The press conference was led by the party's Northeast Region In-Charge Pu Rajesh Sharma and AAP Organizing Board was constituted with the following Board Members:
+
+ (i) Pu Andrew Lalremkima (Chairman) (ii) Pu C. Lalkhuma (GS)
+
+ (iii) Pu Joseph Biakthianghlima (iv) Pu Eleazer Hmar
+
+ (v) Nl. Melanie Zomuanthangi.
+
+ Pu Rajesh Sharma announced that the Aam Aadmi Party will launch a month-long membership drive in Mizoram w.e.f., 16.5.2022. He also said that many youths of Mizoram called upon the AAP and expressed their desire to be a part of the party and the party will enter into the state depending on the number of member registration during the month-long membership drive.
+
+**27.5.2022 :** As per input, Aam Aadmi Party in its ongoing membership drive in Mizoram will organize public meeting on 28.5.2022 @ 1:00 p.m. at MZP Hall, Treasury Square, Aizawl, and it invited everyone willing to join the party to attend the meeting.
+
+****1.6.2022 :** The Organising Committee of AAP Mizoram held a meeting on 31.5.2022 in one private shop at Khatla, Aizawl and 7 (seven) members were present. The meeting decided to visit various districts and organize public meetings. It also decided to give serious efforts in social media and entrusted Media Cell to do the needful. It further appointed Organising Board Members representing all the districts of the state.**
+
+**24.6.2022 :** Aam Aadmi Party Mizoram called a Press Conference on 24.6.2022 @ 11:00 a.m. at Aizawl Press Club under the guidance of Pu Andrew Lalremkima, Organising Chairman, and around 15 media persons and 10 AAP Mizoram members were present. A Press Statement was issued which explained the meaning of Aam Aadmi Party and about the formation of the party in Mizoram with the announcement made by Pu Rajesh Sharma (Northeast In-charge) on 16.5.2022. It stated that more than 1000 (one thousand) people have registered through the membership drive undertaken by the Organizing Board in Mizoram. It also highlighted that the AAP Mizoram will give priority to education, health, agriculture, etc. and is staunchly against corruption.
+
+**8.7.2022 :** Zoram Decentralization Front (ZDF) held ZDF Policy Release Function today, i.e., 8.7.2022 @ 11:00 a.m. at Synod Conference Hall, Aizawl. During the function, Pu C. Lalrambuatsaiha, President MJA released ZDF Policy booklet and Rev. B. Sangthanga previewed the booklet. Rev. Liandawla, Chairman, ZDF Advisory board highlighted ZDF Policy and Wing Commander Lalnghinglova, Sr. Vice Chairman, ZDF Advisory Board also delivered a speech.
+
+****19.8.2022 :** AAP Mizoram issued a Press Release on 19.8.2022 which highlighted that as per information received under RTI Act, the government is owing medical reimbursement bills of Rs.74,04,99,065 to 27,158 patients under the Mizoram Health Care Scheme. It stated that the government did not allocate separate fund in the State Budget for healthcare and it intends to borrow ADB loan to pay pending bills. In this regard, it questioned as to how and who will repay the loan after the same were used for clearing the pending bills. It expressed opposition to promise of freebies to woo voters before elections. It further stated that SEDP should not be distributed if the government is unable to clear the above pending medical bills from the State exchequer.**
+
+**29.8.2022 :** AAP Mizoram called a Press Conference on 29.8.2022 @ 3:00 p.m. at Azawl Press Club under the guidance of Pu JK Lalngaihawma, Vice President and 8 (eight) persons including 2 (two) media persons were present. A Press Release was issued which stated that the press conference was called as per the direction of AAP New Delhi and it highlighted various points of criticisms against the ruling BJP Central government, such as misuse of public money/taxes, use of massive money power to buy opposition MsLA in various States, rising inflation in the country, etc.
+
+**4.10.2022 :** Aam Aadmi Party Mizoram issued a press release on 4.10.2022 in which they highlighted about the AAP programme held yesterday evening. In the programme, Pu Andrew Lalremkima, Organising Chairman, AAP Mizoram invited people who search for good government to join AAP. He also accused BJP of using various mean to threaten AAP. He also said that AAP Mizoram has received party caps, flags and mufflers from AAP Headquarters Delhi yesterday for election campaign.
+
+**10.10.2022 :** Aam Aadmi Party issued a pamphlet on 10.10.2022 with regard to the overview of AAP and its objectives in Mizoram. In the pamphlet the main objectives of AAP in Mizoram are mentioned as under:
+
+ (i) People oriented Government and to nominate candidate from one's own  constituency.
+ (ii) Corruption free politics.
+
+ (iii) Establishment of discipline government.
+
+ (iv) Transparent politics.
+
+ (v) Promote secularism, eradicate VIP culture and nepotism in recruitment.
+
+ It also invited people who are interested in AAP to join the party.
+
+**31.10.2022 :** Aam Aadmi Party issued a Press Release on 29.10.2022 regarding the visits of Mizoram by Shri Rajesh Sharma, AAP NE in-charge for a meeting on formulation of AAP Manifesto in Mizoram. Shri Rajesh Sharma reportedly said that AAP Headquarters will focus on Mizoram after Assembly Election in Gujarat. The Press Release also stated that AAP is looking for suitable candidates for 2023 General Election.
+
+**4.11.2022 :** Aam Aadmi Party Mizoram in their Press Release issued on 4.11.2022 demanded Pu R. Lalzirliana, Hon'ble Minister, Power &amp; Electricity, etc. to tender his resignation owing to the death of 4 (four) peoples in Lawngtlai District recently due to electrocution. They also extended their condolence to the bereaved families.
+
+**25.11.2022:** On 24.11.2022, leaders of Organizing Board, Aam Aadmi Party (AAP) Mizoram, namely- Pu Andrew Lalremkima, Chairman; Dr. Lalngaihawma, Vice Chairman and Pu Joseph Biakthianghlima, Secretary convened a Press Conference at Serchhip Press Club. During the Press Conference, Pu Andrew Lalremkima apprised media persons about the objectives of AAP in Mizoram. He stated that AAP aims to bring changes and development in Mizoram as it had been done by AAP in Delhi and other states. He invited the people of Mizoram to support AAP for the development of Mizoram. He also said that AAP will field maximum candidates in 2023 Mizoram Legislative Assembly Election.
+
+**09.12.2022 :** Aaam Aadmi Party, Mizoram issued Press Released on 9.12.2022 in which they expressed their gratitude over the emergence of 10 years old AAP into a National Party status by securing MLA seats in Gujarat Assembly election. It also stated that 8th December, 2022 has been a great milestone for AAP and thanked the people of Gujarat for uplifting the status of AAP. It also stated that AAP has been expanding in Mizoram and leaders have been campaigning in different districts and also stated that Central leaders of AAP will conduct campaign in Mizoram for 2023 election.

@@ -1,0 +1,25 @@
+****United Democratic Liberation Army(UDLA)****
+
+**1) On 30.3.2008 at around 2130 hrs., 5 unidentified persons covering their faces with clothes extorted Rs.5300/- from Jamir Uddin Barbhuiya who worked in the WRC of Pu Lalparliana situated at Sihdarhzau, Pangbalkawn. The five unidentified persons left a letter demanding Rs.10000/- in the name of United Democratic Liberation Front (UDLF). Operation team was immediately dispatched from Kolasib and apprehended five members of UDLF from Pangbalkawn.**
+
+**2) On 10.5.2009, Shri Takeswar Gogoi, Jr. Engineer, working for M/S Sweety Real Estate Private Ltd. and his driver was kidnapped by an outfit suspected to be UDLA. However, Shri Takeswar Gogoi managed to escape from the custody of the kidnappers on 27.5.2009 and had been taken to Hailakandi by Assam police. At the same time his driver who was kidnapped along with him was released unconditionally by abductors on the same night of 27.5.2009.**
+
+**3) On 6.6.2011, 2 employees of ABCI viz. Premlal Dhiman(48), Project Manager and Bajrang Lal Bhurgri were abducted by group gang styled as UDLA under the command of Doinoram Reang. On 16.6.2011, there was an encounter between Mizoram police joint operation team of CID(SB) and 1st IR Bn. RAF and the armed gang at the outskirt of Banglabasha village of Hailakandi District of Assam.**
+
+**After the encounter which lasted for about 30 minutes, the so called UDLA fled towards the jungle leaving the two hostages behind. Neither the police nor the armed group sustained any injury because of the encounter except Premlal Dhiman who was shot in the abdomen by the fleeing UDLA.**
+
+**The Police team and the rescued hostages safely returned to Buhchangphai village at around 3:30pm.**
+
+**4) On 10.7.2011, Merkant Biam(45) S/o Lobinson of Zamira(near Gendacherra of Assam) received demand letter amounting Rs.200000/- from UDLA. The letter was written in Bengali script with letter head of UDLF(Army Wing). The letter directed him to bring the demanded money on 13.7.2011 to him. However, the signatory of the letter was illegible and the location where the money should be given was not mentioned.**
+
+**5) On 17.7.2011 around 9:30 AM, one Biguram (35) s/o Sarakai of N.Thinglian village was shot death infront of his house by 4 suspected UDLA cadres Kolasib in Kolasib District. The assailants were not identified and the reason for such a brutal was also not known but could be alluded to suspicion of his being Police agent.**
+
+**6) On 30.7.2011, a group of armed group suspected to be UDLA went to Hatichhera and threatened the family of Bolo-a and demanded Rs. 1 lakh if they still wanted to stay in their house . The parent of Bolo-a paid Rs. 4,000/- by selling their cattles and asked for leniency from the armed group. However, Doinaram insisted that at least Rs.10.000/- should be paid and wife and children of Bolo-a should leave Hatichhera immediately and further threatened that they would kill Bolo-a if spotted by them without hesitation as he was suspected of helping CID(SB), Mizoram Police.**
+
+****
+
+**7) On 20.10.2011@10:40pm, Badarpur-Bairabi passenger train driver Tapan Kumar Bhattacharjee, while coming to Bairabi was abducted by four armed UDLA cadres near Purba Charaibabak village near Katlichera block on the Assam-Mizoram border. The leader of the outfit, Doinoram Reang reportedly demanded Rs.50 lakhs as ransom. It was learnt, however, that deal was likely to close at Rs.14 lakhs.**
+
+****Meanwhile, the United Democratic Liberation Front of Barak Valley(UDLFBV) claimed responsibility of the abduction. On the evening of 26.10.2011, one person who claimed to be the General Secretary of UDLFBV contacted Andrew Vanlalauva, AIR correspondent, Kolasib over phone said that the abductee is kept in a safe place and his health condition is stable. The reason of abduction was to send a signal to the Central Government that the Assam Government is totally negligent of Bru community living in Assam state and their miserable living condition. They are very much willing to have a talk with the representative of Central Government and the abductee could also be released if there is positive response from the Central Government. However, this claim seems to be vagued and unreliable.****
+
+****It may be mentioned here that the incident has occurred inside Assam state and progress or result of rescue operation by the Assam Government is not yet known at present.****

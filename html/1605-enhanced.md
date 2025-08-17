@@ -1,0 +1,43 @@
+****CONFIDENTIAL****
+
+****OFFICE OF THE SUPERINTENDENT OF POLICE****
+
+****CID(SB), MIZORAM, AIZAWL****
+
+No. MSB/CB/B-71/07/  Dated Aizawl, the Feb., 2016
+
+To,
+
+ The Asst. Inspector General of Police-I
+
+ Mizoram, Aizawl
+
+Subject: Rajya Sabha Provisional Starred/Unstarred Question Dy. No. S 1918.
+
+Ref: No.CB/PHQ/RSQ/15/45 Dt.24.2.2016.
+
+Sir,
+
+ With reference to your letter no. cited above, I am furnishing the required information as under:
+
+****(a)**  The State of Mizoram is not having insurgent outfit base within its territory. However, insurgent groups like HPC(D), NLFT etc operating from neighbouring states and across international border frequently indulged in criminal activities like intimidation, abduction etc. within Mizoram. To counter such insurgent activities, the State Police deployed sufficient numbers of security force (MAP and IR Bn.) along the State and International border to supplement the Central Paramilitary Force like BSF, CRPF, Assam Rifles etc.**
+
+****(b)**  No separate fund is allocated under any specific head of account for counter insurgency operation. Since the last three years, as many as 70 border outpost of MAP/IR Bn. have been setup for counter insurgency related operation along State and International border.**
+
+****(c)**  There was no report of casualties of civilians due to counter insurgency operation in Mizoram during the last three years.**
+
+**(d)**  No. of recorded cases of encounter since 2010.
+
+**1)** A group of armed HPC(D) outfit numbering about 15(fifteen) fired upon the 2nd IR Battalion Border Outpost at Khawlian, Aizawl District on the night of 05.03.2015 @ 06:50 pm. The HPC (D) cadres had started firing towards the BOP from a distance of 300 metres (approx) from Khawlian High School Complex (north of the BOP). The 2nd IR Bn. personnel also quickly returned fire and there was an exchange of around 100 rounds of fire and the firing lasted for about 10 (ten) minutes. It is reported that there was no casualty on both sides. Immediately, the HPC(D) cadres withdrawn in a Pik-up Truck towards Parvachom, Manipur. In this connection Saitual PS C/No.7/2015 dt.6.3.2015 u/s 121A/427 IPC r/w 25(1A)/27(2) Arms Act has been registered.
+
+**2)** On dt. 28.3.2015 @ 8:50 am, an entourage party of Committee on Government Assurance members such as, RL Pianmawia, Govt. Dy. Chief Whip, Lalthanliana, MLA (Aizawl North-II) and Vanlalawmpuii Chawngthu, MLA (Hrangturzo) was ambushed by HPC(D) insurgent group numbering around 12 (twelve) cadres at the outskirt of Zokhawthiang/Kani village near Mizoram - Manipur border. 3 (three) Mizoram police personnel were shot dead by the HPC(D) outfit while 5 (five) persons sustained injuries due to the encounter which lasted for about 1 (one) hour and 45 (forty five) minutes . The MLAs were accompanied in this tour by some Government officials. The HPC(D) outfit snatched away 4 (four) nos. of 9mm pistol, 2 (two) nos. of .38 revolver, 2 (two) nos. of AK-47 rifle and 8 (eight) nos. of its magazines with 244 (two hundred and forty four) live rounds from the place of occurrence. In this connection, Sakawrdai Police Station Case No. 6/2015 dt. 29.3.2015 u/s 302/307/396/397/326/120B IPC r/w 25(1A)/27(3) Arms Act has been registered.
+
+**(e)** Government may be asked.
+
+Yours faithfully,
+
+**(LALRINPUIA VARTE)**
+
+Addl.SP for Superintendent of Police
+
+CID(SB), Mizoram, Aizawl

@@ -1,0 +1,17 @@
+****SECRET****
+
+****SPLO ACTIVITIES Dt. 20.5.2009****
+
+1. Information received that 17 (Seventeen) SPLA Cadres indulging their leaders viz. 1) SS Gen. Secretary HT Khawzawl, 2) SS Defence Secretary Thuamluaia and 3) SS Lt. Rohluna have entered into an agreement with Assam Rifles in Churachandpur earlier today i.e. 20.5.2009, and are now in Assam Rifles 3 Hqrs. Churachandpur. It is learnt that as per their agreement the SPLA would be utilised by the AR in their operations against Meitei insurgents and in return the AR authority would take steps to enable the SPLO enter into an SoO (Suspension of Operation)within one month.
+
+ It is learnt further that the SPLO is expecting to establish a designated camp in Tipaimukh area preferably within the vicinity of Mizoram border.
+
+ It is learnt that 32 SPLA cadres had recently been enrolled as HNA following the HNA president Thangsanga’s pressure tactics to declare the SPLO a defunct organisation with an obvious intention to appease the Army authority. So, in order to avoid possible embarrassment to the higher authority of the Army, the SPLO leader HT Khawzawl is understood to have contacted Pu Hmingchungnunga who is known to be the mastermind behind this group asking him to send at least 5 (five) persons from Aizawl to join this group of 17 in order to convince the army that they are an entirely different new ug group from Mizoram. Accordingly, Hmingchungnunga is planning to send 5 persons from amongst his overground operatives led by one Hmingthangzuol (c/o Hmingchungnung) to Churachandpur via Sinjol road tomorrow i.e. 21.5.09.
+
+ It is reported further that the SPLO’s decision to enter into an agreement with the army was promted by their desperate situation which provided them no other option. It has been learnt that their SS Chairman LZ Hrangchal (who is now believed to be hiding in W. Bengal) had constantly been pressurizing them to either go back to Exodus (The name used to refer to the UPPK Camp near Tamu) or surrender to Mizoram Govt. and also threatened to quit himself. It is learnt that Hmingchungnunga had cleverly persuaded HT Khawzawl and Thuamluai to go ahead with this option believing that they could somehow manage to secretly procure weapons for their survival if they can enjoy free movement by entering into an SoO with the army. They also believed that an element of mistrust upon SS Lt. Rohluna who was suspected of having planned a mass surrender with the boys particularly those from Mizoram through secret contacts with CID, which manifested within the SPLO leadership had been solved as they entered into an agreement with the army.
+
+ The general intelligence deduction indicates that Hmingchungnunga with his trusted colleagues namely, 1) BA Mana of Thuampui, Aizawl, 2) SK Lala of Rengtekawn and 3) Hmingthangzuol of Bungkawn Vengthar (C/o Hmingchungnunga) were actively involved in providing a life-line to the crumbling SPLO.
+
+2. It is also learnt that the HPC (D) leaders had a meeting with SPLO leaders at a secret location at Ngurte, Churachandpur last night i.e. 19.5.09 @ 7:00 PM. The HPC (D) leaders were understood to have urged upon the SPLO leaders to immediately seek ways to surrender to Govt. of Mizoram.
+
+ The HPC (D) are understood to be worried about the possible threat the SPLO could pose on them in the future, and are opposed to their having an understanding with the army. Intelligence deduced indicates that the HPC (D) could target the SPLO the moment they come to know about the Army –SPLO relation.

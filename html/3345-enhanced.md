@@ -1,0 +1,3 @@
+A. _Inside page of VANGLAINI newspaper Dt. 19.9.2013_
+
+****MPSA Grateful to the Government****:** Mizoram Police Service Association (MPSA) expressed its gratitude to the State Government in a press release stating that the Cabinet meeting held on 11th September 2013 allowed to create two new posts ie, Director General of Mizoram Home Guard (Secretary level post) and Deputy Inspector General of Police (Armed Branch) for MPS officer, and for giving back the benefits enjoyed by Inspector of Police ie, Ration Allowance and Leave Compensatory Allowance which the Government has stopped.**

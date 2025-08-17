@@ -1,0 +1,14 @@
+****SPLO / SPLA CHUNGCHANGA ACTION PLAN****
+
+ Sawrkar thar lo dingin SPLA member-te intiam kamna awm lova mahni In leh lova haw duhte chu thlamuang taka in surrender mai tura vawi duailo a sawm hnuah leh tamtak chuan sawrkar thar ngilneihna leh zahngaihna pawmin intiam kamna awm lova sawrkar a inpek mai an duh tih hriat ani a. Hetichung pawh hian an hruaitu lawkzual \henkhat te leh tun hnaia man tak Hmingchungnunga leh BA Mana te chuan SPLO/SPLA ral mai an hlauh avangin unconditional surrender an dodal mai bakah ala awm mekte rilru down tawh chawk phur turin Mizoram chhung a\ang ngeiin mithar la in thawnbelh anla tum cheuva, chuvangin anni pahnih bakah anmahni support-te (activist) mi engemawzat man anlo nita a ni. Hetiang hi alo nih tak avangin an member nawlpui leh an Commander lian pathumte an vaiin mi 54 te chu tunah hian 3rd Assam Rifle Hqrs. Churachandpur-ah an awm mek tih hriat ani a. He thu \ha hi hel pawl piangtir \hiahdarh vekna remchang tak ni ^ a lan avangin heng a hnuaia rawtna te hi a rang thei ang bera tih puitlin nise:-
+
+1)   DGP level / Govt. level a\angin 3rd Assam Rifle Hqrs. Churachandpur-te hi pressure pek nise. Pressure peknaah hian hel pawl tak ang ni lovin bumna hmanga Mizo tlangval pawisawilo te hel tura bum chhuah tlankhawm mai an nih thu uar taka tihlan nise.
+
+2)  An hruaitu ngawhngawl zual sawrkar-in vawi duailo khawngaihna a lantir pawh dodal lui tlat tu:- a) HT Khawzawl, Gen. Secretary b) Thuamluaia, SS Defence Secretary c) Rohluna, SS Army Chief-te hi a rang thei ang bera Mizoram sawrkar kuta hlan tura Assam Rifle hotute hi preassure pek nise.
+
+
+3)  SPLO Chairman LZ Hrangchal tuna West Bengal - Nepal Boarder-a biru mek ni a hriat hi a rang thei anga man tura beihpui thlak vat ni sela. Inter State/International Boundary pelh hial ngai thei thil anih avangin a past history e.g Vaitin Police panga (5) kahhlum chungchanga a mawhphurhna te, SPLA an din tirh lai a\anga Banned outfit UPPK, HUJJI (Al Qaeda link nei terrorist) biak pawh a tum dan leh Naxal hel pawl-te nena inzawm a tum dan tihlan ni se. Concerned State Intelligence-te bakah a \ul chuan Central Intelligence hrang hrang te pawh phungbawmah sawm nise.
+
+4)  An innghahna ber UPPK hotute rin an hlawh tawhlo chungin tunah hian UPPK Camp-ah 13 vel la awmin heng mite zinga 4/5 vel chu LZ Hrangchala tana mi rinawm tak anla ni tih thu dawn a ni a. UPPK te \anpuina hian an pawl hi anla tih nun leh theih avangin a rang thei ang bera     LZ Hrangchal leh UPPK hotu Shanti-te inkar hi tihkak / tihchhiat a \ul bawk.
+
+5)  3rd Assam Rifle Hqrs. Churachandpur-te hi an kuta awm SPLO member zawng zawng a rang thei ang bera Mizoram ramri thleng rawn thlah a, Mizoram Police te hand-over tura pressure na tak pek nghal nise. An game plan ni awm a lang kawng hrang hrang pawh thil tih chi ani lemlo tih hrilh thei turin camp a an luh hma a\anga tun hun thlenga an khawsak dan leh an thil tum te kan hria ani tih pawh hi chiang deuha hrilh nghal ni se.

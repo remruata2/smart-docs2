@@ -1,0 +1,31 @@
+**URGENT**
+
+****CONFIDENTIAL****
+
+****W.T MESSAGE****
+
+**TO : SO, CID (SB), SIAHA**
+
+****
+
+**FROM : SP, CID(SB)**
+
+**NO: MSB/CB/B-19(A)/ DT. 29.03.2018**
+
+**_______________________________________________________________**
+
+**THIS IS TO INFORM YOU THAT AN APPLICATION HAS BEEN RECEIVED FROM THE SUPERINTENDENT OF POLICE, SECURITY, MIZORAM WITH A REQUEST TO CONDUCT ASSESSMENT ON THREAT PERCEPTION IN RESPECT OF THE CHIEF JUDICIAL MAGISTRATE (CJM) OF SIAHA(.)**
+
+****YOU ARE, THEREFORE, DIRECTED TO CONDUCT ASSESSMENT OF THREAT PERCEPTION IN RESPECT OF THE CHIEF JUDICIAL MAGISTRATE (CJM) OF SIAHA AND SUBMIT YOUR REPORT TO THE UNDERSIGNED ON OR BEFORE 5TH APRIL, 2018(.)****
+
+**_______________________________________________________________**
+
+**Copy to:**
+
+**O/C CIPHER CELL, MPRO Aizawl for quick transmission please.**
+
+****(RODINGLIANA CHAWNGTHU)****
+
+****Superintendent of Police****
+
+****CID(SB), Mizoram, Aizawl****

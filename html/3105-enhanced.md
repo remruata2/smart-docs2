@@ -1,0 +1,3 @@
+A. _Front page of MIZO ARSI newspaper Dt. 16.8.2013_
+
+**2 Alleged murderers arrested**: Kolasib police arrested Laibatthanga of Bukvannei and Gondi Rai of Haticherra, Hailakandi District in connection with the missing of Lalthuammawia of Buhchangphai whose body has not been found since 14th July, 2013, who is now thought to be death and swept away by the current of Tlawng River, the arrested persons were behind bars of Kolasib District Jail at Saidan.

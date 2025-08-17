@@ -1,0 +1,13 @@
+****Threat perception assessment report****
+
+Ever since the appointment of SHC council members during the Interim period, a secret competition for power existed amongst them which led to certain disagreement between the Hmar population and HPC (D) Cadres of Manipur regarding the appointment/selection of SHC’s members by the State Government.
+
+Even among the Hmar people themselves, their choices for SHC members are vastly varied. It may be noted that the opinion of Pu Lalmalsawma Darngawn, who supported MNF party in the last 2018 MLA election, is highly respected by his supported MsLA of Chalfilh, Tuivawl and Serlui in regard to the selection of SHC members. On the hand, former leaders of HPC (D) of Mizoram cadres, who still have the support of HPD (D) of Manipur cadre, also have great intention to have their desire persons appointed as SHC members.
+
+Upon further investigation, it was revealed that Pu Lalmalsawma Darngawn and two of his fellow SHC members viz. Pu Zahmingliana and R. Lalfakzuala of Sakawrdai had recently received intimidation through phone calls from an unknown person who claimed himself to be a member of HPC (D), Manipur cadres. The intimidator reportedly demand them to give up their post/seats in SHC and to hand over their seats/posts to other persons supported by HPC(D) of Manipur cadres.
+
+In another incident, the wife of Pu Lalmalsawma Darngawn reportedly received advised from her friend (out of fear for her to become a widow) to persuade her husband to vacate his present position in SHC for another person whom the HPC (D) cadres of Manipur gives support.
+
+ In the light of the above investigation, it is evident that there is indeed disagreement for power between several groups and parties of the Hmar population in regard to appointment/selection of members of SHC. As such, the mentioned members of the present SHC such as Pu Lalmalsawma Darngawn, Pu Zahmingliana and Pu R. Lalfakzuala, although direct threat may not be perceived against them at the moment, will have to be more cautious and alert in their movement inside and outside the state. (It is no wonder that due to the present scenario, Pu Lalmalsawma refused to travel to Manipur state at present)
+
+Considering the above circumstances, unless new threats nor intimidations are receive by the said three officials, provision of PSO to Pu Lalmalsawma Darngawn, is not recommended for the time being as even Pu Lalthlamuana, CEM, SHC is not provided with a PSO at the moment.

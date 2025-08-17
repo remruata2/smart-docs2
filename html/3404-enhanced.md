@@ -1,0 +1,5 @@
+A. _Front page of THE ZOZAM TIMES newspaper Dt. 24.2.2014_
+
+****Special Narcotic Police Station Report****:**From January 2013 to January 2014, Special Narcotic PS under SP,CID(Crime) had seized Heroin – 392.607grams, Pseudoephedrine – 2,03,18,925 tablets, Methamphetamine – 1,21,100 tablets, Ganja – 25 kgs., Parvon spas – 35,255 capsules, Proxyvon – 142 capsules, Nitrosun – 99 tablets, Alprozolam – 539 tablets, Ephedrine – 11 bottles, Pacitane – 490 tablets and Cataspa – 310 tablets.**
+
+ Besides these abusive drugs, they also seized Fake Indian Currency Notes (FICN) value of ` 6,00,000/-, AK-47 – 35 nos. and 838 ammunitions, LMG-1 no., Sniper Rifle – 1 no., US Carbine – 1 no., 303 Mark IV Rifle – 1 no., **.**22 Pistol – 7 and **.**32 Pistol. The value of all the seized abusive drugs, and arms and ammunitions is ` 7,79,52,176/-.

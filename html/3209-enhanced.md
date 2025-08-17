@@ -1,0 +1,3 @@
+A. _Front page of THE ZOZAM TIMES, THE AIZAWL POST, VANGLAINI & NEWSLINK newspapers Dt. 16.7.2013_
+
+**Closure of Schools**: Vanbawng Students' Union warned the education department against closure of all educational institutions in the village from 1st August, 2013 if the department fails to respond to the repeated appeals for posting of headmasters on or before 31st July, 2013. Vanbawng village has 2 (two) Primary Schools, 2 (two) Middle Schools and 1 (one) High School, none of which has headmaster.

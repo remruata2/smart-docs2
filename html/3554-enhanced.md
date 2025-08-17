@@ -1,0 +1,1 @@
+**27.4.2022 :** Fisheries Officers and Staff Association of Mizoram (FOSAM) held General Conference at Fisheries Conference Hall, MINECO on 27.4.2022 @ 10:30 a.m. Pi Zonuntluangi, Vice Chairman, FOSAM presided the function and around 80 (eighty) members attended. During the conference, matters concerning FOSAM's welfare and revision of their constitution were discussed.

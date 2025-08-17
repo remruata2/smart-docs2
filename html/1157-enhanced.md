@@ -1,0 +1,51 @@
+**1. Introduction:**
+
+Section 77(1) of the Representation of the People Act, 1951 makes it mandatory for every candidate to the House of the People or a State Legislative Assembly to keep a separate and correct account of all expenditure incurred or authorized by him or by his election agent, between the date on which he was nominated and the date of declaration of the result of election, both dates inclusive. The total of the said expenditure shall not exceed such amount as may be prescribed under Section 77(3) of R.P. Act, 1951.
+
+Under Section 77(2), the account shall contain such particulars as may be prescribed. Rule 90 of the Conduct of Elections Rules, 1961 prescribes varying limits of election expenditure for Parliamentary and Assembly Constituencies in each of the States and Union Territories. Particulars, which have to be shown in the account, are prescribed in Rule 86 of those Rules. The ceilings on expenditure as prescribed are enclosed at Annexure 1. Failure to maintain the account is an electoral offence under Section 171-I of the Indian Penal Code.
+
+The incurring or authorizing of expenditure in excess of the limit prescribed under Section 77(3) of R.P. Act, 1951 is a corrupt practice with reference to Section 123(6) of the R.P. Act, 1951. The beneficial object sought to be achieved by making the incurring or authorizing of election expenditure in excess of the prescribed limit as a corrupt practice was elucidated by the Supreme Court in Kanwar Lal Gupta vs Amar Nath Chawla (AIR 1975 SC 308), as follows:
+
+“… The object of the provision limiting the expenditure is two fold. In the first place, it should be open to any individual or any political party, howsoever small, to be able to contest an election on a footing of equality with any other individual or political party, howsoever rich and well financed it may be, and no individual or political party should be able to secure an advantage over others by virtue of its superior financial strength….
+
+The other objective of limiting the expenditure is to eliminate, as far as possible, the influence of big money in the electoral process. If there was no limit on expenditure, political parties would go all out for collecting contributions… The pernicious influence of big money would then play a decisive role in controlling the democratic process in the country….”
+
+According to Section 78 of R.P. Act, 1951, every contesting candidate is required to lodge a true copy of the account of his election expenses with the District Election Officer (DEO) within 30 days of the declaration of the result of the election. Failure to lodge the account of election expenses within the time and in the manner required by law without good reason or justification may result in disqualification of the candidate concerned by the Election Commission of India under Section 10A of R.P. Act, 1951.
+
+The Supreme Court has held in L.R. Shivaramagowde vs. P.M. Chandrashekar -
+
+AIR 1999 SC 252 that the Commission can go into the correctness of the account of election expenses filed by the candidate and disqualify a candidate under Section 10A of the Representation of the People Act, 1951 in case the account is found to be incorrect or untrue. Thus not only a candidate is required to keep his election expenses within the ceiling prescribed by law, he has also to maintain a day to day and true account of his election expenditure in the prescribed manner, present the account for inspection by the Observer, RO or authorized person and submit it to the DEO concerned within 30 days of the declaration of the result. Exceeding the prescribed ceiling of expenditure can be a ground for an election petition against a winning candidate.
+
+**2. Types of Election Expenditure:**
+
+Election expenditure can be broadly put in two categories. The first type is the election expenditure, which is allowed under the law for electioneering, subject to it being within the permissible limit. This would include xpenditure connected with campaigning like on public meetings, public rallies posters, banners, vehicles, advertisements in print or electronic media etc. The second category of the expenditure is, on items which are not permitted under law. For example, distribution of money, liquor, or any other item to the electors with intent to influence them comes under the definition of bribery and is an offence under the IPC and corrupt practice under the R.P. Act, 1951. The expenditure on such items is illegal. Yet another form of expenditure which is coming to the fore in recent times is on Surrogate Advertisements, Paid News etc. The purpose of election expenditure monitoring is, therefore, twofold. For the first category of expenditure, it must be ensured that all election expenditure on permitted items is truthfully reported and considered while scrutinizing the expenditure account submitted by the candidates.
+
+As far as the second category of expenditure including surrogate advertisements, paid news etc., is concerned, it is obvious that it will never be reported by the political parties/ candidates. The systems should be robust enough to catch such expenditure as well, and not only include it in the account of election expenditure, but also take action against the wrongdoers under the relevant provisions of the law, including lodging of complaints before the police/ competent magistrate, if required.
+
+**3. Election Expenditure Monitoring mechanism:**
+
+For monitoring day to day election expenditure incurred by the candidate, election expenditure mechanism will be put in place in each constituency. Maintenance of the day to day account of election expenditure by the candidate is mandatory. Though the account of election expenditure is required to be submitted within 30 days from the date of the declaration of the result, the monitoring has to be done on a regular basis during the campaign period for it to be of any use. After the campaign is over it will be difficult to get any evidence of election expenditure. Since the DEO is required under the law to scrutinize and submit a report to the Commission after the election, it is primarily the duty of the DEO to collect proper evidence during election campaign, based on which it will be decided whether any expenditure is left out in the statements of accounts submitted by the candidates.
+
+**FLYING SQUADS :**
+
+There shall be one or more dedicated Flying Squads under each Assembly Constituency/ segment for tracking illegal cash transactions or any distribution of liquor or any other items suspected of being used or bribing the voters. The Flying Squads will consist of one Senior Executive Magistrate as the Head of the Team, one senior Police Officer of the Police Station, one videographer and 3 to 4 armed police personnel. They are to be provided with a dedicated vehicle, mobile phone, a video camera and necessary Panchnama documents required for seizure of cash or goods.
+
+**STATIC SURVEILLANCE TEAM:**
+
+There shall be one or more surveillance teams under each Assembly Constituency with one Magistrate and 3 or 4 police personnel in each team. This team shall put check posts and watch on large quantities of cash, illegal liquor, any suspicious item or arms being carried in their area. The entire process of checking shall be videographed.
+
+**POLICE OBSERVERS:**
+
+In expenditure sensitive constituencies, Police Observers not below the rank of Dy. I.G. level from outside the State may be deployed to inter-alia supervise the operation of Flying Squads, and Static Surveillance teams, in the region comprising of a few districts. The Police Observers will ensure that all the complaints are promptly acted upon by the Flying Squad in fair and impartial manner and the Static Surveillance teams work effectively. A copy of the Daily Activity Report by the Flying Squad and Static Surveillance Team will be forwarded to him on the same day. If he is not satisfied with the functioning, he will coordinate with the Nodal Police Officer of the State and the CEO to have central police force in the teams. In case the problem is not sorted out, he will report to the Commission immediately.
+
+a. The Police Observer will report in the constituency on the date of notification and will remain till the end of the poll. The Arrival and Departure Report along with the Police Observer Report-I and Police Observer Report-II will be sent to the Commission with a copy to the CEO. (Annexure I and II )
+
+b. The Police Observers will also coordinate with Expenditure Observers regarding expenditure matters and with General Observers regarding MCC matters. He will also coordinate with the officers of Investigation Directorates of Income Tax Department and officers of State Excise Department.
+
+c. In case of any apprehension of law and order problem or large scale complaints about distribution of cash or gifts or liquor, he will keep the Commission informed about remedial measures taken by him.
+
+**NODAL OFFICER AT POLICE HEADQUARTERS:**
+
+One officer of the level of Inspector General at the Police Head Quarters of the state as selected by the commission will be notified as the Nodal Officer for coordination with all Flying Squads, SSTs, all law enforcement agencies and with the Commission. The CEO will send a panel of three names of IG rank, who have not been admonished by ECI earlier. His office telephone/fax number and mobile number will be intimated to the Expenditure Observer, Investigation Directorate, Excise Department and other law enforcement agencies during election. He shall train all master trainers of districts, who in turn shall train all personnel engaged in Flying Squad or SST. He shall be responsible for coordination with other law enforcement agencies, engaged in the election expenditure monitoring.
+
+Nodal Officer at Police Headquarters shall compile seizure reports by the FSs and SSTs send by the SPs of districts and send the composite Daily Activity Report as per Annexure-III,IV &amp; V by fax to the Expenditure Monitoring Cell of Commission everyday, with copy to CEO.

@@ -1,0 +1,35 @@
+****SPECIAL REPORT****
+
+No.MSB/CB/SR/2009/
+
+Dated 31st July, 2009
+
+Following the arrest of DHD (J) leader Jewel Gorlossa by Assam Police in Bangalore on 5.6.09 and subsequent revelation about the supply of weapons to the DHD (J) by one John Mizo, believed to be a resident of Mizoram, attention of the NIA who took up the case investigation had been focused on Mizoram. The CID(SB) have, for the last nearly 2 months, been engaged in this special task to track down this person assuming the character of 'John Mizo'. A team of CID(SB) working in close coordination with the NIA, through analysis of Intelligence gathered on activities of a number of known Arms smugglers soon came to a conclusion targeting one such arms smuggler of Myanmarese origin who is also having an ug background, identified as Vanneichem @ Vanchem @ Joseph @ Vanlalchhana @ Vantea r/o Saron Veng H/No D-37, Aizawl. Intelligence further gathered indicated that this Vantea could either be John himself or his associate, Joseph.
+
+ Vantea had been on hiding since 8th June 2009 . He, at the time of leaving his house told his wife and others close to him that he was going to Shillong and other places on business trip, and would be away for sometime. He could not however outsmart the CID(SB) who were after him. It was learnt that Vantea had been hiding with his girlfriend in Aizawl East area only. It was learnt also that he had been frequently contacting his associate in Tahan regarding Arms consignment.
+
+ On 25.7.09 @ 7:20 PM information was received that Vantea and his girlfriend left Bawngkawn in a Taxi. It was quickly ascertained through our surveillance network that they headed towards Durtlang - Sihphir. Then a pursuit team was immediately swung into action. In the meantime, all exit points were alerted and vehicles on Aizawl - Silchar highway as well as Serkhan - Bagha road were checked whole night. It was learnt through surveillance network that the location of our target was Darlawn 3rd Sector. So, quickly following the possibility of our target hiding in one of the villages along Serkhan-Bagha road which could be under the overlapping network coverage of Darlawn tower, the pursuit team split into two groups. One group conducted checking of vehicle s on Aizawl-Silchar highway while another group went back to Serkhan to follow Bagha route. Dr. RP Meena, IPS, G|DIG, NIA stationed at Guwahati was monitoring the operation throughout the night giving instructions to the team through telephone from Guwahati.
+
+ About 40 kms from Aizawl on this Bagha route it was ascertained that Lungmuat was under Darlawn Chhimveng network coverage. Search continued and around 03:40 AM on 26.7.09 Vanneichem @ Vanchem @ Vanlalchhana @ Vantea alongwith his girlfriend Zungmeni were arrested in the house of C. Vanlalruata, whose wife Lalrimawii happened to be a good friend of Zungmeni. They were taken to Aizawl and interrogated.
+
+ Pursuing the disclosure by Vantea the team conducted search in the house of Nempuii (Tahan, Myanmar), Pu Lalrova's building at Saron Veng on 30.7.09 @ 11:30 AM and recovered the following arms and communication equipments :-
+
+1) M-16 Rifle with magazine  - 8 nos.
+
+2) 9mm Beretta (Made in USA)  - 1 No.
+
+3) 9mm Ammunitions   - 14 rounds
+
+4) Walkie Talkie sets (Ruizhonglong) alongwith charger, Spare  batterries and Detachable Antennae - 12 Nos. each.
+
+5) Sniper Telescope (Bushnell)  - 1 No.
+
+ The arrested person was booked in connection with NIA, New Delhi Case No. 1/09 u/s 120-B, 121, 121-A IPC r/w 25 (1)(d)(a) Arms Act r/w 17, 18, 19 UAP Act and is being processed to be produced to the Court of Special Judge, Guwahati, Assam.
+
+**( **C. LALDINA )****
+
+Superintendent of Police
+
+CID (SB); Mizoram, Aizawl.
+
+****SECRET****

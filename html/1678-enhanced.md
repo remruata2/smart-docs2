@@ -1,0 +1,23 @@
+****ACHIEVEMENT OF CID(SB)****
+
+****DURING THE PERIOD FROM 1.11.2014 TO 31.3.2015****
+
+1. On 12.1.2015@ 7:30 pm, Special Operation Team of CID(SB) assisted by CID(Crime) seized 4,73,000 strips of Pseudoephedrine costing around Rs.71 lakhs (local market rate) from the possession of Lalrammuana S/o Ramthara, Baktawng Tlangnuam at Tuikhurhlu in Tuirial area. In this connection, Spl. Narcotic PS C/No.1/15 dt.12.1.15 u/s 25A ND&amp;PS Act has been registered.
+
+2. On 16.1.2015@ 3:15pm, a joint Operation Team of CID(SB) and CID(Crime) recovered 1985 rounds of 5.56mm(M-16) ammunitions (value of Rs.5,95,800/-) from the possession of Laldinnghaka (28) S/o Albert Bawm of Bungtlang South and Rohmingthanga (38) S/o Sankiplala of Tanhril from a taxi near Sairang. In this connection Sairang PS C/No.4/15 dt.16.1.15 u/s 25(1B) Arms Act r/w 34 IPC has been registered.
+
+3. A combined operation team of Mizoram Police (CID SB &amp; Mamit DEF) assisted by Tripura Police arrested one cadre of Bru Democratic Front of Mizoram (BDFM) namely, Lianmawia @ Bishno (45 yrs), S/o Uday Manik on 19.2.2015 @ 7:40 AM at the outskirt of Tongsnampara, North Tripura. Lianmawia @ Bishno had taken part in the abduction of two employees of BRTF by NLFT and BDFM on 2.2.2015 vide West Phaileng PS Case No.03/2015 Dt. 2.2.2015 u/s 364/34 IPC r/w 25(1A) Arms Act.
+
+4. On 23.2.2015 Sector Officer CID(SB) Vairengte and Vairengte Police staff arrested the following HPC(D) cadres (Lalhmingthanga's faction) alongwith 2 (two) numbers of 0.22 country made pistol with 2 (two) live ammunitions.
+
+ 1) John Francis@Amos(30) S/o Lalpanliana, Mauchar, NC.Hills, Assam
+
+ 2) Tlangmawia@ LT.Hmar(35) S/o Huliana, Saiphai Venglai
+
+ 3) Israel Lalthlengliana(28) S/o Chalneihthanga, College Veng, Kolasib
+
+ 4) Robert Malsawmthanga(30) S/o Vungkhawthang, Saiphai, Saipum Road
+
+ In this connection, Vairengte PS C/No. 9/15 dt.23.2.15 u/s 384 IPC r/w 25(1B)(a)/ 27(2) Arms Act has been registered.
+
+5. On 29.3.2015 @ 4:30 pm, an operation team of Mizoram Police led by Sector Officer CID(SB), Champhai recovered 1,348 rounds of 7.62x39mm live ammunitions at the residence of Engkhanchin (47), Ngaizawl village, Champhai District. In this connection, Khawzawl PS Case No. 18/2015, dt. 29.3.2015 u/s 25(1B)(a) Arms Act has been registered.

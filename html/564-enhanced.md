@@ -1,0 +1,9 @@
+****ISSUES RELATING TO MIZORAM (SELECTION OF CANDIDATES FOR HIGHER TECHNICAL COURSES) RULES****
+
+In 1999, Mizoram Government laid down Mizoram (Selection of Candidates for Higher Technical Course) Rules, 1999. According to this Rules, selection test examination is to be conducted and candidates for seats allotted to the State of Mizoram for Higher Technical studies such as, MBBS, BDS, BE, etc. are to be selected in accordance to the merit of this selection test.
+
+The issue which arises as a result of this Rules is the inclusion of Chakmas in Category-I which the MZP strongly opposed claiming that Chakmas are not indigenous people. On the other hand, the Chakmas, fighting for their inclusion in Category-I submitted a PIL to Gauhati High Court and the said High Court reach a verdict in favour of the Chakmas. Dissatisfied with the High Court’s Judgement, Mizoram Government appealed to the Supreme Court. However, Supreme Court observed that the previous judgement of Gauhati High Court in this issue was such a well-reasoned judgement and dismissed the appeal filled by the Mizoram Government.
+
+At present, Higher Technical Education Dept. of Mizoram conduct technical entrance examination according to the recently meeting minutes of the State Cabinet meeting in which only ‘Zo Ethnic’ tribes are accepted as ‘Indigenous people’ of Category I of Mizoram (Selection conducted for Higher Technical Course) Rules.
+
+The issue remains dormant for the time being. However, it may erupt anytime when Mizoram Govt. include chakmas in Category I of the selection process or if directed by the High Court.

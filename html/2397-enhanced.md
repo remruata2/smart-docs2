@@ -1,0 +1,126 @@
+****BORDER ISSUES WITH ASSAM****
+
+******Assam and Mizoram share a 164.6 km inter-state boundary. There have been skirmishes on both sides earlier as well as both sides claiming portions of land along the boundary as theirs. Residents of Mizoram claimed that 1875 notification should be the boundary between Assam and Mizoram, while Assam claimed 1933 notification as the constitutional boundary between the two states.**
+
+1. **Kolasib District:**
+
+1. **Assam-Mizoram border dispute at Zophai, Bairabi, Kolasib District:**
+
+On 27th February, 2018, the Mizo Zirlai Pawl (MZP), Mizoram’s most powerful student organisation, built a wooden rest house somewhere in the Inner Line Permit Reserved Forest (509 Sq. Kms), large parts of which run along the Assam-Mizoram border. The structure was meant to serve as a resting place for farmers who worked in the various paddy fields in the area. The same evening, a joint team of the Assam police and Assam Forest officials demolished the structure, contending that it was built on Assam’s territory and the construction amounted to encroachment.
+
+But the construction and subsequent demolition of the rest house has led to an escalation of tensions in the area since then, with Mizo activists and journalists accusing the Assam administration of high-handedness and use of excessive force.
+
+On 8.3.2018 members of Mizo Zirlai Pawl (MZP) left Aizawl for Zophai near Bairabi, Kolasib District with an intention to reconstruct Zofate Chawlhbuk (Shed) at the disputed site along Mizoram-Assam border. On 8.3.2018 around 11:45 am, a minor scuffle broke out between the Student union and Assam Police when some members of the student union tried to unload their construction materials from the vehicle. The Assam Police had even resorted to Lathi-charge as a result of which around 15 (fifteen) MZP members reportedly sustained minor injuries.
+
+ On10.3.2018,a scuffle broke out again between Assam Police and members of MizoZirlai Pawl (MZP) when around 100 (hundred) strong MZP members proceeded to the disputed site at Zophai with their construction materials to reconstruct ‘ZofateChawlhbuk’. The students were intercepted by Assam Police before they reached the disputed site and they subsequently used force to disperse them. It has been reported that the Assam Police initially used Lathi but later on resorted to firing and around 8 (eight) shots were reportedly fired as a result of which one MZP member reportedly sustained gunshot injury on his right ankle and around 49 (forty nine) others sustained injuries on their persons. It was also reported that 8 (eight) media persons also sustained injuries. The Assam Police burnt down the temporary shed constructed by the MZP near the disputed site and the following vehicles belonging to MZP members were also ransacked by Assam Police :-(1) Sumo - 1 no. (2) Taxi -1 no. (3) Car (Nano) - 1 no. (4) M/Cycles -3 nos.At least 20 people were reportedly injured on that day.
+
+ On 12.4.2018, Joint Verification Team, comprising of officials from Mizoram and Assam started conducting spot verification of Inner Line Reserve Area along Mizoram-Assam border. It was reported that a total of 34 (thirty four) illegal constructions, including 2 (two) Masjids and 1 (one) School, were identified by the Joint Verification Team. Out of the total 34 illegal constructions, 1 (one) illegal construction was owned by Sangluaia (L) of Bairabi, Mizoram while the rest were owned by residents of Assam.
+
+On 6.4.2019 officials from Assam Forest Department started renovation work of one building located at the disputed Mizoram-Assam Forest Reserve area along the Aizawl-Silchar National Highway and reported that the building was occupied on the same night. Meanwhile, one platoon from 1st IR Bn of Mizoram Police also occupied old BRTF camp which was approximately 100 mtrs from the existing Mizoram Police Check Gate which was highly welcomed and supported by civilians.
+
+The Council of Ministers meeting held on 8.7.2019 upheld the Cachar Inner Line, 1875 enacted as per Section 2 of Bengal Eastern Frontier Regulations, 1873 (Regulation 1 of 1873) as the basis for settlement of border issues.
+
+**14.7.2021:** Information received stated that one motorized boat boarded by 6 (six) Assam Police proceeded upstream at Tlawng river near Bairabi town today i.e., 14.7.2021 @ 8:50 a.m. and they proceeded towards Teirei river. Later, this morning @ 9:30 a.m., 2 (two) motorized boats boarded by 7 (seven) Assam Police and 8 (eight) Assam Police respectively also proceeded towards Teirei river. The two parties were reported to have proceeded to Gutguti BOP, Hailakandi District Assam.
+**23.8.2021:** Information received stated that on 20.8.2021 @12:30 p.m., about 15 (fifteen) Assam Police personnel came with Bolero Pick-up and TATA 207 at RCC Mini Bridge construction site at IR Approach Road to NH-154, near Pu Ch. Chhunga paddy field, Zophai, Bairabi, Mizoram. Assam Police informed the 4 (four) workers present at the site to stop the work and to immediately evacuate the area. After the four workers evacuated the area, Assam Police took away several iron rods (about 5 quintals, v/o Rs.37,500) placed at the area for construction. In this regard, Baibari PS C/No. 15/21 Dt.20.8.2021 U/S 379/34 IPC was registered.
+
+ In this connection, Assam Police party led by Shri. Liton Nath, OC, Ramnatpur PS came with TATA Pick-up to a Bridge near Bairabi Police Check Gate and returned the above mentioned iron rods to O/C Bairabi PS in the presence of SDPO, Kolasib last evening i.e., 22.8.2021 @ 5:45 p.m.
+
+1. **Mizoram-Assam border dispute at Vairengte, Kolasib District****:**
+
+(i) DC, Kolasib and DC, Karimganj, Assam held a meeting on 3.9.2015 @ 11:00 a.m. at CIJW Conference Hall, Vairengteand resolved that status quo ante shall be maintained in the respective forest areas. No department activities/encroachment by any department or public shall be allowed. In case of any illegality, which is in violation of Forest Act/Rules /Regulation in force, the matter shall be brought immediately to the notice of the counterpart Range Officer/Divisional Forest Officer. In spite of this, on 4.7.2019 around 10 (ten) Assam Forest Department officials led by Forest Range Officer had started renovation work of one building located at the disputed Mizoram-Assam Forest Reserve Area along the Aizawl – Silchar National Highway.
+
+(ii) On 17.10.2020 @ around 6:30 p.m., around 30 (thirty) persons, allegedly residents of Lailapur, Assam pelted stones at IR temporary duty Camp set up due to COVID-19 pandemic near Vairengte Autorickshaw Stand at Mizoram-Assam border. 4 (four) IR personnel were in the camp at the time of the incident. Enraged over the incident, Vairengte Joint YMA made public announcement asking all available members to proceed to Vairengte Autorickshaw Stand. Around 300 (three hundred) residents of Vairengte, some armed with sticks, dao etc. rushed to the spot and allegedly set ablaze 1 (one) house and around 7 (seven) temporary shops set up by Assam people at the disputed Mizoram-Assam border. There was scuffle between residents of Vairengte and Lailapur, Assam. 7(seven) residents of Vairengte sustained injury on their bodies due to the ensuing physical clash between the two communities and one Malsawmkima of Bangla Veng was evacuated to Kolasib District Hospital for medical treatment.
+
+ All available police force at Vairengte were immediately deployed in the place of occurrence to maintain order at the area. Addl. SP, Kolasib has also reached the spot and crowd from both sides were dispersed and situation was under control.
+
+ Residents of Lailapur organized economic blockade w.e.f. 16.10.2020 and all vehicles carrying essential commodities were not allowed to enter Mizoram. Residents of Assam organized economic blockade of all major road connecting Vairengte, Kanhmun, Bairabi and Phaisen and rail road connecting Bairabi rail station.
+
+ The above inhumane act of residents of Assam enraged residents of Mizoram. MZP General Headquarters, the apex student body forbids all non-Mizos of Mizoram from venturing outside their homes for their personal safety and various NGOs viz. Central Young Mizo Association, Mizo Hmeichhe Insuihkhawm Pawl(MHIP), Mizoram Upa Pawl (MUP) etc. expressed their disappointment.
+
+ Border Security Force (BSF) personnel were deployed along the border on 9.11.2020 as per direction of Central government.
+
+ After several rounds of talk between officials of the two state economic blockade organized by residents of Lailapur at Lailapur was lifted on the evening of 11.11.2020. The situation along the inter-state border remained tense but under control and subsequently went normal.
+
+**23.8.2021:** (a) Information received stated that Mizoram Police Camp was constructed at Pu Lalzova of Vairengte Hall Veng farm land, which is located around 300 meters north of Pu B. Dokunga farmland, Middle Aitlang (where Mizoram Police constructed their Camp recently) under the aegis of leaders of Vairengte yesterday i.e., 22.8.2021 and Mizoram Police personnel are being deployed at the said camp. Assam also constructed Duty Post/Bunker within the said farm land area, around 200 meters south from the stated Mizoram Police Camp.
+
+ Mizoram Police Camp was constructed at Pu Lalhlimpuia of Vairengte farm land, around 150 meters from Pu Lalchhandama’s farmland (where Mizoram Police constructed its first camp at Aitlang)
+
+ (b) Yesterday i.e., 22.8.2021 @ 3:30 p.m. the following leaders of Vairengte and residents of Lailapur held a Joint Meeting at Star Bricks Industry (Meeting Hall/Office owned by Raju of Lailapur), Lailapur:
+
+1. R. Lalfamkima, President, Joint Village Council, Vairengte
+2. Lalmuanpuia Colney, Secretary, Joint Village Council, Vairengte
+3. Zalawta President, Joint YMA
+4. Lalhmudika, Ex VCM, Vairengte
+5. Rajib Uddin Laskar, Ex. Panchayat, Lailapur
+6. Najrul Uddin Laskar, Ex-Panchayat, Lailapur
+7. Mahibur Rahman Laskar, Member, Mistiri Association, Lailapur
+8. Dilwar Hussain Laskar, President, Hope foundation (NGO)
+
+The meeting passed the following resolutions:
+
+1. Residents of both villages viz., Vairengte and Lailapur should be allowed to engage freely in business on either side and in case of occurrence of any dispute, it should be settled through dialogue.
+2. Residents of the two villages should move freely on either side, and leaders of the two villages should extend immediate necessary assistance in case of any difficulty faced by residents of both villages within their respective areas.
+
+**(3) Assam-Mizoram border dispute at Saihapui V, Kolasib District:**
+
+(i) On the evening of 16.10.2020 between 6:00 p.m. and 7:00 p.m. 7 (seven) Assam Police and Forest officials visited COVID-19 duty post set up at the outskirt of Saihapui 'V' Village, Kolasib District (around 300 meters from Saihapui V) manned by 1st IR personnel (the duty post was previously manned by Saihapui VLTF) and they instructed the personnel on duty to vacate their duty post within two hours claiming that the duty post was within Assam territory and informed that they will again verify after two hours. They also stated that prior permission have to be obtained from DC, Cachar if they want to set up duty post at the said location. Upon hearing the incident, SDPO, Vairengte along with 16 (sixteen) IR personnel immediately proceeded to Saihapui 'V' and when they reached the area, Assam personnel had already left the area. Due to the above incident, residents of Hawaithang Village, Assam resorted to economic blockage near Lailapur Forest Checkgate w.e.f., 16.10.2020 @ 11:00 p.m.
+
+(ii) On 17.10.2020 @ 12:00 p.m. around 200 (two hundred) civilians and 50 (fifty) Assam Police personnel came again at 1st IR Duty Post located at the outskirt of Saihapui 'V' and dismantled the Covid-19 duty Post. SDPO, Vairengte and IR personnel who were stationed at the spot tried their best to prevent the above action but they were heavily out-numbered by the opposite party. Upon hearing the said incident, around 120 (one hundred twenty) civilians from Saihapui V, Buarchep, Saiphai, Vairengte and leaders of Vairengte MZP proceeded to said area but situation was under control.
+
+ Since then, Mizoram Police personnel were deployed at the area to maintain law and order and further escalation of tension at the area and movement across the border was not allowed.
+
+(iii) A bomb blast occurred at SSA Lower Primary School on 22.10.2020 @ 10:15 p.m and the blast was believed to have been caused by using gelatin dynamite. The said school is run by Assam Government and is located at around 300 meters from Saihapui ‘V’ Village and around 400 meters from Mizoram Police Camp at Assam-Mizoram border towards Mizoram. The said blast completely destroyed 2(two) main doors of the school building and 6 (six) windows, blown away GCI roof and made a hole (around 2 (two) feet in diameters) at the southern corner of the wall. In this regard, PuVanlalfakaRalte, SP, Kolasib immediately rushed to the spot and deployed security personnel to cordon the place of occurrence.
+
+ In this connection, SI C. Lalhrezuala of Kolasib DEF conducted an enquiry and basing on his finding, Vairengte PS C/No-31/20 Dt. 23.10.2020 u/s 436/448 IPC r/w u/s 3(1) of The Prevention of Damage to Public Property Act, 1984 was registered.
+
+**16.7.2021:** Pu John Neihlaia, IPS, IGP (Hqrs) visited Mizoram Police deployed at Buarchep and Saihapui ‘V’ today i.e., 16.7.2021 and took stock of the situation. He left the area for Phaisen this evening @ 2:30 p.m.
+
+**(4) Mizoram-Assam border dispute at Aitlang, Vairengte, Kolasib District:**
+
+On 27.6.2021 @ 4:30 p.m., around 10 (ten) Assam Police and Forest officials led by Mr. Nirmal Gosh, APS, Dy. SP Border, Hailakandi District and around 30 (thirty) civilians from Assam visited Vairengte PHE water source, located near PuVantluanga’s fish pond, along Aitlang stream, which is around 2 km West of Vairengte village, inside Mizoram.
+
+On receiving information about their visit, 9 (nine) leaders of Social Reconstruction Enlightment (SORE), an NGO at Vairengte led by Pu Lallawmsanga, President SORE immediately went to the area and held an interaction with Assam officials. During their interaction, Assam officials stated that they visited the area to conduct spot verification as per a complaint received from Assam Forest Department regarding encroachment of Assam Forest Reserve area. Assam officials left the area on the evening of 27.6.2021 @ 5:00 p.m. In this connection, SDPO, Vairengte contacted SP, Hailakandi, who in turn informed him that she deployed the team to conduct spot verification in pursuance of a complaint made by Assam Forest officials on alleged encroachment of Assam Forest Reserve area.
+
+On 29.6.2021 @ 7:00 a.m. around 120 (one hundred twenty) Assam Police led by Mr. Nirmal Gosh, Dy. SP (Border), Hailakandi District visited the farm land owned by PuRamhluna of Vairengte ChhimVeng, located at around 5 km North-West of Vairengte, inside Mizoram. Around 40 (forty) civilians from Dolchera/Balichuri, Assam also came to the spot. Subsequently, Ms. RamandeepKaur, SP, Hailakandi; Mr. JutinMoidori, SDO (Civil), Hailakandi; Mr.Montaz Ali, DFO, Hailakandi; Mr. K. Barman, Circle Officer also arrived at the spot.
+
+On receiving information about their presence, Pu Isaac Lalrempuia, SDO (Civil), Vairengte; PuRamtharnghaka, SDPO Vairengte, leaders of Vairengte Thalai Pawl, Social Reconstruction Enlightment (SORE), MZP and MSU along with 14 (fourteen) Mizoram Police personnel, 7 (seven) CRPF personnel and about 30 (thirty) civilians from Vairengte immediately proceeded to the area. Mizoram officials met Assam officials at around 12:30 p.m. on that day and on being asked about the purpose of their visit, Assam officials informed them that they are conducting normal patrolling and intended to return after having lunch. SDO (Civil), Vairengte informed his counterpart SDO (Civil), Hailakandi the need to discuss the matter and invited him to discuss the matter at his Office Chamber. PuLallawmawma, Addl DC, Kolasib and Pu David J Byhnadaolai, Addl. SP, Kolasib also arrived at the spot the same day @ 2:00 p.m. A brief meeting was held between officials of the two states and agreed to hold DC level meeting in the coming week to resolve the matter.
+
+Dt. 30th June 2021, around 20 (twenty) youths from Vairengte under the aegis of Joint VC, Vairengte and Mizoram Police constructed makeshift camp for Mizoram Police atPuDarthantluanga’s farm land on the evening of Dt. 30.6.2021 @ 8:00 p.m. Mizoram Police personnel were stationed at the camp since then.
+
+ On 1.7.2021 @ 12:00 Noon, Mizoram Police erected tent at the edge of PuChhandama’s farm land, which is around 300 metres from their earlier camp, towards Lalramhluna’s farm land and closer to Assam Police makeshift camp at PuChhandama’s farm land. On being learnt about Mizoram Police activity, Assam Police rushed to the spot and there was a scuffle between Assam Police and Mizoram Police on the afternoon of Dt. 1.7.2021 @ 2:30 p.m. and Assam Police who heavily outnumbered Mizoram Police dismantled the makeshift camp, and as a result of which, Mizoram Police retreated to the above mentioned PuDarthantluanga’s farm land. Due to the said incident, Pu Vanlalfaka Ralte, SP, Kolasib rushed to the area and necessary reinforcement was made.
+
+ Information received also stated that Assam started construction of tin-roof building for Assam Forest Department at PuRamhluna’s farm land on 1.7.2021.
+
+ On Dt. 3.7.2021@ 10:00 a.m. a team of Assam Armed Police entered Aitlang again and cause panic among the people residing there. The same day i.e., Dt. 3.7.2021 @ 7:00 a.m. a team of Assam Forest Officials and Assam Police personnel visited Buarchep and Saihapuizau without prior intimation, whatsoeverinspite of the attempt to maintain status quo by Mizoram.
+
+**(5) Mizoram-Assam border dispute at Phaisen, Kolasib District:**
+
+****R**esidents of Dolchhora village, Assam dug up the road connecting Phaisen, Mizoram to Dolchhora, Assam near Mizoram-Assam border at around 15 meters away from inter-state boundary pillar on the Assam side and blocked the road by constructing bamboo wall on the road on 20.10.2020. The said bamboo wall was dismantled by residents of Dolchhora and nearby villages on 3.11.2020.**
+
+1. **Mamit District****:**
+
+1. **Assam-Mizoram border dispute at Thinghlun, Mamit District**:
+
+Mr.Anbamuthan MP, IAS, DC, Karimganj accompanied by SP, Karimgnaj, Forest Officials and around 60 (sixty) police personnel and civilians from Assam destroyed plantations and also set fire to Jhum huts belonging to Mr. John Zolawma and Mr. Ben David on 9.10.2021. In this connection, Mizoram Police was deployed at Zaite road, Thinghlun to maintain order in the area.
+
+In this regard, SDO(Civil), Kawrthah submitted FIR to OC, Kanhmun PS on 10.10.20 in connection with the incident and a case has been registered vide No. Kanhmun PS C/No. 12/2020 Dt. 10.10.2020 u/s 506, 120 B, 434, 436, 447, 427 IPC.
+
+****16.7.2021:** Information received stated that 2 (two) journalist from DY 365 News led by Rajesh Das, Correspondent, conducted video coverage of the inter-state border in between Kolalian, Mamit District and Thinghlun, Mamit District on 13.7.2021, reportedly as per the direction of Assam Forest Officials. Their report was broadcasted in Assam in the said TV Channel yesterday, i.e.,15.7.2021 stating that people of Kolalian are having farms and areca nut plantations inside Assam as Assam government did not defend its border properly. The said activity created panic amongst the people residing in the Mizoram side of the area as they fear for destruction of their areca nut plantations in the area. In this connection, they intend to hold public meeting at Kolalian village at a convenient time to discuss their course of action. As per input, DC Hailakandi convened a meeting of various Village Panchayats and NGOs of border areas today at his office chamber and explained about the policies and developmental plans of the Assam government in the border areas and concerted future course of action.**
+
+**19.7.2021:** Information received stated that Assam government intended to upgrade/develop Assam Police Camp at Zaite, Kamrimganj District, Assam and in this regard, DC, Karimganj, Assam Police and Forest officials conducted spot verification on 19.7.2021. Information received also stated that Assam intended to replace Assam Police deployed at the area by Central Armed Police (Border Security Force).
+
+1. **Mizoram-Assam border dispute at Tuikhurzau, Chuhvel, Mamit District:**
+
+Shri.Rohan Kumar Jha, DC, Hailakandi, Assam; Smt. RamandeepKaur, SP, Hailakandi; Assam Forest Officials and around 70 (seventy) Assam Police personnel and civilians from Gutguti village, Assam, visited Pu John Halliday’s Farm, located around 1.7 Km from Chuhvel, Mamit District, inside Mizoram territory on 11.6.2021 @ 3:00 p.m. They had a brief interaction with Pu John Holliday at his Farm House and informed him that the area falls within Assam territory and at the same time, Pu John Halliday informed them that state Boundary Pillar erected during the British period was far beyond from his farm and his farm is well within Mizoram territory and the matter should be discussed at higher level. After their interaction, Assam officials left the area @ 3:30 p.m. At the time of their visit, section strength of 3rd Bn. MAP personnel headed by Sub Inspector of Police were present at the Farm.
+
+Arrival of such a huge contingent of security personnel visit caused fear and panic among people residing along inter-state border and female workers from Chuhvel village working in surrounding area fled to their village in fear. Upon hearing their presence, around 30 (thirty) residents of Chuhvel village immediately rushed to the area and by the time they arrived, Assam officials already left the area. In this connection, YMA Leaders from Zamuang and Saikhawthlir also visited Chuhvel village the same evening to take stock of the situation.
+
+Shri.ParimalSuklabaidya, Assam Forest and Environment Minister visited Gutguti, Assam Police BOP today @ 10:30 a.m. and he was accompanied by DC, Hailakandi; SP, Hailakandi and Assam Forest Officials.
+
+Dr.HimantaBiswaSarma, Chief Minister of Assam in his DO letter to Chief Minister of Mizoram vide DO No. CMO 1/2021/1890 Dt. 27th June, 2021 which stated his desire to maintain status quo in the border areas and take every possible steps for their early resolution of tension along the inter-state border. However, Assam side acted in contravention of the above statement of their Chief Minister.
+
+On 14.7.2021 Shri. Pulok Biswas, Circle Officer &amp; Executive Magistrate, Katlicherra, Hailakandi District, Assam; OC, Ramnathpur PS; Post-Commander, Guguti BOP and 20(twenty) Assam Armed Police; forest officials and 5 (five) civilians from Assam came upto entry point of Mizoram Police camp at Bildawp tlang, which is located around 2 km west of Pu John Halliday’s Farm Hut, Chuhvel today i.e., 14.7.2021 @ 3:30 p.m. Pu Zoramthara, Addl. SP, Mamit; Pu Andy Lalfakzuala, SDO (Civil), Kawrthah; SDPO, Kawrthah and one VC member of Chuhvel held a brief talk with them and Assam officials requested Mizoram government to withdraw forces from the disputed area and not to take any new initiative and maintain status quo at the area. They were not allowed to enter Mizoram Police camp and Assam officials left the area @ 3:45 p.m.
+
+**16.7.2021:** Construction of Mizoram Police makeshift Camp at Bilpadawp tlang, Chuhvel was resumed today i.e., 16.7.2021 and around 100 (one hundred) volunteers of Taitesena Group YMA participated in the construction work. 
+
+****

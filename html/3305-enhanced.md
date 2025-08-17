@@ -1,0 +1,13 @@
+A. _Front page of THE ZOZAM TIMES newspaper Dt. 22.3.2013_
+
+_Kidnap – Hot topic in the House_:****In the Assembly Session held yesterday i.e, 21.3.2013, Dr. R.Lalthangliana, MLA expressed that government was too slow in its rescue operation for the 5 persons abducted on 19.2.2013 by an underground militant group and that it should take immediate action. He also said if the government could not rescue them; there were Mizo youths who could. He felt sad about the Government of not being able to rescue the 5 abducted persons and stated that 20 kidnapped cases had already occurred during the tenure of the present Government.
+
+****Pu R.Lalzirliana, Home Minister, reacting to the above statement, said that there were only 4 kidnap cases occurred in the present Government and not 20. Out of the 4 kidnapping cases, the victims were non-Mizos in 3 kidnapped cases. As the victims were all Mizos in the current kidnap case, it was very hard to take actions at the stake of risking their lives. Government was doing its best to rescue them and had high hope for the safe release of the abductees. Home Minister said that the abductors abducted the 5 people mistakenly as they thought them to be some other people and hoped that the abductors would release them soon.
+
+ Pu R.Lalzirliana, Home Minister said that there were 23 kidnap cases during the tenure of MNF and Mizos were kidnapped 11 times. There had been no ambush attacks during the tenure of the present government while it happened 3 times in the previous government and 16 policemen lost their lives; he also said that there had been an attack with explosives on important places and police 43 times in the previous government.
+
+ Home Minister, while answering the unstarred question of Pu Lalrobiaka, MLA earlier said that there were 4 kidnapped cases and 19 persons were kidnapped after 2009. Apart from Rs. 9 lakhs given as ransom money in case of the three Bengali teak traders abduction by their families, no ransom money/demand was given to any other kidnappers/ abductors.
+
+B. _Middle page of THE ZOZAM TIMES newspaper Dt. 22.3.2013_
+
+**_5 years in Jail_:****Yesterday ie, 21.3.2013, Lalhmachhuana of 4th IR Bn. was convicted under section 304 Part-1 IPC by Addl. District &amp; Session Judge-1 KL Liana and sentenced him to 5 years imprisonment and fined him Rs. 5,000/- for beating his wife Sangzuali to death on 23rd Oct., 2011. There was no eye witness of Lalhmachhuana killing his wife, but his confession to the Magistrate, PME report and other evidences were used to convict him.**

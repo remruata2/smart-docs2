@@ -1,0 +1,5 @@
+A. _Front page of VANGLAINI & NEWSLINK newspaper Dt. 19.12.2013_
+
+****CM Hawla lodges FIR agaisnt threats SMS****:** Aizawl PS registered a case and questioned Chhawnthuama, the owner of a well known residential school in Durtlang, Aizawl for allegedly sending Mizoram Chief Minister an "offensive" and "threatening" sms soon after the Congress come back to power. The sender identified himself as "Phantom". Although the Sim Card used for sending the message was not a usual one, investigator said a handset has been traced from him. The accused has however not been charged formally.**
+
+****Note**: All the newspapers subscribed by this unit have highlighted the new Mizoram State Planning Board Vice Chairman alongwith 7(seven) Parliamentary Secretaries during the last day of the three days Assembly Session on 18.12.2013, Chief Minister LalThanhawla administered the oath.**

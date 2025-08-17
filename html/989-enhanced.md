@@ -1,0 +1,5 @@
+****REPORT ON ACTIVITIES OF NLFT****
+
+1. It is learnt that SS Capt. Suren Debbarma is presently the Commander of Combined NLFT and ATTF insurgent group in Sylhlet area(Meghalaya) of Indo-Bangladesh border. Hence purchasing jungle shoes on 27.1.2011 from Mizoram was unlikely. However, it is learnt that in the middle part of January 2011 some overground Chakma workers had purchased 12 pairs of jungle shoes for UDPF(a Chakma insurgents of Bangladesh) from Kanchanpur, Tripura.
+
+2. It is learnt that some NLFT Cadres visited Chipui and Mahmuam villages in Bangladesh during January 2011. Source at Chipui village was contacted on phone who said that he had never either seen or heard of bringing shoes from Mizoram by NLFT Cadres. So report of purchasing jungle shoes on 31.1.2011 by NLFT was unlikely. However, movements of insurgent groups inside Mizoram have been closely watched.

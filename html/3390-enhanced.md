@@ -1,0 +1,3 @@
+A. _Front page of THE ZOZAM TIMES newspaper Dt. 3.2.2014_
+
+**FIR Lodged****:** Lalbiakengi, former General Secretary, MHIP lodged an FIR at Aizawl PS on Friday regarding the spreading of the book ‘MHIP Chungchanga Thudik Hailanna’ (Revelation of the truth about MHIP). 700 copies of the book were placed at Kawlkulh and another 1,000 copies were at the house of the Presidents of Champhai Sub-Headquarters by a man called Mapuia of Khatla. She believed that some other persons got involved behind Mapuia and that the book meant to defame her, so she requested the police to find out the real writer, she also claimed that it is contempt of court.

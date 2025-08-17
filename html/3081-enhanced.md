@@ -1,0 +1,17 @@
+A. _Front page of THE ZOZAM TIMES, THE AIZAWL POST & VANGLAINI newspapers Dt. 8.4.2013_
+
+_NLFT gave order 2 times to Release the 5 kidnapped persons_:****Regarding 5 persons kidnapped from Dampa Wildlife Sanctuary on 19th Feb., 2013 by Bru gang in the name of NLFT, Congress party media dept. said that NLFT Hqrs. gave orders 2 times to Bru gang to release the kidnapped and the kidnappers are still being tracked by the government.
+
+ When CID(SB) team was about to be deployed by the government, Home Minister Pu R.Lalzirliana told them not to give ransom, not to comply with the kidnappers, and to use weapon and force if it cannot be negotiated. CID(SB) team traced down leaders of NLFT Hqrs. and warned the gang to release the kidnapped persons. The success of the rescue operation is due to the patience and faith of the churches, NGOs and people of Mizoram put on the government, said Pu Lalrozara Congress party spokesperson.
+
+B. _Front page of THE AIZAWL POST newspaper Dt. 8.4.2013_
+
+_Men with arm threatened and robbed Abdul Monas_: Some unidentified armed men threatened and robbed Abdul Monas (37), a keeper of farmland in Mamit District, 3 kms. away from Bungthuam on Sunday ie, 7.4.2013 @ 1:30 AM. These men were 8 and 5 of them carried guns, and took ` 600/-, 1 mobile phone, and 6 poultry from them. The thieves trampled on Monas's back and there was a cut on his lips, they knocked down the 9 yrs. old daughter of Monas on their way out with a gun. Abdul Monas has a wife with 4 kids. The place of occurrence was visited by SDPO, Kawrthah, OC Kanhmun, IR personnel posted at Kanhmun and Bungthuam, and leaders of Bungthuam community.
+
+C. _Middle page of THE ZOZAM TIMES newspaper Dt. 8.4.2013_
+
+_A burglar arrested at Tlawng shore by YMA_: Lalchhuanvawra (23) of Tahan Hualngo burgled the house of Zotawna of West Lungdar @ around 11:00AM on Sunday ie, 7.4.2013 and stolen away money around ` 15,000/- while Zotawna and his family attended church service. Lalchhuanvawra hired a bike from West Lungdar till Reiek and hired another bike from Reiek and run towards Aizawl. Following the request made by Zotawna's relatives, Maubawk Branch YMA waited for the culprit on the Shore of Tlawng River and caught him @ around 12:30PM on the same day. A sum of money ` 10,530/-, 2 mobile phones, voter's ID and driving license in the name of Lalhuliana of Khawzawl were seized from his possession, he was handed over to Kulikawn Police. Lalchhuanvawra was often arrested for burglary. 
+
+D. _Front page of THE ZOZAM TIMES & NEWSLINK newspapers Dt. 8.4.2013_
+
+_MSU lodged an FIR against NIOS Principal_: Mizo Students Union (MSU) Gen. Hqrs. lodged an FIR against Nation Institute of Open Schooling (NIOS) principal at Vaivakawn Police Station on 5th April, 2013. MSU Gen Hqrs. alleged the principal of collecting uneven admission fee like ` 1,700/-, ` 1,500/- and ` 1,200/- without proper receipt; and while monthly fee is not allowed to be collected, he collected ` 300/- from each student monthly, besides he collected ` 1,000/- for exam fee for each student. After all the fees are collectively paid by more than 20 students, the principal told them that they could not appear for the exams due to some minor reasons.

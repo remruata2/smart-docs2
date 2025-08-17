@@ -110,7 +110,7 @@ export default function UserEditForm({ user }: UserEditFormProps) {
                     value={formData.username}
                     onChange={handleInputChange}
                     required
-                    className="shadow-sm focus:ring-indigo-500 focus:border-indigo-500 block w-full sm:text-sm border-gray-300 rounded-md"
+                    className="shadow-sm focus:ring-indigo-500 focus:border-indigo-500 block w-full text-base border-gray-300 rounded-md h-8 px-4"
                   />
                 </div>
               </div>
@@ -126,7 +126,7 @@ export default function UserEditForm({ user }: UserEditFormProps) {
                     id="password"
                     value={formData.password}
                     onChange={handleInputChange}
-                    className="shadow-sm focus:ring-indigo-500 focus:border-indigo-500 block w-full sm:text-sm border-gray-300 rounded-md"
+                    className="shadow-sm focus:ring-indigo-500 focus:border-indigo-500 block w-full text-base border-gray-300 rounded-md h-8 px-4"
                   />
                 </div>
               </div>
@@ -141,7 +141,7 @@ export default function UserEditForm({ user }: UserEditFormProps) {
                     name="role"
                     value={formData.role}
                     onChange={handleInputChange}
-                    className="shadow-sm focus:ring-indigo-500 focus:border-indigo-500 block w-full sm:text-sm border-gray-300 rounded-md"
+                    className="shadow-sm focus:ring-indigo-500 focus:border-indigo-500 block w-full text-base border-gray-300 rounded-md h-8 px-4"
                   >
                     <option value={UserRole.staff}>Staff</option>
                     <option value={UserRole.admin}>Admin</option>

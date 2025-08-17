@@ -1,0 +1,23 @@
+**BDFM**
+
+**Activities:**
+
+1. On the night of 19.2.2013, 5(Five) persons namely - (1) Vanlalruatkima @ Nelson-a, Hunthar Veng, Aizawl-JCB Operator. (2) Lalrammawia, Hunthar Veng, Aizawl, JCB Handyman. (3) Vanlalfaka Reang, Damparengpui, MR employee, Forest Deptt. (4) Lalsangmawia, Bethlehem, W.Phaileng, MR employee, Forest Deptt. (5) Lalliansanga, Teirei Forest, MR employee, Forest Deptt. were abducted by NLFT/BNDLFM (Bru National Development Liberation Front of Mizoram) from their camp, located in between Tuipuibari and Damparengpui, Mamit District. Hence WPLG C/No.4/13 dt.20.2.13 u/s 364(A)/34 IPC r/w 25(1A) Arms Act was registered.
+
+ After prolonged pressure and persuasive method being used by Govt. of Mizoram in close co-ordination with Mizos living in Bangladesh, the hostages were freed by the captors at Indo-Bangla border village called Silsury on 29.3.2013.
+
+2. On 23.11.2013, a combined militant group of National Liberation Front of Tripura(NLFT) and Bru National Development Liberation Front of Mizoram(BNDLFM) abducted three persons namely - 1) Sanglianthanga S/o VL. Hmuaka of Mamit 2) Lalzamliana S/o Buanga(L) of Kolasib and 3) Deep Mandal S/o Nikhil Mandal of West Bengal from anti-poaching camp area in Mamit District. The abductors had taken them inside Bangladesh and demanded Rs.5 crores for ransom. In this connection, West Phaileng Police Station Case No.24/2013 Dt.25.11.2013 u/s 364 A/379/34 IPC R/w Sec 25(1A) Arms Act has been registered. Due to increasing efforts of the Government of Mizoram as well as various groups of NGOs and Churches, two of the abducted persons namely Sanglianthanga and Lalzamliana were unconditionally released by the abductors and safely arrived in Mizoram on 21.1.2014 at around 11:30am after sixty days in captivity and due to the initiative taken by Mizoram Police, Deep Mandal(25) S/o Nikhil Mandal, Indas, Bankura District, West Bengal was released by the abductors i.e. National Liberation Front of Tripura (NLFT) and Bru Development Front of Mizoram(BDFM) on 22.3.2014 after he was held captive inside Bangladesh for 119 days.
+
+3. It is learnt that the Bru militants had changed the name of BNDLFM(Bru National Development Liberation Front of Mizoram) as BDFM (Bru Democratic Front of Mizoram) on December 2013.
+
+4. The BDFM S/S Commander Thlamuana also made extortion demands through telephone calls on 7.2.2014 from Refugee Camps, N.Tripura as well as from some Bru villages of Mamit District, Mizoram, such as Thaidawr, Tumpanglui etc @ Rs. 350/- per household to be deducted from the NREGS funds.
+
+5. A group numbering seven of BDFM armed with AK-47 and small arms have crossed Bangladesh border near Zopui at 6:30am on 9.2.2014 with a plan to carry out extortion inside Bru refugee camps. The groups are likely to infiltrate into Bru refugee camps only with camps only with small arms via Thailihpara under Anando Bazar P/S jurisdiction, N.Tripura, and the group is learnt to have demanded deduction of funds meant for refugee aid @ Rs.10/- per adult and Rs.5/- per minor per month. The BDFM is a group known to be involved in several abduction cases inside Mizoram and Tripura during recent past, based in Tarunpara jungles(Bangladesh) under the active patronage of NLFT.
+
+6. Input received indicated that the Bru Democratic Front of Mizoram(BDFM) are planning to disrupt the proposed repatriation of Bru refugees. The input received suggests possible plot by the outfit to carry out abduction targeting Mizos in the western belt of Mamit district in the near future.
+
+ The threat came in the wake of the Government's commitment made to the NGO Co-ordination Committee recently to delete Bru refugees from Mizoram Electoral Roll who fail to return to Mizoram even after repeated appeals.
+
+7. Input received indicated that a group numbering around 7(seven) of Bru National Democratic Liberation Front of Mizoram (BNDLFM) ) a.k.a Bru Democratic Front of Mizoram (BDFM) led by S/S Comdr. Thlamuana are still hiding inside Bru Refugee Camp in North Tripura despite repeated instructions by their President Romawia to return to their Bangladesh Base-camp. The group seemed reluctant to return to Bangladesh and made excuses stating the presence of Security Forces at the border. However, input suggests that they may plan to surrender themselves either before the Tripura Government or before the Assam Rifles.
+
+The group nevertheless is still planning to abduct one Bengali from Hailakandi District of Assam with the help of some unidentified gang of criminals operating in the area. Efforts are on to identify the Criminal gangs operating in Hailakandi area. (SR 28.5.14)

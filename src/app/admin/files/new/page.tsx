@@ -10,7 +10,11 @@ import { pageContainer, pageTitle, cardContainer } from "@/styles/ui-classes";
 export default async function NewFilePage() {
   const session = await getServerSession(authOptions);
 
-  if (!session || !session.user || session.user.role !== UserRole.admin) {
+  if (
+    !session ||
+    !session.user ||
+    (session.user.role !== UserRole.admin && session.user.role !== UserRole.staff)
+  ) {
     redirect("/unauthorized");
   }
 

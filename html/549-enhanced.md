@@ -1,0 +1,19 @@
+****ARAKAN LIBERATION PARTY (ALP) / ARAKAN LIBERATION ARMY (ALA)****
+
+TheArakanLiberation Party(ALP), founded on 9 April 1967with the help of theKaren National Union(KNU), is a Rakhinepolitical party in Myanmar(Burma). The party has an armed wing, theArakan Liberation Army(ALA), which has 60–100 personnel. The ALA signed a ceasefire agreement with thegovernment of Myanmaron 5thApril 2012and became a signatory of theNationwide Ceasefire Agreement(NCA) on 15thOctober 2015.
+
+On 26thNovember, 1968, Mr.Khai Ray Khai, a member of the party's central committee, along with nine other associates, were arrested atSittwe, the capital ofRakhine State, by Burmese authorities. On 20thDecember, 1968, Mr.KhaingSoeNaing, the party's General Secretary, was arrested by Burmese authorities at Rathedaung Township, in Rakhine State. Following those arrests, more ALP members were arrested on different charges, and the party was dissolved. The party has accused the government of torturing its imprisoned members.
+
+Between 1971 and 1972, former political prisoners from the ALP were released on grounds of amnesty. As soon as Mr.Khaing Moe Lunn, a former ALP member, was released, he departed to Komura to meet with KNU leaders in order to re-establish the ALP and ALA. From 1973 to 1974, the ALP was re-established with help from the KNU, and 300 fighters were recruited and trained by the ALA, with Mr.Khaing as the President of the ALP and Commander in Chief of the ALA. After a failed offensive by Mr.Khaing against bothIndianand Burmese forces which resulted in massive arrests of party members, the ALP ceased its activities once again.
+
+In 1980, all ALP and ALA prisoners were released on amnesty. In 1981, the ALP and ALA were once again established, now under the leadership of Mr.Khai Ray Khai, and was once again assisted by the KNU. The ALP is presently allied with the KNU, along with theNational Democratic Front(NDF), the Democratic Alliance of Burma (DAB), and the National Council of the Union of Burma (NCUB). The ALP signed theNationwide Ceasefire Agreement(NCA) on 15th October, 2015, along with seven other insurgent groups.
+
+_Factional conflict between Arakan Army (AA) &Arakan Liberation Army (ALA)_
+
+  As many as 170 locals (internally displaced people) took shelter in Gobasury and Bangdukbanga villages, Lawngtlai District on 25.08.2017 after Arakan Army (AA) attacked the camp of Arakan Liberation Army (ALA) inside Bangladesh near the border on 22-23 August,2017. In this connection, Deputy Commissioner, Lawngtlai District has provided administrative support and arranged Ration supply to Gobasury and Bangdukbanga villages.
+
+  Similarly, as part of a goodwill gesture, the 1st Assam Rifles (Lushai Hills Battalion) had also donated 400 nos. of solar lanterns and 2,500kgs of rice to villagers of underdeveloped villages like Bangdukbanga , Gobasury, Simnasura, Silsuri located south of Parva village near the Indo-Myanmar border in Lawngtlai district of Mizoram on 6thSeptember,2017.
+
+**Recent Movement:**
+
+ Around 15 (fifteen) cadres of ALA/ALP left their camps located Bangladesh territory on 23.12.2019 for Refugee Basti (Ajasora) village, Lawngtlai District to spend Christmas festival. Before leaving their camps, they received information about the possibility of attack from AA cadres. As such they brought their arms &amp; ammunitions but they had not seen any AA movement on the route. They had arrived Ajasora on 24.12.2019 @ 9:30 a.m. but their belongings were seized by the BSF personnel posted at Parva after their arrival. Police case was also registered at Vasei PS. The ALA cadres fled Ajasora after the incident and their where about are not known and arrest was not be made till today.

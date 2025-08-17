@@ -1,0 +1,27 @@
+**MOST IMMEDIATE**
+
+****W/T MESSAGE****
+
+ TO - SO. CPI/ KLB/ MMT/ SRCP (.)
+
+ V - SPL(M)
+
+ No. - MSB/CB/B-19(A)/ 07/ Dt.31.07.2015.
+
+**YOU ARE HEREBY DIRECTED TO CONDUCT ASSESSMENT OF THREAT PERCEPTION IN RESPECT OF THE BELOW CHIEF JUDICIAL MAGISTRATES OF YOUR RESPECTIVE DISTRICTS AND SUBMIT YOUR REPORT (IN ENGLISH) AT THE EARLIEST(.)**
+
+1) PI R.LALDUHAWMI, CJM CPI
+
+2) PU LIANSANGZUALA, CJM KLB
+
+3) PU F.ROHLUPUIA, CJM MMT
+
+4) PU LALNGAIHMAWIA ZOTE, CJM SRCP
+
+__________________________________________________________________
+
+Copy to :- OC, MPRO, Aizawl for quick transmission please.
+
+Superintendent of Police
+
+ CID(SB).Mizoram,Aizawl
