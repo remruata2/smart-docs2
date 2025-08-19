@@ -492,6 +492,116 @@ export default function TiptapEditor({
   onChange,
   editable = true,
 }: TiptapEditorProps) {
+  // Detect common list markers at the beginning of a line
+  function detectListMarker(text: string): { type: 'ul' | 'ol'; stripped: string } | null {
+    const t = (text || '').replace(/\u00A0/g, ' ').trimStart();
+    // Unordered markers: bullets, middle dot, small circle, dash variants
+    const ulMatch = t.match(/^([\u2022\u00B7\u25E6\-\–\—]+)\s+(.*)$/);
+    if (ulMatch) {
+      return { type: 'ul', stripped: ulMatch[2] };
+    }
+    // Ordered markers: 1. 1) a. a) i. i)
+    const olMatch = t.match(/^(?:((?:\d+|[a-zA-Z]+|[ivxlcdmIVXLCDM]+))[\.)])\s+(.*)$/);
+    if (olMatch) {
+      return { type: 'ol', stripped: olMatch[2] };
+    }
+    return null;
+  }
+
+  // Normalize pasted plain text into semantic HTML lists where applicable
+  function normalizePastedTextToHTML(text: string): string {
+    const lines = (text || '').split(/\r?\n/);
+    let htmlParts: string[] = [];
+    let currentListType: 'ul' | 'ol' | null = null;
+    for (const rawLine of lines) {
+      const line = rawLine.replace(/\u00A0/g, ' ');
+      const marker = detectListMarker(line);
+      if (marker) {
+        if (currentListType !== marker.type) {
+          if (currentListType) htmlParts.push(currentListType === 'ul' ? '</ul>' : '</ol>');
+          currentListType = marker.type;
+          htmlParts.push(currentListType === 'ul' ? '<ul>' : '<ol>');
+        }
+        const safe = marker.stripped.replace(/&/g, '&amp;').replace(/</g, '&lt;').replace(/>/g, '&gt;');
+        htmlParts.push(`<li>${safe}</li>`);
+      } else {
+        if (currentListType) {
+          htmlParts.push(currentListType === 'ul' ? '</ul>' : '</ol>');
+          currentListType = null;
+        }
+        const safe = line.replace(/&/g, '&amp;').replace(/</g, '&lt;').replace(/>/g, '&gt;');
+        htmlParts.push(`<p>${safe}</p>`);
+      }
+    }
+    if (currentListType) htmlParts.push(currentListType === 'ul' ? '</ul>' : '</ol>');
+    return htmlParts.join('');
+  }
+
+  // Normalize pasted HTML by converting bullet-like paragraphs/divs into lists
+  function normalizePastedHTML(html: string): string {
+    try {
+      if (typeof window === 'undefined' || typeof (window as any).DOMParser === 'undefined') {
+        return html;
+      }
+      const parser = new DOMParser();
+      const doc = parser.parseFromString(html, 'text/html');
+      const out = doc.createElement('div');
+      let currentList: { el: HTMLOListElement | HTMLUListElement; type: 'ul' | 'ol' } | null = null;
+
+      const flushList = () => {
+        if (currentList) {
+          out.appendChild(currentList.el);
+          currentList = null;
+        }
+      };
+
+      const blocks = Array.from(doc.body.childNodes);
+      for (const node of blocks) {
+        if (node.nodeType === Node.ELEMENT_NODE) {
+          const el = node as HTMLElement;
+          const tag = el.tagName.toLowerCase();
+          if (tag === 'ul' || tag === 'ol') {
+            // Already a list: flush current and append as-is
+            flushList();
+            out.appendChild(el);
+            continue;
+          }
+          if (tag === 'p' || tag === 'div') {
+            const text = el.textContent || '';
+            const marker = detectListMarker(text);
+            if (marker) {
+              if (!currentList || currentList.type !== marker.type) {
+                flushList();
+                const listEl = doc.createElement(marker.type) as HTMLUListElement | HTMLOListElement;
+                currentList = { el: listEl, type: marker.type };
+              }
+              const li = doc.createElement('li');
+              // Use textContent to avoid carrying over stray bullet markup; preserves safety
+              li.textContent = marker.stripped;
+              currentList.el.appendChild(li);
+              continue;
+            }
+          }
+          // Non-list block
+          flushList();
+          out.appendChild(el);
+        } else if (node.nodeType === Node.TEXT_NODE) {
+          const text = (node.textContent || '').trim();
+          if (text) {
+            flushList();
+            const p = doc.createElement('p');
+            p.textContent = text;
+            out.appendChild(p);
+          }
+        }
+      }
+      flushList();
+      return out.innerHTML || html;
+    } catch {
+      return html;
+    }
+  }
+
   const editor = useEditor({
     extensions: [
       StarterKit.configure({
@@ -559,13 +669,32 @@ export default function TiptapEditor({
         class: "focus:outline-none",
         spellcheck: "false",
       },
-      // Clean up pasted content to handle problematic images
+      // Clean up pasted content: normalize lists and handle problematic images
       transformPastedHTML: (html) => {
-        // Remove images with problematic src attributes
-        return html.replace(
+        const normalized = normalizePastedHTML(html);
+        return normalized.replace(
           /<img[^>]*src=["'](?:file:\/\/|mhtml:|data:image\/(?!(?:png|jpg|jpeg|gif|webp|svg)))[^"']*["'][^>]*>/gi,
           "<p><em>[Image removed - please upload images separately]</em></p>"
         );
+      },
+      transformPastedText: (text) => {
+        // Normalize plain text by converting bullet glyphs to '- ' and ordered markers to '1. '
+        const lines = (text || '').split(/\r?\n/);
+        const normalized = lines
+          .map((raw) => {
+            const t = (raw || '').replace(/\u00A0/g, ' ').trimStart();
+            // unordered bullets
+            if (/^[\u2022\u00B7\u25E6\-\–\—]+\s+/.test(t)) {
+              return t.replace(/^[\u2022\u00B7\u25E6\-\–\—]+\s+/, '- ');
+            }
+            // ordered bullets -> normalize to '1. '
+            if (/^(?:\d+|[a-zA-Z]+|[ivxlcdmIVXLCDM]+)[\.)]\s+/.test(t)) {
+              return t.replace(/^(?:\d+|[a-zA-Z]+|[ivxlcdmIVXLCDM]+)[\.)]\s+/, '1. ');
+            }
+            return raw;
+          })
+          .join('\n');
+        return normalized;
       },
     },
   });

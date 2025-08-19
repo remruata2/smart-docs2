@@ -38,7 +38,7 @@ import {
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
 import TiptapEditor from "@/components/ui/TiptapEditor";
 // marked import removed - not used in this component
-import { convertHtmlToMarkdown } from "@/lib/htmlTableToMarkdown";
+import { htmlToMarkdown } from "@/lib/markdown/htmlToMarkdown";
 
 // Define the Zod schema based on actions.ts (or import if centralized and exported)
 const fileFormSchema = z
@@ -115,12 +115,7 @@ export default function FileForm({
     },
   });
 
-  // Update form note field when editor content changes
-  useEffect(() => {
-    if (form.getValues("content_source") === "editor" && editorContent) {
-      form.setValue("note", editorContent);
-    }
-  }, [editorContent, form]);
+  // Note: we now store Markdown in the form's note field directly in the onChange handler below.
 
   const {
     formState: { isSubmitting },
@@ -149,12 +144,9 @@ export default function FileForm({
       }
     });
 
-    // If using editor, store HTML directly without conversion
-    if (values.content_source === "editor" && values.note) {
-      // Store HTML content directly
-      formData.set("note", values.note);
-      // Add a flag to indicate this is HTML content
-      formData.set("content_format", "html");
+    // If using editor, we now store Markdown
+    if (values.content_source === "editor") {
+      formData.set("content_format", "markdown");
     } else {
       // For file uploads or manual markdown entry, set format as markdown
       formData.set("content_format", "markdown");
@@ -552,11 +544,12 @@ export default function FileForm({
                   <FormControl>
                     <div className="border rounded-md">
                       <TiptapEditor
-                        initialHtml={field.value || ""}
+                        initialHtml={editorContent || ""}
                         onChange={(html: string) => {
-                          // Store HTML in the form state for rich text editing
+                          // Keep HTML locally for the editor UI, but store Markdown in the form
                           setEditorContent(html);
-                          field.onChange(html);
+                          const markdown = htmlToMarkdown(html);
+                          field.onChange(markdown);
                         }}
                         editable={true}
                       />

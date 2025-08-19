@@ -137,9 +137,9 @@ export default function FileListClient({
 		<div className={cardContainer}>
 			{/* Search and Filter Section */}
 			<div className="mb-6 space-y-4">
-				<div className="flex flex-col sm:flex-row gap-4">
-					{/* Search Input */}
+				<div className="flex items-center gap-4">
 					<div className="relative flex-1">
+						{/* Search Input */}
 						<Search className="absolute left-3 top-1/2 transform -translate-y-1/2 text-gray-400 h-4 w-4" />
 						<Input
 							placeholder="Search by file number, title, or category..."
@@ -148,7 +148,8 @@ export default function FileListClient({
 							className="pl-10"
 						/>
 					</div>
-
+				</div>
+				<div className="flex flex-col sm:flex-row gap-6 items-start sm:items-center justify-between">
 					{/* Category Filter */}
 					<select
 						value={selectedCategory}

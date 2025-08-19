@@ -65,6 +65,7 @@ enum Provider {
   gemini
   openai
   anthropic
+  llamaparse
 }
 
 /// Stores encrypted API keys and metadata for AI providers

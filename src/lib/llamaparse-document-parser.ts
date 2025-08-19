@@ -1,45 +1,45 @@
 import { LlamaParseReader } from "llamaindex";
-import * as dotenv from "dotenv";
-
-// Load environment variables from .env file
-dotenv.config();
+import { getProviderApiKey, recordKeyUsage } from "@/lib/ai-key-store";
 
 export class LlamaParseDocumentParser {
-  private reader: LlamaParseReader;
-
-  constructor() {
-    const apiKey = process.env.LLAMAPARSE_API_KEY;
-    if (!apiKey) {
-      throw new Error("LLAMAPARSE_API_KEY is not set in the environment variables.");
-    }
-
-    this.reader = new LlamaParseReader({
-      apiKey: apiKey,
-      resultType: "markdown", // We want the output in Markdown format
-    });
-  }
-
   /**
    * Parses a document from a file path using LlamaParse.
-   * @param filePath The path to the file to parse.
-   * @returns A promise that resolves to the parsed content in Markdown.
+   * Selects a DB-managed key for provider "llamaparse" with rotation.
+   * Falls back to LLAMAPARSE_API_KEY env var if no DB key is active.
+   * Records usage success/failure when a DB key is used.
    */
   public async parseFile(filePath: string): Promise<string> {
-    try {
-      console.log(`[LlamaParse] Parsing file: ${filePath}`);
-      const documents = await this.reader.loadData(filePath);
+    const { apiKey, keyId } = await getProviderApiKey({ provider: "llamaparse" });
+    const fallback = process.env.LLAMAPARSE_API_KEY || "";
+    const keyToUse = apiKey || fallback;
+    if (!keyToUse) {
+      throw new Error(
+        "No LlamaParse API key configured. Add a key in admin settings or set LLAMAPARSE_API_KEY."
+      );
+    }
 
+    const reader = new LlamaParseReader({
+      apiKey: keyToUse,
+      resultType: "markdown",
+    });
+
+    let ok = false;
+    try {
+      console.log(`[LlamaParse] Parsing file: ${filePath} using ${apiKey ? "db" : "env"} key`);
+      const documents = await reader.loadData(filePath);
       if (!documents || documents.length === 0) {
         throw new Error("LlamaParse returned no documents.");
       }
-
-      // Combine the text content from all resulting documents
       const content = documents.map((doc) => doc.text).join("\n\n");
-      console.log("[LlamaParse] Successfully parsed document.");
+      ok = true;
       return content;
     } catch (error) {
-      console.error("Error parsing with LlamaParse:", error);
       throw error;
+    } finally {
+      if (keyId) {
+        // Only record usage for DB-managed keys
+        recordKeyUsage(keyId, ok).catch(() => {});
+      }
     }
   }
 }

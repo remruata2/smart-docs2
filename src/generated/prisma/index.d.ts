@@ -54,7 +54,8 @@ export type UserRole = (typeof UserRole)[keyof typeof UserRole]
 export const Provider: {
   gemini: 'gemini',
   openai: 'openai',
-  anthropic: 'anthropic'
+  anthropic: 'anthropic',
+  llamaparse: 'llamaparse'
 };
 
 export type Provider = (typeof Provider)[keyof typeof Provider]

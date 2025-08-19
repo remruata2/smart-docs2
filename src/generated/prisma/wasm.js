@@ -199,7 +199,8 @@ exports.UserRole = exports.$Enums.UserRole = {
 exports.Provider = exports.$Enums.Provider = {
   gemini: 'gemini',
   openai: 'openai',
-  anthropic: 'anthropic'
+  anthropic: 'anthropic',
+  llamaparse: 'llamaparse'
 };
 
 exports.Prisma.ModelName = {

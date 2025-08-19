@@ -3,7 +3,7 @@ import { GoogleGenerativeAI } from "@google/generative-ai";
 import crypto from "crypto";
 
 // Provider values mirror Prisma enum `Provider`
-export type AIProvider = "gemini" | "openai" | "anthropic";
+export type AIProvider = "gemini" | "openai" | "anthropic" | "llamaparse";
 
 // Encryption helpers using AES-256-GCM
 // Requires a 32-byte key provided via env API_KEYS_ENCRYPTION_KEY
@@ -66,7 +66,7 @@ async function selectActiveKey(provider: AIProvider) {
   // Prefer active keys with higher priority, least recently used first
   // If none, return null to signal fallback
   const key = await prisma.aiApiKey.findFirst({
-    where: { provider, active: true },
+    where: { provider: provider as any, active: true },
     orderBy: [
       { priority: "desc" },
       { last_used_at: "asc" },
@@ -117,7 +117,7 @@ export async function recordKeyUsage(keyId: number, ok: boolean) {
 export async function getActiveModelName(provider: AIProvider): Promise<string | null> {
   try {
     const m = await prisma.aiModel.findFirst({
-      where: { provider, active: true },
+      where: { provider: provider as any, active: true },
       orderBy: [
         { priority: "desc" },
         { id: "asc" },
@@ -135,7 +135,7 @@ export async function getActiveModelName(provider: AIProvider): Promise<string |
 export async function getActiveModelNames(provider: AIProvider): Promise<string[]> {
   try {
     const rows = await prisma.aiModel.findMany({
-      where: { provider, active: true },
+      where: { provider: provider as any, active: true },
       orderBy: [
         { priority: "desc" },
         { id: "asc" },
@@ -179,7 +179,7 @@ export async function upsertApiKey(params: {
     return prisma.aiApiKey.update({
       where: { id: params.id },
       data: {
-        provider: params.provider,
+        provider: params.provider as any,
         label: params.label,
         api_key_enc: enc,
         active: params.active ?? true,
@@ -189,7 +189,7 @@ export async function upsertApiKey(params: {
   }
   return prisma.aiApiKey.create({
     data: {
-      provider: params.provider,
+      provider: params.provider as any,
       label: params.label,
       api_key_enc: enc,
       active: params.active ?? true,
@@ -206,7 +206,7 @@ export async function keyExistsWithSameSecret(
   excludeId?: number
 ): Promise<boolean> {
   const existing = await prisma.aiApiKey.findMany({
-    where: { provider },
+    where: { provider: provider as any },
     select: { id: true, api_key_enc: true },
   });
   for (const row of existing) {

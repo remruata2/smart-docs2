@@ -3,22 +3,24 @@ import { getServerSession } from "next-auth";
 import { authOptions } from "@/lib/auth-options";
 import { isAdmin } from "@/lib/auth";
 import { prisma } from "@/lib/prisma";
-import { upsertApiKey, keyExistsWithSameSecret } from "@/lib/ai-key-store";
+import { keyExistsWithSameSecret, upsertApiKey } from "@/lib/ai-key-store";
 
 export const dynamic = "force-dynamic";
 export const revalidate = 0;
 
-export async function GET(request: NextRequest) {
+export async function GET(_request: NextRequest) {
   try {
     const session = await getServerSession(authOptions);
-    if (!session?.user)
+    if (!session?.user) {
       return NextResponse.json({ error: "Authentication required" }, { status: 401, headers: { "Cache-Control": "no-store" } });
+    }
     const role = (session.user as any).role;
-    if (!isAdmin(role))
+    if (!isAdmin(role)) {
       return NextResponse.json({ error: "Admin privileges required" }, { status: 403, headers: { "Cache-Control": "no-store" } });
+    }
 
     const keys = await prisma.aiApiKey.findMany({
-      orderBy: [{ provider: "asc" }, { priority: "desc" }, { label: "asc" }],
+      orderBy: [{ provider: "asc" }, { priority: "desc" }, { id: "asc" }],
       select: {
         id: true,
         provider: true,
@@ -32,7 +34,7 @@ export async function GET(request: NextRequest) {
         updated_at: true,
       },
     });
-    return NextResponse.json({ keys }, { headers: { "Cache-Control": "no-store" } });
+    return NextResponse.json({ keys: Array.isArray(keys) ? keys : [] }, { headers: { "Cache-Control": "no-store" } });
   } catch (e) {
     console.error("[AI-KEYS] GET error", e);
     return NextResponse.json({ error: "Failed to load API keys" }, { status: 500, headers: { "Cache-Control": "no-store" } });
@@ -42,32 +44,45 @@ export async function GET(request: NextRequest) {
 export async function POST(request: NextRequest) {
   try {
     const session = await getServerSession(authOptions);
-    if (!session?.user)
-      return NextResponse.json({ error: "Authentication required" }, { status: 401, headers: { "Cache-Control": "no-store" } });
+    if (!session?.user) {
+      return NextResponse.json({ error: "Authentication required" }, { status: 401 });
+    }
     const role = (session.user as any).role;
-    if (!isAdmin(role))
-      return NextResponse.json({ error: "Admin privileges required" }, { status: 403, headers: { "Cache-Control": "no-store" } });
+    if (!isAdmin(role)) {
+      return NextResponse.json({ error: "Admin privileges required" }, { status: 403 });
+    }
 
     const body = await request.json();
     const { provider, label, apiKeyPlain, active, priority } = body || {};
-    if (!provider || !label || !apiKeyPlain) {
-      return NextResponse.json(
-        { error: "provider, label and apiKeyPlain are required" },
-        { status: 400, headers: { "Cache-Control": "no-store" } }
-      );
+
+    if (!provider || typeof provider !== "string") {
+      return NextResponse.json({ error: "provider is required" }, { status: 400 });
+    }
+    if (!label || typeof label !== "string") {
+      return NextResponse.json({ error: "label is required" }, { status: 400 });
+    }
+    if (!apiKeyPlain || typeof apiKeyPlain !== "string") {
+      return NextResponse.json({ error: "apiKeyPlain is required" }, { status: 400 });
     }
 
-    // Duplicate plaintext key check per provider
-    const dup = await keyExistsWithSameSecret(provider, apiKeyPlain);
+    // Prevent duplicate of same plaintext for same provider
+    const dup = await keyExistsWithSameSecret(provider.toLowerCase() as any, apiKeyPlain);
     if (dup) {
       return NextResponse.json(
         { error: "This API key already exists for the selected provider." },
-        { status: 409, headers: { "Cache-Control": "no-store" } }
+        { status: 409 }
       );
     }
 
-    const created = await upsertApiKey({ provider, label, apiKeyPlain, active, priority });
-    const key = await prisma.aiApiKey.findUnique({
+    const created = await upsertApiKey({
+      provider: provider.toLowerCase() as any,
+      label,
+      apiKeyPlain,
+      active: active === undefined ? true : !!active,
+      priority: Number.isFinite(Number(priority)) ? Number(priority) : 0,
+    });
+
+    const safe = await prisma.aiApiKey.findUnique({
       where: { id: created.id },
       select: {
         id: true,
@@ -82,9 +97,10 @@ export async function POST(request: NextRequest) {
         updated_at: true,
       },
     });
-    return NextResponse.json({ success: true, key }, { headers: { "Cache-Control": "no-store" } });
+
+    return NextResponse.json({ success: true, key: safe }, { headers: { "Cache-Control": "no-store" } });
   } catch (e) {
     console.error("[AI-KEYS] POST error", e);
-    return NextResponse.json({ error: "Failed to create API key" }, { status: 500, headers: { "Cache-Control": "no-store" } });
+    return NextResponse.json({ error: "Failed to create API key" }, { status: 500 });
   }
 }
