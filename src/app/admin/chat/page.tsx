@@ -889,7 +889,7 @@ export default function AdminChatPage() {
               )}
             </div>
           </div>
-          <div className="flex flex-wrap items-center gap-3">
+          <div className="flex flex-wrap items-center gap-3 hidden">
             <div className="flex items-center gap-2">
               <label htmlFor="provider" className="text-sm text-gray-600">
                 Provider
