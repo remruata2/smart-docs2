@@ -851,13 +851,13 @@ export default function AdminChatPage() {
         
         // Set font style
         if (isBold && isItalic) {
-          doc.setFont(undefined, 'bolditalic');
+          doc.setFont('helvetica', 'bolditalic');
         } else if (isBold) {
-          doc.setFont(undefined, 'bold');
+          doc.setFont('helvetica', 'bold');
         } else if (isItalic) {
-          doc.setFont(undefined, 'italic');
+          doc.setFont('helvetica', 'italic');
         } else {
-          doc.setFont(undefined, 'normal');
+          doc.setFont('helvetica', 'normal');
         }
 
         const lines = doc.splitTextToSize(content, maxWidth);
