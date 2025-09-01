@@ -2,9 +2,10 @@ module.exports = {
   apps: [
     {
       name: 'cid-ai',
-      script: 'npm',
-      args: 'start',
-      exec_mode: 'fork', // Use fork mode for better compatibility
+      script: 'pm2-runner.bat',
+      args: '', // Arguments are in the script
+      interpreter: 'cmd',
+      exec_mode: 'fork',
       cwd: 'F:\\cid-ai',
       instances: 1,
       autorestart: true,
@@ -12,7 +13,7 @@ module.exports = {
       max_memory_restart: '2G',
       env: {
         NODE_ENV: 'production',
-        PORT: 3003, // Ensure the port is set here if needed by 'npm start'
+        PORT: 3003,
       },
     },
   ],
