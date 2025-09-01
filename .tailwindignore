@@ -1,0 +1,32 @@
+# Ignore everything by default
+/*
+
+# Re-include only project source directories
+!src/**
+!app/**
+!components/**
+!pages/**
+!public/**
+!styles/**
+!prisma/**
+
+# Re-include specific file types in project root
+!*.ts
+!*.tsx
+!*.js
+!*.jsx
+!*.css
+!*.scss
+
+# Explicitly exclude problematic Windows directories
+C:\Users\**
+C:\Windows\**
+C:\Program Files\**
+C:\Program Files (x86)\**
+
+# Exclude large non-source directories
+html/
+backups/
+node_modules/
+.next/
+.git/
