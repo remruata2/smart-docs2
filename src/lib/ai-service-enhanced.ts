@@ -1433,15 +1433,14 @@ export async function processChatMessageEnhanced(
  * Update search vectors for all records (maintenance function)
  */
 export async function updateSearchVectors(): Promise<void> {
-	try {
-		await prisma.$executeRaw`
+  try {
+    await prisma.$executeRaw`
       UPDATE file_list 
-      SET search_vector = to_tsvector('english', 
-        COALESCE(title, '') || ' ' || 
-        COALESCE(category, '') || ' ' || 
-        COALESCE(note, '') || ' ' ||
-        COALESCE(file_no, '')
-      )
+      SET search_vector = 
+        setweight(to_tsvector('english', COALESCE(title, '')),   'A') ||
+        setweight(to_tsvector('english', COALESCE(category, '')),'B') ||
+        setweight(to_tsvector('english', COALESCE(note, '')),    'C') ||
+        setweight(to_tsvector('english', COALESCE(file_no, '')), 'B')
       WHERE search_vector IS NULL OR note IS NOT NULL
     `;
 

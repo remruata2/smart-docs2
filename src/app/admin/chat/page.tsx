@@ -6,7 +6,6 @@ import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Badge } from "@/components/ui/badge";
-import { ScrollArea } from "@/components/ui/scroll-area";
 import { Alert, AlertDescription } from "@/components/ui/alert";
 import {
   Loader2,
@@ -822,45 +821,277 @@ export default function AdminChatPage() {
     return currentY - cellPadding - 10; // Return new Y position with some spacing
   };
 
-  // Remove the entire handleGeneratePdf function and replace with text export
-  // Export text content to file
+  // Export content as PDF with markdown support
   const handleExportText = async (text: string, sources?: ChatSource[]) => {
     if (!text) return;
 
     try {
-      // Create content with sources
-      let content = text;
+      // Dynamic imports to avoid SSR issues
+      const jsPDF = (await import('jspdf')).default;
+      const { marked } = await import('marked');
+      
+      const doc = new jsPDF();
+      const pageWidth = doc.internal.pageSize.getWidth();
+      const pageHeight = doc.internal.pageSize.getHeight();
+      const margin = 20;
+      const maxWidth = pageWidth - 2 * margin;
+      let currentY = margin;
+
+      // Helper function to check if we need a new page
+      const checkNewPage = (requiredHeight: number = 10) => {
+        if (currentY + requiredHeight > pageHeight - margin) {
+          doc.addPage();
+          currentY = margin;
+        }
+      };
+
+      // Helper function to render text with formatting
+      const renderFormattedText = (content: string, fontSize: number = 12, isBold: boolean = false, isItalic: boolean = false) => {
+        doc.setFontSize(fontSize);
+        
+        // Set font style
+        if (isBold && isItalic) {
+          doc.setFont('helvetica', 'bolditalic');
+        } else if (isBold) {
+          doc.setFont('helvetica', 'bold');
+        } else if (isItalic) {
+          doc.setFont('helvetica', 'italic');
+        } else {
+          doc.setFont('helvetica', 'normal');
+        }
+
+        const lines = doc.splitTextToSize(content, maxWidth);
+        for (const line of lines) {
+          checkNewPage();
+          doc.text(line, margin, currentY);
+          currentY += fontSize * 0.6; // Line height based on font size
+        }
+      };
+
+      // Parse markdown and render content
+      const parseAndRenderMarkdown = (markdownText: string) => {
+        // Split content by lines to handle different markdown elements
+        const lines = markdownText.split('\n');
+        let inCodeBlock = false;
+        let listLevel = 0;
+
+        for (let i = 0; i < lines.length; i++) {
+          const line = lines[i];
+          
+          // Handle code blocks
+          if (line.startsWith('```')) {
+            inCodeBlock = !inCodeBlock;
+            if (!inCodeBlock) currentY += 5; // Add spacing after code block
+            continue;
+          }
+
+          if (inCodeBlock) {
+            // Render code with monospace-like formatting
+            doc.setFont('courier', 'normal');
+            doc.setFontSize(10);
+            checkNewPage();
+            doc.text(line, margin + 10, currentY);
+            currentY += 12;
+            continue;
+          }
+
+          // Handle headers
+          if (line.startsWith('# ')) {
+            currentY += 10;
+            renderFormattedText(line.substring(2), 18, true);
+            currentY += 5;
+            continue;
+          }
+          if (line.startsWith('## ')) {
+            currentY += 8;
+            renderFormattedText(line.substring(3), 16, true);
+            currentY += 4;
+            continue;
+          }
+          if (line.startsWith('### ')) {
+            currentY += 6;
+            renderFormattedText(line.substring(4), 14, true);
+            currentY += 3;
+            continue;
+          }
+
+          // Handle bullet points
+          if (line.match(/^[\s]*[-*+]\s/)) {
+            const indent = (line.match(/^(\s*)/)?.[1]?.length || 0) * 2;
+            const content = line.replace(/^[\s]*[-*+]\s/, '');
+            checkNewPage();
+            doc.setFont('helvetica', 'normal');
+            doc.setFontSize(12);
+            doc.text('•', margin + indent, currentY);
+            
+            // Handle inline formatting in bullet points
+            renderInlineFormatting(content, margin + indent + 10);
+            continue;
+          }
+
+          // Handle numbered lists
+          if (line.match(/^[\s]*\d+\.\s/)) {
+            const indent = (line.match(/^(\s*)/)?.[1]?.length || 0) * 2;
+            const match = line.match(/^[\s]*(\d+)\.\s(.*)$/);
+            if (match) {
+              const number = match[1];
+              const content = match[2];
+              checkNewPage();
+              doc.setFont('helvetica', 'normal');
+              doc.setFontSize(12);
+              doc.text(`${number}.`, margin + indent, currentY);
+              
+              renderInlineFormatting(content, margin + indent + 15);
+              continue;
+            }
+          }
+
+          // Handle empty lines
+          if (line.trim() === '') {
+            currentY += 6;
+            continue;
+          }
+
+          // Handle regular paragraphs with inline formatting
+          renderInlineFormatting(line);
+        }
+      };
+
+      // Helper function to render text with inline markdown formatting
+      const renderInlineFormatting = (text: string, startX: number = margin) => {
+        if (!text.trim()) return;
+
+        // Simple regex patterns for inline formatting
+        const boldPattern = /\*\*(.*?)\*\*/g;
+        const italicPattern = /\*(.*?)\*/g;
+        const codePattern = /`(.*?)`/g;
+
+        let currentText = text;
+        let segments: Array<{text: string, bold: boolean, italic: boolean, code: boolean}> = [];
+
+        // Parse the text into segments with formatting
+        let lastIndex = 0;
+        let match;
+
+        // Handle bold text
+        while ((match = boldPattern.exec(text)) !== null) {
+          if (match.index > lastIndex) {
+            segments.push({
+              text: text.substring(lastIndex, match.index),
+              bold: false,
+              italic: false,
+              code: false
+            });
+          }
+          segments.push({
+            text: match[1],
+            bold: true,
+            italic: false,
+            code: false
+          });
+          lastIndex = match.index + match[0].length;
+        }
+
+        if (lastIndex < text.length) {
+          segments.push({
+            text: text.substring(lastIndex),
+            bold: false,
+            italic: false,
+            code: false
+          });
+        }
+
+        // If no bold formatting found, treat as single segment
+        if (segments.length === 0) {
+          segments = [{text: text, bold: false, italic: false, code: false}];
+        }
+
+        // Render each segment
+        let currentX = startX;
+        checkNewPage();
+        
+        for (const segment of segments) {
+          if (!segment.text) continue;
+          
+          // Set font based on formatting
+          if (segment.bold) {
+            doc.setFont('helvetica', 'bold');
+          } else if (segment.code) {
+            doc.setFont('courier', 'normal');
+          } else {
+            doc.setFont('helvetica', 'normal');
+          }
+          
+          doc.setFontSize(12);
+          
+          // Handle text wrapping
+          const lines = doc.splitTextToSize(segment.text, maxWidth - (currentX - margin));
+          for (let i = 0; i < lines.length; i++) {
+            if (i > 0) {
+              currentY += 7;
+              checkNewPage();
+              currentX = margin;
+            }
+            doc.text(lines[i], currentX, currentY);
+            if (i === lines.length - 1) {
+              currentX += doc.getTextWidth(lines[i]);
+            }
+          }
+        }
+        currentY += 7;
+      };
+
+      // Add title
+      doc.setFontSize(16);
+      doc.setFont('helvetica', 'bold');
+      doc.text('CID AI Response', margin, currentY);
+      currentY += 15;
+
+      // Add timestamp
+      doc.setFontSize(10);
+      doc.setFont('helvetica', 'normal');
+      doc.text(`Generated: ${new Date().toLocaleString()}`, margin, currentY);
+      currentY += 20;
+
+      // Parse and render main content
+      parseAndRenderMarkdown(text);
+
+      // Add sources if available
       if (sources && sources.length > 0) {
-        content += "\n\nSources:\n";
+        currentY += 15;
+        checkNewPage(30);
+        
+        doc.setFont('helvetica', 'bold');
+        doc.setFontSize(14);
+        doc.text('Sources:', margin, currentY);
+        currentY += 15;
+        
+        doc.setFont('helvetica', 'normal');
+        doc.setFontSize(12);
         sources.forEach((source, index) => {
-          content += `${index + 1}. ${source.file_no}: ${source.title}\n`;
+          checkNewPage();
+          const sourceText = `${index + 1}. ${source.file_no}: ${source.title}`;
+          const sourceLines = doc.splitTextToSize(sourceText, maxWidth);
+          
+          for (const line of sourceLines) {
+            checkNewPage();
+            doc.text(line, margin, currentY);
+            currentY += 7;
+          }
+          currentY += 3;
         });
       }
 
-      // Create download link
-      const blob = new Blob([content], { type: "text/plain" });
-      const url = URL.createObjectURL(blob);
-      const link = document.createElement("a");
+      // Generate filename and download
       const filename = `cid-ai-response-${new Date()
         .toISOString()
         .slice(0, 19)
-        .replace(/:/g, "-")}.txt`;
-      link.href = url;
-      link.download = filename;
-      link.style.display = "none";
-
-      // Add to DOM and trigger download
-      document.body.appendChild(link);
-      link.click();
-      document.body.removeChild(link);
-
-      // Clean up
-      setTimeout(() => {
-        URL.revokeObjectURL(url);
-      }, 1000);
+        .replace(/:/g, "-")}.pdf`;
+      
+      doc.save(filename);
     } catch (err) {
-      console.error("Failed to export text:", err);
-      alert("Failed to export text. Please try again.");
+      console.error("Failed to export PDF:", err);
+      alert("Failed to export PDF. Please try again.");
     }
   };
 
@@ -876,57 +1107,59 @@ export default function AdminChatPage() {
 
       <Card className="h-[calc(100vh-24px)] flex flex-col">
         <CardHeader className="flex flex-col space-y-3 pb-4 flex-shrink-0">
-          <div className="flex items-center justify-between">
-            <CardTitle className="flex items-center gap-2">
-              <MessageSquare className="h-5 w-5" />
-              Chat History
-            </CardTitle>
+          <div className="flex items-center justify-between gap-4 flex-wrap">
+            <div className="flex items-center gap-4 flex-wrap">
+              <CardTitle className="flex items-center gap-2">
+                <MessageSquare className="h-5 w-5" />
+                Chat History
+              </CardTitle>
+              <div className="flex flex-wrap items-center gap-3">
+                <div className="flex items-center gap-2">
+                  <label htmlFor="provider" className="text-sm text-gray-600">
+                    Provider
+                  </label>
+                  <select
+                    id="provider"
+                    className="h-9 rounded-md border border-gray-300 bg-white px-2 text-sm focus:outline-none focus:ring-2 focus:ring-indigo-500"
+                    value={provider}
+                    onChange={(e) => setProvider(e.target.value as "gemini")}
+                  >
+                    <option value="gemini">Gemini</option>
+                  </select>
+                </div>
+                <div className="flex items-center gap-2">
+                  <label htmlFor="model" className="text-sm text-gray-600">
+                    Model
+                  </label>
+                  <select
+                    id="model"
+                    className="h-9 w-56 rounded-md border border-gray-300 bg-white px-2 text-sm focus:outline-none focus:ring-2 focus:ring-indigo-500"
+                    value={model}
+                    onChange={(e) => setModel(e.target.value)}
+                    disabled={modelsLoading || models.length === 0}
+                  >
+                    {modelsLoading && (
+                      <option>Loading models...</option>
+                    )}
+                    {!modelsLoading && models.length === 0 && (
+                      <option>No models configured</option>
+                    )}
+                    {!modelsLoading &&
+                      models.map((m) => (
+                        <option key={m.name} value={m.name}>
+                          {m.label || m.name}
+                        </option>
+                      ))}
+                  </select>
+                </div>
+              </div>
+            </div>
             <div className="flex items-center gap-2">
               {messages.length > 0 && (
                 <Button variant="outline" size="sm" onClick={clearChat}>
                   Clear Chat
                 </Button>
               )}
-            </div>
-          </div>
-          <div className="flex flex-wrap items-center gap-3">
-            <div className="flex items-center gap-2">
-              <label htmlFor="provider" className="text-sm text-gray-600">
-                Provider
-              </label>
-              <select
-                id="provider"
-                className="h-9 rounded-md border border-gray-300 bg-white px-2 text-sm focus:outline-none focus:ring-2 focus:ring-indigo-500"
-                value={provider}
-                onChange={(e) => setProvider(e.target.value as "gemini")}
-              >
-                <option value="gemini">Gemini</option>
-              </select>
-            </div>
-            <div className="flex items-center gap-2">
-              <label htmlFor="model" className="text-sm text-gray-600">
-                Model
-              </label>
-              <select
-                id="model"
-                className="h-9 w-56 rounded-md border border-gray-300 bg-white px-2 text-sm focus:outline-none focus:ring-2 focus:ring-indigo-500"
-                value={model}
-                onChange={(e) => setModel(e.target.value)}
-                disabled={modelsLoading || models.length === 0}
-              >
-                {modelsLoading && (
-                  <option>Loading models...</option>
-                )}
-                {!modelsLoading && models.length === 0 && (
-                  <option>No models configured</option>
-                )}
-                {!modelsLoading &&
-                  models.map((m) => (
-                    <option key={m.name} value={m.name}>
-                      {m.label || m.name}
-                    </option>
-                  ))}
-              </select>
             </div>
           </div>
         </CardHeader>

@@ -123,21 +123,24 @@ export class HybridSearchService {
     query: string,
     limit?: number
   ): Promise<HybridSearchResult[]> {
-    // Clean and prepare the search query for to_tsquery
-    const tsQuery = query
-      .toLowerCase()
-      .replace(/[^a-z0-9\s]/g, " ")
-      .trim()
-      .split(/\s+/)
-      .filter((term) => term.length > 1 || /^\d$/.test(term)) // Allow terms longer than 1 char or single digits
-      .join(" | "); // Use OR operator for broader initial filtering
+    // Use web-style tsquery; add structured filters and cap candidates
+    const rawQuery = (query || "").trim();
+    if (!rawQuery) return [];
 
-    if (!tsQuery) return [];
+    // Extract file number like "File No A-20" or variants
+    const fileNoMatch = rawQuery.match(/file\s*no\.?\s*([A-Za-z0-9\-\/]+)/i);
+    const fileNo = fileNoMatch ? fileNoMatch[1] : undefined;
 
-    console.log(`[TSVECTOR] Query: "${query}" -> TSQuery: "${tsQuery}"`);
+    // Optional: if user provides a quoted phrase, use it to narrow title
+    const quoteMatch = rawQuery.match(/"([^"]+)"/);
+    const titlePhrase = quoteMatch ? quoteMatch[1] : undefined;
 
-    const results = (await prisma.$queryRawUnsafe(
-      `
+    // Build SQL with dynamic filters and LIMIT
+    const params: any[] = [];
+    const tsParamIndex = 1;
+    params.push(rawQuery); // $1 for websearch_to_tsquery
+
+    let sql = `
       SELECT 
         id,
         file_no,
@@ -145,16 +148,39 @@ export class HybridSearchService {
         title,
         note,
         entry_date_real,
-        ts_rank(search_vector, to_tsquery('english', $1)) as ts_rank
+        ts_rank(search_vector, websearch_to_tsquery('english', $${tsParamIndex})) as ts_rank
       FROM file_list 
-      WHERE search_vector @@ to_tsquery('english', $1)
+      WHERE search_vector @@ websearch_to_tsquery('english', $${tsParamIndex})`;
+
+    let nextIndex = tsParamIndex + 1;
+    if (fileNo) {
+      sql += ` AND file_no ILIKE '%' || $${nextIndex} || '%'
+      `;
+      params.push(fileNo);
+      nextIndex++;
+    }
+    if (titlePhrase) {
+      sql += ` AND title ILIKE '%' || $${nextIndex} || '%'
+      `;
+      params.push(titlePhrase);
+      nextIndex++;
+    }
+
+    const cap = 1000;
+    sql += `
       ORDER BY ts_rank DESC, entry_date_real DESC
-    `,
-      tsQuery
-    )) as HybridSearchResult[];
+      LIMIT $${nextIndex}
+    `;
+    params.push(cap);
 
     console.log(
-      `[TSVECTOR] Found ${results.length} records (no limit applied)`
+      `[TSVECTOR] Query: "${rawQuery}" | filters: { file_no: ${fileNo ?? "-"}, titlePhrase: ${titlePhrase ?? "-"} } | cap: ${cap}`
+    );
+
+    const results = (await prisma.$queryRawUnsafe(sql, ...params)) as HybridSearchResult[];
+
+    console.log(
+      `[TSVECTOR] Found ${results.length} records (capped at ${cap})`
     );
     return results;
   }

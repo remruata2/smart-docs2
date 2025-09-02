@@ -123,3 +123,11 @@
     @apply bg-background text-foreground;
   }
 }
+
+/* Hide provider/model selectors in Admin Chat via CSS only */
+label[for="provider"],
+label[for="model"],
+#provider,
+#model {
+  display: none !important;
+}
