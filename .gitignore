@@ -162,3 +162,6 @@ temp/
 
 # Test files
 test_similarity.js
+
+# Prisma generated files
+src/generated/prisma/

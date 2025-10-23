@@ -24,6 +24,8 @@
   },
   "dependencies": {
     "@auth/prisma-adapter": "^2.9.1",
+    "@auth0/ai": "^5.1.0",
+    "@auth0/nextjs-auth0": "^4.11.0",
     "@google/generative-ai": "^0.24.1",
     "@hookform/resolvers": "^5.1.1",
     "@lexical/react": "^0.32.1",
