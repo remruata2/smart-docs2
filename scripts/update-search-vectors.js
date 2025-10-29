@@ -18,12 +18,12 @@ async function main() {
   console.log(`Total rows: ${total} | Missing search_vector before: ${missingBefore}`);
 
   const sql = `
-    UPDATE file_list 
+    UPDATE file_list
     SET search_vector = to_tsvector('english',
-      COALESCE(file_no, '') || ' ' || 
-      COALESCE(category, '') || ' ' || 
-      COALESCE(title, '') || ' ' || 
-      COALESCE(note, '') || ' ' ||
+      COALESCE('District: ' || district, '') || ' | ' ||
+      COALESCE('Title: ' || title, '') || ' | ' ||
+      COALESCE('Category: ' || category, '') || ' | ' ||
+      COALESCE('Content: ' || note, '') || ' | ' ||
       COALESCE(entry_date, '') || ' ' ||
       COALESCE(EXTRACT(YEAR FROM entry_date_real)::text, '')
     )

@@ -62,7 +62,7 @@ function prepareContextForChunk(records: SearchResult[]): string {
   // Add full record details
   context += "\nDETAILED RECORDS:\n";
   records.forEach((record, index) => {
-    let content = record.note || "No content available";
+    const content = record.note || "No content available";
 
     context += `\n[RECORD ${index + 1}]`;
     context += `\nTitle: ${record.title}`;

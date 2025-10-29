@@ -46,7 +46,7 @@ export default function AdminChatPage() {
   const [inputMessage, setInputMessage] = useState("");
   const [isLoading, setIsLoading] = useState(false);
   const [error, setError] = useState<string | null>(null);
-  const [provider, setProvider] = useState<"gemini">("gemini");
+
   const [model, setModel] = useState<string>("gemini-2.5-pro");
   const [models, setModels] = useState<Array<{ name: string; label: string }>>([
     { name: "gemini-2.5-pro", label: "Gemini 2.5 Pro" },
@@ -63,6 +63,12 @@ export default function AdminChatPage() {
   const [expandedSources, setExpandedSources] = useState<
     Record<string, boolean>
   >({});
+  const [districts, setDistricts] = useState<string[]>([]);
+  const [categories, setCategories] = useState<string[]>([]);
+  const [districtsLoading, setDistrictsLoading] = useState<boolean>(false);
+  const [categoriesLoading, setCategoriesLoading] = useState<boolean>(false);
+  const [selectedDistrict, setSelectedDistrict] = useState<string>("");
+  const [selectedCategory, setSelectedCategory] = useState<string>("");
 
   // Load available models for current provider
   useEffect(() => {
@@ -70,7 +76,7 @@ export default function AdminChatPage() {
     async function loadModels() {
       try {
         setModelsLoading(true);
-        const res = await fetch(`/api/admin/ai/models?provider=${provider}`);
+        const res = await fetch(`/api/admin/ai/models?provider=gemini`);
         if (!res.ok) throw new Error("Failed to load models");
         const data = await res.json();
         if (cancelled) return;
@@ -108,7 +114,53 @@ export default function AdminChatPage() {
     return () => {
       cancelled = true;
     };
-  }, [provider]);
+  }, [model]);
+
+  // Load available districts
+  useEffect(() => {
+    async function loadDistricts() {
+      try {
+        setDistrictsLoading(true);
+        const res = await fetch('/api/admin/districts');
+        if (!res.ok) throw new Error('Failed to load districts');
+        const data = await res.json();
+        setDistricts(data.districts || []);
+      } catch (e) {
+        console.error('[AdminChat] Failed to fetch districts', e);
+        setDistricts([]);
+      } finally {
+        setDistrictsLoading(false);
+      }
+    }
+    loadDistricts();
+  }, []);
+
+  // Load available categories
+  useEffect(() => {
+    async function loadCategories() {
+      try {
+        setCategoriesLoading(true);
+        const url = selectedDistrict
+          ? `/api/admin/categories?district=${encodeURIComponent(selectedDistrict)}`
+          : '/api/admin/categories';
+        const res = await fetch(url);
+        if (!res.ok) throw new Error('Failed to load categories');
+        const data = await res.json();
+        setCategories(data.categories || []);
+        // Reset selected category if it's not in the new list
+        if (selectedCategory && !data.categories?.includes(selectedCategory)) {
+          setSelectedCategory("");
+        }
+      } catch (e) {
+        console.error('[AdminChat] Failed to fetch categories', e);
+        setCategories([]);
+      } finally {
+        setCategoriesLoading(false);
+      }
+    }
+    loadCategories();
+  }, [selectedDistrict]);
+
   const scrollAreaRef = useRef<HTMLDivElement>(null);
   const inputRef = useRef<HTMLInputElement>(null);
 
@@ -155,8 +207,10 @@ export default function AdminChatPage() {
         body: JSON.stringify({
           message: userMessage.content,
           conversationHistory: messages,
-          provider,
+          provider: "gemini",
           model,
+          district: selectedDistrict || undefined,
+          category: selectedCategory || undefined,
         }),
       });
 
@@ -278,566 +332,20 @@ export default function AdminChatPage() {
   };
 
   // Types for formatted content
-  interface FormattedLine {
-    text: string;
-    type:
-      | "header1"
-      | "header2"
-      | "header3"
-      | "paragraph"
-      | "bullet"
-      | "numbered"
-      | "code"
-      | "empty"
-      | "table_header"
-      | "table_row"
-      | "table_separator";
-    size: number;
-    font: "regular" | "bold" | "italic" | "mono";
-    spacing: number;
-    indent: number;
-    isBold?: boolean;
-    isItalic?: boolean;
-    bulletId?: string; // Add unique identifier for bullet groups
-    isWrappedLine?: boolean; // Track if this is a wrapped continuation
-    isJustified?: boolean; // Track if this line should be justified
-    justificationData?: { words: string[]; spacing: number }; // Justification spacing data
-    tableId?: string; // Unique identifier for table groups
-    tableCells?: string[]; // Array of cell contents for table rows
-    isTableHeader?: boolean; // Whether this is a table header row
-  }
 
-  // Parse inline formatting (bold, italic) from a line of text
-  const parseInlineFormatting = (
-    text: string
-  ): Array<{ text: string; isBold: boolean; isItalic: boolean }> => {
-    const segments: Array<{
-      text: string;
-      isBold: boolean;
-      isItalic: boolean;
-    }> = [];
 
-    // Clean up the text first
-    let cleanText = text
-      // Remove links but keep text
-      .replace(/\[([^\]]+)\]\([^)]+\)/g, "$1")
-      // Remove inline code formatting
-      .replace(/`([^`]+)`/g, "$1");
 
-    // Split by bold markers first
-    const boldParts = cleanText.split(/(\*\*[^*]+\*\*)/);
 
-    for (const boldPart of boldParts) {
-      if (boldPart.match(/^\*\*.*\*\*$/)) {
-        // This is bold text
-        const boldText = boldPart.replace(/^\*\*/, "").replace(/\*\*$/, "");
-        segments.push({
-          text: boldText,
-          isBold: true,
-          isItalic: false,
-        });
-      } else {
-        // Check for italic text in non-bold parts
-        const italicParts = boldPart.split(/(\*[^*]+\*)/);
 
-        for (const italicPart of italicParts) {
-          if (
-            italicPart.match(/^\*.*\*$/) &&
-            !italicPart.match(/^\*\*.*\*\*$/)
-          ) {
-            // This is italic text (but not bold)
-            const italicText = italicPart.replace(/^\*/, "").replace(/\*$/, "");
-            segments.push({
-              text: italicText,
-              isBold: false,
-              isItalic: true,
-            });
-          } else if (italicPart.trim()) {
-            // Regular text
-            segments.push({
-              text: italicPart,
-              isBold: false,
-              isItalic: false,
-            });
-          }
-        }
-      }
-    }
 
-    // Filter out empty segments and return
-    return segments.filter((seg) => seg.text.trim().length > 0);
-  };
 
-  // Parse markdown and create formatted lines
-  const parseMarkdownToFormattedLines = (text: string): FormattedLine[] => {
-    const lines = text.split("\n");
-    const formattedLines: FormattedLine[] = [];
-    let listNumber = 1;
-    let bulletCounter = 0; // Counter for unique bullet IDs
-    let tableCounter = 0; // Counter for unique table IDs
 
-    for (let i = 0; i < lines.length; i++) {
-      const line = lines[i];
 
-      if (line.trim() === "") {
-        formattedLines.push({
-          text: "",
-          type: "empty",
-          size: 12,
-          font: "regular",
-          spacing: 8,
-          indent: 0,
-        });
-        continue;
-      }
-
-      // Headers
-      if (line.match(/^#{1}\s+/)) {
-        formattedLines.push({
-          text: line.replace(/^#{1}\s+/, ""),
-          type: "header1",
-          size: 18,
-          font: "bold",
-          spacing: 25,
-          indent: 0,
-        });
-      } else if (line.match(/^#{2}\s+/)) {
-        formattedLines.push({
-          text: line.replace(/^#{2}\s+/, ""),
-          type: "header2",
-          size: 16,
-          font: "bold",
-          spacing: 22,
-          indent: 0,
-        });
-      } else if (line.match(/^#{3,6}\s+/)) {
-        formattedLines.push({
-          text: line.replace(/^#{3,6}\s+/, ""),
-          type: "header3",
-          size: 14,
-          font: "bold",
-          spacing: 20,
-          indent: 0,
-        });
-      }
-      // Bullet points (including • character)
-      else if (line.match(/^[\s]*[•\-*+]\s+/) || line.match(/^[\s]*•/)) {
-        // Detect indentation level for nested bullets
-        const leadingSpaces = line.match(/^(\s*)/)?.[1]?.length || 0;
-        const indentLevel = Math.floor(leadingSpaces / 2); // Every 2 spaces = 1 indent level
-        const baseIndent = 20;
-        const nestedIndent = baseIndent + indentLevel * 15; // 15 points per level
-
-        // Extract the full bullet line content
-        let bulletContent = line.trim();
-
-        // Ensure it starts with bullet point
-        if (!bulletContent.startsWith("•")) {
-          bulletContent = bulletContent.replace(/^[\s]*[\-*+]\s*/, "• ");
-        }
-
-        // Assign unique ID to this bullet point
-        const currentBulletId = `bullet_${bulletCounter++}`;
-
-        // Parse the entire bullet line to preserve mixed formatting
-        const segments = parseInlineFormatting(bulletContent);
-
-        // Keep segments separate for mixed formatting, but mark them all as bullet type with same ID
-        for (let segIndex = 0; segIndex < segments.length; segIndex++) {
-          const segment = segments[segIndex];
-          formattedLines.push({
-            text: segment.text,
-            type: "bullet",
-            size: 12,
-            font: segment.isBold
-              ? "bold"
-              : segment.isItalic
-              ? "italic"
-              : "regular",
-            spacing: 18, // Increased spacing for better readability
-            indent: segIndex === 0 ? nestedIndent : nestedIndent + 12, // First segment at bullet level, rest aligned with text
-            isBold: segment.isBold,
-            isItalic: segment.isItalic,
-            bulletId: currentBulletId,
-          });
-        }
-      }
-      // Numbered lists
-      else if (line.match(/^[\s]*\d+\.\s+/)) {
-        formattedLines.push({
-          text: `${listNumber}. ` + line.replace(/^[\s]*\d+\.\s+/, ""),
-          type: "numbered",
-          size: 12,
-          font: "regular",
-          spacing: 16,
-          indent: 20,
-        });
-        listNumber++;
-      }
-      // Code blocks (simplified)
-      else if (line.match(/^```/) || line.match(/^\s{4,}/)) {
-        formattedLines.push({
-          text: line.replace(/^```\w*\s*/, "").replace(/^```\s*$/, ""),
-          type: "code",
-          size: 10,
-          font: "mono",
-          spacing: 14,
-          indent: 20,
-        });
-      }
-      // Table detection (markdown tables with | separators OR HTML tables)
-      else if (
-        (line.includes("|") &&
-          line.trim().startsWith("|") &&
-          line.trim().endsWith("|")) ||
-        line.trim().match(/^<tr[^>]*>.*<\/tr>$/i) ||
-        line.trim().match(/^<th[^>]*>.*<\/th>$/i) ||
-        line.trim().match(/^<td[^>]*>.*<\/td>$/i)
-      ) {
-        // Check if next line is a separator line (contains dashes and pipes)
-        const nextLine = i + 1 < lines.length ? lines[i + 1] : "";
-        const isSeparatorNext = nextLine.match(/^\|[\s\-:|]+\|$/);
-
-        // Determine table ID - use current counter for new tables (headers), use current counter for data rows
-        const currentTableId = isSeparatorNext
-          ? `table_${tableCounter}`
-          : `table_${tableCounter - 1}`;
-
-        // Parse table cells
-        const cells = line
-          .split("|")
-          .slice(1, -1) // Remove empty first and last elements
-          .map((cell) => cell.trim());
-
-        if (isSeparatorNext) {
-          // This is a header row
-          formattedLines.push({
-            text: line,
-            type: "table_header",
-            size: 11,
-            font: "bold",
-            spacing: 16,
-            indent: 0,
-            tableId: currentTableId,
-            tableCells: cells,
-            isTableHeader: true,
-          });
-
-          // Skip the separator line
-          i++;
-          formattedLines.push({
-            text: nextLine,
-            type: "table_separator",
-            size: 11,
-            font: "regular",
-            spacing: 2,
-            indent: 0,
-            tableId: currentTableId,
-            tableCells: [],
-          });
-
-          // Increment table counter AFTER processing header
-          tableCounter++;
-        } else {
-          // This is a regular table row - use the previous table ID to match the header
-          formattedLines.push({
-            text: line,
-            type: "table_row",
-            size: 11,
-            font: "regular",
-            spacing: 14,
-            indent: 0,
-            tableId: currentTableId,
-            tableCells: cells,
-            isTableHeader: false,
-          });
-        }
-      }
-      // Regular paragraphs
-      else {
-        // Process the line to handle mixed inline formatting
-        const segments = parseInlineFormatting(line);
-
-        // For paragraphs, we need to keep segments separate to maintain mixed formatting
-        for (const segment of segments) {
-          formattedLines.push({
-            text: segment.text,
-            type: "paragraph",
-            size: 12,
-            font: segment.isBold
-              ? "bold"
-              : segment.isItalic
-              ? "italic"
-              : "regular",
-            spacing: 18, // Increased spacing for better readability
-            indent: 0,
-            isBold: segment.isBold,
-            isItalic: segment.isItalic,
-          });
-        }
-      }
-    }
-
-    return formattedLines;
-  };
-
-  // Helper function to justify text by calculating word spacing
-  const justifyText = (
-    text: string,
-    targetWidth: number,
-    font: any,
-    fontSize: number
-  ): { words: string[]; spacing: number } => {
-    const words = text.split(" ");
-    if (words.length <= 1) {
-      return { words, spacing: 0 };
-    }
-
-    // Calculate natural width without extra spacing
-    const naturalWidth = font.widthOfTextAtSize(text, fontSize);
-    const extraSpace = targetWidth - naturalWidth;
-    const gaps = words.length - 1;
-
-    // Calculate additional spacing per gap
-    const additionalSpacing = gaps > 0 ? extraSpace / gaps : 0;
-
-    return { words, spacing: additionalSpacing };
-  };
-
-  // Helper function to wrap individual text segments
-  const wrapTextSegment = (
-    segment: FormattedLine,
-    maxWidth: number,
-    regularFont: any,
-    boldFont: any,
-    italicFont: any,
-    monoFont: any
-  ): FormattedLine[] => {
-    // Select appropriate font for measuring
-    let measureFont = regularFont;
-    if (segment.font === "bold") measureFont = boldFont;
-    else if (segment.font === "italic") measureFont = italicFont;
-    else if (segment.font === "mono") measureFont = monoFont;
-
-    const words = segment.text.split(" ");
-    let currentLine = "";
-    const availableWidth = maxWidth - segment.indent;
-    const wrappedSegments: FormattedLine[] = [];
-
-    for (const word of words) {
-      const testLine = currentLine + (currentLine ? " " : "") + word;
-
-      let textWidth;
-      try {
-        textWidth = measureFont.widthOfTextAtSize(testLine, segment.size);
-      } catch (encodingError) {
-        console.warn("Text encoding issue with:", testLine);
-        textWidth = testLine.length * segment.size * 0.6;
-      }
-
-      if (textWidth > availableWidth && currentLine) {
-        // Add current line with justification (not for last line)
-        const isWrapped = wrappedSegments.length > 0;
-        const lineIndent =
-          isWrapped && segment.type === "bullet"
-            ? segment.indent + 12
-            : segment.indent;
-
-        // Calculate justification for this line
-        const justificationData = justifyText(
-          currentLine,
-          availableWidth,
-          measureFont,
-          segment.size
-        );
-
-        wrappedSegments.push({
-          ...segment,
-          text: currentLine,
-          isWrappedLine: isWrapped,
-          indent: lineIndent,
-          isJustified: true, // This line should be justified
-          justificationData,
-        });
-        currentLine = word;
-      } else {
-        currentLine = testLine;
-      }
-    }
-
-    if (currentLine) {
-      const isWrapped = wrappedSegments.length > 0;
-      wrappedSegments.push({
-        ...segment,
-        text: currentLine,
-        isWrappedLine: isWrapped,
-        // For wrapped bullet lines, increase indent to align with text
-        indent:
-          isWrapped && segment.type === "bullet"
-            ? segment.indent + 12
-            : segment.indent,
-        // Don't justify the last line of each segment
-        isJustified: false,
-      });
-    }
-
-    return wrappedSegments;
-  };
 
   // Helper function to wrap bullet segments together
-  const wrapBulletSegments = (
-    segments: FormattedLine[],
-    maxWidth: number,
-    regularFont: any,
-    boldFont: any,
-    italicFont: any,
-    monoFont: any
-  ): FormattedLine[] => {
-    // Simpler approach: just wrap each segment individually and maintain bulletId
-    const wrappedLines: FormattedLine[] = [];
 
-    for (const segment of segments) {
-      const wrappedSegments = wrapTextSegment(
-        segment,
-        maxWidth,
-        regularFont,
-        boldFont,
-        italicFont,
-        monoFont
-      );
-      wrappedLines.push(...wrappedSegments);
-    }
 
-    return wrappedLines;
-  };
 
-  // Helper function to render table
-  const renderTable = (
-    tableRows: FormattedLine[],
-    page: any,
-    yPosition: number,
-    maxWidth: number,
-    margin: number,
-    regularFont: any,
-    boldFont: any
-  ): number => {
-    console.log("=== renderTable DEBUG ===");
-    console.log("Total rows received:", tableRows.length);
-    console.log(
-      "Row types:",
-      tableRows.map((r) => r.type)
-    );
-    console.log(
-      "Row table IDs:",
-      tableRows.map((r) => r.tableId)
-    );
-    console.log("========================");
-
-    if (tableRows.length === 0) return yPosition;
-
-    // Calculate column widths based on content
-    const headerRow = tableRows.find((row) => row.type === "table_header");
-    if (!headerRow || !headerRow.tableCells) {
-      console.log("No header row found!");
-      return yPosition;
-    }
-
-    const numColumns = headerRow.tableCells.length;
-    const columnWidth = (maxWidth - 40) / numColumns; // Leave some margin for borders
-    const cellPadding = 4;
-    const rowHeight = 16;
-
-    let currentY = yPosition;
-    const startY = yPosition; // Keep track of starting Y position for borders
-
-    // Draw table border (top)
-    page.drawLine({
-      start: { x: margin, y: currentY },
-      end: { x: margin + maxWidth - 40, y: currentY },
-      thickness: 1,
-      color: [0.5, 0.5, 0.5],
-    });
-
-    for (const row of tableRows) {
-      if (row.type === "table_separator") continue; // Skip separator rows
-
-      if (!row.tableCells) continue;
-
-      currentY -= rowHeight;
-
-      // Draw row background for header
-      if (row.type === "table_header") {
-        page.drawRectangle({
-          x: margin,
-          y: currentY - cellPadding,
-          width: maxWidth - 40,
-          height: rowHeight,
-          color: [0.95, 0.95, 0.95],
-        });
-      }
-
-      // Draw cell contents
-      for (let i = 0; i < row.tableCells.length && i < numColumns; i++) {
-        const cellContent = row.tableCells[i];
-        const cellX = margin + i * columnWidth + cellPadding;
-
-        // Truncate text if it's too long for the cell
-        let displayText = cellContent;
-        const maxCellWidth = columnWidth - cellPadding * 2;
-
-        try {
-          const font = row.type === "table_header" ? boldFont : regularFont;
-          let textWidth = font.widthOfTextAtSize(displayText, row.size);
-
-          // Truncate if needed
-          while (textWidth > maxCellWidth && displayText.length > 3) {
-            displayText = displayText.substring(0, displayText.length - 1);
-            textWidth = font.widthOfTextAtSize(displayText + "...", row.size);
-          }
-
-          if (displayText !== cellContent) {
-            displayText += "...";
-          }
-        } catch (encodingError) {
-          // Fallback truncation
-          const maxChars = Math.floor(maxCellWidth / (row.size * 0.6));
-          if (displayText.length > maxChars) {
-            displayText = displayText.substring(0, maxChars - 3) + "...";
-          }
-        }
-
-        // Draw cell text
-        page.drawText(displayText, {
-          x: cellX,
-          y: currentY,
-          size: row.size,
-          font: row.type === "table_header" ? boldFont : regularFont,
-          color: [0, 0, 0],
-        });
-      }
-
-      // Draw horizontal row border after each row
-      page.drawLine({
-        start: { x: margin, y: currentY - cellPadding },
-        end: { x: margin + maxWidth - 40, y: currentY - cellPadding },
-        thickness: row.type === "table_header" ? 1 : 0.5,
-        color: [0.5, 0.5, 0.5],
-      });
-    }
-
-    // Draw vertical borders for the entire table after all rows are processed
-    const endY = currentY - cellPadding;
-    for (let i = 0; i <= numColumns; i++) {
-      page.drawLine({
-        start: { x: margin + i * columnWidth, y: startY },
-        end: { x: margin + i * columnWidth, y: endY },
-        thickness: 0.5,
-        color: [0.7, 0.7, 0.7],
-      });
-    }
-
-    return currentY - cellPadding - 10; // Return new Y position with some spacing
-  };
 
   // Export content as PDF with markdown support
   const handleExportText = async (text: string, sources?: ChatSource[]) => {
@@ -846,7 +354,6 @@ export default function AdminChatPage() {
     try {
       // Dynamic imports to avoid SSR issues
       const jsPDF = (await import('jspdf')).default;
-      const { marked } = await import('marked');
       
       const doc = new jsPDF();
       const pageWidth = doc.internal.pageSize.getWidth();
@@ -891,7 +398,6 @@ export default function AdminChatPage() {
         // Split content by lines to handle different markdown elements
         const lines = markdownText.split('\n');
         let inCodeBlock = false;
-        let listLevel = 0;
 
         for (let i = 0; i < lines.length; i++) {
           const line = lines[i];
@@ -981,10 +487,6 @@ export default function AdminChatPage() {
 
         // Simple regex patterns for inline formatting
         const boldPattern = /\*\*(.*?)\*\*/g;
-        const italicPattern = /\*(.*?)\*/g;
-        const codePattern = /`(.*?)`/g;
-
-        let currentText = text;
         let segments: Array<{text: string, bold: boolean, italic: boolean, code: boolean}> = [];
 
         // Parse the text into segments with formatting
@@ -1158,55 +660,59 @@ export default function AdminChatPage() {
               </div>
               
               
-              <div className="flex items-center gap-2">
-                <label htmlFor="provider" className="text-sm text-gray-600 whitespace-nowrap">
-                  Provider:
-                </label>
-                <select
-                  id="provider"
-                  className="h-9 rounded-md border border-gray-300 bg-white px-2 text-sm focus:outline-none focus:ring-2 focus:ring-indigo-500"
-                  value={provider}
-                  onChange={(e) => setProvider(e.target.value as "gemini")}
-                >
-                  <option value="gemini">Gemini</option>
-                </select>
-              </div>
+
 
               <div className="flex items-center gap-2">
-                <label htmlFor="provider" className="text-sm text-gray-600 whitespace-nowrap">
+                <label htmlFor="district" className="text-sm text-gray-600 whitespace-nowrap">
                   District:
                 </label>
                 <select
-                  id="provider"
+                  id="district"
                   className="h-9 rounded-md border border-gray-300 bg-white px-2 text-sm focus:outline-none focus:ring-2 focus:ring-indigo-500"
-                  value={provider}
-                  onChange={(e) => setProvider(e.target.value as "gemini")}
+                  value={selectedDistrict}
+                  onChange={(e) => setSelectedDistrict(e.target.value)}
+                  disabled={districtsLoading}
                 >
-                  <option value="aizawl">All Districts</option>
-                  <option value="aizawl">Aizawl</option>
-                  <option value="aizawl">Lunglei</option>
-                  <option value="aizawl">Champhai</option>
-                  <option value="aizawl">Lawngtlai</option>
-                  <option value="aizawl">Siaha</option>
-                  <option value="aizawl">Mamit</option>
-                  <option value="aizawl">Kolasib</option>
-                  <option value="aizawl">Saitual</option>
-                  <option value="aizawl">Khawzawl</option>
-                  <option value="aizawl">Hnahthial</option>
+                  <option value="">All Districts</option>
+                  {districtsLoading && (
+                    <option>Loading districts...</option>
+                  )}
+                  {!districtsLoading && districts.length === 0 && (
+                    <option>No districts found</option>
+                  )}
+                  {!districtsLoading &&
+                    districts.map((district) => (
+                      <option key={district} value={district}>
+                        {district}
+                      </option>
+                    ))}
                 </select>
               </div>
 
               <div className="flex items-center gap-2">
-                <label htmlFor="provider" className="text-sm text-gray-600 whitespace-nowrap">
+                <label htmlFor="category" className="text-sm text-gray-600 whitespace-nowrap">
                   Category:
                 </label>
                 <select
-                  id="provider"
+                  id="category"
                   className="h-9 rounded-md border border-gray-300 bg-white px-2 text-sm focus:outline-none focus:ring-2 focus:ring-indigo-500"
-                  value={provider}
-                  onChange={(e) => setProvider(e.target.value as "gemini")}
+                  value={selectedCategory}
+                  onChange={(e) => setSelectedCategory(e.target.value)}
+                  disabled={categoriesLoading}
                 >
-                  <option value="aizawl">Pocso Single Case</option>
+                  <option value="">All Categories</option>
+                  {categoriesLoading && (
+                    <option>Loading categories...</option>
+                  )}
+                  {!categoriesLoading && categories.length === 0 && (
+                    <option>No categories found</option>
+                  )}
+                  {!categoriesLoading &&
+                    categories.map((category) => (
+                      <option key={category} value={category}>
+                        {category}
+                      </option>
+                    ))}
                 </select>
               </div>
             </div>

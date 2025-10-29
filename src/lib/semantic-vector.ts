@@ -35,19 +35,48 @@ export class SemanticVectorService {
     return Array.from(result.data);
   }
 
-  static async updateSemanticVector(fileId: number, content: string) {
+  static async updateSemanticVector(fileId: number) {
     try {
-      if (!content || content.trim().length === 0) {
+      // Fetch the record to get metadata and content
+      const record = await prisma.fileList.findUnique({
+        where: { id: fileId },
+        select: {
+          id: true,
+          district: true,
+          title: true,
+          category: true,
+          note: true,
+        },
+      });
+
+      if (!record) {
+        console.log(`Skipping semantic vector update for file ${fileId} - record not found`);
+        return;
+      }
+
+      // Build enriched content with metadata
+      const metadataParts = [
+        record.district ? `District: ${record.district}` : '',
+        record.title ? `Title: ${record.title}` : '',
+        record.category ? `Category: ${record.category}` : '',
+      ].filter(Boolean);
+
+      const enrichedContent = [
+        metadataParts.join(' | '),
+        record.note || '',
+      ].filter(Boolean).join(' | Content: ');
+
+      if (!enrichedContent || enrichedContent.trim().length === 0) {
         console.log(
           `Skipping semantic vector update for file ${fileId} - no content`
         );
         return;
       }
 
-      const embedding = await this.generateEmbedding(content);
+      const embedding = await this.generateEmbedding(enrichedContent);
 
       await prisma.$executeRaw`
-        UPDATE file_list 
+        UPDATE file_list
         SET semantic_vector = ${embedding}::vector
         WHERE id = ${fileId}
       `;
@@ -73,7 +102,6 @@ export class SemanticVectorService {
       const results = (await prisma.$queryRaw`
         SELECT 
           id,
-          file_no,
           category,
           title,
           note,
@@ -93,7 +121,7 @@ export class SemanticVectorService {
       if (results.length > 0) {
         console.log(
           `   Similarity scores: ${results
-            .map((r) => `${r.file_no}:${(r.similarity * 100).toFixed(1)}%`)
+            .map((r) => `ID:${r.id}:${(r.similarity * 100).toFixed(1)}%`)
             .join(", ")}`
         );
       }
@@ -118,13 +146,12 @@ export class SemanticVectorService {
 
       // Fetch only rows where semantic_vector is NULL, use raw SQL since Prisma can't filter Unsupported(vector)
       const records = (await prisma.$queryRawUnsafe(
-        `SELECT id, note, title, category, file_no, entry_date FROM file_list WHERE semantic_vector IS NULL`
+        `SELECT id, note, title, category, entry_date FROM file_list WHERE semantic_vector IS NULL`
       )) as Array<{
         id: number;
         note: string | null;
         title?: string | null;
         category?: string | null;
-        file_no?: string | null;
         entry_date?: string | null;
       }>;
 
@@ -132,19 +159,7 @@ export class SemanticVectorService {
 
       for (let i = 0; i < records.length; i++) {
         const r = records[i];
-        // Build fallback content: prefer note (rich), else plain text, then metadata
-        const parts = [r.note, r.title, r.category, r.file_no, r.entry_date]
-          .filter((v) => !!v && String(v).trim().length > 0) as string[];
-        const content = parts.join(" ").trim();
-
-        if (content.length === 0) {
-          console.log(
-            `Skipping file ${r.id} — no usable text (note/note_plain_text/title/category/file_no all empty)`
-          );
-          continue;
-        }
-
-        await this.updateSemanticVector(r.id, content);
+        await this.updateSemanticVector(r.id);
 
         if ((i + 1) % 10 === 0) {
           console.log(`Progress: ${i + 1}/${records.length} records processed`);

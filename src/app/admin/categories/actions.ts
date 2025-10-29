@@ -65,9 +65,6 @@ export async function createCategoryAction(formData: FormData): Promise<{ succes
     return { success: true };
   } catch (error: any) {
     console.error("Failed to create category:", error);
-    if (error.code === 'P2002' && error.meta?.target?.includes('file_no')) {
-      return { success: false, error: "A category with this File No already exists." };
-    }
     return { success: false, error: "Failed to create category. Please try again." };
   }
 }
@@ -104,9 +101,6 @@ export async function updateCategoryAction(id: number, formData: FormData): Prom
     return { success: true };
   } catch (error: any) {
     console.error("Failed to update category:", error);
-    if (error.code === 'P2002' && error.meta?.target?.includes('file_no')) {
-      return { success: false, error: "A category with this File No already exists." };
-    }
     return { success: false, error: "Failed to update category. Please try again." };
   }
 }

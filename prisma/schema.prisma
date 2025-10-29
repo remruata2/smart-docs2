@@ -8,7 +8,6 @@ datasource db {
   provider     = "postgresql"
   url          = env("DATABASE_URL")
   directUrl    = env("DATABASE_URL")
-  relationMode = "prisma"
 }
 
 model CategoryList {
@@ -22,7 +21,6 @@ model CategoryList {
 
 model FileList {
   id              Int                      @id @default(autoincrement())
-  file_no         String                   @db.Text
   category        String                   @db.Text
   title           String                   @db.Text
   district        String?                  @db.VarChar(50)
@@ -34,14 +32,13 @@ model FileList {
   search_vector   Unsupported("tsvector")?
   created_at      DateTime?                @default(now()) @db.Timestamptz(6)
   updated_at      DateTime?                @updatedAt @db.Timestamptz(6)
-  semantic_vector Unsupported("vector")?
+   semantic_vector Unsupported("vector")?
 
-  @@index([category], map: "idx_file_list_category")
+   @@map("file_list")
+   @@index([category], map: "idx_file_list_category")
   @@index([entry_date_real], map: "idx_file_list_entry_date")
-  @@index([file_no], map: "idx_file_list_file_no")
   @@index([search_vector], map: "idx_search_vector", type: Gin)
   @@index([semantic_vector], map: "idx_semantic_vector")
-  @@map("file_list")
 }
 
 model user {

@@ -29,7 +29,7 @@ export async function POST(request: NextRequest) {
 
     // Validate request body
     const body = await request.json();
-    const { message, conversationHistory, provider, model, keyId } = body;
+    const { message, conversationHistory, provider, model, keyId, district, category } = body;
 
     if (!message || typeof message !== "string") {
       return NextResponse.json(
@@ -53,7 +53,7 @@ export async function POST(request: NextRequest) {
     }
 
     // Validate optional provider/model
-    let opts: { provider?: "gemini"; model?: string; keyId?: number } = {};
+    const opts: { provider?: "gemini"; model?: string; keyId?: number } = {};
     if (provider) {
       if (provider !== "gemini") {
         return NextResponse.json(
@@ -77,6 +77,15 @@ export async function POST(request: NextRequest) {
       opts.keyId = parsed;
     }
 
+    // Validate optional filters
+    const filters: { district?: string; category?: string } = {};
+    if (district && typeof district === "string" && district.trim()) {
+      filters.district = district.trim();
+    }
+    if (category && typeof category === "string" && category.trim()) {
+      filters.category = category.trim();
+    }
+
     // Process the chat message
     console.log(`[ADMIN CHAT] User ${session.user.email} asked: "${message}"`);
 
@@ -85,7 +94,8 @@ export async function POST(request: NextRequest) {
       conversationHistory || [],
       undefined,
       true,
-      opts
+      opts,
+      filters
     );
 
     // Create response message

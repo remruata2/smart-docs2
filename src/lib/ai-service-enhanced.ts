@@ -96,6 +96,7 @@ export interface SearchResult {
 	title: string;
 	note: string | null;
 	entry_date_real: Date | null;
+	district: string | null;
 	rank?: number; // For relevance ranking
 	ts_rank?: number;
 	semantic_similarity?: number;
@@ -118,7 +119,9 @@ export async function analyzeQueryForSearch(
 		| "elaboration"
 		| "general"
 		| "recent_files"
-		| "analytical_query";
+		| "analytical_query"
+		| "list_all"
+		| "group_by_district";
 	contextNeeded: boolean;
 	inputTokens: number;
 	outputTokens: number;
@@ -182,9 +185,12 @@ Query Types:
 - elaboration: Requests for more details ("Elaborate", "Tell me more", "Explain further").
 - general: General questions or greetings.
 - recent_files: Queries asking for recent/latest/newest files (handled separately).
+- list_all: Queries asking to list or show all records/files (e.g., "list all records", "show all cases").
+- group_by_district: Queries asking to group or organize records by district (e.g., "group by district", "list all records, group them by district wise").
 
 IMPORTANT:
 - If the query asks for "recent", "latest", "newest", or "most recent" files/records/cases, classify it as "recent_files".
+- If the query asks to "list all", "show all", "find all", or similar requests to display all records, classify it as "list_all".
 - "coreSearchTerms" should be specific entities, names, IDs, or unique identifiers that directly map to data in the database. Do NOT include words that describe the type of query or action to be performed (e.g., 'summarize', 'analyze', 'case' when it's part of 'the case on X').
 - "instructionalTerms" are words that describe the action (e.g., 'summarize', 'analyze') or the general type of record (e.g., 'case', 'incident') when they are not specific entities.
 
@@ -194,7 +200,7 @@ Respond in this exact JSON format:
 {
   "coreSearchTerms": "extracted core search terms for database search",
   "instructionalTerms": "extracted instructional terms for database search",
-  "queryType": "one of the five types above",
+  "queryType": "one of the types above",
   "contextNeeded": true/false
 }
 
@@ -204,6 +210,8 @@ Examples:
 - "Show me the most recent 3 files" → {"coreSearchTerms": "recent files", "instructionalTerms": "3", "queryType": "recent_files", "contextNeeded": false}
 - "Latest cases" → {"coreSearchTerms": "latest cases", "instructionalTerms": "", "queryType": "recent_files", "contextNeeded": false}
 - "Summarize the case on Zothansangi" → {"coreSearchTerms": "Zothansangi", "instructionalTerms": "summarize case", "queryType": "analytical_query", "contextNeeded": false}
+- "List all records" → {"coreSearchTerms": "", "instructionalTerms": "list all records", "queryType": "list_all", "contextNeeded": false}
+- "List all records, group them by district wise" → {"coreSearchTerms": "", "instructionalTerms": "list all records group by district", "queryType": "group_by_district", "contextNeeded": false}
 
 `;
 
@@ -279,7 +287,13 @@ Examples:
 		}
 
 		// Validate response
-		if (!analysis.coreSearchTerms || !analysis.queryType) {
+		// Allow empty coreSearchTerms for specific_search queries with instructional terms (like "all cases")
+		// or for list_all queries
+		const hasValidTerms = analysis.coreSearchTerms ||
+			(analysis.queryType === "specific_search" && analysis.instructionalTerms) ||
+			analysis.queryType === "list_all";
+
+		if (!hasValidTerms || !analysis.queryType) {
 			console.error("[QUERY ANALYSIS] Incomplete analysis:", analysis);
 			throw new Error("Incomplete analysis from AI");
 		}
@@ -330,6 +344,7 @@ export async function getRecentFiles(
 				title: true,
 				note: true,
 				entry_date_real: true,
+				district: true,
 			},
 			where: {
 				entry_date_real: {
@@ -751,7 +766,7 @@ function extractKeyInformation(
 	const scoredSentences = sentences.map((sentence) => {
 		const sentenceLower = sentence.toLowerCase();
 		let score = 0;
-		let extractedInfo: string[] = [];
+		const extractedInfo: string[] = [];
 
 		// Score based on query word matches
 		queryWords.forEach((word) => {
@@ -934,18 +949,19 @@ export function prepareContextForAI(
 		return acc;
 	}, {} as Record<string, SearchResult[]>);
 
-	// Create a structured index of all records for quick reference
-	const recordIndex = processedRecords.map((record, index) => ({
-		id: record.id,
-		title: record.title,
-		category: record.category || "Uncategorized",
-		date: record.entry_date_real?.toLocaleDateString() || "Unknown date",
-		relevance: record.rank ? (record.rank * 100).toFixed(1) + "%" : "Unknown",
-	}));
+  // Create a structured index of all records for quick reference
+  const recordIndex = processedRecords.map((record, index) => ({
+    id: record.id,
+    title: record.title,
+    category: record.category || "Uncategorized",
+    district: record.district || "Unknown district",
+    date: record.entry_date_real?.toLocaleDateString() || "Unknown date",
+    relevance: record.rank ? (record.rank * 100).toFixed(1) + "%" : "Unknown",
+  }));
 
 	// Build the full record details with optimized content
 	const detailedRecords = processedRecords.map((record) => {
-		let content = record.note || "No content available";
+		const content = record.note || "No content available";
 
 		// Avoid duplicating metadata if it's already in the note
 		const categoryPattern = new RegExp(
@@ -965,6 +981,7 @@ export function prepareContextForAI(
 			id: record.id,
 			title: record.title,
 			category: record.category || "Uncategorized",
+			district: record.district || "Unknown district",
 			date: record.entry_date_real?.toLocaleDateString() || "Unknown date",
 			content: content,
 			relevance: record.rank ? (record.rank * 100).toFixed(1) + "%" : "",
@@ -980,22 +997,22 @@ Found ${processedRecords.length} relevant records from the ICPS database.
 The records span ${Object.keys(recordsByCategory).length} categories.
 Records are listed below ordered by relevance to your query.
 
-=== RECORD INDEX ===
-${recordIndex
-	.map(
-		(r, i) =>
-			`[${i + 1}] Title: ${r.title} | Category: ${
-				r.category
-			} | Date: ${r.date} | Relevance: ${r.relevance}`
-	)
-	.join("\n")}
+  === RECORD INDEX ===
+  ${recordIndex
+    .map(
+      (r, i) =>
+        `[${i + 1}] District: ${r.district} | Title: ${r.title} | Category: ${
+          r.category
+        } | Date: ${r.date} | Relevance: ${r.relevance}`
+    )
+    .join("\n")}
 
 === FULL RECORD DETAILS ===
 ${detailedRecords
 	.map(
 		(record, index) => `
 [RECORD ${index + 1}] (Relevance: ${record.relevance})
-Title: ${record.title}
+**District:** ${record.district} **Title:** ${record.title}
 Category: ${record.category}
 Date: ${record.date}
 Content: ${record.content}
@@ -1045,6 +1062,7 @@ export async function generateAIResponse(
 		"elaboration",
 		"general",
 		"recent_files",
+		"group_by_district",
 	];
 	if (!allowedQueryTypes.includes(queryType)) {
 		queryType = "specific_search";
@@ -1099,6 +1117,15 @@ export async function generateAIResponse(
 - Present the files in a clear, organized manner.
 - Include file numbers, titles, categories, and dates.
 - Mention they are sorted by most recent first.
+`;
+			break;
+		case "group_by_district":
+			roleInstructions = `
+- The user wants records grouped by district.
+- Use the "District" field from each record's metadata (shown prominently at the beginning of each record).
+- Group records by their district field, not by extracting addresses from content.
+- Present the results organized by district, with counts and summaries for each district.
+- If a record has "Unknown district", group it separately.
 `;
 			break;
 		default: // specific_search and general
@@ -1183,7 +1210,11 @@ export async function processChatMessageEnhanced(
 	conversationHistory: ChatMessage[] = [],
 	searchLimit?: number,
 	useEnhancedSearch: boolean = true,
-	opts: { provider?: "gemini"; model?: string; keyId?: number } = {}
+	opts: { provider?: "gemini"; model?: string; keyId?: number } = {},
+	filters?: {
+		district?: string;
+		category?: string;
+	}
 ): Promise<{
 	response: string;
 	sources: Array<{
@@ -1241,8 +1272,16 @@ export async function processChatMessageEnhanced(
 		console.log("[CHAT ANALYSIS] Context needed:", analysis.contextNeeded);
 
 		analysisUsed = true;
-		queryForSearch = analysis.coreSearchTerms;
+		// Use coreSearchTerms if available, otherwise fall back to instructional terms
+		queryForSearch = analysis.coreSearchTerms || analysis.instructionalTerms || "";
 		queryType = analysis.queryType;
+
+		// Special handling for queries that want to show all records
+		if (!queryForSearch && analysis.instructionalTerms?.toLowerCase().includes('all')) {
+			// For "show all" type queries, use a broad search term
+			queryForSearch = 'case'; // Use a common term to match most records
+			console.log('[CHAT ANALYSIS] Using broad search term "case" for "show all" query');
+		}
 		analysisInputTokens = analysis.inputTokens || 0;
 		analysisOutputTokens = analysis.outputTokens || 0;
 		console.log(
@@ -1255,6 +1294,18 @@ export async function processChatMessageEnhanced(
 			if (!isNaN(num)) {
 				searchLimitForRecent = num;
 			}
+		}
+
+		// Handle list_all queries
+		if (analysis.queryType === "list_all") {
+			queryForSearch = ''; // Return all records
+			console.log('[CHAT ANALYSIS] Query type is "list_all", returning all records');
+		}
+
+		// Handle group_by_district queries
+		if (analysis.queryType === "group_by_district") {
+			queryForSearch = ''; // Return all records for grouping
+			console.log('[CHAT ANALYSIS] Query type is "group_by_district", returning all records for grouping');
 		}
 	} catch (error) {
 		console.error("Failed to analyze query with AI, using raw query.", error);
@@ -1288,7 +1339,8 @@ export async function processChatMessageEnhanced(
 
 		const hybridSearchResponse = await HybridSearchService.search(
 			queryForSearch,
-			effectiveSearchLimit
+			effectiveSearchLimit,
+			filters
 		);
 		records = hybridSearchResponse.results;
 		searchMethod = hybridSearchResponse.searchMethod;

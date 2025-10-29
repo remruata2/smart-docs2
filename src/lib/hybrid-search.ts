@@ -9,6 +9,7 @@ export interface HybridSearchResult {
   title: string;
   note: string;
   entry_date_real: Date | null;
+  district: string | null;
   ts_rank?: number;
   semantic_similarity?: number;
   combined_score?: number;
@@ -24,7 +25,11 @@ export class HybridSearchService {
    */
   static async search(
     query: string,
-    limit: number = 20
+    limit: number = 20,
+    filters?: {
+      district?: string;
+      category?: string;
+    }
   ): Promise<{
     results: HybridSearchResult[];
     searchMethod: "hybrid" | "semantic_fallback" | "tsvector_only";
@@ -37,8 +42,23 @@ export class HybridSearchService {
     try {
       console.log(`[HYBRID SEARCH] Starting search for: "${query}"`);
 
+      // Handle empty query - return all records (with filters)
+      if (!query || !query.trim()) {
+        console.log(`[HYBRID SEARCH] Empty query, returning all records with filters`);
+        const allRecords = await this.getAllRecords(limit, filters);
+        return {
+          results: allRecords,
+          searchMethod: "tsvector_only", // Treat as direct query
+          stats: {
+            tsvectorResults: allRecords.length,
+            semanticResults: 0,
+            finalResults: allRecords.length,
+          },
+        };
+      }
+
       // Step 1: The Fast Keyword Filter (tsvector)
-      const tsvectorResults = await this.tsvectorSearch(query);
+      const tsvectorResults = await this.tsvectorSearch(query, undefined, filters);
 
       console.log(
         `[HYBRID SEARCH] Step 1 - tsvector found ${tsvectorResults.length} candidates`
@@ -105,7 +125,7 @@ export class HybridSearchService {
 
       // Fallback to tsvector only
       console.log("[HYBRID SEARCH] Error fallback - using tsvector only");
-      const fallbackResults = await this.tsvectorSearch(query);
+      const fallbackResults = await this.tsvectorSearch(query, undefined, filters);
       return {
         results: fallbackResults,
         searchMethod: "tsvector_only",
@@ -120,7 +140,11 @@ export class HybridSearchService {
 
   private static async tsvectorSearch(
     query: string,
-    limit?: number
+    limit?: number,
+    filters?: {
+      district?: string;
+      category?: string;
+    }
   ): Promise<HybridSearchResult[]> {
     // Use web-style tsquery; add structured filters and cap candidates
     const rawQuery = (query || "").trim();
@@ -144,6 +168,7 @@ export class HybridSearchService {
         title,
         note,
         entry_date_real,
+        district,
         ts_rank(search_vector, websearch_to_tsquery('english', $${tsParamIndex})) as ts_rank
       FROM file_list
       WHERE search_vector @@ websearch_to_tsquery('english', $${tsParamIndex})`;
@@ -153,6 +178,20 @@ export class HybridSearchService {
       sql += ` AND title ILIKE '%' || $${nextIndex} || '%'
       `;
       params.push(titlePhrase);
+      nextIndex++;
+    }
+
+    // Add district filter
+    if (filters?.district) {
+      sql += ` AND district = $${nextIndex}`;
+      params.push(filters.district);
+      nextIndex++;
+    }
+
+    // Add category filter
+    if (filters?.category) {
+      sql += ` AND category = $${nextIndex}`;
+      params.push(filters.category);
       nextIndex++;
     }
 
@@ -175,6 +214,59 @@ export class HybridSearchService {
     return results;
   }
 
+  /**
+   * Get all records with optional filters (for "show all" queries)
+   */
+  private static async getAllRecords(
+    limit: number,
+    filters?: {
+      district?: string;
+      category?: string;
+    }
+  ): Promise<HybridSearchResult[]> {
+    const params: any[] = [];
+    let sql = `
+      SELECT
+        id,
+        category,
+        title,
+        note,
+        entry_date_real,
+        district
+      FROM file_list
+      WHERE 1=1`;
+
+    let nextIndex = 1;
+
+    // Add district filter
+    if (filters?.district) {
+      sql += ` AND district = $${nextIndex}`;
+      params.push(filters.district);
+      nextIndex++;
+    }
+
+    // Add category filter
+    if (filters?.category) {
+      sql += ` AND category = $${nextIndex}`;
+      params.push(filters.category);
+      nextIndex++;
+    }
+
+    sql += `
+      ORDER BY entry_date_real DESC NULLS LAST, id DESC
+      LIMIT $${nextIndex}
+    `;
+    params.push(limit);
+
+    console.log(`[HYBRID SEARCH] Getting all records with limit: ${limit}, filters:`, filters);
+
+    const results = (await prisma.$queryRawUnsafe(sql, ...params)) as HybridSearchResult[];
+    return results;
+  }
+
+  /**
+   * Perform semantic search on a specific set of candidate records
+   */
   private static async semanticSearchOnCandidates(
     query: string,
     candidateIds: number[],
@@ -182,30 +274,40 @@ export class HybridSearchService {
   ): Promise<HybridSearchResult[]> {
     if (candidateIds.length === 0) return [];
 
-    const queryEmbedding = await SemanticVectorService.generateEmbedding(query);
+    try {
+      const queryEmbedding = await SemanticVectorService.generateEmbedding(query);
+      const SIMILARITY_THRESHOLD = 0.3;
 
-    console.log(`[SEMANTIC] Re-ranking ${candidateIds.length} candidates`);
+      // Create placeholders for the IN clause
+      const placeholders = candidateIds.map((_, i) => `$${i + 2}`).join(', ');
+      const params = [queryEmbedding, SIMILARITY_THRESHOLD, ...candidateIds];
 
-    const results = (await prisma.$queryRawUnsafe(
-      `
-      SELECT
-        id,
-        category,
-        title,
-        note,
-        entry_date_real,
-        1 - (semantic_vector <=> $1::vector) as semantic_similarity
-      FROM file_list
-      WHERE id = ANY($2) AND semantic_vector IS NOT NULL
-      ORDER BY semantic_vector <=> $1::vector
-      LIMIT $3
-    `,
-      queryEmbedding,
-      candidateIds,
-      limit
-    )) as HybridSearchResult[];
+      const results = (await prisma.$queryRawUnsafe(`
+        SELECT
+          id,
+          category,
+          title,
+          note,
+          entry_date_real,
+          district,
+          1 - (semantic_vector <=> $1::vector) as semantic_similarity
+        FROM file_list
+        WHERE semantic_vector IS NOT NULL
+          AND (1 - (semantic_vector <=> $1::vector)) > $2
+          AND id IN (${placeholders})
+        ORDER BY semantic_vector <=> $1::vector
+        LIMIT $${candidateIds.length + 3}
+      `, ...params, limit)) as HybridSearchResult[];
 
-    return results;
+      console.log(
+        `[SEMANTIC CANDIDATES] Found ${results.length} semantic matches from ${candidateIds.length} candidates`
+      );
+
+      return results;
+    } catch (error) {
+      console.error('[SEMANTIC CANDIDATES] Error:', error);
+      return [];
+    }
   }
 
   private static combineAndRankResults(
