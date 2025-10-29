@@ -60,6 +60,7 @@ export default function FileListClient({
 	// Filters
 	const [searchQuery, setSearchQuery] = useState("");
 	const [selectedCategory, setSelectedCategory] = useState("");
+	const [selectedDistrict, setSelectedDistrict] = useState("");
 	const [selectedYear, setSelectedYear] = useState("");
 
 	// Debounced fetch
@@ -77,6 +78,7 @@ export default function FileListClient({
 				params.set('pageSize', String(pageSize));
 				if (searchQuery.trim()) params.set('q', searchQuery.trim());
 				if (selectedCategory) params.set('category', selectedCategory);
+				if (selectedDistrict) params.set('district', selectedDistrict);
 				if (selectedYear) params.set('year', selectedYear);
 				const res = await fetch(`/api/admin/files?${params.toString()}`);
 				if (!res.ok) throw new Error('Failed to fetch');
@@ -100,16 +102,17 @@ export default function FileListClient({
 			active = false;
 			clearTimeout(handler);
 		};
-	}, [page, pageSize, searchQuery, selectedCategory, selectedYear]);
+		}, [page, pageSize, searchQuery, selectedCategory, selectedDistrict, selectedYear]);
 
 	const clearFilters = () => {
 		setSearchQuery("");
 		setSelectedCategory("");
+		setSelectedDistrict("");
 		setSelectedYear("");
 		setPage(1);
 	};
 
-	const hasActiveFilters = searchQuery || selectedCategory || selectedYear;
+	const hasActiveFilters = searchQuery || selectedCategory || selectedDistrict || selectedYear;
 
 	const handleDelete = async () => {
 		if (!itemToDelete) return;
@@ -164,6 +167,20 @@ export default function FileListClient({
 						{filterOptions.categories.map((category) => (
 							<option key={category} value={category}>
 								{category}
+							</option>
+						))}
+					</select>
+
+					{/* District Filter */}
+					<select
+						value={selectedDistrict}
+						onChange={(e) => { setSelectedDistrict(e.target.value); setPage(1); }}
+						className="px-3 py-2 border border-gray-300 rounded-md bg-white min-w-[160px] focus:outline-none focus:ring-2 focus:ring-blue-500"
+					>
+						<option value="">All Districts</option>
+						{filterOptions.districts.map((district) => (
+							<option key={district} value={district}>
+								{district}
 							</option>
 						))}
 					</select>
@@ -229,9 +246,9 @@ export default function FileListClient({
 				<Table>
 					<TableHeader className="bg-gray-50">
 						<TableRow>
-							<TableHead className="w-[150px]">File No</TableHead>
+							<TableHead className="w-[150px]">File Name</TableHead>
 							<TableHead className="w-[180px]">Category</TableHead>
-							<TableHead className="w-[300px]">Title</TableHead>
+							<TableHead className="w-[160px]">District</TableHead>
 							<TableHead className="w-[150px]">Entry Date</TableHead>
 							<TableHead className="w-[120px] text-right">Actions</TableHead>
 						</TableRow>
@@ -239,7 +256,12 @@ export default function FileListClient({
 					<TableBody>
 						{items.map((file) => (
 							<TableRow key={file.id}>
-								<TableCell className="font-medium">{file.file_no}</TableCell>
+								<TableCell
+									className="max-w-[150px] truncate"
+									title={file.title}
+								>
+									{file.title}
+								</TableCell>
 								<TableCell
 									className="max-w-[180px] truncate"
 									title={file.category}
@@ -247,10 +269,10 @@ export default function FileListClient({
 									{file.category}
 								</TableCell>
 								<TableCell
-									className="max-w-[300px] truncate"
-									title={file.title}
+									className="max-w-[160px] truncate"
+									title={file.district || ""}
 								>
-									{file.title}
+									{file.district || "N/A"}
 								</TableCell>
 								<TableCell>
 									{file.entry_date_real
@@ -326,7 +348,7 @@ export default function FileListClient({
 								This action cannot be undone. This will permanently delete the
 								file record "
 								<strong>
-									{itemToDelete?.file_no} - {itemToDelete?.title}
+									{itemToDelete?.title}
 								</strong>
 								".
 							</AlertDialogDescription>

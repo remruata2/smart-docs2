@@ -43,9 +43,9 @@ import { htmlToMarkdown } from "@/lib/markdown/htmlToMarkdown";
 // Define the Zod schema based on actions.ts (or import if centralized and exported)
 const fileFormSchema = z
   .object({
-    file_no: z.string().min(1, { message: "File No is required" }).max(100),
     category: z.string().min(1, { message: "Category is required" }).max(500),
     title: z.string().min(1, { message: "Title is required" }).max(500),
+    district: z.string().optional(),
     note: z.string().optional().nullable(),
     doc1: z.any(), // FileList or string
     entry_date: z.string().optional().nullable(),
@@ -90,7 +90,7 @@ export default function FileForm({
   submitButtonText = "Submit",
   categoryListItems,
 }: FileFormProps) {
-  const [fileNoPopoverOpen, setFileNoPopoverOpen] = useState(false);
+
   const [categoryPopoverOpen, setCategoryPopoverOpen] = useState(false);
   const [isParsing, setIsParsing] = useState(false);
   const [isClient, setIsClient] = useState(false);
@@ -104,9 +104,9 @@ export default function FileForm({
   const form = useForm<FileFormValues>({
     resolver: zodResolver(fileFormSchema),
     defaultValues: {
-      file_no: initialData?.file_no || "",
       category: initialData?.category || "",
       title: initialData?.title || "",
+      district: initialData?.district || "",
       note: initialData?.note || "",
       doc1: initialData?.doc1 || undefined, // Use undefined for new files
       entry_date:
@@ -234,88 +234,7 @@ export default function FileForm({
           )}
         />
 
-        <FormField
-          control={form.control}
-          name="file_no"
-          render={({ field }: { field: any }) => (
-            <FormItem className="flex flex-col">
-              <FormLabel>File No *</FormLabel>
-              <Popover
-                open={fileNoPopoverOpen}
-                onOpenChange={setFileNoPopoverOpen}
-              >
-                <PopoverTrigger asChild>
-                  <FormControl>
-                    <Button
-                      variant="outline"
-                      role="combobox"
-                      className={cn(
-                        "w-full justify-between",
-                        !field.value && "text-muted-foreground"
-                      )}
-                    >
-                      {field.value
-                        ? categoryListItems.find(
-                            (item) => item.file_no === field.value
-                          )?.file_no
-                        : "Select File No"}
-                      <ChevronsUpDown className="ml-2 h-4 w-4 shrink-0 opacity-50" />
-                    </Button>
-                  </FormControl>
-                </PopoverTrigger>
-                <PopoverContent
-                  className="w-[--radix-popover-trigger-width] p-0"
-                  align="start"
-                >
-                  <Command>
-                    <CommandInput placeholder="Search file no..." />
-                    <CommandList>
-                      <CommandEmpty>No file number found.</CommandEmpty>
-                      <CommandGroup>
-                        {categoryListItems.map((item) => (
-                          <CommandItem
-                            value={item.file_no}
-                            key={item.id}
-                            onSelect={(currentValue: string) => {
-                              form.setValue(
-                                "file_no",
-                                currentValue === field.value
-                                  ? ""
-                                  : currentValue,
-                                { shouldValidate: true, shouldDirty: true }
-                              );
-                              const linkedItem = categoryListItems.find(
-                                (li) => li.file_no === currentValue
-                              );
-                              if (linkedItem) {
-                                form.setValue("category", linkedItem.category, {
-                                  shouldValidate: true,
-                                  shouldDirty: true,
-                                });
-                              }
-                              setFileNoPopoverOpen(false);
-                            }}
-                          >
-                            <Check
-                              className={cn(
-                                "mr-2 h-4 w-4 shrink-0",
-                                item.file_no === field.value
-                                  ? "opacity-100"
-                                  : "opacity-0"
-                              )}
-                            />
-                            <span className="truncate">{item.file_no}</span>
-                          </CommandItem>
-                        ))}
-                      </CommandGroup>
-                    </CommandList>
-                  </Command>
-                </PopoverContent>
-              </Popover>
-              <FormMessage />
-            </FormItem>
-          )}
-        />
+
 
         <FormField
           control={form.control}
@@ -367,15 +286,6 @@ export default function FileForm({
                                   : currentValue,
                                 { shouldValidate: true, shouldDirty: true }
                               );
-                              const linkedItem = categoryListItems.find(
-                                (li) => li.category === currentValue
-                              );
-                              if (linkedItem) {
-                                form.setValue("file_no", linkedItem.file_no, {
-                                  shouldValidate: true,
-                                  shouldDirty: true,
-                                });
-                              }
                               setCategoryPopoverOpen(false);
                             }}
                           >
@@ -408,6 +318,37 @@ export default function FileForm({
               <FormLabel>Title *</FormLabel>
               <FormControl>
                 <Input placeholder="Enter the file title" {...field} />
+              </FormControl>
+              <FormMessage />
+            </FormItem>
+          )}
+        />
+        
+        <FormField
+          control={form.control}
+          name="district"
+          render={({ field }: { field: any }) => (
+            <FormItem>
+              <FormLabel>District</FormLabel>
+              <FormControl>
+                <select
+                  className="flex h-10 w-full rounded-md border border-input bg-background px-3 py-2 text-sm ring-offset-background file:border-0 file:bg-transparent file:text-sm file:font-medium placeholder:text-muted-foreground focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring focus-visible:ring-offset-2 disabled:cursor-not-allowed disabled:opacity-50"
+                  value={field.value || ""}
+                  onChange={field.onChange}
+                >
+                  <option value="">Select District</option>
+                  <option value="Aizawl">Aizawl</option>
+                  <option value="Lunglei">Lunglei</option>
+                  <option value="Champhai">Champhai</option>
+                  <option value="Lawngtlai">Lawngtlai</option>
+                  <option value="Siaha">Siaha</option>
+                  <option value="Mamit">Mamit</option>
+                  <option value="Kolasib">Kolasib</option>
+                  <option value="Saitual">Saitual</option>
+                  <option value="Hnahthial">Hnahthial</option>
+                  <option value="Serchhip">Serchhip</option>
+                  <option value="Khawzawl">Khawzawl</option>
+                </select>
               </FormControl>
               <FormMessage />
             </FormItem>

@@ -9,14 +9,13 @@ import { z } from "zod";
 
 // Validation schema for category data
 const categorySchema = z.object({
-  file_no: z.string().min(1, "File No is required").max(100, "File No must be 100 characters or less"),
   category: z.string().min(1, "Category is required").max(500, "Category must be 500 characters or less"),
 });
 
 export async function getCategories() {
   try {
     const categories = await db.categoryList.findMany({
-      orderBy: { file_no: "asc" },
+      orderBy: { category: "asc" },
     });
     return categories;
   } catch (error) {
@@ -48,7 +47,6 @@ export async function createCategoryAction(formData: FormData): Promise<{ succes
   }
 
   const rawData = {
-    file_no: formData.get("file_no") as string,
     category: formData.get("category") as string,
   };
 
@@ -59,7 +57,9 @@ export async function createCategoryAction(formData: FormData): Promise<{ succes
 
   try {
     await db.categoryList.create({
-      data: validationResult.data,
+      data: {
+        category: validationResult.data.category,
+      },
     });
     revalidatePath("/admin/categories");
     return { success: true };
@@ -86,7 +86,6 @@ export async function updateCategoryAction(id: number, formData: FormData): Prom
   }
 
   const rawData = {
-    file_no: formData.get("file_no") as string,
     category: formData.get("category") as string,
   };
 

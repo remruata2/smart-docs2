@@ -274,6 +274,7 @@ const fileSchema = z.object({
     .string()
     .min(1, { message: "Title is required" })
     .max(500, { message: "Title must be 500 characters or less" }),
+  district: z.string().optional(),
   note: z.string().optional(),
   // doc1 is removed from Zod schema; will be handled directly from FormData
   entry_date: z.string().optional().nullable(), // Input as string, will be converted to Date for entry_date_real
@@ -321,7 +322,6 @@ export async function getFiles(): Promise<FileListEntry[]> {
 
 export interface CategoryListItem {
   id: number;
-  file_no: string;
   category: string;
 }
 
@@ -330,11 +330,10 @@ export async function getCategoryListItems(): Promise<CategoryListItem[]> {
     const items = await prisma.categoryList.findMany({
       select: {
         id: true,
-        file_no: true,
         category: true,
       },
       orderBy: {
-        file_no: "asc", // Or by category, as preferred
+        category: "asc", // Order by category name
       },
     });
     return items;
@@ -349,6 +348,7 @@ export type FileDetail = {
   file_no: string;
   category: string;
   title: string;
+  district?: string | null;
   note: string | null;
   doc1: string | null;
   entry_date: string | null;
@@ -438,8 +438,6 @@ export async function createFileAction(
   }
   ensureUploadDirExists();
 
-  
-
   const file = formData.get("doc1") as File | null;
   const rawFormData = Object.fromEntries(formData.entries());
   if (file && file.size === 0) {
@@ -494,6 +492,7 @@ export async function createFileAction(
     const newFile = await prisma.fileList.create({
       data: {
         ...restOfData,
+        district: restOfData.district,
         note: finalNote, // Use the potentially parsed content
         content_format: contentFormat, // Use posted format when provided; otherwise fallback
         doc1: doc1Path,

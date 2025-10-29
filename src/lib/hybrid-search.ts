@@ -5,7 +5,6 @@ const prisma = new PrismaClient();
 
 export interface HybridSearchResult {
   id: number;
-  file_no: string;
   category: string;
   title: string;
   note: string;
@@ -127,9 +126,7 @@ export class HybridSearchService {
     const rawQuery = (query || "").trim();
     if (!rawQuery) return [];
 
-    // Extract file number like "File No A-20" or variants
-    const fileNoMatch = rawQuery.match(/file\s*no\.?\s*([A-Za-z0-9\-\/]+)/i);
-    const fileNo = fileNoMatch ? fileNoMatch[1] : undefined;
+
 
     // Optional: if user provides a quoted phrase, use it to narrow title
     const quoteMatch = rawQuery.match(/"([^"]+)"/);
@@ -141,24 +138,17 @@ export class HybridSearchService {
     params.push(rawQuery); // $1 for websearch_to_tsquery
 
     let sql = `
-      SELECT 
+      SELECT
         id,
-        file_no,
         category,
         title,
         note,
         entry_date_real,
         ts_rank(search_vector, websearch_to_tsquery('english', $${tsParamIndex})) as ts_rank
-      FROM file_list 
+      FROM file_list
       WHERE search_vector @@ websearch_to_tsquery('english', $${tsParamIndex})`;
 
     let nextIndex = tsParamIndex + 1;
-    if (fileNo) {
-      sql += ` AND file_no ILIKE '%' || $${nextIndex} || '%'
-      `;
-      params.push(fileNo);
-      nextIndex++;
-    }
     if (titlePhrase) {
       sql += ` AND title ILIKE '%' || $${nextIndex} || '%'
       `;
@@ -174,7 +164,7 @@ export class HybridSearchService {
     params.push(cap);
 
     console.log(
-      `[TSVECTOR] Query: "${rawQuery}" | filters: { file_no: ${fileNo ?? "-"}, titlePhrase: ${titlePhrase ?? "-"} } | cap: ${cap}`
+      `[TSVECTOR] Query: "${rawQuery}" | filters: { titlePhrase: ${titlePhrase ?? "-"} } | cap: ${cap}`
     );
 
     const results = (await prisma.$queryRawUnsafe(sql, ...params)) as HybridSearchResult[];
@@ -198,15 +188,14 @@ export class HybridSearchService {
 
     const results = (await prisma.$queryRawUnsafe(
       `
-      SELECT 
+      SELECT
         id,
-        file_no,
         category,
         title,
         note,
         entry_date_real,
         1 - (semantic_vector <=> $1::vector) as semantic_similarity
-      FROM file_list 
+      FROM file_list
       WHERE id = ANY($2) AND semantic_vector IS NOT NULL
       ORDER BY semantic_vector <=> $1::vector
       LIMIT $3

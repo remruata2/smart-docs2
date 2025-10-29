@@ -18,10 +18,6 @@ import { toast } from "sonner";
 import { CategoryList } from "@/generated/prisma";
 
 const formSchema = z.object({
-	file_no: z
-		.string()
-		.min(1, "File No is required")
-		.max(100, "File No must be 100 characters or less"),
 	category: z
 		.string()
 		.min(1, "Category is required")
@@ -49,7 +45,6 @@ export default function CategoryForm({
 	const form = useForm<CategoryFormValues>({
 		resolver: zodResolver(formSchema),
 		defaultValues: initialData || {
-			file_no: "",
 			category: "",
 		},
 	});
@@ -58,7 +53,6 @@ export default function CategoryForm({
 
 	async function onSubmit(values: CategoryFormValues) {
 		const formData = new FormData();
-		formData.append("file_no", values.file_no);
 		formData.append("category", values.category);
 
 		const result = await submitAction(formData);
@@ -88,19 +82,6 @@ export default function CategoryForm({
 	return (
 		<Form {...form}>
 			<form onSubmit={form.handleSubmit(onSubmit)} className="space-y-8">
-				<FormField
-					control={form.control}
-					name="file_no"
-					render={({ field }: { field: any }) => (
-						<FormItem>
-							<FormLabel>File No</FormLabel>
-							<FormControl>
-								<Input placeholder="e.g., A-001" {...field} />
-							</FormControl>
-							<FormMessage />
-						</FormItem>
-					)}
-				/>
 				<FormField
 					control={form.control}
 					name="category"

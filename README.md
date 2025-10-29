@@ -1,4 +1,4 @@
-# CID AI - Next.js Starter with Authentication
+# ICPS AI - Next.js Starter with Authentication
 
 A modern Next.js starter template with built-in authentication, role-based access control, and Prisma ORM integration.
 

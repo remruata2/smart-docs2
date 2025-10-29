@@ -36,13 +36,13 @@ export default function AdminLayout({
 	}
 
 	return (
-		<div className="min-h-screen bg-gray-100 flex">
+		<div className="min-h-screen bg-gray-50 flex">
 			<Toaster richColors position="top-right" />
 			{/* Static sidebar for desktop */}
 			<div className="hidden lg:flex lg:flex-shrink-0">
 				<div className="flex flex-col w-64">
 					{/* Sidebar component, swap this element with another sidebar if you like */}
-					<div className="flex flex-col h-0 flex-1 border-r border-gray-200 bg-white">
+					<div className="flex flex-col h-0 flex-1 border-r border-gray-700 bg-gray-900">
 						<AdminSidebar />
 					</div>
 				</div>
@@ -57,7 +57,7 @@ export default function AdminLayout({
 						onClick={() => setSidebarOpen(false)}
 					></div>
 					{/* Sidebar */}
-					<div className="relative flex-1 flex flex-col max-w-xs w-full bg-white">
+					<div className="relative flex-1 flex flex-col max-w-xs w-full bg-gray-900">
 						<div className="absolute top-0 right-0 -mr-12 pt-2">
 							<button
 								onClick={() => setSidebarOpen(false)}
@@ -90,10 +90,10 @@ export default function AdminLayout({
 			{/* Main content area */}
 			<div className="flex flex-col w-0 flex-1 overflow-hidden">
 				{/* Top bar for mobile (hamburger button) */}
-				<div className="lg:hidden sticky top-0 z-30 flex-shrink-0 flex h-16 bg-white shadow">
+				<div className="lg:hidden sticky top-0 z-30 flex-shrink-0 flex h-16 bg-gray-100 shadow">
 					<button
 						onClick={() => setSidebarOpen(true)}
-						className="px-4 border-r border-gray-200 text-gray-500 focus:outline-none focus:ring-2 focus:ring-inset focus:ring-indigo-500 lg:hidden"
+						className="px-4 border-r border-gray-300 text-gray-600 focus:outline-none focus:ring-2 focus:ring-inset focus:ring-indigo-500 lg:hidden"
 					>
 						<span className="sr-only">Open sidebar</span>
 						<svg

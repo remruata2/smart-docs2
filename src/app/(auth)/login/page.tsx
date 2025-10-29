@@ -50,8 +50,8 @@ export default function LoginPage() {
 
 				<Card className="border-none shadow-lg">
 					<CardHeader className="space-y-1">
-						<CardTitle className="text-2xl font-semibold text-center">Sign in</CardTitle>
-						<CardDescription className="text-center">Enter your credentials to access the system</CardDescription>
+						<CardTitle className="text-2xl font-semibold text-center">ICPS AI Database</CardTitle>
+						<CardDescription className="text-center">Sign in to access the ICPS AI Database system</CardDescription>
 					</CardHeader>
 					
 					{error && (

@@ -8,13 +8,13 @@ I’ve created [start-task.bat](cci:7://file:///Users/remruata/projects/cid-ai/s
 
 Option A — CLI (no escaping headaches)
 ```cmd
-schtasks /Create /TN "CID-AI" /SC ONLOGON /RL LIMITED /RU "%USERNAME%" /TR "F:\cid-ai\start-task.bat"
-schtasks /Run /TN "CID-AI"
+schtasks /Create /TN "ICPS-AI" /SC ONLOGON /RL LIMITED /RU "%USERNAME%" /TR "F:\cid-ai\start-task.bat"
+schtasks /Run /TN "ICPS-AI"
 ```
 
 Option B — GUI
 - Open Task Scheduler → Create Task…
-- General: Name “CID AI”, Run only when user is logged on
+- General: Name “ICPS AI”, Run only when user is logged on
 - Triggers: At log on (your user)
 - Actions: Start a program
   - Program/script: F:\cid-ai\start-task.bat

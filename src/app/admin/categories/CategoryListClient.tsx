@@ -58,7 +58,6 @@ export default function CategoryListClient({
 
     return categories.filter(
       (category) =>
-        category.file_no.toLowerCase().includes(searchQuery.toLowerCase()) ||
         category.category.toLowerCase().includes(searchQuery.toLowerCase())
     );
   }, [categories, searchQuery]);
@@ -100,7 +99,7 @@ export default function CategoryListClient({
             <div className="relative flex-1">
               <Search className="absolute left-3 top-1/2 transform -translate-y-1/2 text-gray-400 h-4 w-4" />
               <Input
-                placeholder="Search by file number or category..."
+                placeholder="Search by category name..."
                 value={searchQuery}
                 onChange={(e) => setSearchQuery(e.target.value)}
                 className="pl-10"
@@ -150,7 +149,6 @@ export default function CategoryListClient({
           <Table>
             <TableHeader className="bg-gray-50">
               <TableRow>
-                <TableHead className="w-[200px]">File No</TableHead>
                 <TableHead>Category</TableHead>
                 <TableHead className="w-[150px] text-right">Actions</TableHead>
               </TableRow>
@@ -158,10 +156,7 @@ export default function CategoryListClient({
             <TableBody>
               {filteredCategories.map((category) => (
                 <TableRow key={category.id}>
-                  <TableCell className="font-medium">
-                    {category.file_no}
-                  </TableCell>
-                  <TableCell>{category.category}</TableCell>
+                  <TableCell className="font-medium">{category.category}</TableCell>
                   <TableCell className="text-right">
                     <Button variant="ghost" size="sm" asChild className="mr-2">
                       <Link
@@ -198,8 +193,7 @@ export default function CategoryListClient({
               <AlertDialogTitle>Are you sure?</AlertDialogTitle>
               <AlertDialogDescription>
                 This action cannot be undone. This will permanently delete the
-                category "<strong>{categoryToDelete.category}</strong>" (File
-                No: {categoryToDelete.file_no}).
+                category "<strong>{categoryToDelete.category}</strong>".
               </AlertDialogDescription>
             </AlertDialogHeader>
             <AlertDialogFooter>

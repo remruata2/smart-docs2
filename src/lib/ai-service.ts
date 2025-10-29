@@ -11,7 +11,6 @@ export interface ChatMessage {
   timestamp: Date;
   sources?: Array<{
     id: number;
-    file_no: string;
     title: string;
   }>;
   tokenCount?: {
@@ -22,7 +21,6 @@ export interface ChatMessage {
 
 export interface SearchResult {
   id: number;
-  file_no: string;
   category: string;
   title: string;
   note: string | null;
@@ -54,14 +52,10 @@ export async function searchDatabase(
           ...searchTerms.map((term) => ({
             category: { contains: term, mode: "insensitive" as const },
           })),
-          ...searchTerms.map((term) => ({
-            file_no: { contains: term, mode: "insensitive" as const },
-          })),
         ],
       },
       select: {
         id: true,
-        file_no: true,
         category: true,
         title: true,
         note: true,
@@ -88,7 +82,6 @@ function prepareContextForAI(records: SearchResult[]): string {
 
   const context = records.map((record) => ({
     id: record.id,
-    source: `File: ${record.file_no}`,
     title: record.title,
     category: record.category,
     content: record.note || "No content available",
@@ -97,13 +90,12 @@ function prepareContextForAI(records: SearchResult[]): string {
 
   return `
 DATABASE CONTEXT:
-Found ${records.length} relevant records from the CID database:
+Found ${records.length} relevant records from the ICPS database:
 
 ${context
   .map(
     (record, index) => `
 [RECORD ${index + 1}]
-File: ${record.source}
 Title: ${record.title}
 Category: ${record.category}
 Date: ${record.date}
@@ -126,7 +118,7 @@ export async function generateAIResponse(
   try {
     const model = genAI.getGenerativeModel({ model: "gemini-2.0-flash" });
 
-    const prompt = `You are an AI assistant for the CID (Criminal Investigation Department) database system. 
+    const prompt = `You are an AI assistant for the ICPS (Criminal Investigation Department) database system. 
 
 Your role is to:
 - Answer questions based ONLY on the provided database records
@@ -165,7 +157,7 @@ export async function processChatMessage(
   searchLimit: number = 8
 ): Promise<{
   response: string;
-  sources: Array<{ id: number; file_no: string; title: string }>;
+  sources: Array<{ id: number; title: string }>;
   searchQuery: string;
 }> {
   try {
@@ -175,7 +167,7 @@ export async function processChatMessage(
     if (records.length === 0) {
       return {
         response:
-          "I couldn't find any relevant records in the CID database for your query. Please try rephrasing your question or using different keywords.",
+          "I couldn't find any relevant records in the ICPS database for your query. Please try rephrasing your question or using different keywords.",
         sources: [],
         searchQuery: question,
       };
@@ -190,7 +182,6 @@ export async function processChatMessage(
     // Prepare sources for reference
     const sources = records.map((record) => ({
       id: record.id,
-      file_no: record.file_no,
       title: record.title,
     }));
 

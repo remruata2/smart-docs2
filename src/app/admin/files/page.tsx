@@ -68,7 +68,7 @@ export default async function FilesPage() {
           initialTotal={0}
           initialPage={1}
           initialPageSize={50}
-          filterOptions={{ categories: [], years: [] }}
+          filterOptions={{ categories: [], districts: [], years: [] }}
           initialError={error}
           canDelete={session.user.role === UserRole.admin}
         />

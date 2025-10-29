@@ -82,7 +82,6 @@ export interface ChatMessage {
 	timestamp: Date;
 	sources?: Array<{
 		id: number;
-		file_no: string;
 		title: string;
 	}>;
 	tokenCount?: {
@@ -93,7 +92,6 @@ export interface ChatMessage {
 
 export interface SearchResult {
 	id: number;
-	file_no: string;
 	category: string;
 	title: string;
 	note: string | null;
@@ -165,7 +163,7 @@ export async function analyzeQueryForSearch(
 						.join("\n")}\n`
 				: "";
 
-		const prompt = `You are an AI assistant analyzing queries for a CID (Criminal Investigation Department) database search system.
+		const prompt = `You are an AI assistant analyzing queries for a ICPS (Criminal Investigation Department) database search system.
 
 ${historyContext}
 
@@ -328,7 +326,6 @@ export async function getRecentFiles(
 		const records = await prisma.fileList.findMany({
 			select: {
 				id: true,
-				file_no: true,
 				category: true,
 				title: true,
 				note: true,
@@ -940,7 +937,6 @@ export function prepareContextForAI(
 	// Create a structured index of all records for quick reference
 	const recordIndex = processedRecords.map((record, index) => ({
 		id: record.id,
-		file_no: record.file_no,
 		title: record.title,
 		category: record.category || "Uncategorized",
 		date: record.entry_date_real?.toLocaleDateString() || "Unknown date",
@@ -952,10 +948,6 @@ export function prepareContextForAI(
 		let content = record.note || "No content available";
 
 		// Avoid duplicating metadata if it's already in the note
-		const fileNoPattern = new RegExp(
-			`File No[^\\n]*${escapeRegExp(record.file_no)}`,
-			"i"
-		);
 		const categoryPattern = new RegExp(
 			`Category[^\\n]*${escapeRegExp(record.category)}`,
 			"i"
@@ -966,13 +958,11 @@ export function prepareContextForAI(
 		);
 
 		const hasMetadataPrefix =
-			fileNoPattern.test(content.substring(0, 200)) ||
 			categoryPattern.test(content.substring(0, 200)) ||
 			titlePattern.test(content.substring(0, 200));
 
 		return {
 			id: record.id,
-			file_no: record.file_no,
 			title: record.title,
 			category: record.category || "Uncategorized",
 			date: record.entry_date_real?.toLocaleDateString() || "Unknown date",
@@ -986,7 +976,7 @@ export function prepareContextForAI(
 DATABASE CONTEXT:
 
 === OVERVIEW ===
-Found ${processedRecords.length} relevant records from the CID database.
+Found ${processedRecords.length} relevant records from the ICPS database.
 The records span ${Object.keys(recordsByCategory).length} categories.
 Records are listed below ordered by relevance to your query.
 
@@ -994,7 +984,7 @@ Records are listed below ordered by relevance to your query.
 ${recordIndex
 	.map(
 		(r, i) =>
-			`[${i + 1}] File: ${r.file_no} | Title: ${r.title} | Category: ${
+			`[${i + 1}] Title: ${r.title} | Category: ${
 				r.category
 			} | Date: ${r.date} | Relevance: ${r.relevance}`
 	)
@@ -1005,7 +995,6 @@ ${detailedRecords
 	.map(
 		(record, index) => `
 [RECORD ${index + 1}] (Relevance: ${record.relevance})
-File: ${record.file_no}
 Title: ${record.title}
 Category: ${record.category}
 Date: ${record.date}
@@ -1120,7 +1109,7 @@ export async function generateAIResponse(
 `;
 	}
 
-	const prompt = `You are a helpful AI assistant for the CID (Criminal Investigation Department) database system.\n\n${historyContext}\n\nCURRENT QUESTION: "${question}"\n\n${context}\n\nINSTRUCTIONS:\n${roleInstructions}\n\n- Always be professional and factual\n- If asked about specific cases, provide file numbers and relevant details\n- If no relevant information is found, say so clearly\n- Keep responses concise but informative\n- Use bullet points or numbered lists when presenting multiple items\n\nPlease provide a helpful response based on the database records above.`;
+	const prompt = `You are a helpful AI assistant for the ICPS (Criminal Investigation Department) database system.\n\n${historyContext}\n\nCURRENT QUESTION: "${question}"\n\n${context}\n\nINSTRUCTIONS:\n${roleInstructions}\n\n- Always be professional and factual\n- If asked about specific cases, provide file numbers and relevant details\n- If no relevant information is found, say so clearly\n- Keep responses concise but informative\n- Use bullet points or numbered lists when presenting multiple items\n\nPlease provide a helpful response based on the database records above.`;
 
 	let lastError: any = null;
 	for (const modelName of attemptModels) {
@@ -1199,7 +1188,6 @@ export async function processChatMessageEnhanced(
 	response: string;
 	sources: Array<{
 		id: number;
-		file_no: string;
 		title: string;
 		relevance?: number;
 	}>;
@@ -1351,11 +1339,7 @@ export async function processChatMessageEnhanced(
 	const citedSources = records
 		.filter((record) => {
 			const response = aiResponse.text.toLowerCase();
-			const fileNo = record.file_no.toLowerCase();
 			const title = record.title.toLowerCase();
-
-			// Check for direct file number mention
-			if (response.includes(fileNo)) return true;
 
 			// Check for title mention (partial match)
 			const titleWords = title.split(" ").filter((word) => word.length > 3);
@@ -1389,7 +1373,6 @@ export async function processChatMessageEnhanced(
 		})
 		.map((record) => ({
 			id: record.id,
-			file_no: record.file_no,
 			title: record.title,
 			relevance: record.combined_score || record.rank,
 		}));
@@ -1435,12 +1418,11 @@ export async function processChatMessageEnhanced(
 export async function updateSearchVectors(): Promise<void> {
   try {
     await prisma.$executeRaw`
-      UPDATE file_list 
-      SET search_vector = 
+      UPDATE file_list
+      SET search_vector =
         setweight(to_tsvector('english', COALESCE(title, '')),   'A') ||
         setweight(to_tsvector('english', COALESCE(category, '')),'B') ||
-        setweight(to_tsvector('english', COALESCE(note, '')),    'C') ||
-        setweight(to_tsvector('english', COALESCE(file_no, '')), 'B')
+        setweight(to_tsvector('english', COALESCE(note, '')),    'C')
       WHERE search_vector IS NULL OR note IS NOT NULL
     `;
 

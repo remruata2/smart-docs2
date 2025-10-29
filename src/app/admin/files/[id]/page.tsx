@@ -249,8 +249,7 @@ export default async function ViewFilePage({
         <div className="px-4 py-5 sm:p-6">
           {" "}
           {/* Adjusted padding and removed divider for DetailItem's own top border/padding */}
-          <DetailItem label="File No" value={file.file_no} />
-          <DetailItem label="Category" value={file.category} />
+           <DetailItem label="Category" value={file.category} />
           <DetailItem label="Title" value={file.title} />
           {file.entry_date_real && (
             <DetailItem

@@ -28,7 +28,6 @@ import remarkGfm from "remark-gfm";
 
 interface ChatSource {
   id: number;
-  file_no: string;
   title: string;
 }
 
@@ -49,7 +48,10 @@ export default function AdminChatPage() {
   const [error, setError] = useState<string | null>(null);
   const [provider, setProvider] = useState<"gemini">("gemini");
   const [model, setModel] = useState<string>("gemini-2.5-pro");
-  const [models, setModels] = useState<Array<{ name: string; label: string }>>([]);
+  const [models, setModels] = useState<Array<{ name: string; label: string }>>([
+    { name: "gemini-2.5-pro", label: "Gemini 2.5 Pro" },
+    { name: "gemini-2.5-flash", label: "Gemini 2.5 Flash" },
+  ]);
   const [modelsLoading, setModelsLoading] = useState<boolean>(false);
   const [lastResponseMeta, setLastResponseMeta] = useState<{
     queryType?: string;
@@ -75,13 +77,29 @@ export default function AdminChatPage() {
         const list: Array<{ name: string; label: string }> = Array.isArray(data.models)
           ? data.models
           : [];
-        setModels(list);
+        // Always have at least fallback models
+        const finalModels = list.length > 0 ? list : [
+          { name: "gemini-2.5-pro", label: "Gemini 2.5 Pro" },
+          { name: "gemini-2.5-flash", label: "Gemini 2.5 Flash" },
+        ];
+        setModels(finalModels);
         // If current model not in list, set to first available
-        if (list.length > 0 && !list.some((m) => m.name === model)) {
-          setModel(list[0].name);
+        if (finalModels.length > 0 && !finalModels.some((m) => m.name === model)) {
+          setModel(finalModels[0].name);
         }
       } catch (e) {
         console.error("[AdminChat] Failed to fetch models", e);
+        // Fallback to default models if API fails
+        if (!cancelled) {
+          const fallbackModels = [
+            { name: "gemini-2.5-pro", label: "Gemini 2.5 Pro" },
+            { name: "gemini-2.5-flash", label: "Gemini 2.5 Flash" },
+          ];
+          setModels(fallbackModels);
+          if (!fallbackModels.some((m) => m.name === model)) {
+            setModel(fallbackModels[0].name);
+          }
+        }
       } finally {
         if (!cancelled) setModelsLoading(false);
       }
@@ -1044,7 +1062,7 @@ export default function AdminChatPage() {
       // Add title
       doc.setFontSize(16);
       doc.setFont('helvetica', 'bold');
-      doc.text('CID AI Response', margin, currentY);
+      doc.text('ICPS AI Response', margin, currentY);
       currentY += 15;
 
       // Add timestamp
@@ -1070,7 +1088,7 @@ export default function AdminChatPage() {
         doc.setFontSize(12);
         sources.forEach((source, index) => {
           checkNewPage();
-          const sourceText = `${index + 1}. ${source.file_no}: ${source.title}`;
+          const sourceText = `${index + 1}. ${source.title}`;
           const sourceLines = doc.splitTextToSize(sourceText, maxWidth);
           
           for (const line of sourceLines) {
@@ -1106,61 +1124,98 @@ export default function AdminChatPage() {
       )}
 
       <Card className="h-[calc(100vh-24px)] flex flex-col">
-        <CardHeader className="flex flex-col space-y-3 pb-4 flex-shrink-0">
-          <div className="flex items-center justify-between gap-4 flex-wrap">
-            <div className="flex items-center gap-4 flex-wrap">
-              <CardTitle className="flex items-center gap-2">
+        <CardHeader className="pb-4 flex-shrink-0">
+          <div className="flex flex-wrap items-center justify-between gap-4">
+            <div className="flex items-center gap-4">
+              <CardTitle className="flex items-center gap-2 whitespace-nowrap">
                 <MessageSquare className="h-5 w-5" />
                 Chat History
               </CardTitle>
-              <div className="flex flex-wrap items-center gap-3">
-                <div className="flex items-center gap-2">
-                  <label htmlFor="provider" className="text-sm text-gray-600">
-                    Provider
-                  </label>
-                  <select
-                    id="provider"
-                    className="h-9 rounded-md border border-gray-300 bg-white px-2 text-sm focus:outline-none focus:ring-2 focus:ring-indigo-500"
-                    value={provider}
-                    onChange={(e) => setProvider(e.target.value as "gemini")}
-                  >
-                    <option value="gemini">Gemini</option>
-                  </select>
-                </div>
-                <div className="flex items-center gap-2">
-                  <label htmlFor="model" className="text-sm text-gray-600">
-                    Model
-                  </label>
-                  <select
-                    id="model"
-                    className="h-9 w-56 rounded-md border border-gray-300 bg-white px-2 text-sm focus:outline-none focus:ring-2 focus:ring-indigo-500"
-                    value={model}
-                    onChange={(e) => setModel(e.target.value)}
-                    disabled={modelsLoading || models.length === 0}
-                  >
-                    {modelsLoading && (
-                      <option>Loading models...</option>
-                    )}
-                    {!modelsLoading && models.length === 0 && (
-                      <option>No models configured</option>
-                    )}
-                    {!modelsLoading &&
-                      models.map((m) => (
-                        <option key={m.name} value={m.name}>
-                          {m.label || m.name}
-                        </option>
-                      ))}
-                  </select>
-                </div>
+              
+              <div className="flex items-center gap-2">
+                <label htmlFor="model" className="text-sm text-gray-600 whitespace-nowrap">
+                  AI Model:
+                </label>
+                <select
+                  id="model"
+                  className="h-9 w-48 rounded-md border border-gray-300 bg-white px-2 text-sm focus:outline-none focus:ring-2 focus:ring-indigo-500"
+                  value={model}
+                  onChange={(e) => setModel(e.target.value)}
+                >
+                  {modelsLoading && (
+                    <option>Loading models...</option>
+                  )}
+                  {!modelsLoading && models.length === 0 && (
+                    <option>No models configured</option>
+                  )}
+                  {!modelsLoading &&
+                    models.map((m) => (
+                      <option key={m.name} value={m.name}>
+                        {m.label || m.name}
+                      </option>
+                    ))}
+                </select>
+              </div>
+              
+              
+              <div className="flex items-center gap-2">
+                <label htmlFor="provider" className="text-sm text-gray-600 whitespace-nowrap">
+                  Provider:
+                </label>
+                <select
+                  id="provider"
+                  className="h-9 rounded-md border border-gray-300 bg-white px-2 text-sm focus:outline-none focus:ring-2 focus:ring-indigo-500"
+                  value={provider}
+                  onChange={(e) => setProvider(e.target.value as "gemini")}
+                >
+                  <option value="gemini">Gemini</option>
+                </select>
+              </div>
+
+              <div className="flex items-center gap-2">
+                <label htmlFor="provider" className="text-sm text-gray-600 whitespace-nowrap">
+                  District:
+                </label>
+                <select
+                  id="provider"
+                  className="h-9 rounded-md border border-gray-300 bg-white px-2 text-sm focus:outline-none focus:ring-2 focus:ring-indigo-500"
+                  value={provider}
+                  onChange={(e) => setProvider(e.target.value as "gemini")}
+                >
+                  <option value="aizawl">All Districts</option>
+                  <option value="aizawl">Aizawl</option>
+                  <option value="aizawl">Lunglei</option>
+                  <option value="aizawl">Champhai</option>
+                  <option value="aizawl">Lawngtlai</option>
+                  <option value="aizawl">Siaha</option>
+                  <option value="aizawl">Mamit</option>
+                  <option value="aizawl">Kolasib</option>
+                  <option value="aizawl">Saitual</option>
+                  <option value="aizawl">Khawzawl</option>
+                  <option value="aizawl">Hnahthial</option>
+                </select>
+              </div>
+
+              <div className="flex items-center gap-2">
+                <label htmlFor="provider" className="text-sm text-gray-600 whitespace-nowrap">
+                  Category:
+                </label>
+                <select
+                  id="provider"
+                  className="h-9 rounded-md border border-gray-300 bg-white px-2 text-sm focus:outline-none focus:ring-2 focus:ring-indigo-500"
+                  value={provider}
+                  onChange={(e) => setProvider(e.target.value as "gemini")}
+                >
+                  <option value="aizawl">Pocso Single Case</option>
+                </select>
               </div>
             </div>
-            <div className="flex items-center gap-2">
-              {messages.length > 0 && (
-                <Button variant="outline" size="sm" onClick={clearChat}>
-                  Clear Chat
-                </Button>
-              )}
-            </div>
+            
+            {messages.length > 0 && (
+              <Button variant="outline" size="sm" onClick={clearChat}>
+                Clear Chat
+              </Button>
+            )}
           </div>
         </CardHeader>
 
@@ -1175,20 +1230,13 @@ export default function AdminChatPage() {
                 <Bot className="h-12 w-12" />
                 <div className="text-center">
                   <p className="text-lg font-medium">
-                    Welcome to CID AI Assistant
+                    Welcome to ICPS AI Assistant
                   </p>
                   <p className="text-sm">
                     Ask me anything about the database records
                   </p>
                 </div>
-                <div className="grid grid-cols-1 md:grid-cols-2 gap-2 text-xs">
-                  <Badge variant="outline">
-                    Try: "Show me arms recovery cases"
-                  </Badge>
-                  <Badge variant="outline">Try: "Cases from 2007"</Badge>
-                  <Badge variant="outline">Try: "Case of Vanlalmawia"</Badge>
-                  <Badge variant="outline">Try: "Latest 3 cases"</Badge>
-                </div>
+
               </div>
             ) : (
               <div className="space-y-4">
@@ -1398,7 +1446,7 @@ export default function AdminChatPage() {
                                   target="_blank"
                                   rel="noopener noreferrer"
                                   className="inline-block"
-                                  title={`${source.title} (File: ${source.file_no})`}
+                                  title={source.title}
                                 >
                                   <Badge
                                     variant="secondary"
@@ -1463,7 +1511,7 @@ export default function AdminChatPage() {
                 value={inputMessage}
                 onChange={(e) => setInputMessage(e.target.value)}
                 onKeyPress={handleKeyPress}
-                placeholder="Ask about CID database records..."
+                placeholder="Ask about ICPS database records..."
                 disabled={isLoading}
                 className="flex-1"
                 maxLength={1000}

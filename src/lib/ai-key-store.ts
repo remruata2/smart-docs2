@@ -1,5 +1,6 @@
 import { prisma } from "@/lib/prisma";
 import { GoogleGenerativeAI } from "@google/generative-ai";
+import OpenAI from "openai";
 import crypto from "crypto";
 
 // Provider values mirror Prisma enum `Provider`
@@ -162,6 +163,25 @@ export async function getGeminiClient(opts: KeySelection = { provider: "gemini" 
   }
   const client = new GoogleGenerativeAI(keyToUse);
   console.log(`[AI-KEY] provider=gemini keyId=${keyId ?? "env-fallback"} source=${apiKey ? "db" : "env"}`);
+  return { client, keyId };
+}
+
+// OpenRouter client factory with DB-managed keys and fallback to env
+export async function getOpenRouterClient(opts: KeySelection = { provider: "openai" }) {
+  if (opts.provider !== "openai") {
+    throw new Error("getOpenRouterClient only supports provider=openai");
+  }
+  const { apiKey, keyId } = await getProviderApiKey({ provider: "openai", keyId: opts.keyId });
+  const fallback = process.env.OPENROUTER_API_KEY || "";
+  const keyToUse = apiKey || fallback;
+  if (!keyToUse) {
+    throw new Error("No OpenRouter API key configured. Add a key in admin settings or set OPENROUTER_API_KEY.");
+  }
+  const client = new OpenAI({
+    apiKey: keyToUse,
+    baseURL: "https://openrouter.ai/api/v1",
+  });
+  console.log(`[AI-KEY] provider=openrouter keyId=${keyId ?? "env-fallback"} source=${apiKey ? "db" : "env"}`);
   return { client, keyId };
 }
 
