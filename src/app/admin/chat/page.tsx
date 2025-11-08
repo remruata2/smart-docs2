@@ -25,6 +25,7 @@ import { toast } from "sonner";
 import { ChatMessage } from "@/lib/ai-service";
 import ReactMarkdown from "react-markdown";
 import remarkGfm from "remark-gfm";
+import ConversationSidebar from "@/components/ConversationSidebar";
 
 interface ChatSource {
 	id: number;
@@ -46,6 +47,13 @@ export default function AdminChatPage() {
 	const [inputMessage, setInputMessage] = useState("");
 	const [isLoading, setIsLoading] = useState(false);
 	const [error, setError] = useState<string | null>(null);
+
+	// Conversation state
+	const [currentConversationId, setCurrentConversationId] = useState<
+		number | null
+	>(null);
+	const [conversationTitle, setConversationTitle] =
+		useState<string>("New Conversation");
 
 	const [model, setModel] = useState<string>("gemini-2.5-pro");
 	const [models, setModels] = useState<Array<{ name: string; label: string }>>([
@@ -192,6 +200,127 @@ export default function AdminChatPage() {
 		inputRef.current?.focus();
 	}, []);
 
+	// === CONVERSATION MANAGEMENT FUNCTIONS ===
+
+	// Create a new conversation
+	const createNewConversation = async (): Promise<number> => {
+		try {
+			const response = await fetch("/api/admin/conversations", {
+				method: "POST",
+				headers: { "Content-Type": "application/json" },
+				body: JSON.stringify({ title: "New Conversation" }),
+			});
+
+			if (!response.ok) throw new Error("Failed to create conversation");
+
+			const data = await response.json();
+			return data.conversation.id;
+		} catch (error) {
+			console.error("Error creating conversation:", error);
+			toast.error("Failed to create conversation");
+			throw error;
+		}
+	};
+
+	// Save a message to the current conversation
+	const saveMessageToConversation = async (
+		conversationId: number,
+		message: {
+			role: "user" | "assistant";
+			content: string;
+			sources?: any[];
+			tokenCount?: any;
+			metadata?: any;
+		}
+	) => {
+		try {
+			const response = await fetch(
+				`/api/admin/conversations/${conversationId}/messages`,
+				{
+					method: "POST",
+					headers: { "Content-Type": "application/json" },
+					body: JSON.stringify(message),
+				}
+			);
+
+			if (!response.ok) throw new Error("Failed to save message");
+		} catch (error) {
+			console.error("Error saving message:", error);
+			// Don't show error toast - this is background operation
+		}
+	};
+
+	// Generate AI title for conversation after first exchange
+	const generateConversationTitle = async (conversationId: number) => {
+		try {
+			const response = await fetch(
+				`/api/admin/conversations/${conversationId}/generate-title`,
+				{
+					method: "POST",
+				}
+			);
+
+			if (!response.ok) throw new Error("Failed to generate title");
+
+			const data = await response.json();
+			setConversationTitle(data.title);
+		} catch (error) {
+			console.error("Error generating title:", error);
+			// Don't show error toast
+		}
+	};
+
+	// Load a conversation and its messages
+	const loadConversation = async (conversationId: number) => {
+		try {
+			const response = await fetch(
+				`/api/admin/conversations/${conversationId}`
+			);
+
+			if (!response.ok) throw new Error("Failed to load conversation");
+
+			const data = await response.json();
+			const conversation = data.conversation;
+
+			// Set conversation details
+			setCurrentConversationId(conversation.id);
+			setConversationTitle(conversation.title);
+
+			// Load messages
+			const loadedMessages: ChatMessage[] = conversation.messages.map(
+				(msg: any) => ({
+					id: msg.id.toString(),
+					role: msg.role,
+					content: msg.content,
+					timestamp: new Date(msg.timestamp),
+					sources: msg.sources || [],
+					tokenCount: msg.tokenCount,
+				})
+			);
+
+			setMessages(loadedMessages);
+			setError(null);
+
+			toast.success(`Loaded: ${conversation.title}`);
+		} catch (error) {
+			console.error("Error loading conversation:", error);
+			toast.error("Failed to load conversation");
+		}
+	};
+
+	// Start a new conversation (clear messages, reset state)
+	const startNewConversation = () => {
+		setCurrentConversationId(null);
+		setConversationTitle("New Conversation");
+		setMessages([]);
+		setError(null);
+		setLastResponseMeta(null);
+		setInputMessage("");
+		toast.success("Started new conversation");
+	};
+
+	// === END CONVERSATION MANAGEMENT ===
+
 	const handleSendMessage = async () => {
 		if (!inputMessage.trim() || isLoading) return;
 
@@ -207,6 +336,26 @@ export default function AdminChatPage() {
 		setInputMessage("");
 		setIsLoading(true);
 		setError(null);
+
+		// === AUTO-SAVE: Create conversation if it doesn't exist ===
+		let conversationId = currentConversationId;
+		if (!conversationId) {
+			try {
+				conversationId = await createNewConversation();
+				setCurrentConversationId(conversationId);
+			} catch (error) {
+				console.error("Failed to create conversation:", error);
+				// Continue anyway - conversation saving is not critical
+			}
+		}
+
+		// === AUTO-SAVE: Save user message ===
+		if (conversationId) {
+			await saveMessageToConversation(conversationId, {
+				role: "user",
+				content: userMessage.content,
+			});
+		}
 
 		// Create a placeholder assistant message for streaming with thinking indicator
 		const assistantMessageId = `assistant_${Date.now()}`;
@@ -276,6 +425,8 @@ export default function AdminChatPage() {
 			let accumulatedContent = "";
 			let metadata: any = {};
 			let isFirstToken = true;
+			let assistantSources: any[] = [];
+			let assistantTokenCount: any = null;
 
 			if (!reader) {
 				throw new Error("Failed to get response reader");
@@ -330,19 +481,21 @@ export default function AdminChatPage() {
 								);
 							} else if (data.type === "sources") {
 								// Update sources
+								assistantSources = data.sources || [];
 								setMessages((prev) =>
 									prev.map((msg) =>
 										msg.id === assistantMessageId
-											? { ...msg, sources: data.sources || [] }
+											? { ...msg, sources: assistantSources }
 											: msg
 									)
 								);
 							} else if (data.type === "done") {
 								// Update token count
+								assistantTokenCount = data.tokenCount;
 								setMessages((prev) =>
 									prev.map((msg) =>
 										msg.id === assistantMessageId
-											? { ...msg, tokenCount: data.tokenCount }
+											? { ...msg, tokenCount: assistantTokenCount }
 											: msg
 									)
 								);
@@ -359,6 +512,31 @@ export default function AdminChatPage() {
 			// If no content was received, show error
 			if (!accumulatedContent) {
 				throw new Error("No response received from server");
+			}
+
+			// === AUTO-SAVE: Save assistant message ===
+			if (conversationId) {
+				await saveMessageToConversation(conversationId, {
+					role: "assistant",
+					content: accumulatedContent,
+					sources: assistantSources,
+					tokenCount: assistantTokenCount,
+					metadata: {
+						queryType: metadata.queryType,
+						searchMethod: metadata.searchMethod,
+						analysisUsed: metadata.analysisUsed,
+					},
+				});
+
+				// === AUTO-SAVE: Generate title after first exchange ===
+				// If this is the 2nd message (1 user + 1 assistant), generate a title
+				if (messages.length === 1) {
+					// messages.length is 1 because we already added user message
+					// Now we have 1 user + 1 assistant = 2 messages total
+					setTimeout(() => {
+						generateConversationTitle(conversationId);
+					}, 1000); // Delay to ensure messages are saved
+				}
 			}
 		} catch (error: unknown) {
 			console.error("Chat error:", error);
@@ -693,442 +871,461 @@ export default function AdminChatPage() {
 	};
 
 	return (
-		<div className="w-full h-full p-2">
-			{error && (
-				<Alert className="mb-4" variant="destructive">
-					<AlertCircle className="h-4 w-4" />
-					<AlertDescription>{error}</AlertDescription>
-				</Alert>
-			)}
+		<div className="flex h-full">
+			{/* Conversation Sidebar */}
+			<ConversationSidebar
+				currentConversationId={currentConversationId}
+				onSelectConversation={loadConversation}
+				onNewConversation={startNewConversation}
+			/>
 
-			<Card className="h-[calc(100vh-24px)] flex flex-col">
-				<CardHeader className="pb-4 flex-shrink-0">
-					<div className="flex flex-wrap items-center justify-between gap-4">
-						<div className="flex items-center gap-4">
-							<CardTitle className="flex items-center gap-2 whitespace-nowrap">
-								<MessageSquare className="h-5 w-5" />
-								Chat History
-							</CardTitle>
+			{/* Main Chat Area */}
+			<div className="flex-1 p-2 overflow-hidden">
+				{error && (
+					<Alert className="mb-4" variant="destructive">
+						<AlertCircle className="h-4 w-4" />
+						<AlertDescription>{error}</AlertDescription>
+					</Alert>
+				)}
 
-							<div className="flex items-center gap-2">
-								<label
-									htmlFor="model"
-									className="text-sm text-gray-600 whitespace-nowrap"
-								>
-									AI Model:
-								</label>
-								<select
-									id="model"
-									className="h-9 w-48 rounded-md border border-gray-300 bg-white px-2 text-sm focus:outline-none focus:ring-2 focus:ring-indigo-500"
-									value={model}
-									onChange={(e) => setModel(e.target.value)}
-								>
-									{modelsLoading && <option>Loading models...</option>}
-									{!modelsLoading && models.length === 0 && (
-										<option>No models configured</option>
-									)}
-									{!modelsLoading &&
-										models.map((m) => (
-											<option key={m.name} value={m.name}>
-												{m.label || m.name}
-											</option>
-										))}
-								</select>
-							</div>
+				<Card className="h-[calc(100vh-24px)] flex flex-col">
+					<CardHeader className="pb-4 flex-shrink-0">
+						<div className="flex flex-wrap items-center justify-between gap-4">
+							<div className="flex items-center gap-4">
+								<CardTitle className="flex items-center gap-2 whitespace-nowrap">
+									<MessageSquare className="h-5 w-5" />
+									Chat History
+								</CardTitle>
 
-							<div className="flex items-center gap-2">
-								<label
-									htmlFor="district"
-									className="text-sm text-gray-600 whitespace-nowrap"
-								>
-									District:
-								</label>
-								<select
-									id="district"
-									className="h-9 rounded-md border border-gray-300 bg-white px-2 text-sm focus:outline-none focus:ring-2 focus:ring-indigo-500"
-									value={selectedDistrict}
-									onChange={(e) => setSelectedDistrict(e.target.value)}
-									disabled={districtsLoading}
-								>
-									<option value="">All Districts</option>
-									{districtsLoading && <option>Loading districts...</option>}
-									{!districtsLoading && districts.length === 0 && (
-										<option>No districts found</option>
-									)}
-									{!districtsLoading &&
-										districts.map((district) => (
-											<option key={district} value={district}>
-												{district}
-											</option>
-										))}
-								</select>
-							</div>
+								<div className="flex items-center gap-2">
+									<label
+										htmlFor="model"
+										className="text-sm text-gray-600 whitespace-nowrap"
+									>
+										AI Model:
+									</label>
+									<select
+										id="model"
+										className="h-9 w-48 rounded-md border border-gray-300 bg-white px-2 text-sm focus:outline-none focus:ring-2 focus:ring-indigo-500"
+										value={model}
+										onChange={(e) => setModel(e.target.value)}
+									>
+										{modelsLoading && <option>Loading models...</option>}
+										{!modelsLoading && models.length === 0 && (
+											<option>No models configured</option>
+										)}
+										{!modelsLoading &&
+											models.map((m) => (
+												<option key={m.name} value={m.name}>
+													{m.label || m.name}
+												</option>
+											))}
+									</select>
+								</div>
 
-							<div className="flex items-center gap-2">
-								<label
-									htmlFor="category"
-									className="text-sm text-gray-600 whitespace-nowrap"
-								>
-									Category:
-								</label>
-								<select
-									id="category"
-									className="h-9 rounded-md border border-gray-300 bg-white px-2 text-sm focus:outline-none focus:ring-2 focus:ring-indigo-500"
-									value={selectedCategory}
-									onChange={(e) => setSelectedCategory(e.target.value)}
-									disabled={categoriesLoading}
-								>
-									<option value="">All Categories</option>
-									{categoriesLoading && <option>Loading categories...</option>}
-									{!categoriesLoading && categories.length === 0 && (
-										<option>No categories found</option>
-									)}
-									{!categoriesLoading &&
-										categories.map((category) => (
-											<option key={category} value={category}>
-												{category}
-											</option>
-										))}
-								</select>
-							</div>
-						</div>
+								<div className="flex items-center gap-2">
+									<label
+										htmlFor="district"
+										className="text-sm text-gray-600 whitespace-nowrap"
+									>
+										District:
+									</label>
+									<select
+										id="district"
+										className="h-9 rounded-md border border-gray-300 bg-white px-2 text-sm focus:outline-none focus:ring-2 focus:ring-indigo-500"
+										value={selectedDistrict}
+										onChange={(e) => setSelectedDistrict(e.target.value)}
+										disabled={districtsLoading}
+									>
+										<option value="">All Districts</option>
+										{districtsLoading && <option>Loading districts...</option>}
+										{!districtsLoading && districts.length === 0 && (
+											<option>No districts found</option>
+										)}
+										{!districtsLoading &&
+											districts.map((district) => (
+												<option key={district} value={district}>
+													{district}
+												</option>
+											))}
+									</select>
+								</div>
 
-						{messages.length > 0 && (
-							<Button variant="outline" size="sm" onClick={clearChat}>
-								Clear Chat
-							</Button>
-						)}
-					</div>
-				</CardHeader>
-
-				<CardContent className="flex-1 flex flex-col p-0 min-h-0">
-					<div
-						className="flex-1 overflow-y-auto p-4 scroll-smooth"
-						ref={scrollAreaRef}
-						style={{ scrollBehavior: "smooth" }}
-					>
-						{messages.length === 0 ? (
-							<div className="flex flex-col items-center justify-center h-full text-gray-500 space-y-4">
-								<Bot className="h-12 w-12" />
-								<div className="text-center">
-									<p className="text-lg font-medium">
-										Welcome to ICPS AI Assistant
-									</p>
-									<p className="text-sm">
-										Ask me anything about the database records
-									</p>
+								<div className="flex items-center gap-2">
+									<label
+										htmlFor="category"
+										className="text-sm text-gray-600 whitespace-nowrap"
+									>
+										Category:
+									</label>
+									<select
+										id="category"
+										className="h-9 rounded-md border border-gray-300 bg-white px-2 text-sm focus:outline-none focus:ring-2 focus:ring-indigo-500"
+										value={selectedCategory}
+										onChange={(e) => setSelectedCategory(e.target.value)}
+										disabled={categoriesLoading}
+									>
+										<option value="">All Categories</option>
+										{categoriesLoading && (
+											<option>Loading categories...</option>
+										)}
+										{!categoriesLoading && categories.length === 0 && (
+											<option>No categories found</option>
+										)}
+										{!categoriesLoading &&
+											categories.map((category) => (
+												<option key={category} value={category}>
+													{category}
+												</option>
+											))}
+									</select>
 								</div>
 							</div>
-						) : (
-							<div className="space-y-4">
-								{messages.map((message) => (
-									<div
-										key={message.id}
-										className={`flex gap-3 ${
-											message.role === "user" ? "justify-end" : "justify-start"
-										}`}
-									>
+
+							{messages.length > 0 && (
+								<Button variant="outline" size="sm" onClick={clearChat}>
+									Clear Chat
+								</Button>
+							)}
+						</div>
+					</CardHeader>
+
+					<CardContent className="flex-1 flex flex-col p-0 min-h-0">
+						<div
+							className="flex-1 overflow-y-auto p-4 scroll-smooth"
+							ref={scrollAreaRef}
+							style={{ scrollBehavior: "smooth" }}
+						>
+							{messages.length === 0 ? (
+								<div className="flex flex-col items-center justify-center h-full text-gray-500 space-y-4">
+									<Bot className="h-12 w-12" />
+									<div className="text-center">
+										<p className="text-lg font-medium">
+											Welcome to ICPS AI Assistant
+										</p>
+										<p className="text-sm">
+											Ask me anything about the database records
+										</p>
+									</div>
+								</div>
+							) : (
+								<div className="space-y-4">
+									{messages.map((message) => (
 										<div
-											className={`flex gap-3 max-w-[90%] ${
+											key={message.id}
+											className={`flex gap-3 ${
 												message.role === "user"
-													? "flex-row-reverse"
-													: "flex-row"
+													? "justify-end"
+													: "justify-start"
 											}`}
 										>
 											<div
-												className={`flex h-8 w-8 shrink-0 select-none items-center justify-center rounded-full ${
+												className={`flex gap-3 max-w-[90%] ${
 													message.role === "user"
-														? "bg-blue-500 text-white"
-														: "bg-gray-200 text-gray-700"
+														? "flex-row-reverse"
+														: "flex-row"
 												}`}
 											>
-												{message.role === "user" ? (
-													<User className="h-4 w-4" />
-												) : (
-													<Bot className="h-4 w-4" />
-												)}
-											</div>
-											<div
-												className={`rounded-lg px-4 py-2 break-words ${
-													message.role === "user"
-														? "bg-blue-500 text-white"
-														: "bg-gray-100 text-gray-900"
-												}`}
-											>
-												<div className="text-sm break-words prose prose-sm max-w-none">
-													{message.role === "assistant" ? (
-														<>
-															{/* Show loading indicator for placeholder and progress messages */}
-															{message.content.includes(
-																"Analyzing your question"
-															) ||
-															message.content.includes("Generating response") ||
-															message.content.includes("Processing") ||
-															message.content.includes("Synthesizing") ? (
-																<div className="flex items-center gap-2 text-gray-600">
-																	<Loader2 className="h-4 w-4 animate-spin" />
-																	<span>{message.content}</span>
-																</div>
-															) : (
-																<>
-																	<ReactMarkdown
-																		remarkPlugins={[remarkGfm]}
-																		components={{
-																			// Custom styling for markdown elements
-																			p: ({ children }) => (
-																				<p className="mb-2 last:mb-0 break-words leading-relaxed">
-																					{children}
-																				</p>
-																			),
-																			ul: ({ children }) => (
-																				<ul className="list-disc list-outside ml-4 mb-2 space-y-1">
-																					{children}
-																				</ul>
-																			),
-																			ol: ({ children }) => (
-																				<ol className="list-decimal list-outside ml-4 mb-2 space-y-1">
-																					{children}
-																				</ol>
-																			),
-																			li: ({ children }) => (
-																				<li className="leading-relaxed">
-																					{children}
-																				</li>
-																			),
-																			strong: ({ children }) => (
-																				<strong className="font-bold text-gray-900">
-																					{children}
-																				</strong>
-																			),
-																			em: ({ children }) => (
-																				<em className="italic">{children}</em>
-																			),
-																			code: ({ children }) => (
-																				<code className="bg-gray-200 px-1 py-0.5 rounded text-xs font-mono">
-																					{children}
-																				</code>
-																			),
-																			h1: ({ children }) => (
-																				<h1 className="text-lg font-bold mb-3 mt-4 first:mt-0 text-gray-900">
-																					{children}
-																				</h1>
-																			),
-																			h2: ({ children }) => (
-																				<h2 className="text-base font-bold mb-2 mt-3 first:mt-0 text-gray-900">
-																					{children}
-																				</h2>
-																			),
-																			h3: ({ children }) => (
-																				<h3 className="text-sm font-bold mb-2 mt-2 first:mt-0 text-gray-900">
-																					{children}
-																				</h3>
-																			),
-																			table: ({ children }) => (
-																				<div className="overflow-x-auto my-4">
-																					<table className="min-w-full border-collapse border border-gray-300 text-sm">
-																						{children}
-																					</table>
-																				</div>
-																			),
-																			thead: ({ children }) => (
-																				<thead className="bg-gray-50">
-																					{children}
-																				</thead>
-																			),
-																			tbody: ({ children }) => (
-																				<tbody className="bg-white">
-																					{children}
-																				</tbody>
-																			),
-																			tr: ({ children }) => (
-																				<tr className="border-b border-gray-200">
-																					{children}
-																				</tr>
-																			),
-																			th: ({ children }) => (
-																				<th className="border border-gray-300 px-4 py-2 text-left font-semibold text-gray-900 bg-gray-50">
-																					{children}
-																				</th>
-																			),
-																			td: ({ children }) => (
-																				<td className="border border-gray-300 px-4 py-2 text-gray-700">
-																					{children}
-																				</td>
-																			),
-																		}}
-																	>
-																		{message.content}
-																	</ReactMarkdown>
-																	<div className="flex items-center gap-1 mt-2">
-																		<Button
-																			variant="ghost"
-																			size="icon"
-																			className="h-7 w-7"
-																			onClick={() =>
-																				handleCopy(message.content, message.id)
-																			}
-																			title="Copy to clipboard"
-																		>
-																			{copiedMessageId === message.id ? (
-																				<Check className="h-3.5 w-3.5 text-green-500" />
-																			) : (
-																				<Copy className="h-3.5 w-3.5" />
-																			)}
-																		</Button>
-																		<Button
-																			variant="ghost"
-																			size="icon"
-																			className="h-7 w-7"
-																			onClick={async () =>
-																				await handleExportText(
-																					message.content,
-																					message.sources
-																				)
-																			}
-																			title="Download as PDF"
-																		>
-																			<FileDown className="h-3.5 w-3.5" />
-																		</Button>
-																	</div>
-																</>
-															)}
-														</>
+												<div
+													className={`flex h-8 w-8 shrink-0 select-none items-center justify-center rounded-full ${
+														message.role === "user"
+															? "bg-blue-500 text-white"
+															: "bg-gray-200 text-gray-700"
+													}`}
+												>
+													{message.role === "user" ? (
+														<User className="h-4 w-4" />
 													) : (
-														<div className="whitespace-pre-wrap">
-															{message.content}
-														</div>
+														<Bot className="h-4 w-4" />
 													)}
 												</div>
 												<div
-													className={`text-xs mt-1 flex items-center gap-2 ${
+													className={`rounded-lg px-4 py-2 break-words ${
 														message.role === "user"
-															? "text-blue-100"
-															: "text-gray-500"
+															? "bg-blue-500 text-white"
+															: "bg-gray-100 text-gray-900"
 													}`}
 												>
-													<span>{formatTimestamp(message.timestamp)}</span>
-													{message.role === "assistant" &&
-														message.tokenCount && (
-															<span className="border-l border-gray-300 dark:border-gray-700 pl-2 flex items-center">
-																<span title="Input tokens">
-																	In:{" "}
-																	{message.tokenCount.input.toLocaleString()}
-																</span>
-																<span className="mx-1">|</span>
-																<span title="Output tokens">
-																	Out:{" "}
-																	{message.tokenCount.output.toLocaleString()}
-																</span>
-															</span>
+													<div className="text-sm break-words prose prose-sm max-w-none">
+														{message.role === "assistant" ? (
+															<>
+																{/* Show loading indicator for placeholder and progress messages */}
+																{message.content.includes(
+																	"Analyzing your question"
+																) ||
+																message.content.includes(
+																	"Generating response"
+																) ||
+																message.content.includes("Processing") ||
+																message.content.includes("Synthesizing") ? (
+																	<div className="flex items-center gap-2 text-gray-600">
+																		<Loader2 className="h-4 w-4 animate-spin" />
+																		<span>{message.content}</span>
+																	</div>
+																) : (
+																	<>
+																		<ReactMarkdown
+																			remarkPlugins={[remarkGfm]}
+																			components={{
+																				// Custom styling for markdown elements
+																				p: ({ children }) => (
+																					<p className="mb-2 last:mb-0 break-words leading-relaxed">
+																						{children}
+																					</p>
+																				),
+																				ul: ({ children }) => (
+																					<ul className="list-disc list-outside ml-4 mb-2 space-y-1">
+																						{children}
+																					</ul>
+																				),
+																				ol: ({ children }) => (
+																					<ol className="list-decimal list-outside ml-4 mb-2 space-y-1">
+																						{children}
+																					</ol>
+																				),
+																				li: ({ children }) => (
+																					<li className="leading-relaxed">
+																						{children}
+																					</li>
+																				),
+																				strong: ({ children }) => (
+																					<strong className="font-bold text-gray-900">
+																						{children}
+																					</strong>
+																				),
+																				em: ({ children }) => (
+																					<em className="italic">{children}</em>
+																				),
+																				code: ({ children }) => (
+																					<code className="bg-gray-200 px-1 py-0.5 rounded text-xs font-mono">
+																						{children}
+																					</code>
+																				),
+																				h1: ({ children }) => (
+																					<h1 className="text-lg font-bold mb-3 mt-4 first:mt-0 text-gray-900">
+																						{children}
+																					</h1>
+																				),
+																				h2: ({ children }) => (
+																					<h2 className="text-base font-bold mb-2 mt-3 first:mt-0 text-gray-900">
+																						{children}
+																					</h2>
+																				),
+																				h3: ({ children }) => (
+																					<h3 className="text-sm font-bold mb-2 mt-2 first:mt-0 text-gray-900">
+																						{children}
+																					</h3>
+																				),
+																				table: ({ children }) => (
+																					<div className="overflow-x-auto my-4">
+																						<table className="min-w-full border-collapse border border-gray-300 text-sm">
+																							{children}
+																						</table>
+																					</div>
+																				),
+																				thead: ({ children }) => (
+																					<thead className="bg-gray-50">
+																						{children}
+																					</thead>
+																				),
+																				tbody: ({ children }) => (
+																					<tbody className="bg-white">
+																						{children}
+																					</tbody>
+																				),
+																				tr: ({ children }) => (
+																					<tr className="border-b border-gray-200">
+																						{children}
+																					</tr>
+																				),
+																				th: ({ children }) => (
+																					<th className="border border-gray-300 px-4 py-2 text-left font-semibold text-gray-900 bg-gray-50">
+																						{children}
+																					</th>
+																				),
+																				td: ({ children }) => (
+																					<td className="border border-gray-300 px-4 py-2 text-gray-700">
+																						{children}
+																					</td>
+																				),
+																			}}
+																		>
+																			{message.content}
+																		</ReactMarkdown>
+																		<div className="flex items-center gap-1 mt-2">
+																			<Button
+																				variant="ghost"
+																				size="icon"
+																				className="h-7 w-7"
+																				onClick={() =>
+																					handleCopy(
+																						message.content,
+																						message.id
+																					)
+																				}
+																				title="Copy to clipboard"
+																			>
+																				{copiedMessageId === message.id ? (
+																					<Check className="h-3.5 w-3.5 text-green-500" />
+																				) : (
+																					<Copy className="h-3.5 w-3.5" />
+																				)}
+																			</Button>
+																			<Button
+																				variant="ghost"
+																				size="icon"
+																				className="h-7 w-7"
+																				onClick={async () =>
+																					await handleExportText(
+																						message.content,
+																						message.sources
+																					)
+																				}
+																				title="Download as PDF"
+																			>
+																				<FileDown className="h-3.5 w-3.5" />
+																			</Button>
+																		</div>
+																	</>
+																)}
+															</>
+														) : (
+															<div className="whitespace-pre-wrap">
+																{message.content}
+															</div>
 														)}
-												</div>
-												{message.sources && message.sources.length > 0 && (
-													<div className="mt-2 space-y-1">
-														<div className="text-xs font-medium text-gray-600">
-															Sources ({message.sources.length}):
-														</div>
-														<div className="flex flex-wrap gap-1">
-															{/* Show initial sources or all if expanded */}
-															{(expandedSources[message.id]
-																? message.sources
-																: message.sources.slice(
-																		0,
-																		INITIAL_SOURCES_SHOWN
-																  )
-															).map((source, index) => (
-																<Link
-																	key={`${source.id}-${index}`}
-																	href={`/admin/files/${source.id}`}
-																	target="_blank"
-																	rel="noopener noreferrer"
-																	className="inline-block"
-																	title={source.title}
-																>
-																	<Badge
-																		variant="secondary"
-																		className="text-xs hover:bg-blue-100 hover:text-blue-800 transition-colors cursor-pointer group max-w-xs"
-																	>
-																		<FileText className="h-3 w-3 mr-1 flex-shrink-0" />
-																		<span className="truncate">
-																			{truncateTitle(source.title, 35)}
-																		</span>
-																		<ExternalLink className="h-3 w-3 ml-1 opacity-0 group-hover:opacity-100 transition-opacity flex-shrink-0" />
-																	</Badge>
-																</Link>
-															))}
-
-															{/* Show "Show more/less" button if there are more sources than the initial limit */}
-															{message.sources.length >
-																INITIAL_SOURCES_SHOWN && (
-																<Button
-																	variant="ghost"
-																	size="sm"
-																	onClick={() =>
-																		toggleSourceExpansion(message.id)
-																	}
-																	className="text-xs text-blue-600 hover:text-blue-800 py-1 h-auto"
-																>
-																	{expandedSources[message.id]
-																		? `Show less`
-																		: `Show ${
-																				message.sources.length -
-																				INITIAL_SOURCES_SHOWN
-																		  } more...`}
-																</Button>
-															)}
-														</div>
 													</div>
-												)}
+													<div
+														className={`text-xs mt-1 flex items-center gap-2 ${
+															message.role === "user"
+																? "text-blue-100"
+																: "text-gray-500"
+														}`}
+													>
+														<span>{formatTimestamp(message.timestamp)}</span>
+														{message.role === "assistant" &&
+															message.tokenCount && (
+																<span className="border-l border-gray-300 dark:border-gray-700 pl-2 flex items-center">
+																	<span title="Input tokens">
+																		In:{" "}
+																		{message.tokenCount.input.toLocaleString()}
+																	</span>
+																	<span className="mx-1">|</span>
+																	<span title="Output tokens">
+																		Out:{" "}
+																		{message.tokenCount.output.toLocaleString()}
+																	</span>
+																</span>
+															)}
+													</div>
+													{message.sources && message.sources.length > 0 && (
+														<div className="mt-2 space-y-1">
+															<div className="text-xs font-medium text-gray-600">
+																Sources ({message.sources.length}):
+															</div>
+															<div className="flex flex-wrap gap-1">
+																{/* Show initial sources or all if expanded */}
+																{(expandedSources[message.id]
+																	? message.sources
+																	: message.sources.slice(
+																			0,
+																			INITIAL_SOURCES_SHOWN
+																	  )
+																).map((source, index) => (
+																	<Link
+																		key={`${source.id}-${index}`}
+																		href={`/admin/files/${source.id}`}
+																		target="_blank"
+																		rel="noopener noreferrer"
+																		className="inline-block"
+																		title={source.title}
+																	>
+																		<Badge
+																			variant="secondary"
+																			className="text-xs hover:bg-blue-100 hover:text-blue-800 transition-colors cursor-pointer group max-w-xs"
+																		>
+																			<FileText className="h-3 w-3 mr-1 flex-shrink-0" />
+																			<span className="truncate">
+																				{truncateTitle(source.title, 35)}
+																			</span>
+																			<ExternalLink className="h-3 w-3 ml-1 opacity-0 group-hover:opacity-100 transition-opacity flex-shrink-0" />
+																		</Badge>
+																	</Link>
+																))}
+
+																{/* Show "Show more/less" button if there are more sources than the initial limit */}
+																{message.sources.length >
+																	INITIAL_SOURCES_SHOWN && (
+																	<Button
+																		variant="ghost"
+																		size="sm"
+																		onClick={() =>
+																			toggleSourceExpansion(message.id)
+																		}
+																		className="text-xs text-blue-600 hover:text-blue-800 py-1 h-auto"
+																	>
+																		{expandedSources[message.id]
+																			? `Show less`
+																			: `Show ${
+																					message.sources.length -
+																					INITIAL_SOURCES_SHOWN
+																			  } more...`}
+																	</Button>
+																)}
+															</div>
+														</div>
+													)}
+												</div>
 											</div>
 										</div>
-									</div>
-								))}
-							</div>
-						)}
-					</div>
-
-					<div className="border-t p-4 flex-shrink-0">
-						<div className="flex gap-2">
-							<Input
-								ref={inputRef}
-								value={inputMessage}
-								onChange={(e) => setInputMessage(e.target.value)}
-								onKeyPress={handleKeyPress}
-								placeholder="Ask about ICPS database records..."
-								disabled={isLoading}
-								className="flex-1"
-								maxLength={1000}
-							/>
-							<Button
-								onClick={handleSendMessage}
-								disabled={!inputMessage.trim() || isLoading}
-								size="icon"
-							>
-								{isLoading ? (
-									<Loader2 className="h-4 w-4 animate-spin" />
-								) : (
-									<Send className="h-4 w-4" />
-								)}
-							</Button>
-						</div>
-						<div className="flex justify-between items-center text-xs text-gray-500 mt-2">
-							<span>{inputMessage.length}/1000 characters</span>
-							{lastResponseMeta && (
-								<div className="flex gap-2">
-									<Badge variant="outline" className="text-xs">
-										Type: {lastResponseMeta.queryType}
-									</Badge>
-									{lastResponseMeta.analysisUsed && (
-										<Badge variant="outline" className="text-xs bg-green-50">
-											AI Analysis ✓
-										</Badge>
-									)}
+									))}
 								</div>
 							)}
 						</div>
-					</div>
-				</CardContent>
-			</Card>
+
+						<div className="border-t p-4 flex-shrink-0">
+							<div className="flex gap-2">
+								<Input
+									ref={inputRef}
+									value={inputMessage}
+									onChange={(e) => setInputMessage(e.target.value)}
+									onKeyPress={handleKeyPress}
+									placeholder="Ask about ICPS database records..."
+									disabled={isLoading}
+									className="flex-1"
+									maxLength={1000}
+								/>
+								<Button
+									onClick={handleSendMessage}
+									disabled={!inputMessage.trim() || isLoading}
+									size="icon"
+								>
+									{isLoading ? (
+										<Loader2 className="h-4 w-4 animate-spin" />
+									) : (
+										<Send className="h-4 w-4" />
+									)}
+								</Button>
+							</div>
+							<div className="flex justify-between items-center text-xs text-gray-500 mt-2">
+								<span>{inputMessage.length}/1000 characters</span>
+								{lastResponseMeta && (
+									<div className="flex gap-2">
+										<Badge variant="outline" className="text-xs">
+											Type: {lastResponseMeta.queryType}
+										</Badge>
+										{lastResponseMeta.analysisUsed && (
+											<Badge variant="outline" className="text-xs bg-green-50">
+												AI Analysis ✓
+											</Badge>
+										)}
+									</div>
+								)}
+							</div>
+						</div>
+					</CardContent>
+				</Card>
+			</div>
 		</div>
 	);
 }
