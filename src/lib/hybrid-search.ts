@@ -72,7 +72,8 @@ export class HybridSearchService {
         // Step 3: The Intelligent Fallback
         const semanticResults = await SemanticVectorService.semanticSearch(
           query,
-          limit
+          limit,
+          filters
         );
 
         return {
@@ -190,10 +191,11 @@ export class HybridSearchService {
 
     // Add category filter
     if (filters?.category) {
-      sql += ` AND category = $${nextIndex}`;
-      params.push(filters.category);
-      nextIndex++;
-    }
+  sql += ` AND LOWER(TRIM(category)) = LOWER(TRIM($${nextIndex}))`;
+  params.push(filters.category);
+  nextIndex++;
+  console.log(`[TSVECTOR] Applying category filter: "${filters.category}"`);
+}
 
     const cap = 1000;
     sql += `
@@ -247,9 +249,10 @@ export class HybridSearchService {
 
     // Add category filter
     if (filters?.category) {
-      sql += ` AND category = $${nextIndex}`;
+      sql += ` AND LOWER(TRIM(category)) = LOWER(TRIM($${nextIndex}))`;
       params.push(filters.category);
       nextIndex++;
+      console.log(`[GET_ALL_RECORDS] Applying category filter: "${filters.category}"`);
     }
 
     sql += `

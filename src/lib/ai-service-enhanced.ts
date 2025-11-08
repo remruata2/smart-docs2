@@ -6,6 +6,7 @@ import {
 } from "@/lib/ai-key-store";
 import { HybridSearchService } from "./hybrid-search";
 import { getSettingInt } from "@/lib/app-settings";
+import { processChunkedAnalyticalQuery, isAnalyticalQuery } from "./chunked-processing";
 
 // Developer logging toggle - set to true to see query logs in console
 const DEV_LOGGING = true;
@@ -288,10 +289,11 @@ Examples:
 
 		// Validate response
 		// Allow empty coreSearchTerms for specific_search queries with instructional terms (like "all cases")
-		// or for list_all queries
+		// or for list_all or analytical queries
 		const hasValidTerms = analysis.coreSearchTerms ||
 			(analysis.queryType === "specific_search" && analysis.instructionalTerms) ||
-			analysis.queryType === "list_all";
+			analysis.queryType === "list_all" ||
+			analysis.queryType === "analytical_query";
 
 		if (!hasValidTerms || !analysis.queryType) {
 			console.error("[QUERY ANALYSIS] Incomplete analysis:", analysis);
@@ -1227,7 +1229,8 @@ export async function processChatMessageEnhanced(
 		| "hybrid"
 		| "semantic_fallback"
 		| "tsvector_only"
-		| "recent_files";
+		| "recent_files"
+		| "analytical_fallback";
 	queryType: string;
 	analysisUsed: boolean;
 	tokenCount?: {
@@ -1249,8 +1252,9 @@ export async function processChatMessageEnhanced(
 
 	let analysisInputTokens = 0;
 	let analysisOutputTokens = 0;
+	let analysis: any = null;
 	try {
-		const analysis = await analyzeQueryForSearch(
+		analysis = await analyzeQueryForSearch(
 			question,
 			conversationHistory,
 			opts
@@ -1311,6 +1315,7 @@ export async function processChatMessageEnhanced(
 		console.error("Failed to analyze query with AI, using raw query.", error);
 		// Fallback to using the raw question if analysis fails
 		queryForSearch = question;
+		analysis = { queryType: "specific_search", contextNeeded: false };
 	}
 
 	let records: SearchResult[] = [];
@@ -1318,7 +1323,8 @@ export async function processChatMessageEnhanced(
 		| "hybrid"
 		| "semantic_fallback"
 		| "tsvector_only"
-		| "recent_files" = "hybrid";
+		| "recent_files"
+		| "analytical_fallback" = "hybrid";
 	let searchStats;
 
 	if (queryType === "recent_files") {
@@ -1351,6 +1357,19 @@ export async function processChatMessageEnhanced(
 		);
 	}
 
+	// Fallback for analytical queries: if no records found, retrieve all records for analysis
+	if (queryType === "analytical_query" && records.length === 0) {
+		console.log(`[CHAT ANALYSIS] Analytical query returned 0 records, falling back to all records for analysis`);
+		const configuredLimit = await getSettingInt("ai.search.limit", 30);
+		let effectiveLimit = Math.min(configuredLimit, 200); // Cap at 200 for analytical queries
+
+		const allRecordsResponse = await HybridSearchService.search('', effectiveLimit, filters);
+		records = allRecordsResponse.results;
+		searchMethod = "analytical_fallback";
+		searchStats = allRecordsResponse.stats;
+		console.log(`[CHAT ANALYSIS] Fallback retrieved ${records.length} records for analytical analysis`);
+	}
+
 	// Check if this is an analytical query that needs chunked processing
 	const needsChunkedProcessing = false; // Normal processing is more efficient for all queries
 	let aiResponse;
@@ -1358,32 +1377,42 @@ export async function processChatMessageEnhanced(
 	let aiTime = 0;
 	let context = "";
 
-	// Use normal processing for all queries (analytical and non-analytical)
-	console.log(
-		`[CHAT PROCESSING] Starting context preparation for ${records.length} records`
-	);
-	const contextTiming = timeStart("Context Preparation");
+	// Use chunked processing for analytical queries with many records
+	if (analysis.queryType === "analytical_query" && records.length > 20) {
+		console.log(
+			`[CHAT PROCESSING] Using chunked processing for ${records.length} records`
+		);
+		const chunkedTiming = timeStart("Chunked Processing");
+		aiResponse = await processChunkedAnalyticalQuery(question, records);
+		contextTime = timeEnd("Chunked Processing", chunkedTiming);
+		console.log(`[CHAT PROCESSING] Chunked processing completed in ${contextTime}ms`);
+		aiTime = contextTime; // For chunked, aiTime is included
+	} else {
+		// Use normal processing for other queries or small record sets
+		console.log(
+			`[CHAT PROCESSING] Starting context preparation for ${records.length} records`
+		);
+		const contextTiming = timeStart("Context Preparation");
 
-	// Use normal processing for all queries (relevance extraction disabled)
-	context = prepareContextForAI(records, queryForSearch, false);
+		// Use normal processing for all queries (relevance extraction disabled)
+		context = prepareContextForAI(records, queryForSearch, false);
 
-	contextTime = timeEnd("Context Preparation", contextTiming);
-	console.log(`[CHAT PROCESSING] Context size: ${context.length} characters`);
+		contextTime = timeEnd("Context Preparation", contextTiming);
+		console.log(`[CHAT PROCESSING] Context size: ${context.length} characters`);
 
-	// Generate AI response
-	console.log(`[CHAT PROCESSING] Starting AI response generation`);
-	const aiTiming = timeStart("AI Response Generation");
-	aiResponse = await generateAIResponse(
-		question,
-		context,
-		conversationHistory,
-		queryType,
-		opts
-	);
-	aiTime = timeEnd("AI Response Generation", aiTiming);
-	console.log(
-		`[TOKENS] Response phase — input: ${aiResponse.inputTokens}, output: ${aiResponse.outputTokens}`
-	);
+		// Generate AI response
+		console.log(`[CHAT PROCESSING] Starting AI response generation`);
+		const aiTiming = timeStart("AI Response Generation");
+		aiResponse = await generateAIResponse(
+			question,
+			context,
+			conversationHistory,
+			analysis.queryType
+		);
+
+		aiTime = timeEnd("AI Response Generation", aiTiming);
+		console.log(`[TOKENS] Response phase — input: ${aiResponse.inputTokens}, output: ${aiResponse.outputTokens}`);
+	}
 
 	// Extract sources from the context that were used in the AI response
 	console.log(`[CHAT PROCESSING] Starting source extraction`);

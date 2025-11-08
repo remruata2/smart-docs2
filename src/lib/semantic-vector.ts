@@ -93,25 +93,40 @@ export class SemanticVectorService {
 
   static async semanticSearch(
     query: string,
-    limit: number = 10
+    limit: number = 10,
+    filters: { category?: string; district?: string } = {}
   ): Promise<any[]> {
     try {
       const queryEmbedding = await this.generateEmbedding(query);
       const SIMILARITY_THRESHOLD = 0.3; // Only return results with >30% similarity
 
-      const results = (await prisma.$queryRaw`
-        SELECT 
+      const params: any[] = [queryEmbedding, SIMILARITY_THRESHOLD];
+      let whereClause = `semantic_vector IS NOT NULL
+          AND (1 - (semantic_vector <=> $1::vector)) > $2`;
+
+      if (filters.category) {
+        params.push(filters.category.toLowerCase().trim());
+        whereClause += ` AND LOWER(TRIM(category)) = $${params.length}`;
+      }
+      if (filters.district) {
+        params.push(filters.district);
+        whereClause += ` AND district = $${params.length}`;
+      }
+
+      const sql = `
+        SELECT
           id,
           category,
           title,
           note,
           entry_date_real,
-          1 - (semantic_vector <=> ${queryEmbedding}::vector) as similarity
-        FROM file_list 
-        WHERE semantic_vector IS NOT NULL
-          AND (1 - (semantic_vector <=> ${queryEmbedding}::vector)) > ${SIMILARITY_THRESHOLD}
-        ORDER BY semantic_vector <=> ${queryEmbedding}::vector
-      `) as any[];
+          1 - (semantic_vector <=> $1::vector) as similarity
+        FROM file_list
+        WHERE ${whereClause}
+        ORDER BY semantic_vector <=> $1::vector
+      `;
+
+      const results = (await prisma.$queryRawUnsafe(sql, ...params)) as any[];
 
       console.log(
         `🔍 Semantic search found ${results.length} results for query: "${query}" (threshold: ${SIMILARITY_THRESHOLD}, no limit)`
