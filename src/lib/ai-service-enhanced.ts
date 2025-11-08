@@ -1343,18 +1343,34 @@ export async function processChatMessageEnhanced(
 		if (effectiveSearchLimit < 1) effectiveSearchLimit = 1;
 		if (effectiveSearchLimit > 200) effectiveSearchLimit = 200;
 
-		const hybridSearchResponse = await HybridSearchService.search(
-			queryForSearch,
-			effectiveSearchLimit,
-			filters
-		);
-		records = hybridSearchResponse.results;
-		searchMethod = hybridSearchResponse.searchMethod;
-		searchStats = hybridSearchResponse.stats;
+		// For analytical queries with filters, get ALL records matching the filters
+		// instead of filtering by search terms (analytical queries need complete data)
+		const hasFilters = filters && (filters.category || filters.district);
+		if (queryType === "analytical_query" && hasFilters) {
+			console.log(`[CHAT ANALYSIS] Analytical query with filters - retrieving all records matching filters for complete analysis`);
+			const hybridSearchResponse = await HybridSearchService.search(
+				'',
+				effectiveSearchLimit,
+				filters
+			);
+			records = hybridSearchResponse.results;
+			searchMethod = "analytical_fallback";
+			searchStats = hybridSearchResponse.stats;
+			console.log(`[CHAT ANALYSIS] Retrieved ${records.length} records matching filters for analytical analysis`);
+		} else {
+			const hybridSearchResponse = await HybridSearchService.search(
+				queryForSearch,
+				effectiveSearchLimit,
+				filters
+			);
+			records = hybridSearchResponse.results;
+			searchMethod = hybridSearchResponse.searchMethod;
+			searchStats = hybridSearchResponse.stats;
 
-		console.log(
-			`[CHAT ANALYSIS] Hybrid search completed. Method: ${searchMethod}, Found: ${records.length} records.`
-		);
+			console.log(
+				`[CHAT ANALYSIS] Hybrid search completed. Method: ${searchMethod}, Found: ${records.length} records.`
+			);
+		}
 	}
 
 	// Fallback for analytical queries: if no records found, retrieve all records for analysis
