@@ -296,7 +296,14 @@ export default function AdminChatPage() {
 					timestamp: new Date(msg.timestamp),
 					sources: msg.sources || [],
 					tokenCount: msg.tokenCount,
-					filters: msg.metadata?.filters || undefined,
+					// For assistant messages, always show filters (default to "All" if not saved)
+					filters:
+						msg.role === "assistant"
+							? msg.metadata?.filters || {
+									district: "All Districts",
+									category: "All Categories",
+							  }
+							: undefined,
 				})
 			);
 
@@ -364,10 +371,11 @@ export default function AdminChatPage() {
 		// Create a placeholder assistant message for streaming with thinking indicator
 		const assistantMessageId = `assistant_${Date.now()}`;
 
-		// Only include filters if they're actually selected
-		const activeFilters: { district?: string; category?: string } = {};
-		if (selectedDistrict) activeFilters.district = selectedDistrict;
-		if (selectedCategory) activeFilters.category = selectedCategory;
+		// Always include filters (show "All Districts" / "All Categories" if not selected)
+		const activeFilters: { district: string; category: string } = {
+			district: selectedDistrict || "All Districts",
+			category: selectedCategory || "All Categories",
+		};
 
 		const assistantMessage: ChatMessage = {
 			id: assistantMessageId,
@@ -375,7 +383,7 @@ export default function AdminChatPage() {
 			content: "Analyzing your question and searching database...",
 			timestamp: new Date(),
 			sources: [],
-			...(Object.keys(activeFilters).length > 0 && { filters: activeFilters }),
+			filters: activeFilters,
 		};
 		setMessages((prev) => [...prev, assistantMessage]);
 
@@ -527,10 +535,11 @@ export default function AdminChatPage() {
 
 			// === AUTO-SAVE: Save assistant message ===
 			if (conversationId) {
-				// Only include filters if they're actually selected
-				const saveFilters: { district?: string; category?: string } = {};
-				if (selectedDistrict) saveFilters.district = selectedDistrict;
-				if (selectedCategory) saveFilters.category = selectedCategory;
+				// Always include filters (show "All Districts" / "All Categories" if not selected)
+				const saveFilters: { district: string; category: string } = {
+					district: selectedDistrict || "All Districts",
+					category: selectedCategory || "All Categories",
+				};
 
 				await saveMessageToConversation(conversationId, {
 					role: "assistant",
@@ -541,9 +550,7 @@ export default function AdminChatPage() {
 						queryType: metadata.queryType,
 						searchMethod: metadata.searchMethod,
 						analysisUsed: metadata.analysisUsed,
-						...(Object.keys(saveFilters).length > 0 && {
-							filters: saveFilters,
-						}),
+						filters: saveFilters,
 					},
 				});
 
@@ -1361,24 +1368,18 @@ export default function AdminChatPage() {
 													{/* Display active filters */}
 													{message.role === "assistant" && message.filters && (
 														<div className="mt-2 flex flex-wrap gap-2 text-xs">
-															{message.filters.district &&
-																message.filters.district.trim() && (
-																	<div className="inline-flex items-center gap-1 bg-blue-50 text-blue-700 px-2 py-1 rounded">
-																		<span className="font-medium">
-																			District:
-																		</span>
-																		<span>{message.filters.district}</span>
-																	</div>
-																)}
-															{message.filters.category &&
-																message.filters.category.trim() && (
-																	<div className="inline-flex items-center gap-1 bg-green-50 text-green-700 px-2 py-1 rounded">
-																		<span className="font-medium">
-																			Category:
-																		</span>
-																		<span>{message.filters.category}</span>
-																	</div>
-																)}
+															<div className="inline-flex items-center gap-1 bg-gray-100 text-gray-700 border border-gray-300 px-2 py-1 rounded">
+																<span className="font-medium">District:</span>
+																<span>
+																	{message.filters.district || "All Districts"}
+																</span>
+															</div>
+															<div className="inline-flex items-center gap-1 bg-gray-100 text-gray-700 border border-gray-300 px-2 py-1 rounded">
+																<span className="font-medium">Category:</span>
+																<span>
+																	{message.filters.category || "All Categories"}
+																</span>
+															</div>
 														</div>
 													)}
 													{message.sources && message.sources.length > 0 && (
