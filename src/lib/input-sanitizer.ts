@@ -122,7 +122,8 @@ export function validateConversationHistory(
       return { valid: false, error: `Message ${i} has invalid content` };
     }
 
-    if (msg.content.length > maxMessageLength) {
+    // Only apply length limit to user messages (assistant messages can be long)
+    if (msg.role === 'user' && msg.content.length > maxMessageLength) {
       return {
         valid: false,
         error: `Message ${i} content too long (max ${maxMessageLength} characters)`,

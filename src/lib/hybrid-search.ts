@@ -223,7 +223,10 @@ export class HybridSearchService {
 			console.log(`[TSVECTOR] Applying category filter: "${filters.category}"`);
 		}
 
-		const cap = 1000;
+		// Use dynamic limit: fetch 3x the requested limit for better semantic re-ranking,
+		// but cap at 200 to avoid excessive memory usage
+		const requestedLimit = limit || 30; // Default to 30 if not specified
+		const cap = Math.min(requestedLimit * 3, 200);
 		sql += `
       ORDER BY ts_rank DESC, entry_date_real DESC
       LIMIT $${nextIndex}
@@ -233,7 +236,7 @@ export class HybridSearchService {
 		console.log(
 			`[TSVECTOR] Query: "${rawQuery}" | filters: { titlePhrase: ${
 				titlePhrase ?? "-"
-			} } | cap: ${cap}`
+			} } | requested: ${requestedLimit}, cap: ${cap}`
 		);
 
 		const results = (await prisma.$queryRawUnsafe(

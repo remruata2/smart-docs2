@@ -92,7 +92,7 @@ export async function POST(request: NextRequest) {
 		if (conversationHistory) {
 			const historyValidation = validateConversationHistory(
 				conversationHistory,
-				20,
+				50,
 				1000
 			);
 			if (!historyValidation.valid) {

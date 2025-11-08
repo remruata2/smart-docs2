@@ -20,6 +20,9 @@ const RELEVANCE_EXTRACTION_CONFIG = {
 	debug: true, // Set to true to see detailed extraction logs
 };
 
+// AI API timeout configuration (in milliseconds)
+const AI_API_TIMEOUT = 60000; // 60 seconds
+
 /**
  * RELEVANCE EXTRACTION FEATURE
  *
@@ -58,6 +61,32 @@ function timeEnd(
 	console.timeEnd(`[TIMING] ${timingData.uniqueLabel}`);
 	console.log(`[TIMING-END] ${label} took ${elapsed}ms`);
 	return elapsed;
+}
+
+/**
+ * Wrap an AI API call with a timeout to prevent hanging requests
+ * @param promise The AI API call promise
+ * @param timeoutMs Timeout in milliseconds (default: 60s)
+ * @param operation Description of the operation (for error messages)
+ * @returns The result of the promise if it completes before timeout
+ * @throws Error if the promise times out
+ */
+async function withTimeout<T>(
+	promise: Promise<T>,
+	timeoutMs: number = AI_API_TIMEOUT,
+	operation: string = "AI API call"
+): Promise<T> {
+	const timeoutPromise = new Promise<never>((_, reject) => {
+		setTimeout(() => {
+			reject(
+				new Error(
+					`${operation} timed out after ${timeoutMs / 1000} seconds`
+				)
+			);
+		}, timeoutMs);
+	});
+
+	return Promise.race([promise, timeoutPromise]);
 }
 
 /**
@@ -105,6 +134,142 @@ export interface SearchResult {
 }
 
 /**
+ * Quick pattern-based query classification (no AI needed for simple queries)
+ * Returns null if AI analysis is needed
+ */
+function quickClassifyQuery(query: string): {
+	coreSearchTerms: string;
+	instructionalTerms: string;
+	queryType:
+		| "specific_search"
+		| "follow_up"
+		| "elaboration"
+		| "general"
+		| "recent_files"
+		| "analytical_query"
+		| "list_all"
+		| "group_by_district";
+	contextNeeded: boolean;
+	inputTokens: number;
+	outputTokens: number;
+} | null {
+	const q = query.toLowerCase().trim();
+
+	// Pattern 1: Simple question words (who, what, where, when, why, how)
+	if (/^(who|what|where|when|why|how)\s+/i.test(q)) {
+		return {
+			coreSearchTerms: query,
+			instructionalTerms: "",
+			queryType: "specific_search",
+			contextNeeded: false,
+			inputTokens: 0,
+			outputTokens: 0,
+		};
+	}
+
+	// Pattern 2: List all / Show all queries
+	if (/^(show|list|display|get|find|give me)\s+(all|every|the)/i.test(q)) {
+		return {
+			coreSearchTerms: "",
+			instructionalTerms: "list all",
+			queryType: "list_all",
+			contextNeeded: false,
+			inputTokens: 0,
+			outputTokens: 0,
+		};
+	}
+
+	// Pattern 3: Analytical queries (summarize, count, total, average, how many)
+	if (
+		/^(summarize|count|total|average|how many|tell me about|analyze|sum up)/i.test(
+			q
+		)
+	) {
+		return {
+			coreSearchTerms: query,
+			instructionalTerms: "analyze",
+			queryType: "analytical_query",
+			contextNeeded: false,
+			inputTokens: 0,
+			outputTokens: 0,
+		};
+	}
+
+	// Pattern 4: Recent/Latest queries
+	if (/\b(recent|latest|newest|last|most recent)\s+(files?|records?|cases?|entries?)\b/i.test(q)) {
+		return {
+			coreSearchTerms: query,
+			instructionalTerms: "",
+			queryType: "recent_files",
+			contextNeeded: false,
+			inputTokens: 0,
+			outputTokens: 0,
+		};
+	}
+
+	// Pattern 5: Group by district queries
+	if (/\b(group|organize|categorize|sort)\s+by\s+district/i.test(q)) {
+		return {
+			coreSearchTerms: "",
+			instructionalTerms: "group by district",
+			queryType: "group_by_district",
+			contextNeeded: false,
+			inputTokens: 0,
+			outputTokens: 0,
+		};
+	}
+
+	// Pattern 6: Simple search queries (find, search for, look for)
+	if (/^(find|search|look for|get me)\s+/i.test(q)) {
+		const searchTerms = query.replace(/^(find|search|look for|get me)\s+/i, "");
+		return {
+			coreSearchTerms: searchTerms,
+			instructionalTerms: "",
+			queryType: "specific_search",
+			contextNeeded: false,
+			inputTokens: 0,
+			outputTokens: 0,
+		};
+	}
+
+	// Pattern 7: Follow-up questions (short queries, pronouns)
+	if (
+		q.length < 20 &&
+		(/\b(he|she|they|it|him|her|them|this|that|these|those)\b/i.test(q) ||
+			/(more|details?|tell me more|elaborate|explain)/i.test(q))
+	) {
+		return {
+			coreSearchTerms: query,
+			instructionalTerms: "",
+			queryType: "follow_up",
+			contextNeeded: true,
+			inputTokens: 0,
+			outputTokens: 0,
+		};
+	}
+
+	// Pattern 8: Greetings / General queries
+	if (
+		/^(hi|hello|hey|greetings|good morning|good afternoon|good evening)/i.test(
+			q
+		) ||
+		/^(help|what can you do|how does this work)/i.test(q)
+	) {
+		return {
+			coreSearchTerms: "",
+			instructionalTerms: "",
+			queryType: "general",
+			contextNeeded: false,
+			inputTokens: 0,
+			outputTokens: 0,
+		};
+	}
+
+	// No pattern matched - need AI analysis
+	return null;
+}
+
+/**
  * Analyze user query and extract search keywords using AI
  */
 export async function analyzeQueryForSearch(
@@ -128,26 +293,17 @@ export async function analyzeQueryForSearch(
 	outputTokens: number;
 }> {
 	try {
-		// First check if this is a recent/latest files query
-		const recentFilesPattern =
-			/\b(recent|latest|newest|last|most recent)\s+(files?|records?|cases?|entries?)\b/i;
-		const numberPattern =
-			/\b(\d+)\s+(recent|latest|newest|last|most recent)\s+(files?|records?|cases?|entries?)\b/i;
-
-		if (
-			recentFilesPattern.test(currentQuery) ||
-			numberPattern.test(currentQuery)
-		) {
-			console.log("[QUERY ANALYSIS] Detected recent files query");
-			return {
-				coreSearchTerms: currentQuery, // Keep original for context
-				instructionalTerms: "",
-				queryType: "recent_files",
-				contextNeeded: false,
-				inputTokens: 0,
-				outputTokens: 0,
-			};
+		// Try quick pattern-based classification first (90% of queries)
+		const quickResult = quickClassifyQuery(currentQuery);
+		if (quickResult) {
+			console.log(
+				`[QUERY ANALYSIS] Quick pattern match: ${quickResult.queryType} (skipped AI analysis)`
+			);
+			return quickResult;
 		}
+
+		// Pattern matching failed - use AI analysis for complex queries
+		console.log("[QUERY ANALYSIS] Using AI analysis for complex query");
 
 		const { client, keyId } = await getGeminiClient({
 			provider: "gemini",
@@ -248,7 +404,11 @@ Examples:
 						e
 					);
 				}
-				const result = await model.generateContent(prompt);
+				const result = await withTimeout(
+					model.generateContent(prompt),
+					AI_API_TIMEOUT,
+					"Query analysis AI call"
+				);
 				const response = await result.response;
 				text = response.text().trim();
 				// Capture output tokens from usage metadata if available
@@ -259,10 +419,17 @@ Examples:
 				if (keyId) await recordKeyUsage(keyId, true);
 				lastError = null;
 				break;
-			} catch (e) {
+			} catch (e: any) {
 				lastError = e;
 				if (keyId) await recordKeyUsage(keyId, false);
-				console.warn(`[AI] model attempt failed: ${modelName}`, e);
+				const errorMsg = e?.message || String(e);
+				if (errorMsg.includes("timed out")) {
+					console.warn(
+						`[AI] Query analysis timeout after ${AI_API_TIMEOUT / 1000}s with model: ${modelName}`
+					);
+				} else {
+					console.warn(`[AI] model attempt failed: ${modelName}`, e);
+				}
 				continue;
 			}
 		}
@@ -1167,7 +1334,11 @@ export async function generateAIResponse(
 				inputTokens = estimateTokenCount(prompt);
 				console.warn("[AI-GEN] countTokens failed; using heuristic", e);
 			}
-			const result = await model.generateContent(prompt);
+			const result = await withTimeout(
+				model.generateContent(prompt),
+				AI_API_TIMEOUT,
+				`AI response generation (${modelName})`
+			);
 			const response = await result.response;
 			const text = response.text();
 			timeEnd("Gemini API Call", apiCallTiming);
@@ -1193,7 +1364,14 @@ export async function generateAIResponse(
 		} catch (error: any) {
 			lastError = error;
 			if (keyId) await recordKeyUsage(keyId, false);
-			console.warn(`[AI-GEN] model attempt failed: ${modelName}`, error);
+			const errorMsg = error?.message || String(error);
+			if (errorMsg.includes("timed out")) {
+				console.warn(
+					`[AI-GEN] Response generation timeout after ${AI_API_TIMEOUT / 1000}s with model: ${modelName}`
+				);
+			} else {
+				console.warn(`[AI-GEN] model attempt failed: ${modelName}`, error);
+			}
 			continue;
 		}
 	}
@@ -1433,46 +1611,97 @@ export async function processChatMessageEnhanced(
 	// Extract sources from the context that were used in the AI response
 	console.log(`[CHAT PROCESSING] Starting source extraction`);
 	const sourceTiming = timeStart("Source Extraction");
+	
+	// Common words to exclude from matching (expanded list)
+	const commonWords = new Set([
+		"this",
+		"that",
+		"with",
+		"from",
+		"they",
+		"were",
+		"been",
+		"have",
+		"case",
+		"file",
+		"record",
+		"victim",
+		"accused",
+		"suspect",
+		"police",
+		"court",
+		"date",
+		"time",
+		"place",
+		"incident",
+		"report",
+		"investigation",
+		"against",
+		"under",
+	]);
+
 	const citedSources = records
-		.filter((record) => {
+		.map((record) => {
 			const response = aiResponse.text.toLowerCase();
 			const title = record.title.toLowerCase();
+			let score = 0;
 
-			// Check for title mention (partial match)
-			const titleWords = title.split(" ").filter((word) => word.length > 3);
-			if (titleWords.some((word) => response.includes(word))) return true;
+			// Strong signal: Explicit ID mention
+			if (
+				response.includes(`id: ${record.id}`) ||
+				response.includes(`record ${record.id}`) ||
+				response.includes(`[${record.id}]`)
+			) {
+				score += 10;
+			}
 
-			// Check for content keywords from the record
+			// Strong signal: Exact title match
+			if (response.includes(title)) {
+				score += 8;
+			}
+
+			// Medium signal: Most title words present
+			const titleWords = title
+				.split(/\s+/)
+				.filter((word) => word.length > 3 && !commonWords.has(word));
+			const titleMatches = titleWords.filter((word) =>
+				response.includes(word)
+			);
+			if (titleMatches.length >= Math.min(titleWords.length * 0.6, 3)) {
+				score += 3;
+			}
+
+			// Weak signal: Unique keywords from content
 			if (record.note) {
 				const noteWords = record.note
 					.toLowerCase()
 					.split(/\s+/)
 					.filter(
 						(word) =>
-							word.length > 4 &&
-							![
-								"this",
-								"that",
-								"with",
-								"from",
-								"they",
-								"were",
-								"been",
-								"have",
-							].includes(word)
+							word.length > 5 && // Longer words are more unique
+							!commonWords.has(word)
 					)
-					.slice(0, 10); // Check first 10 meaningful words
+					.slice(0, 15); // Check first 15 words
 
-				if (noteWords.some((word) => response.includes(word))) return true;
+				const noteMatches = noteWords.filter((word) =>
+					response.includes(word)
+				);
+				// Need at least 3 unique keywords to be confident
+				if (noteMatches.length >= 3) {
+					score += 2;
+				}
 			}
 
-			return false;
+			return {
+				id: record.id,
+				title: record.title,
+				relevance: record.combined_score || record.rank,
+				citationScore: score,
+			};
 		})
-		.map((record) => ({
-			id: record.id,
-			title: record.title,
-			relevance: record.combined_score || record.rank,
-		}));
+		.filter((source) => source.citationScore >= 3) // Minimum score threshold
+		.sort((a, b) => b.citationScore - a.citationScore)
+		.map(({ citationScore, ...rest }) => rest); // Remove score from final output
 
 	const sourceTime = timeEnd("Source Extraction", sourceTiming);
 
