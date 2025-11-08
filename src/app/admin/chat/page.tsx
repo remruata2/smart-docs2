@@ -213,7 +213,7 @@ export default function AdminChatPage() {
 		const assistantMessage: ChatMessage = {
 			id: assistantMessageId,
 			role: "assistant",
-			content: "🤔 Analyzing your question and searching database...",
+			content: "Analyzing your question and searching database...",
 			timestamp: new Date(),
 			sources: [],
 		};
@@ -306,7 +306,7 @@ export default function AdminChatPage() {
 										msg.id === assistantMessageId
 											? {
 													...msg,
-													content: "💭 Generating response...",
+													content: "Generating response...",
 											  }
 											: msg
 									)
@@ -856,125 +856,140 @@ export default function AdminChatPage() {
 												<div className="text-sm break-words prose prose-sm max-w-none">
 													{message.role === "assistant" ? (
 														<>
-															<ReactMarkdown
-																remarkPlugins={[remarkGfm]}
-																components={{
-																	// Custom styling for markdown elements
-																	p: ({ children }) => (
-																		<p className="mb-2 last:mb-0 break-words leading-relaxed">
-																			{children}
-																		</p>
-																	),
-																	ul: ({ children }) => (
-																		<ul className="list-disc list-outside ml-4 mb-2 space-y-1">
-																			{children}
-																		</ul>
-																	),
-																	ol: ({ children }) => (
-																		<ol className="list-decimal list-outside ml-4 mb-2 space-y-1">
-																			{children}
-																		</ol>
-																	),
-																	li: ({ children }) => (
-																		<li className="leading-relaxed">
-																			{children}
-																		</li>
-																	),
-																	strong: ({ children }) => (
-																		<strong className="font-bold text-gray-900">
-																			{children}
-																		</strong>
-																	),
-																	em: ({ children }) => (
-																		<em className="italic">{children}</em>
-																	),
-																	code: ({ children }) => (
-																		<code className="bg-gray-200 px-1 py-0.5 rounded text-xs font-mono">
-																			{children}
-																		</code>
-																	),
-																	h1: ({ children }) => (
-																		<h1 className="text-lg font-bold mb-3 mt-4 first:mt-0 text-gray-900">
-																			{children}
-																		</h1>
-																	),
-																	h2: ({ children }) => (
-																		<h2 className="text-base font-bold mb-2 mt-3 first:mt-0 text-gray-900">
-																			{children}
-																		</h2>
-																	),
-																	h3: ({ children }) => (
-																		<h3 className="text-sm font-bold mb-2 mt-2 first:mt-0 text-gray-900">
-																			{children}
-																		</h3>
-																	),
-																	table: ({ children }) => (
-																		<div className="overflow-x-auto my-4">
-																			<table className="min-w-full border-collapse border border-gray-300 text-sm">
-																				{children}
-																			</table>
-																		</div>
-																	),
-																	thead: ({ children }) => (
-																		<thead className="bg-gray-50">
-																			{children}
-																		</thead>
-																	),
-																	tbody: ({ children }) => (
-																		<tbody className="bg-white">
-																			{children}
-																		</tbody>
-																	),
-																	tr: ({ children }) => (
-																		<tr className="border-b border-gray-200">
-																			{children}
-																		</tr>
-																	),
-																	th: ({ children }) => (
-																		<th className="border border-gray-300 px-4 py-2 text-left font-semibold text-gray-900 bg-gray-50">
-																			{children}
-																		</th>
-																	),
-																	td: ({ children }) => (
-																		<td className="border border-gray-300 px-4 py-2 text-gray-700">
-																			{children}
-																		</td>
-																	),
-																}}
-															>
-																{message.content}
-															</ReactMarkdown>
-															<div className="flex items-center gap-1 mt-2">
-																<Button
-																	variant="ghost"
-																	size="icon"
-																	className="h-7 w-7"
-																	onClick={() =>
-																		handleCopy(message.content, message.id)
-																	}
-																	title="Copy to clipboard"
-																>
-																	{copiedMessageId === message.id ? (
-																		<Check className="h-3.5 w-3.5 text-green-500" />
-																	) : (
-																		<Copy className="h-3.5 w-3.5" />
-																	)}
-																</Button>
-																<Button
-																	variant="ghost"
-																	size="icon"
-																	className="h-7 w-7"
-																	onClick={async () =>
-																		await handleExportText(
-																			message.content,
-																			message.sources
-																		)
-																	}
-																	title="Download as PDF"
-																>
-																	<FileDown className="h-3.5 w-3.5" />
-																</Button>
-															</div>
+															{/* Show loading indicator for placeholder messages */}
+															{message.content.includes(
+																"Analyzing your question"
+															) ||
+															message.content.includes(
+																"Generating response"
+															) ? (
+																<div className="flex items-center gap-2 text-gray-600">
+																	<Loader2 className="h-4 w-4 animate-spin" />
+																	<span>{message.content}</span>
+																</div>
+															) : (
+																<>
+																	<ReactMarkdown
+																		remarkPlugins={[remarkGfm]}
+																		components={{
+																			// Custom styling for markdown elements
+																			p: ({ children }) => (
+																				<p className="mb-2 last:mb-0 break-words leading-relaxed">
+																					{children}
+																				</p>
+																			),
+																			ul: ({ children }) => (
+																				<ul className="list-disc list-outside ml-4 mb-2 space-y-1">
+																					{children}
+																				</ul>
+																			),
+																			ol: ({ children }) => (
+																				<ol className="list-decimal list-outside ml-4 mb-2 space-y-1">
+																					{children}
+																				</ol>
+																			),
+																			li: ({ children }) => (
+																				<li className="leading-relaxed">
+																					{children}
+																				</li>
+																			),
+																			strong: ({ children }) => (
+																				<strong className="font-bold text-gray-900">
+																					{children}
+																				</strong>
+																			),
+																			em: ({ children }) => (
+																				<em className="italic">{children}</em>
+																			),
+																			code: ({ children }) => (
+																				<code className="bg-gray-200 px-1 py-0.5 rounded text-xs font-mono">
+																					{children}
+																				</code>
+																			),
+																			h1: ({ children }) => (
+																				<h1 className="text-lg font-bold mb-3 mt-4 first:mt-0 text-gray-900">
+																					{children}
+																				</h1>
+																			),
+																			h2: ({ children }) => (
+																				<h2 className="text-base font-bold mb-2 mt-3 first:mt-0 text-gray-900">
+																					{children}
+																				</h2>
+																			),
+																			h3: ({ children }) => (
+																				<h3 className="text-sm font-bold mb-2 mt-2 first:mt-0 text-gray-900">
+																					{children}
+																				</h3>
+																			),
+																			table: ({ children }) => (
+																				<div className="overflow-x-auto my-4">
+																					<table className="min-w-full border-collapse border border-gray-300 text-sm">
+																						{children}
+																					</table>
+																				</div>
+																			),
+																			thead: ({ children }) => (
+																				<thead className="bg-gray-50">
+																					{children}
+																				</thead>
+																			),
+																			tbody: ({ children }) => (
+																				<tbody className="bg-white">
+																					{children}
+																				</tbody>
+																			),
+																			tr: ({ children }) => (
+																				<tr className="border-b border-gray-200">
+																					{children}
+																				</tr>
+																			),
+																			th: ({ children }) => (
+																				<th className="border border-gray-300 px-4 py-2 text-left font-semibold text-gray-900 bg-gray-50">
+																					{children}
+																				</th>
+																			),
+																			td: ({ children }) => (
+																				<td className="border border-gray-300 px-4 py-2 text-gray-700">
+																					{children}
+																				</td>
+																			),
+																		}}
+																	>
+																		{message.content}
+																	</ReactMarkdown>
+																	<div className="flex items-center gap-1 mt-2">
+																		<Button
+																			variant="ghost"
+																			size="icon"
+																			className="h-7 w-7"
+																			onClick={() =>
+																				handleCopy(message.content, message.id)
+																			}
+																			title="Copy to clipboard"
+																		>
+																			{copiedMessageId === message.id ? (
+																				<Check className="h-3.5 w-3.5 text-green-500" />
+																			) : (
+																				<Copy className="h-3.5 w-3.5" />
+																			)}
+																		</Button>
+																		<Button
+																			variant="ghost"
+																			size="icon"
+																			className="h-7 w-7"
+																			onClick={async () =>
+																				await handleExportText(
+																					message.content,
+																					message.sources
+																				)
+																			}
+																			title="Download as PDF"
+																		>
+																			<FileDown className="h-3.5 w-3.5" />
+																		</Button>
+																	</div>
+																</>
+															)}
 														</>
 													) : (
 														<div className="whitespace-pre-wrap">
@@ -1066,19 +1081,6 @@ export default function AdminChatPage() {
 										</div>
 									</div>
 								))}
-								{isLoading && (
-									<div className="flex gap-3 justify-start">
-										<div className="flex h-8 w-8 shrink-0 select-none items-center justify-center rounded-full bg-gray-200 text-gray-700">
-											<Bot className="h-4 w-4" />
-										</div>
-										<div className="rounded-lg px-4 py-2 bg-gray-100">
-											<div className="flex items-center gap-2 text-sm text-gray-600">
-												<Loader2 className="h-4 w-4 animate-spin" />
-												Searching database and generating response...
-											</div>
-										</div>
-									</div>
-								)}
 							</div>
 						)}
 					</div>

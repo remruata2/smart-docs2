@@ -21,7 +21,7 @@ const RELEVANCE_EXTRACTION_CONFIG = {
 };
 
 // AI API timeout configuration (in milliseconds)
-const AI_API_TIMEOUT = 60000; // 60 seconds
+const AI_API_TIMEOUT = 120000; // 120 seconds
 
 /**
  * RELEVANCE EXTRACTION FEATURE
