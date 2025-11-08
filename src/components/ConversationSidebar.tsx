@@ -55,12 +55,14 @@ interface ConversationSidebarProps {
 	currentConversationId: number | null;
 	onSelectConversation: (id: number) => void;
 	onNewConversation: () => void;
+	refreshTrigger?: number; // Add this to trigger refresh from parent
 }
 
 export default function ConversationSidebar({
 	currentConversationId,
 	onSelectConversation,
 	onNewConversation,
+	refreshTrigger,
 }: ConversationSidebarProps) {
 	const [conversations, setConversations] = useState<Conversation[]>([]);
 	const [searchQuery, setSearchQuery] = useState("");
@@ -94,7 +96,7 @@ export default function ConversationSidebar({
 
 	useEffect(() => {
 		loadConversations();
-	}, [searchQuery]);
+	}, [searchQuery, refreshTrigger]);
 
 	// Group conversations by date
 	const groupConversations = (): ConversationGroup[] => {

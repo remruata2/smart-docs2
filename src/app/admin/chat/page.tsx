@@ -54,6 +54,7 @@ export default function AdminChatPage() {
 	>(null);
 	const [conversationTitle, setConversationTitle] =
 		useState<string>("New Conversation");
+	const [sidebarRefreshTrigger, setSidebarRefreshTrigger] = useState(0);
 
 	const [model, setModel] = useState<string>("gemini-2.5-pro");
 	const [models, setModels] = useState<Array<{ name: string; label: string }>>([
@@ -344,6 +345,8 @@ export default function AdminChatPage() {
 			try {
 				conversationId = await createNewConversation();
 				setCurrentConversationId(conversationId);
+				// Trigger sidebar refresh to show new conversation
+				setSidebarRefreshTrigger((prev) => prev + 1);
 			} catch (error) {
 				console.error("Failed to create conversation:", error);
 				// Continue anyway - conversation saving is not critical
@@ -360,16 +363,19 @@ export default function AdminChatPage() {
 
 		// Create a placeholder assistant message for streaming with thinking indicator
 		const assistantMessageId = `assistant_${Date.now()}`;
+
+		// Only include filters if they're actually selected
+		const activeFilters: { district?: string; category?: string } = {};
+		if (selectedDistrict) activeFilters.district = selectedDistrict;
+		if (selectedCategory) activeFilters.category = selectedCategory;
+
 		const assistantMessage: ChatMessage = {
 			id: assistantMessageId,
 			role: "assistant",
 			content: "Analyzing your question and searching database...",
 			timestamp: new Date(),
 			sources: [],
-			filters: {
-				district: selectedDistrict || undefined,
-				category: selectedCategory || undefined,
-			},
+			...(Object.keys(activeFilters).length > 0 && { filters: activeFilters }),
 		};
 		setMessages((prev) => [...prev, assistantMessage]);
 
@@ -521,6 +527,11 @@ export default function AdminChatPage() {
 
 			// === AUTO-SAVE: Save assistant message ===
 			if (conversationId) {
+				// Only include filters if they're actually selected
+				const saveFilters: { district?: string; category?: string } = {};
+				if (selectedDistrict) saveFilters.district = selectedDistrict;
+				if (selectedCategory) saveFilters.category = selectedCategory;
+
 				await saveMessageToConversation(conversationId, {
 					role: "assistant",
 					content: accumulatedContent,
@@ -530,10 +541,9 @@ export default function AdminChatPage() {
 						queryType: metadata.queryType,
 						searchMethod: metadata.searchMethod,
 						analysisUsed: metadata.analysisUsed,
-						filters: {
-							district: selectedDistrict || undefined,
-							category: selectedCategory || undefined,
-						},
+						...(Object.keys(saveFilters).length > 0 && {
+							filters: saveFilters,
+						}),
 					},
 				});
 
@@ -1006,6 +1016,7 @@ export default function AdminChatPage() {
 				currentConversationId={currentConversationId}
 				onSelectConversation={loadConversation}
 				onNewConversation={startNewConversation}
+				refreshTrigger={sidebarRefreshTrigger}
 			/>
 
 			{/* Main Chat Area */}
@@ -1348,11 +1359,10 @@ export default function AdminChatPage() {
 															)}
 													</div>
 													{/* Display active filters */}
-													{message.filters &&
-														(message.filters.district ||
-															message.filters.category) && (
-															<div className="mt-2 flex flex-wrap gap-2 text-xs">
-																{message.filters.district && (
+													{message.role === "assistant" && message.filters && (
+														<div className="mt-2 flex flex-wrap gap-2 text-xs">
+															{message.filters.district &&
+																message.filters.district.trim() && (
 																	<div className="inline-flex items-center gap-1 bg-blue-50 text-blue-700 px-2 py-1 rounded">
 																		<span className="font-medium">
 																			District:
@@ -1360,7 +1370,8 @@ export default function AdminChatPage() {
 																		<span>{message.filters.district}</span>
 																	</div>
 																)}
-																{message.filters.category && (
+															{message.filters.category &&
+																message.filters.category.trim() && (
 																	<div className="inline-flex items-center gap-1 bg-green-50 text-green-700 px-2 py-1 rounded">
 																		<span className="font-medium">
 																			Category:
@@ -1368,8 +1379,8 @@ export default function AdminChatPage() {
 																		<span>{message.filters.category}</span>
 																	</div>
 																)}
-															</div>
-														)}
+														</div>
+													)}
 													{message.sources && message.sources.length > 0 && (
 														<div className="mt-2 space-y-1">
 															<div className="text-xs font-medium text-gray-600">
