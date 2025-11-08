@@ -295,6 +295,7 @@ export default function AdminChatPage() {
 					timestamp: new Date(msg.timestamp),
 					sources: msg.sources || [],
 					tokenCount: msg.tokenCount,
+					filters: msg.metadata?.filters || undefined,
 				})
 			);
 
@@ -365,6 +366,10 @@ export default function AdminChatPage() {
 			content: "Analyzing your question and searching database...",
 			timestamp: new Date(),
 			sources: [],
+			filters: {
+				district: selectedDistrict || undefined,
+				category: selectedCategory || undefined,
+			},
 		};
 		setMessages((prev) => [...prev, assistantMessage]);
 
@@ -525,6 +530,10 @@ export default function AdminChatPage() {
 						queryType: metadata.queryType,
 						searchMethod: metadata.searchMethod,
 						analysisUsed: metadata.analysisUsed,
+						filters: {
+							district: selectedDistrict || undefined,
+							category: selectedCategory || undefined,
+						},
 					},
 				});
 
@@ -661,14 +670,134 @@ export default function AdminChatPage() {
 				}
 			};
 
+			// Helper function to render markdown tables
+			const renderMarkdownTable = (tableLines: string[]) => {
+				if (tableLines.length < 2) return;
+
+				// Parse table rows
+				const rows: string[][] = [];
+				for (const line of tableLines) {
+					if (line.includes("|")) {
+						const cells = line
+							.split("|")
+							.map((cell) => cell.trim())
+							.filter((cell) => cell.length > 0);
+
+						// Skip separator row (| :--- | :--- |)
+						if (cells.every((cell) => /^:?-+:?$/.test(cell))) {
+							continue;
+						}
+
+						rows.push(cells);
+					}
+				}
+
+				if (rows.length === 0) return;
+
+				// Calculate column widths
+				const numCols = Math.max(...rows.map((r) => r.length));
+				const colWidth = (maxWidth - 10) / numCols;
+
+				// Add some spacing before table
+				currentY += 5;
+				checkNewPage(rows.length * 8 + 20);
+
+				// Render table header (first row)
+				if (rows.length > 0) {
+					doc.setFillColor(240, 240, 240);
+					doc.rect(margin, currentY - 5, maxWidth, 10, "F");
+
+					doc.setFont("helvetica", "bold");
+					doc.setFontSize(10);
+
+					for (let i = 0; i < rows[0].length; i++) {
+						const x = margin + i * colWidth + 2;
+						doc.text(rows[0][i], x, currentY);
+					}
+					currentY += 8;
+				}
+
+				// Render table rows
+				doc.setFont("helvetica", "normal");
+				for (let rowIdx = 1; rowIdx < rows.length; rowIdx++) {
+					checkNewPage(10);
+
+					// Alternate row colors
+					if (rowIdx % 2 === 0) {
+						doc.setFillColor(250, 250, 250);
+						doc.rect(margin, currentY - 5, maxWidth, 8, "F");
+					}
+
+					const row = rows[rowIdx];
+					for (let colIdx = 0; colIdx < row.length; colIdx++) {
+						const x = margin + colIdx * colWidth + 2;
+						const cellText = row[colIdx];
+
+						// Handle text wrapping in cells
+						const wrappedText = doc.splitTextToSize(cellText, colWidth - 4);
+						for (let lineIdx = 0; lineIdx < wrappedText.length; lineIdx++) {
+							if (lineIdx > 0) {
+								currentY += 6;
+								checkNewPage(10);
+							}
+							doc.text(wrappedText[lineIdx], x, currentY);
+						}
+					}
+					currentY += 8;
+				}
+
+				// Draw table borders
+				const tableHeight = rows.length * 8 + 3;
+				doc.setDrawColor(200, 200, 200);
+				doc.setLineWidth(0.5);
+
+				// Outer border
+				doc.rect(margin, currentY - tableHeight, maxWidth, tableHeight);
+
+				// Vertical lines
+				for (let i = 1; i < numCols; i++) {
+					const x = margin + i * colWidth;
+					doc.line(x, currentY - tableHeight, x, currentY);
+				}
+
+				currentY += 5; // Add spacing after table
+			};
+
 			// Parse markdown and render content
 			const parseAndRenderMarkdown = (markdownText: string) => {
 				// Split content by lines to handle different markdown elements
 				const lines = markdownText.split("\n");
 				let inCodeBlock = false;
+				let inTable = false;
+				let tableLines: string[] = [];
 
 				for (let i = 0; i < lines.length; i++) {
 					const line = lines[i];
+
+					// Detect table start/end
+					if (line.includes("|") && !inCodeBlock) {
+						if (!inTable) {
+							inTable = true;
+							tableLines = [line];
+						} else {
+							tableLines.push(line);
+						}
+
+						// Check if next line is not a table line
+						if (i === lines.length - 1 || !lines[i + 1].includes("|")) {
+							renderMarkdownTable(tableLines);
+							inTable = false;
+							tableLines = [];
+						}
+						continue;
+					}
+
+					// If we were in a table and hit a non-table line, render it
+					if (inTable && !line.includes("|")) {
+						renderMarkdownTable(tableLines);
+						inTable = false;
+						tableLines = [];
+					}
 
 					// Handle code blocks
 					if (line.startsWith("```")) {
@@ -1218,6 +1347,29 @@ export default function AdminChatPage() {
 																</span>
 															)}
 													</div>
+													{/* Display active filters */}
+													{message.filters &&
+														(message.filters.district ||
+															message.filters.category) && (
+															<div className="mt-2 flex flex-wrap gap-2 text-xs">
+																{message.filters.district && (
+																	<div className="inline-flex items-center gap-1 bg-blue-50 text-blue-700 px-2 py-1 rounded">
+																		<span className="font-medium">
+																			District:
+																		</span>
+																		<span>{message.filters.district}</span>
+																	</div>
+																)}
+																{message.filters.category && (
+																	<div className="inline-flex items-center gap-1 bg-green-50 text-green-700 px-2 py-1 rounded">
+																		<span className="font-medium">
+																			Category:
+																		</span>
+																		<span>{message.filters.category}</span>
+																	</div>
+																)}
+															</div>
+														)}
 													{message.sources && message.sources.length > 0 && (
 														<div className="mt-2 space-y-1">
 															<div className="text-xs font-medium text-gray-600">
