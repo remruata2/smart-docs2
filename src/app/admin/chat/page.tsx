@@ -300,13 +300,15 @@ export default function AdminChatPage() {
 									searchQuery: data.searchQuery,
 									analysisUsed: data.analysisUsed,
 								});
-								// Update placeholder with more specific message
+								// Don't update content here - progress events handle that
+							} else if (data.type === "progress") {
+								// Update with progress message
 								setMessages((prev) =>
 									prev.map((msg) =>
 										msg.id === assistantMessageId
 											? {
 													...msg,
-													content: "Generating response...",
+													content: data.progress || "Processing...",
 											  }
 											: msg
 									)
@@ -856,13 +858,13 @@ export default function AdminChatPage() {
 												<div className="text-sm break-words prose prose-sm max-w-none">
 													{message.role === "assistant" ? (
 														<>
-															{/* Show loading indicator for placeholder messages */}
+															{/* Show loading indicator for placeholder and progress messages */}
 															{message.content.includes(
 																"Analyzing your question"
 															) ||
-															message.content.includes(
-																"Generating response"
-															) ? (
+															message.content.includes("Generating response") ||
+															message.content.includes("Processing") ||
+															message.content.includes("Synthesizing") ? (
 																<div className="flex items-center gap-2 text-gray-600">
 																	<Loader2 className="h-4 w-4 animate-spin" />
 																	<span>{message.content}</span>

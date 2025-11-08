@@ -184,6 +184,13 @@ export async function POST(request: NextRequest) {
 								// Send metadata event
 								const data = JSON.stringify({ type: "metadata", ...metadata });
 								controller.enqueue(encoder.encode(`data: ${data}\n\n`));
+							} else if (chunk.type === "progress") {
+								// Send progress event
+								const data = JSON.stringify({
+									type: "progress",
+									progress: chunk.progress,
+								});
+								controller.enqueue(encoder.encode(`data: ${data}\n\n`));
 							} else if (chunk.type === "token") {
 								// Send token event
 								const data = JSON.stringify({

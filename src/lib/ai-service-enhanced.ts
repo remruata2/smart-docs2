@@ -6,7 +6,10 @@ import {
 } from "@/lib/ai-key-store";
 import { HybridSearchService } from "./hybrid-search";
 import { getSettingInt } from "@/lib/app-settings";
-import { processChunkedAnalyticalQuery, isAnalyticalQuery } from "./chunked-processing";
+import {
+	processChunkedAnalyticalQuery,
+	isAnalyticalQuery,
+} from "./chunked-processing";
 
 // Developer logging toggle - set to true to see query logs in console
 const DEV_LOGGING = true;
@@ -79,9 +82,7 @@ async function withTimeout<T>(
 	const timeoutPromise = new Promise<never>((_, reject) => {
 		setTimeout(() => {
 			reject(
-				new Error(
-					`${operation} timed out after ${timeoutMs / 1000} seconds`
-				)
+				new Error(`${operation} timed out after ${timeoutMs / 1000} seconds`)
 			);
 		}, timeoutMs);
 	});
@@ -196,7 +197,11 @@ function quickClassifyQuery(query: string): {
 	}
 
 	// Pattern 4: Recent/Latest queries
-	if (/\b(recent|latest|newest|last|most recent)\s+(files?|records?|cases?|entries?)\b/i.test(q)) {
+	if (
+		/\b(recent|latest|newest|last|most recent)\s+(files?|records?|cases?|entries?)\b/i.test(
+			q
+		)
+	) {
 		return {
 			coreSearchTerms: query,
 			instructionalTerms: "",
@@ -425,7 +430,9 @@ Examples:
 				const errorMsg = e?.message || String(e);
 				if (errorMsg.includes("timed out")) {
 					console.warn(
-						`[AI] Query analysis timeout after ${AI_API_TIMEOUT / 1000}s with model: ${modelName}`
+						`[AI] Query analysis timeout after ${
+							AI_API_TIMEOUT / 1000
+						}s with model: ${modelName}`
 					);
 				} else {
 					console.warn(`[AI] model attempt failed: ${modelName}`, e);
@@ -457,8 +464,10 @@ Examples:
 		// Validate response
 		// Allow empty coreSearchTerms for specific_search queries with instructional terms (like "all cases")
 		// or for list_all or analytical queries
-		const hasValidTerms = analysis.coreSearchTerms ||
-			(analysis.queryType === "specific_search" && analysis.instructionalTerms) ||
+		const hasValidTerms =
+			analysis.coreSearchTerms ||
+			(analysis.queryType === "specific_search" &&
+				analysis.instructionalTerms) ||
 			analysis.queryType === "list_all" ||
 			analysis.queryType === "analytical_query";
 
@@ -1118,15 +1127,15 @@ export function prepareContextForAI(
 		return acc;
 	}, {} as Record<string, SearchResult[]>);
 
-  // Create a structured index of all records for quick reference
-  const recordIndex = processedRecords.map((record, index) => ({
-    id: record.id,
-    title: record.title,
-    category: record.category || "Uncategorized",
-    district: record.district || "Unknown district",
-    date: record.entry_date_real?.toLocaleDateString() || "Unknown date",
-    relevance: record.rank ? (record.rank * 100).toFixed(1) + "%" : "Unknown",
-  }));
+	// Create a structured index of all records for quick reference
+	const recordIndex = processedRecords.map((record, index) => ({
+		id: record.id,
+		title: record.title,
+		category: record.category || "Uncategorized",
+		district: record.district || "Unknown district",
+		date: record.entry_date_real?.toLocaleDateString() || "Unknown date",
+		relevance: record.rank ? (record.rank * 100).toFixed(1) + "%" : "Unknown",
+	}));
 
 	// Build the full record details with optimized content
 	const detailedRecords = processedRecords.map((record) => {
@@ -1168,13 +1177,13 @@ Records are listed below ordered by relevance to your query.
 
   === RECORD INDEX ===
   ${recordIndex
-    .map(
-      (r, i) =>
-        `[${i + 1}] District: ${r.district} | Title: ${r.title} | Category: ${
-          r.category
-        } | Date: ${r.date} | Relevance: ${r.relevance}`
-    )
-    .join("\n")}
+		.map(
+			(r, i) =>
+				`[${i + 1}] District: ${r.district} | Title: ${r.title} | Category: ${
+					r.category
+				} | Date: ${r.date} | Relevance: ${r.relevance}`
+		)
+		.join("\n")}
 
 === FULL RECORD DETAILS ===
 ${detailedRecords
@@ -1367,7 +1376,9 @@ export async function generateAIResponse(
 			const errorMsg = error?.message || String(error);
 			if (errorMsg.includes("timed out")) {
 				console.warn(
-					`[AI-GEN] Response generation timeout after ${AI_API_TIMEOUT / 1000}s with model: ${modelName}`
+					`[AI-GEN] Response generation timeout after ${
+						AI_API_TIMEOUT / 1000
+					}s with model: ${modelName}`
 				);
 			} else {
 				console.warn(`[AI-GEN] model attempt failed: ${modelName}`, error);
@@ -1392,7 +1403,16 @@ export async function* generateAIResponseStream(
 	conversationHistory: ChatMessage[] = [],
 	queryType: string = "specific_search",
 	opts: { provider?: "gemini"; model?: string; keyId?: number } = {}
-): AsyncGenerator<{ type: 'token' | 'done'; text?: string; inputTokens?: number; outputTokens?: number }, void, unknown> {
+): AsyncGenerator<
+	{
+		type: "token" | "done";
+		text?: string;
+		inputTokens?: number;
+		outputTokens?: number;
+	},
+	void,
+	unknown
+> {
 	// Ensure queryType is one of the allowed types, default to specific_search
 	const allowedQueryTypes = [
 		"specific_search",
@@ -1406,7 +1426,7 @@ export async function* generateAIResponseStream(
 	if (!allowedQueryTypes.includes(queryType)) {
 		queryType = "specific_search";
 	}
-	
+
 	const { client, keyId } = await getGeminiClient({
 		provider: "gemini",
 		keyId: opts.keyId,
@@ -1485,7 +1505,7 @@ export async function* generateAIResponseStream(
 				`[AI-GEN-STREAM] Sending streaming request to Gemini API, model=${modelName}`
 			);
 			const model = client.getGenerativeModel({ model: modelName as string });
-			
+
 			// Count input tokens
 			let inputTokens = 0;
 			try {
@@ -1504,32 +1524,33 @@ export async function* generateAIResponseStream(
 				inputTokens = estimateTokenCount(prompt);
 				console.warn("[AI-GEN-STREAM] countTokens failed; using heuristic", e);
 			}
-			
+
 			// Generate streaming response
 			const result = await model.generateContentStream(prompt);
 			let fullText = "";
-			
+
 			// Stream tokens as they arrive
 			for await (const chunk of result.stream) {
 				const chunkText = chunk.text();
 				fullText += chunkText;
-				yield { type: 'token', text: chunkText };
+				yield { type: "token", text: chunkText };
 			}
-			
+
 			// Get final response for token counting
 			const response = await result.response;
 			const usage: any = (response as any)?.usageMetadata;
 			const outputTokens = (usage?.candidatesTokenCount ??
 				usage?.totalTokenCount ??
 				estimateTokenCount(fullText)) as number;
-			
-			console.log(`[AI-GEN-STREAM] Streaming completed successfully with model: ${modelName}`);
+
+			console.log(
+				`[AI-GEN-STREAM] Streaming completed successfully with model: ${modelName}`
+			);
 			if (keyId) await recordKeyUsage(keyId, true);
-			
+
 			// Yield final metadata
-			yield { type: 'done', inputTokens, outputTokens };
+			yield { type: "done", inputTokens, outputTokens };
 			return;
-			
 		} catch (error: any) {
 			lastError = error;
 			if (keyId) await recordKeyUsage(keyId, false);
@@ -1537,7 +1558,7 @@ export async function* generateAIResponseStream(
 			continue;
 		}
 	}
-	
+
 	console.error("AI response streaming error (all models failed):", lastError);
 	throw new Error("Failed to generate AI response stream.");
 }
@@ -1592,11 +1613,7 @@ export async function processChatMessageEnhanced(
 	let analysisOutputTokens = 0;
 	let analysis: any = null;
 	try {
-		analysis = await analyzeQueryForSearch(
-			question,
-			conversationHistory,
-			opts
-		);
+		analysis = await analyzeQueryForSearch(question, conversationHistory, opts);
 		console.log("[CHAT ANALYSIS] Processing query:", `"${question}"`);
 		console.log(
 			"[CHAT ANALYSIS] Conversation history length:",
@@ -1615,14 +1632,20 @@ export async function processChatMessageEnhanced(
 
 		analysisUsed = true;
 		// Use coreSearchTerms if available, otherwise fall back to instructional terms
-		queryForSearch = analysis.coreSearchTerms || analysis.instructionalTerms || "";
+		queryForSearch =
+			analysis.coreSearchTerms || analysis.instructionalTerms || "";
 		queryType = analysis.queryType;
 
 		// Special handling for queries that want to show all records
-		if (!queryForSearch && analysis.instructionalTerms?.toLowerCase().includes('all')) {
+		if (
+			!queryForSearch &&
+			analysis.instructionalTerms?.toLowerCase().includes("all")
+		) {
 			// For "show all" type queries, use a broad search term
-			queryForSearch = 'case'; // Use a common term to match most records
-			console.log('[CHAT ANALYSIS] Using broad search term "case" for "show all" query');
+			queryForSearch = "case"; // Use a common term to match most records
+			console.log(
+				'[CHAT ANALYSIS] Using broad search term "case" for "show all" query'
+			);
 		}
 		analysisInputTokens = analysis.inputTokens || 0;
 		analysisOutputTokens = analysis.outputTokens || 0;
@@ -1640,14 +1663,18 @@ export async function processChatMessageEnhanced(
 
 		// Handle list_all queries
 		if (analysis.queryType === "list_all") {
-			queryForSearch = ''; // Return all records
-			console.log('[CHAT ANALYSIS] Query type is "list_all", returning all records');
+			queryForSearch = ""; // Return all records
+			console.log(
+				'[CHAT ANALYSIS] Query type is "list_all", returning all records'
+			);
 		}
 
 		// Handle group_by_district queries
 		if (analysis.queryType === "group_by_district") {
-			queryForSearch = ''; // Return all records for grouping
-			console.log('[CHAT ANALYSIS] Query type is "group_by_district", returning all records for grouping');
+			queryForSearch = ""; // Return all records for grouping
+			console.log(
+				'[CHAT ANALYSIS] Query type is "group_by_district", returning all records for grouping'
+			);
 		}
 	} catch (error) {
 		console.error("Failed to analyze query with AI, using raw query.", error);
@@ -1685,16 +1712,20 @@ export async function processChatMessageEnhanced(
 		// instead of filtering by search terms (analytical queries need complete data)
 		const hasFilters = filters && (filters.category || filters.district);
 		if (queryType === "analytical_query" && hasFilters) {
-			console.log(`[CHAT ANALYSIS] Analytical query with filters - retrieving all records matching filters for complete analysis`);
+			console.log(
+				`[CHAT ANALYSIS] Analytical query with filters - retrieving all records matching filters for complete analysis`
+			);
 			const hybridSearchResponse = await HybridSearchService.search(
-				'',
+				"",
 				effectiveSearchLimit,
 				filters
 			);
 			records = hybridSearchResponse.results;
 			searchMethod = "analytical_fallback";
 			searchStats = hybridSearchResponse.stats;
-			console.log(`[CHAT ANALYSIS] Retrieved ${records.length} records matching filters for analytical analysis`);
+			console.log(
+				`[CHAT ANALYSIS] Retrieved ${records.length} records matching filters for analytical analysis`
+			);
 		} else {
 			const hybridSearchResponse = await HybridSearchService.search(
 				queryForSearch,
@@ -1713,15 +1744,23 @@ export async function processChatMessageEnhanced(
 
 	// Fallback for analytical queries: if no records found, retrieve all records for analysis
 	if (queryType === "analytical_query" && records.length === 0) {
-		console.log(`[CHAT ANALYSIS] Analytical query returned 0 records, falling back to all records for analysis`);
+		console.log(
+			`[CHAT ANALYSIS] Analytical query returned 0 records, falling back to all records for analysis`
+		);
 		const configuredLimit = await getSettingInt("ai.search.limit", 30);
 		let effectiveLimit = Math.min(configuredLimit, 200); // Cap at 200 for analytical queries
 
-		const allRecordsResponse = await HybridSearchService.search('', effectiveLimit, filters);
+		const allRecordsResponse = await HybridSearchService.search(
+			"",
+			effectiveLimit,
+			filters
+		);
 		records = allRecordsResponse.results;
 		searchMethod = "analytical_fallback";
 		searchStats = allRecordsResponse.stats;
-		console.log(`[CHAT ANALYSIS] Fallback retrieved ${records.length} records for analytical analysis`);
+		console.log(
+			`[CHAT ANALYSIS] Fallback retrieved ${records.length} records for analytical analysis`
+		);
 	}
 
 	// Check if this is an analytical query that needs chunked processing
@@ -1737,9 +1776,15 @@ export async function processChatMessageEnhanced(
 			`[CHAT PROCESSING] Using chunked processing for ${records.length} records`
 		);
 		const chunkedTiming = timeStart("Chunked Processing");
-		aiResponse = await processChunkedAnalyticalQuery(question, records);
+		aiResponse = await processChunkedAnalyticalQuery(
+			question,
+			records,
+			conversationHistory
+		);
 		contextTime = timeEnd("Chunked Processing", chunkedTiming);
-		console.log(`[CHAT PROCESSING] Chunked processing completed in ${contextTime}ms`);
+		console.log(
+			`[CHAT PROCESSING] Chunked processing completed in ${contextTime}ms`
+		);
 		aiTime = contextTime; // For chunked, aiTime is included
 	} else {
 		// Use normal processing for other queries or small record sets
@@ -1765,13 +1810,15 @@ export async function processChatMessageEnhanced(
 		);
 
 		aiTime = timeEnd("AI Response Generation", aiTiming);
-		console.log(`[TOKENS] Response phase — input: ${aiResponse.inputTokens}, output: ${aiResponse.outputTokens}`);
+		console.log(
+			`[TOKENS] Response phase — input: ${aiResponse.inputTokens}, output: ${aiResponse.outputTokens}`
+		);
 	}
 
 	// Extract sources from the context that were used in the AI response
 	console.log(`[CHAT PROCESSING] Starting source extraction`);
 	const sourceTiming = timeStart("Source Extraction");
-	
+
 	// Common words to exclude from matching (expanded list)
 	const commonWords = new Set([
 		"this",
@@ -1824,9 +1871,7 @@ export async function processChatMessageEnhanced(
 			const titleWords = title
 				.split(/\s+/)
 				.filter((word) => word.length > 3 && !commonWords.has(word));
-			const titleMatches = titleWords.filter((word) =>
-				response.includes(word)
-			);
+			const titleMatches = titleWords.filter((word) => response.includes(word));
 			if (titleMatches.length >= Math.min(titleWords.length * 0.6, 3)) {
 				score += 3;
 			}
@@ -1843,9 +1888,7 @@ export async function processChatMessageEnhanced(
 					)
 					.slice(0, 15); // Check first 15 words
 
-				const noteMatches = noteWords.filter((word) =>
-					response.includes(word)
-				);
+				const noteMatches = noteWords.filter((word) => response.includes(word));
 				// Need at least 3 unique keywords to be confident
 				if (noteMatches.length >= 3) {
 					score += 2;
@@ -1912,17 +1955,22 @@ export async function* processChatMessageEnhancedStream(
 		district?: string;
 		category?: string;
 	}
-): AsyncGenerator<{
-	type: 'metadata' | 'token' | 'sources' | 'done';
-	text?: string;
-	sources?: Array<{ id: number; title: string }>;
-	searchQuery?: string;
-	searchMethod?: string;
-	queryType?: string;
-	analysisUsed?: boolean;
-	tokenCount?: { input: number; output: number };
-	stats?: any;
-}, void, unknown> {
+): AsyncGenerator<
+	{
+		type: "metadata" | "token" | "sources" | "done" | "progress";
+		text?: string;
+		sources?: Array<{ id: number; title: string }>;
+		searchQuery?: string;
+		searchMethod?: string;
+		queryType?: string;
+		analysisUsed?: boolean;
+		tokenCount?: { input: number; output: number };
+		stats?: any;
+		progress?: string;
+	},
+	void,
+	unknown
+> {
 	// All the same setup logic as processChatMessageEnhanced
 	let queryForSearch = question;
 	let queryType = "specific_search";
@@ -1930,7 +1978,7 @@ export async function* processChatMessageEnhancedStream(
 	let analysisInputTokens = 0;
 	let analysisOutputTokens = 0;
 	let analysis: any = null;
-	
+
 	try {
 		analysis = await analyzeQueryForSearch(question, conversationHistory, opts);
 		console.log("[CHAT ANALYSIS] Processing query:", `"${question}"`);
@@ -1955,7 +2003,7 @@ export async function* processChatMessageEnhancedStream(
 				'[CHAT ANALYSIS] Using broad search term "case" for "show all" query'
 			);
 		}
-		
+
 		// Handle list_all queries
 		if (analysis.queryType === "list_all") {
 			queryForSearch = "";
@@ -1980,14 +2028,13 @@ export async function* processChatMessageEnhancedStream(
 	let records: SearchResult[] = [];
 	let searchMethod: string = "hybrid";
 	let searchStats: any = {};
-	
-	const configuredLimit = await getSettingInt("ai.search.limit", 30);
-	const effectiveSearchLimit = Math.min(
-		searchLimit || configuredLimit,
-		200
-	);
 
-	console.log(`[CHAT ANALYSIS] Effective search limit: ${effectiveSearchLimit}`);
+	const configuredLimit = await getSettingInt("ai.search.limit", 30);
+	const effectiveSearchLimit = Math.min(searchLimit || configuredLimit, 200);
+
+	console.log(
+		`[CHAT ANALYSIS] Effective search limit: ${effectiveSearchLimit}`
+	);
 
 	if (useEnhancedSearch) {
 		const hasFilters = filters && (filters.category || filters.district);
@@ -2043,17 +2090,17 @@ export async function* processChatMessageEnhancedStream(
 		);
 	}
 
-	// Prepare context
-	let context = "";
-	console.log(
-		`[CHAT PROCESSING] Starting context preparation for ${records.length} records`
-	);
-	context = prepareContextForAI(records, queryForSearch, false);
-	console.log(`[CHAT PROCESSING] Context size: ${context.length} characters`);
-
-	// Yield metadata first
+	// Yield progress after search completes
 	yield {
-		type: 'metadata',
+		type: "progress",
+		progress: `Found ${records.length} record${
+			records.length !== 1 ? "s" : ""
+		}. Preparing response...`,
+	};
+
+	// Yield metadata
+	yield {
+		type: "metadata",
 		searchQuery: queryForSearch,
 		searchMethod,
 		queryType,
@@ -2061,31 +2108,96 @@ export async function* processChatMessageEnhancedStream(
 		stats: searchStats,
 	};
 
-	// Stream AI response
-	console.log(`[CHAT PROCESSING] Starting AI response streaming`);
+	// Check if we need chunked processing for large analytical queries
 	let fullResponseText = "";
 	let aiInputTokens = 0;
 	let aiOutputTokens = 0;
 
-	try {
-		for await (const chunk of generateAIResponseStream(
-			question,
-			context,
-			conversationHistory,
-			queryType,
-			opts
-		)) {
-			if (chunk.type === 'token') {
-				fullResponseText += chunk.text || "";
-				yield { type: 'token', text: chunk.text };
-			} else if (chunk.type === 'done') {
-				aiInputTokens = chunk.inputTokens || 0;
-				aiOutputTokens = chunk.outputTokens || 0;
-			}
+	if (queryType === "analytical_query" && records.length > 20) {
+		// Use chunked processing for large analytical queries
+		// This is more efficient than streaming for large datasets
+		console.log(
+			`[CHAT PROCESSING] Using chunked processing for ${records.length} records (streaming disabled for large analytical queries)`
+		);
+
+		try {
+			// Calculate chunk count for progress display
+			const CHUNK_SIZE = 15;
+			const chunkCount = Math.ceil(records.length / CHUNK_SIZE);
+
+			// Yield initial progress
+			yield {
+				type: "progress",
+				progress: `Processing ${records.length} records in ${chunkCount} chunks...`,
+			};
+
+			const chunkedResponse = await processChunkedAnalyticalQuery(
+				question,
+				records,
+				conversationHistory
+			);
+
+			fullResponseText = chunkedResponse.text;
+			aiInputTokens = chunkedResponse.inputTokens || 0;
+			aiOutputTokens = chunkedResponse.outputTokens || 0;
+
+			// Yield the complete response as one chunk
+			yield { type: "token", text: fullResponseText };
+
+			console.log(
+				`[CHAT PROCESSING] Chunked processing completed for ${records.length} records`
+			);
+		} catch (error) {
+			console.error("[CHAT PROCESSING] Chunked processing error:", error);
+			throw error;
 		}
-	} catch (error) {
-		console.error("[CHAT PROCESSING] Streaming error:", error);
-		throw error;
+	} else {
+		// Use normal streaming for small queries or non-analytical queries
+		let context = "";
+		console.log(
+			`[CHAT PROCESSING] Starting context preparation for ${records.length} records`
+		);
+
+		// Yield progress for context preparation
+		yield {
+			type: "progress",
+			progress: `Preparing context from ${records.length} record${
+				records.length !== 1 ? "s" : ""
+			}...`,
+		};
+
+		context = prepareContextForAI(records, queryForSearch, false);
+		console.log(`[CHAT PROCESSING] Context size: ${context.length} characters`);
+
+		// Stream AI response
+		console.log(`[CHAT PROCESSING] Starting AI response streaming`);
+
+		// Yield progress before AI generation starts
+		yield {
+			type: "progress",
+			progress: "Generating response...",
+		};
+
+		try {
+			for await (const chunk of generateAIResponseStream(
+				question,
+				context,
+				conversationHistory,
+				queryType,
+				opts
+			)) {
+				if (chunk.type === "token") {
+					fullResponseText += chunk.text || "";
+					yield { type: "token", text: chunk.text };
+				} else if (chunk.type === "done") {
+					aiInputTokens = chunk.inputTokens || 0;
+					aiOutputTokens = chunk.outputTokens || 0;
+				}
+			}
+		} catch (error) {
+			console.error("[CHAT PROCESSING] Streaming error:", error);
+			throw error;
+		}
 	}
 
 	// Extract sources after streaming completes
@@ -2141,7 +2253,9 @@ export async function* processChatMessageEnhancedStream(
 		const titleWords = titleLower
 			.split(/\s+/)
 			.filter((word) => word.length > 3 && !commonWords.has(word));
-		const titleMatches = titleWords.filter((word) => responseLower.includes(word));
+		const titleMatches = titleWords.filter((word) =>
+			responseLower.includes(word)
+		);
 		if (titleMatches.length >= Math.min(titleWords.length * 0.6, 3)) {
 			citationScore += 3;
 		}
@@ -2154,7 +2268,9 @@ export async function* processChatMessageEnhancedStream(
 				.filter((word) => word.length > 4 && !commonWords.has(word))
 				.slice(0, 15);
 
-			const noteMatches = noteWords.filter((word) => responseLower.includes(word));
+			const noteMatches = noteWords.filter((word) =>
+				responseLower.includes(word)
+			);
 			if (noteMatches.length >= 3) {
 				citationScore += 1;
 			}
@@ -2175,13 +2291,13 @@ export async function* processChatMessageEnhancedStream(
 
 	// Yield sources
 	yield {
-		type: 'sources',
+		type: "sources",
 		sources: citedSources,
 	};
 
 	// Yield final completion with token counts
 	yield {
-		type: 'done',
+		type: "done",
 		tokenCount: {
 			input: analysisInputTokens + aiInputTokens,
 			output: analysisOutputTokens + aiOutputTokens,
@@ -2193,8 +2309,8 @@ export async function* processChatMessageEnhancedStream(
  * Update search vectors for all records (maintenance function)
  */
 export async function updateSearchVectors(): Promise<void> {
-  try {
-    await prisma.$executeRaw`
+	try {
+		await prisma.$executeRaw`
       UPDATE file_list
       SET search_vector =
         setweight(to_tsvector('english', COALESCE(title, '')),   'A') ||
