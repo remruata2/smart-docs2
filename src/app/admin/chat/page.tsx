@@ -398,6 +398,8 @@ export default function AdminChatPage() {
 				role: "user",
 				content: userMessage.content,
 			});
+			// Trigger sidebar refresh to update message count
+			setSidebarRefreshTrigger((prev) => prev + 1);
 		}
 
 		// Create a placeholder assistant message for streaming with thinking indicator
@@ -585,6 +587,8 @@ export default function AdminChatPage() {
 						filters: saveFilters,
 					},
 				});
+				// Trigger sidebar refresh to update message count
+				setSidebarRefreshTrigger((prev) => prev + 1);
 			}
 		} catch (error: unknown) {
 			console.error("Chat error:", error);
