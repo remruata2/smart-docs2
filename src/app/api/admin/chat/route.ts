@@ -3,6 +3,7 @@ import { getServerSession } from "next-auth";
 import { authOptions } from "@/lib/auth-options";
 import {
 	processChatMessageEnhanced,
+	processChatMessageEnhancedStream,
 	ChatMessage,
 } from "@/lib/ai-service-enhanced";
 import { isAdmin } from "@/lib/auth";
@@ -54,7 +55,8 @@ export async function POST(request: NextRequest) {
 
 		// Validate request body
 		const body = await request.json();
-		const { message, provider, model, keyId, district, category } = body;
+		const { message, provider, model, keyId, district, category, stream } =
+			body;
 		let conversationHistory = body.conversationHistory;
 
 		if (!message || typeof message !== "string") {
@@ -147,40 +149,122 @@ export async function POST(request: NextRequest) {
 			`[ADMIN CHAT] User ${session.user.email} asked a question (length: ${sanitizedMessage.length})`
 		);
 
-		const result = await processChatMessageEnhanced(
-			sanitizedMessage, // Use sanitized message
-			conversationHistory || [],
-			undefined,
-			true,
-			opts,
-			filters
-		);
+		// Handle streaming vs non-streaming
+		if (stream) {
+			console.log(`[ADMIN CHAT] Using streaming mode`);
 
-		// Create response message
-		const responseMessage: ChatMessage = {
-			id: `msg_${Date.now()}_${Math.random().toString(36).substr(2, 9)}`,
-			role: "assistant",
-			content: result.response,
-			timestamp: new Date(),
-			sources: result.sources,
-			tokenCount: result.tokenCount, // Include token count information
-		};
+			// Create a ReadableStream for streaming response
+			const encoder = new TextEncoder();
+			const customReadable = new ReadableStream({
+				async start(controller) {
+					try {
+						const messageId = `msg_${Date.now()}_${Math.random()
+							.toString(36)
+							.substr(2, 9)}`;
+						let metadata: any = {};
+						let sources: any[] = [];
+						let tokenCount: any = {};
 
-		// Log the interaction for audit purposes
-		console.log(
-			`[ADMIN CHAT] Response generated with ${result.sources.length} sources`
-		);
+						for await (const chunk of processChatMessageEnhancedStream(
+							sanitizedMessage,
+							conversationHistory || [],
+							undefined,
+							true,
+							opts,
+							filters
+						)) {
+							if (chunk.type === "metadata") {
+								metadata = {
+									searchQuery: chunk.searchQuery,
+									searchMethod: chunk.searchMethod,
+									queryType: chunk.queryType,
+									analysisUsed: chunk.analysisUsed,
+									stats: chunk.stats,
+								};
+								// Send metadata event
+								const data = JSON.stringify({ type: "metadata", ...metadata });
+								controller.enqueue(encoder.encode(`data: ${data}\n\n`));
+							} else if (chunk.type === "token") {
+								// Send token event
+								const data = JSON.stringify({
+									type: "token",
+									text: chunk.text,
+								});
+								controller.enqueue(encoder.encode(`data: ${data}\n\n`));
+							} else if (chunk.type === "sources") {
+								sources = chunk.sources || [];
+								// Send sources event
+								const data = JSON.stringify({ type: "sources", sources });
+								controller.enqueue(encoder.encode(`data: ${data}\n\n`));
+							} else if (chunk.type === "done") {
+								tokenCount = chunk.tokenCount || {};
+								// Send done event with token count
+								const data = JSON.stringify({
+									type: "done",
+									tokenCount,
+									messageId,
+								});
+								controller.enqueue(encoder.encode(`data: ${data}\n\n`));
+							}
+						}
 
-		return NextResponse.json({
-			success: true,
-			message: responseMessage,
-			sources: result.sources,
-			searchQuery: result.searchQuery,
-			searchMethod: result.searchMethod,
-			queryType: result.queryType,
-			analysisUsed: result.analysisUsed,
-			timestamp: new Date().toISOString(),
-		});
+						controller.close();
+					} catch (error: any) {
+						console.error("[ADMIN CHAT] Streaming error:", error);
+						const errorData = JSON.stringify({
+							type: "error",
+							error: "Failed to process your question. Please try again.",
+						});
+						controller.enqueue(encoder.encode(`data: ${errorData}\n\n`));
+						controller.close();
+					}
+				},
+			});
+
+			return new NextResponse(customReadable, {
+				headers: {
+					"Content-Type": "text/event-stream",
+					"Cache-Control": "no-cache",
+					Connection: "keep-alive",
+				},
+			});
+		} else {
+			// Non-streaming mode (original behavior)
+			const result = await processChatMessageEnhanced(
+				sanitizedMessage,
+				conversationHistory || [],
+				undefined,
+				true,
+				opts,
+				filters
+			);
+
+			// Create response message
+			const responseMessage: ChatMessage = {
+				id: `msg_${Date.now()}_${Math.random().toString(36).substr(2, 9)}`,
+				role: "assistant",
+				content: result.response,
+				timestamp: new Date(),
+				sources: result.sources,
+				tokenCount: result.tokenCount,
+			};
+
+			// Log the interaction for audit purposes
+			console.log(
+				`[ADMIN CHAT] Response generated with ${result.sources.length} sources`
+			);
+
+			return NextResponse.json({
+				success: true,
+				message: responseMessage,
+				sources: result.sources,
+				searchQuery: result.searchQuery,
+				searchMethod: result.searchMethod,
+				queryType: result.queryType,
+				analysisUsed: result.analysisUsed,
+				timestamp: new Date().toISOString(),
+			});
+		}
 	} catch (error: any) {
 		console.error("[ADMIN CHAT] Error processing chat message:", error);
 

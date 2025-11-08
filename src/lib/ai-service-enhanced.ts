@@ -1383,6 +1383,166 @@ export async function generateAIResponse(
 }
 
 /**
+ * Generate AI response using Gemini with streaming support
+ * Returns an async generator that yields text chunks as they arrive
+ */
+export async function* generateAIResponseStream(
+	question: string,
+	context: string,
+	conversationHistory: ChatMessage[] = [],
+	queryType: string = "specific_search",
+	opts: { provider?: "gemini"; model?: string; keyId?: number } = {}
+): AsyncGenerator<{ type: 'token' | 'done'; text?: string; inputTokens?: number; outputTokens?: number }, void, unknown> {
+	// Ensure queryType is one of the allowed types, default to specific_search
+	const allowedQueryTypes = [
+		"specific_search",
+		"analytical_query",
+		"follow_up",
+		"elaboration",
+		"general",
+		"recent_files",
+		"group_by_district",
+	];
+	if (!allowedQueryTypes.includes(queryType)) {
+		queryType = "specific_search";
+	}
+	
+	const { client, keyId } = await getGeminiClient({
+		provider: "gemini",
+		keyId: opts.keyId,
+	});
+	const dbModels = await getActiveModelNames("gemini");
+	const attemptModels = Array.from(
+		new Set([opts.model, ...dbModels].filter(Boolean))
+	);
+
+	// Build conversation context for follow-up questions
+	const recentHistory = conversationHistory.slice(-4); // Last 2 exchanges
+	const historyContext =
+		recentHistory.length > 0
+			? `\nCONVERSATION HISTORY:\n${recentHistory
+					.map((msg) => `${msg.role.toUpperCase()}: ${msg.content}`)
+					.join("\n")}\n`
+			: "";
+
+	// Adjust prompt based on query type
+	let roleInstructions = "";
+	switch (queryType) {
+		case "analytical_query":
+			roleInstructions = `
+- The user is asking an analytical question that requires summarizing or finding patterns across multiple records.
+- Analyze all the provided database records to identify trends, frequencies, and key data points related to the user's question.
+- Synthesize your findings into a clear, structured summary.
+- Use counts, lists, and direct data points to support your analysis (e.g., 'The most common location is X, appearing 5 times.').
+- Present the information in an easy-to-understand format.
+`;
+			break;
+		case "follow_up":
+			roleInstructions = `
+- This is a follow-up question referring to previous conversation.
+- Use both the conversation history and database records to answer.
+- Connect the current question to previous context.
+`;
+			break;
+		case "elaboration":
+			roleInstructions = `
+- The user wants more detailed information about previous results.
+- Provide comprehensive details from the database records.
+- Expand on the information with additional context.
+`;
+			break;
+		case "recent_files":
+			roleInstructions = `
+- The user asked for recent/latest files.
+- Present the files in a clear, organized manner.
+- Include file numbers, titles, categories, and dates.
+- Mention they are sorted by most recent first.
+`;
+			break;
+		case "group_by_district":
+			roleInstructions = `
+- The user wants records grouped by district.
+- Use the "District" field from each record's metadata (shown prominently at the beginning of each record).
+- Group records by their district field, not by extracting addresses from content.
+- Present the results organized by district, with counts and summaries for each district.
+- If a record has "Unknown district", group it separately.
+`;
+			break;
+		default: // specific_search and general
+			roleInstructions = `
+- Answer the user's specific question using the provided database records.
+- Be factual and cite relevant information by referencing file numbers.
+- Provide clear, organized information.
+`;
+	}
+
+	const prompt = `You are a helpful AI assistant for the ICPS (Criminal Investigation Department) database system.\n\n${historyContext}\n\nCURRENT QUESTION: "${question}"\n\n${context}\n\nINSTRUCTIONS:\n${roleInstructions}\n\n- Always be professional and factual\n- If asked about specific cases, provide file numbers and relevant details\n- If no relevant information is found, say so clearly\n- Keep responses concise but informative\n- Use bullet points or numbered lists when presenting multiple items\n\nPlease provide a helpful response based on the database records above.`;
+
+	let lastError: any = null;
+	for (const modelName of attemptModels) {
+		try {
+			console.log(
+				`[AI-GEN-STREAM] Sending streaming request to Gemini API, model=${modelName}`
+			);
+			const model = client.getGenerativeModel({ model: modelName as string });
+			
+			// Count input tokens
+			let inputTokens = 0;
+			try {
+				const countRes: any = await model.countTokens({
+					contents: [
+						{
+							role: "user",
+							parts: [{ text: prompt }],
+						},
+					],
+				});
+				inputTokens = (countRes?.totalTokens ??
+					countRes?.totalTokenCount ??
+					0) as number;
+			} catch (e) {
+				inputTokens = estimateTokenCount(prompt);
+				console.warn("[AI-GEN-STREAM] countTokens failed; using heuristic", e);
+			}
+			
+			// Generate streaming response
+			const result = await model.generateContentStream(prompt);
+			let fullText = "";
+			
+			// Stream tokens as they arrive
+			for await (const chunk of result.stream) {
+				const chunkText = chunk.text();
+				fullText += chunkText;
+				yield { type: 'token', text: chunkText };
+			}
+			
+			// Get final response for token counting
+			const response = await result.response;
+			const usage: any = (response as any)?.usageMetadata;
+			const outputTokens = (usage?.candidatesTokenCount ??
+				usage?.totalTokenCount ??
+				estimateTokenCount(fullText)) as number;
+			
+			console.log(`[AI-GEN-STREAM] Streaming completed successfully with model: ${modelName}`);
+			if (keyId) await recordKeyUsage(keyId, true);
+			
+			// Yield final metadata
+			yield { type: 'done', inputTokens, outputTokens };
+			return;
+			
+		} catch (error: any) {
+			lastError = error;
+			if (keyId) await recordKeyUsage(keyId, false);
+			console.warn(`[AI-GEN-STREAM] model attempt failed: ${modelName}`, error);
+			continue;
+		}
+	}
+	
+	console.error("AI response streaming error (all models failed):", lastError);
+	throw new Error("Failed to generate AI response stream.");
+}
+
+/**
  * Main chat function using enhanced search with conversation context
  */
 export async function processChatMessageEnhanced(
@@ -1735,6 +1895,297 @@ export async function processChatMessageEnhanced(
 			output: (analysisOutputTokens || 0) + (aiResponse.outputTokens || 0),
 		},
 		stats: searchStats,
+	};
+}
+
+/**
+ * Streaming version of processChatMessageEnhanced
+ * Yields chunks as they arrive from the AI, along with metadata
+ */
+export async function* processChatMessageEnhancedStream(
+	question: string,
+	conversationHistory: ChatMessage[] = [],
+	searchLimit?: number,
+	useEnhancedSearch: boolean = true,
+	opts: { provider?: "gemini"; model?: string; keyId?: number } = {},
+	filters?: {
+		district?: string;
+		category?: string;
+	}
+): AsyncGenerator<{
+	type: 'metadata' | 'token' | 'sources' | 'done';
+	text?: string;
+	sources?: Array<{ id: number; title: string }>;
+	searchQuery?: string;
+	searchMethod?: string;
+	queryType?: string;
+	analysisUsed?: boolean;
+	tokenCount?: { input: number; output: number };
+	stats?: any;
+}, void, unknown> {
+	// All the same setup logic as processChatMessageEnhanced
+	let queryForSearch = question;
+	let queryType = "specific_search";
+	let analysisUsed = false;
+	let analysisInputTokens = 0;
+	let analysisOutputTokens = 0;
+	let analysis: any = null;
+	
+	try {
+		analysis = await analyzeQueryForSearch(question, conversationHistory, opts);
+		console.log("[CHAT ANALYSIS] Processing query:", `"${question}"`);
+		console.log(
+			`[CHAT ANALYSIS] AI Analysis Result:`,
+			JSON.stringify(analysis, null, 2)
+		);
+		analysisInputTokens = analysis.inputTokens || 0;
+		analysisOutputTokens = analysis.outputTokens || 0;
+		analysisUsed = true;
+		queryForSearch =
+			analysis.coreSearchTerms || analysis.instructionalTerms || "";
+		queryType = analysis.queryType;
+
+		// Special handling for queries that want to show all records
+		if (
+			!queryForSearch &&
+			analysis.instructionalTerms?.toLowerCase().includes("all")
+		) {
+			queryForSearch = "case";
+			console.log(
+				'[CHAT ANALYSIS] Using broad search term "case" for "show all" query'
+			);
+		}
+		
+		// Handle list_all queries
+		if (analysis.queryType === "list_all") {
+			queryForSearch = "";
+			console.log(
+				'[CHAT ANALYSIS] Query type is "list_all", returning all records'
+			);
+		}
+
+		// Handle group_by_district queries
+		if (analysis.queryType === "group_by_district") {
+			queryForSearch = "";
+			console.log(
+				'[CHAT ANALYSIS] Query type is "group_by_district", returning all records for grouping'
+			);
+		}
+	} catch (error) {
+		console.error("[CHAT ANALYSIS] Query analysis failed:", error);
+		queryForSearch = question;
+	}
+
+	// Search for relevant records
+	let records: SearchResult[] = [];
+	let searchMethod: string = "hybrid";
+	let searchStats: any = {};
+	
+	const configuredLimit = await getSettingInt("ai.search.limit", 30);
+	const effectiveSearchLimit = Math.min(
+		searchLimit || configuredLimit,
+		200
+	);
+
+	console.log(`[CHAT ANALYSIS] Effective search limit: ${effectiveSearchLimit}`);
+
+	if (useEnhancedSearch) {
+		const hasFilters = filters && (filters.category || filters.district);
+		if (queryType === "analytical_query" && hasFilters) {
+			console.log(
+				`[CHAT ANALYSIS] Analytical query with filters - retrieving all records matching filters for complete analysis`
+			);
+			const hybridSearchResponse = await HybridSearchService.search(
+				"",
+				effectiveSearchLimit,
+				filters
+			);
+			records = hybridSearchResponse.results;
+			searchMethod = "analytical_fallback";
+			searchStats = hybridSearchResponse.stats;
+			console.log(
+				`[CHAT ANALYSIS] Retrieved ${records.length} records matching filters for analytical analysis`
+			);
+		} else {
+			const hybridSearchResponse = await HybridSearchService.search(
+				queryForSearch,
+				effectiveSearchLimit,
+				filters
+			);
+			records = hybridSearchResponse.results;
+			searchMethod = hybridSearchResponse.searchMethod;
+			searchStats = hybridSearchResponse.stats;
+
+			console.log(
+				`[CHAT ANALYSIS] Hybrid search completed. Method: ${searchMethod}, Found: ${records.length} records.`
+			);
+		}
+	}
+
+	// Fallback for analytical queries
+	if (queryType === "analytical_query" && records.length === 0) {
+		console.log(
+			`[CHAT ANALYSIS] Analytical query returned 0 records, falling back to all records for analysis`
+		);
+		const configuredLimit = await getSettingInt("ai.search.limit", 30);
+		let effectiveLimit = Math.min(configuredLimit, 200);
+
+		const allRecordsResponse = await HybridSearchService.search(
+			"",
+			effectiveLimit,
+			filters
+		);
+		records = allRecordsResponse.results;
+		searchMethod = "analytical_fallback";
+		searchStats = allRecordsResponse.stats;
+		console.log(
+			`[CHAT ANALYSIS] Fallback retrieved ${records.length} records for analytical analysis`
+		);
+	}
+
+	// Prepare context
+	let context = "";
+	console.log(
+		`[CHAT PROCESSING] Starting context preparation for ${records.length} records`
+	);
+	context = prepareContextForAI(records, queryForSearch, false);
+	console.log(`[CHAT PROCESSING] Context size: ${context.length} characters`);
+
+	// Yield metadata first
+	yield {
+		type: 'metadata',
+		searchQuery: queryForSearch,
+		searchMethod,
+		queryType,
+		analysisUsed,
+		stats: searchStats,
+	};
+
+	// Stream AI response
+	console.log(`[CHAT PROCESSING] Starting AI response streaming`);
+	let fullResponseText = "";
+	let aiInputTokens = 0;
+	let aiOutputTokens = 0;
+
+	try {
+		for await (const chunk of generateAIResponseStream(
+			question,
+			context,
+			conversationHistory,
+			queryType,
+			opts
+		)) {
+			if (chunk.type === 'token') {
+				fullResponseText += chunk.text || "";
+				yield { type: 'token', text: chunk.text };
+			} else if (chunk.type === 'done') {
+				aiInputTokens = chunk.inputTokens || 0;
+				aiOutputTokens = chunk.outputTokens || 0;
+			}
+		}
+	} catch (error) {
+		console.error("[CHAT PROCESSING] Streaming error:", error);
+		throw error;
+	}
+
+	// Extract sources after streaming completes
+	console.log(`[CHAT PROCESSING] Starting source extraction`);
+	const commonWords = new Set([
+		"this",
+		"that",
+		"with",
+		"from",
+		"they",
+		"were",
+		"been",
+		"have",
+		"case",
+		"file",
+		"record",
+		"victim",
+		"accused",
+		"suspect",
+		"investigation",
+		"police",
+		"crime",
+		"criminal",
+		"report",
+		"incident",
+		"found",
+		"arrested",
+		"charged",
+	]);
+
+	const citedSources: Array<{ id: number; title: string }> = [];
+	const responseLower = fullResponseText.toLowerCase();
+
+	for (const record of records) {
+		let citationScore = 0;
+
+		// Check for explicit ID mention
+		if (
+			responseLower.includes(`id: ${record.id}`) ||
+			responseLower.includes(`[${record.id}]`) ||
+			responseLower.includes(`record ${record.id}`)
+		) {
+			citationScore += 10;
+		}
+
+		// Check for exact title match
+		const titleLower = record.title.toLowerCase();
+		if (responseLower.includes(titleLower)) {
+			citationScore += 5;
+		}
+
+		// Check for most title words present
+		const titleWords = titleLower
+			.split(/\s+/)
+			.filter((word) => word.length > 3 && !commonWords.has(word));
+		const titleMatches = titleWords.filter((word) => responseLower.includes(word));
+		if (titleMatches.length >= Math.min(titleWords.length * 0.6, 3)) {
+			citationScore += 3;
+		}
+
+		// Check for unique keywords from content
+		if (record.note) {
+			const noteWords = record.note
+				.toLowerCase()
+				.split(/\s+/)
+				.filter((word) => word.length > 4 && !commonWords.has(word))
+				.slice(0, 15);
+
+			const noteMatches = noteWords.filter((word) => responseLower.includes(word));
+			if (noteMatches.length >= 3) {
+				citationScore += 1;
+			}
+		}
+
+		// Only include if score is significant enough
+		if (citationScore >= 3) {
+			citedSources.push({
+				id: record.id,
+				title: record.title,
+			});
+		}
+	}
+
+	console.log(
+		`[ADMIN CHAT] Response generated with ${citedSources.length} sources`
+	);
+
+	// Yield sources
+	yield {
+		type: 'sources',
+		sources: citedSources,
+	};
+
+	// Yield final completion with token counts
+	yield {
+		type: 'done',
+		tokenCount: {
+			input: analysisInputTokens + aiInputTokens,
+			output: analysisOutputTokens + aiOutputTokens,
+		},
 	};
 }
 
