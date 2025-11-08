@@ -73,6 +73,7 @@ export default function ConversationSidebar({
 	const [conversationToDelete, setConversationToDelete] = useState<
 		number | null
 	>(null);
+	const [clearAllDialogOpen, setClearAllDialogOpen] = useState(false);
 	const [isCollapsed, setIsCollapsed] = useState(false);
 
 	// Load conversations
@@ -199,6 +200,32 @@ export default function ConversationSidebar({
 		} finally {
 			setEditingId(null);
 			setEditTitle("");
+		}
+	};
+
+	// Delete all conversations
+	const deleteAllConversations = async () => {
+		try {
+			const response = await fetch("/api/admin/conversations", {
+				method: "DELETE",
+			});
+
+			if (!response.ok) throw new Error("Failed to delete all conversations");
+
+			const data = await response.json();
+			toast.success(data.message || "All conversations deleted");
+
+			// Clear current conversation if it was deleted
+			if (currentConversationId) {
+				onNewConversation();
+			}
+
+			loadConversations();
+		} catch (error) {
+			console.error("Error deleting all conversations:", error);
+			toast.error("Failed to delete all conversations");
+		} finally {
+			setClearAllDialogOpen(false);
 		}
 	};
 
@@ -407,6 +434,47 @@ export default function ConversationSidebar({
 					))}
 				</div>
 			)}
+
+			{/* Clear All Conversations Button */}
+			{!isCollapsed && conversations.length > 0 && (
+				<div className="border-t border-gray-200 p-3">
+					<Button
+						variant="outline"
+						className="w-full text-red-600 hover:text-red-700 hover:bg-red-50 border-red-200"
+						onClick={() => setClearAllDialogOpen(true)}
+					>
+						<Trash2 className="h-4 w-4 mr-2" />
+						Clear All Conversations
+					</Button>
+				</div>
+			)}
+
+			{/* Clear All Confirmation Dialog */}
+			<AlertDialog
+				open={clearAllDialogOpen}
+				onOpenChange={setClearAllDialogOpen}
+			>
+				<AlertDialogContent>
+					<AlertDialogHeader>
+						<AlertDialogTitle>Delete All Conversations?</AlertDialogTitle>
+						<AlertDialogDescription>
+							This will permanently delete all {conversations.length}{" "}
+							conversation
+							{conversations.length !== 1 ? "s" : ""} and all their messages.
+							This action cannot be undone.
+						</AlertDialogDescription>
+					</AlertDialogHeader>
+					<AlertDialogFooter>
+						<AlertDialogCancel>Cancel</AlertDialogCancel>
+						<AlertDialogAction
+							onClick={deleteAllConversations}
+							className="bg-red-600 hover:bg-red-700"
+						>
+							Delete All
+						</AlertDialogAction>
+					</AlertDialogFooter>
+				</AlertDialogContent>
+			</AlertDialog>
 
 			{/* Delete Confirmation Dialog */}
 			<AlertDialog open={deleteDialogOpen} onOpenChange={setDeleteDialogOpen}>

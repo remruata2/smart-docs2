@@ -178,3 +178,52 @@ export async function POST(request: NextRequest) {
 		);
 	}
 }
+
+/**
+ * DELETE /api/admin/conversations
+ * Delete all conversations for the current user
+ */
+export async function DELETE(request: NextRequest) {
+	try {
+		const session = await getServerSession(authOptions);
+
+		if (!session?.user) {
+			return NextResponse.json({ error: "Unauthorized" }, { status: 401 });
+		}
+
+		const userRole = (session.user as any).role;
+		if (!isAdmin(userRole)) {
+			return NextResponse.json({ error: "Forbidden" }, { status: 403 });
+		}
+
+		const userId = parseInt((session.user as any).id, 10);
+
+		// Delete all conversations for this user (messages will be cascade deleted)
+		const result = await prisma.conversation.deleteMany({
+			where: {
+				user_id: userId,
+			},
+		});
+
+		console.log(
+			`[CONVERSATIONS API] Deleted ${result.count} conversations for user ${userId}`
+		);
+
+		return NextResponse.json({
+			success: true,
+			message: `Deleted ${result.count} conversation${
+				result.count !== 1 ? "s" : ""
+			}`,
+			deletedCount: result.count,
+		});
+	} catch (error) {
+		console.error(
+			"[CONVERSATIONS API] Error deleting all conversations:",
+			error
+		);
+		return NextResponse.json(
+			{ error: "Failed to delete conversations" },
+			{ status: 500 }
+		);
+	}
+}

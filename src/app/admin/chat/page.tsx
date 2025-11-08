@@ -203,13 +203,44 @@ export default function AdminChatPage() {
 
 	// === CONVERSATION MANAGEMENT FUNCTIONS ===
 
+	// Generate a title from the first user message
+	const generateTitleFromQuery = (query: string): string => {
+		// Clean up the query
+		let title = query.trim();
+
+		// Remove common prefixes
+		title = title.replace(
+			/^(show|list|find|get|tell|what|who|when|where|how|can you|please)\s+/i,
+			""
+		);
+
+		// Limit length to 50 characters
+		if (title.length > 50) {
+			title = title.substring(0, 47) + "...";
+		}
+
+		// Capitalize first letter
+		if (title.length > 0) {
+			title = title.charAt(0).toUpperCase() + title.slice(1);
+		}
+
+		// Fallback if empty
+		return title || "New Conversation";
+	};
+
 	// Create a new conversation
-	const createNewConversation = async (): Promise<number> => {
+	const createNewConversation = async (
+		firstMessage?: string
+	): Promise<number> => {
 		try {
+			const title = firstMessage
+				? generateTitleFromQuery(firstMessage)
+				: "New Conversation";
+
 			const response = await fetch("/api/admin/conversations", {
 				method: "POST",
 				headers: { "Content-Type": "application/json" },
-				body: JSON.stringify({ title: "New Conversation" }),
+				body: JSON.stringify({ title }),
 			});
 
 			if (!response.ok) throw new Error("Failed to create conversation");
@@ -350,7 +381,8 @@ export default function AdminChatPage() {
 		let conversationId = currentConversationId;
 		if (!conversationId) {
 			try {
-				conversationId = await createNewConversation();
+				// Generate title from first user message
+				conversationId = await createNewConversation(userMessage.content);
 				setCurrentConversationId(conversationId);
 				// Trigger sidebar refresh to show new conversation
 				setSidebarRefreshTrigger((prev) => prev + 1);
@@ -553,16 +585,6 @@ export default function AdminChatPage() {
 						filters: saveFilters,
 					},
 				});
-
-				// === AUTO-SAVE: Generate title after first exchange ===
-				// If this is the 2nd message (1 user + 1 assistant), generate a title
-				if (messages.length === 1) {
-					// messages.length is 1 because we already added user message
-					// Now we have 1 user + 1 assistant = 2 messages total
-					setTimeout(() => {
-						generateConversationTitle(conversationId);
-					}, 1000); // Delay to ensure messages are saved
-				}
 			}
 		} catch (error: unknown) {
 			console.error("Chat error:", error);
