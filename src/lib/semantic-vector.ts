@@ -109,8 +109,8 @@ export class SemanticVectorService {
         whereClause += ` AND LOWER(TRIM(category)) = $${params.length}`;
       }
       if (filters.district) {
-        params.push(filters.district);
-        whereClause += ` AND district = $${params.length}`;
+        params.push(filters.district.toLowerCase().trim());
+        whereClause += ` AND LOWER(TRIM(district)) = $${params.length}`;
       }
 
       const sql = `

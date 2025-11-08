@@ -184,18 +184,18 @@ export class HybridSearchService {
 
     // Add district filter
     if (filters?.district) {
-      sql += ` AND district = $${nextIndex}`;
-      params.push(filters.district);
+      sql += ` AND LOWER(TRIM(district)) = $${nextIndex}`;
+      params.push(filters.district.toLowerCase().trim());
       nextIndex++;
     }
 
     // Add category filter
     if (filters?.category) {
-  sql += ` AND LOWER(TRIM(category)) = LOWER(TRIM($${nextIndex}))`;
-  params.push(filters.category);
-  nextIndex++;
-  console.log(`[TSVECTOR] Applying category filter: "${filters.category}"`);
-}
+      sql += ` AND LOWER(TRIM(category)) = $${nextIndex}`;
+      params.push(filters.category.toLowerCase().trim());
+      nextIndex++;
+      console.log(`[TSVECTOR] Applying category filter: "${filters.category}"`);
+    }
 
     const cap = 1000;
     sql += `
@@ -242,15 +242,15 @@ export class HybridSearchService {
 
     // Add district filter
     if (filters?.district) {
-      sql += ` AND district = $${nextIndex}`;
-      params.push(filters.district);
+      sql += ` AND LOWER(TRIM(district)) = $${nextIndex}`;
+      params.push(filters.district.toLowerCase().trim());
       nextIndex++;
     }
 
     // Add category filter
     if (filters?.category) {
-      sql += ` AND LOWER(TRIM(category)) = LOWER(TRIM($${nextIndex}))`;
-      params.push(filters.category);
+      sql += ` AND LOWER(TRIM(category)) = $${nextIndex}`;
+      params.push(filters.category.toLowerCase().trim());
       nextIndex++;
       console.log(`[GET_ALL_RECORDS] Applying category filter: "${filters.category}"`);
     }

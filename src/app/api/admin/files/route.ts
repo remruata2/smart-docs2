@@ -20,8 +20,8 @@ export async function GET(req: NextRequest) {
   const year = yearStr ? parseInt(yearStr, 10) : undefined;
 
   const where: any = {};
-  if (category) where.category = category;
-  if (district) where.district = district;
+  if (category) where.category = { equals: category, mode: 'insensitive' as const };
+  if (district) where.district = { equals: district, mode: 'insensitive' as const };
   if (year && Number.isFinite(year)) {
     const start = new Date(Date.UTC(year, 0, 1));
     const end = new Date(Date.UTC(year + 1, 0, 1));
