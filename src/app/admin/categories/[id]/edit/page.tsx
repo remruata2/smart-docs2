@@ -20,7 +20,7 @@ export async function generateMetadata({
 	const category = await getCategoryById(id);
 	return {
 		title: category
-			? `Edit Category: ${category.file_no}`
+			? `Edit Category: ${category.category}`
 			: "Category Not Found",
 	};
 }
@@ -48,7 +48,7 @@ export default async function EditCategoryPage({ params }: { params: Promise<{ i
 				<div className="flex justify-between items-center mb-6">
 					<h1 className={pageTitle}>
 						Edit Category:{" "}
-						<span className="font-normal">{category.file_no}</span>
+						<span className="font-normal">{category.category}</span>
 					</h1>
 					<BackButton href="/admin/categories" text="Back to Categories" />
 				</div>

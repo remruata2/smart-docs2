@@ -6,6 +6,10 @@ import {
 } from "@/lib/ai-key-store";
 import { HybridSearchService } from "./hybrid-search";
 import { getSettingInt } from "@/lib/app-settings";
+import {
+	processChunkedAnalyticalQuery,
+	isAnalyticalQuery,
+} from "./chunked-processing";
 
 // Developer logging toggle - set to true to see query logs in console
 const DEV_LOGGING = true;
@@ -18,6 +22,9 @@ const RELEVANCE_EXTRACTION_CONFIG = {
 	threshold: 50, // Enable for queries with more than this many records
 	debug: true, // Set to true to see detailed extraction logs
 };
+
+// AI API timeout configuration (in milliseconds)
+const AI_API_TIMEOUT = 120000; // 120 seconds
 
 /**
  * RELEVANCE EXTRACTION FEATURE
@@ -60,6 +67,30 @@ function timeEnd(
 }
 
 /**
+ * Wrap an AI API call with a timeout to prevent hanging requests
+ * @param promise The AI API call promise
+ * @param timeoutMs Timeout in milliseconds (default: 60s)
+ * @param operation Description of the operation (for error messages)
+ * @returns The result of the promise if it completes before timeout
+ * @throws Error if the promise times out
+ */
+async function withTimeout<T>(
+	promise: Promise<T>,
+	timeoutMs: number = AI_API_TIMEOUT,
+	operation: string = "AI API call"
+): Promise<T> {
+	const timeoutPromise = new Promise<never>((_, reject) => {
+		setTimeout(() => {
+			reject(
+				new Error(`${operation} timed out after ${timeoutMs / 1000} seconds`)
+			);
+		}, timeoutMs);
+	});
+
+	return Promise.race([promise, timeoutPromise]);
+}
+
+/**
  * Developer logging helper function
  */
 function devLog(message: string, data?: any) {
@@ -82,7 +113,6 @@ export interface ChatMessage {
 	timestamp: Date;
 	sources?: Array<{
 		id: number;
-		file_no: string;
 		title: string;
 	}>;
 	tokenCount?: {
@@ -93,15 +123,155 @@ export interface ChatMessage {
 
 export interface SearchResult {
 	id: number;
-	file_no: string;
 	category: string;
 	title: string;
 	note: string | null;
 	entry_date_real: Date | null;
+	district: string | null;
 	rank?: number; // For relevance ranking
 	ts_rank?: number;
 	semantic_similarity?: number;
 	combined_score?: number;
+}
+
+/**
+ * Quick pattern-based query classification (no AI needed for simple queries)
+ * Returns null if AI analysis is needed
+ */
+function quickClassifyQuery(query: string): {
+	coreSearchTerms: string;
+	instructionalTerms: string;
+	queryType:
+		| "specific_search"
+		| "follow_up"
+		| "elaboration"
+		| "general"
+		| "recent_files"
+		| "analytical_query"
+		| "list_all"
+		| "group_by_district";
+	contextNeeded: boolean;
+	inputTokens: number;
+	outputTokens: number;
+} | null {
+	const q = query.toLowerCase().trim();
+
+	// Pattern 1: Simple question words (who, what, where, when, why, how)
+	if (/^(who|what|where|when|why|how)\s+/i.test(q)) {
+		return {
+			coreSearchTerms: query,
+			instructionalTerms: "",
+			queryType: "specific_search",
+			contextNeeded: false,
+			inputTokens: 0,
+			outputTokens: 0,
+		};
+	}
+
+	// Pattern 2: List all / Show all queries
+	if (/^(show|list|display|get|find|give me)\s+(all|every|the)/i.test(q)) {
+		return {
+			coreSearchTerms: "",
+			instructionalTerms: "list all",
+			queryType: "list_all",
+			contextNeeded: false,
+			inputTokens: 0,
+			outputTokens: 0,
+		};
+	}
+
+	// Pattern 3: Analytical queries (summarize, count, total, average, how many)
+	if (
+		/^(summarize|count|total|average|how many|tell me about|analyze|sum up)/i.test(
+			q
+		)
+	) {
+		return {
+			coreSearchTerms: query,
+			instructionalTerms: "analyze",
+			queryType: "analytical_query",
+			contextNeeded: false,
+			inputTokens: 0,
+			outputTokens: 0,
+		};
+	}
+
+	// Pattern 4: Recent/Latest queries
+	if (
+		/\b(recent|latest|newest|last|most recent)\s+(files?|records?|cases?|entries?)\b/i.test(
+			q
+		)
+	) {
+		return {
+			coreSearchTerms: query,
+			instructionalTerms: "",
+			queryType: "recent_files",
+			contextNeeded: false,
+			inputTokens: 0,
+			outputTokens: 0,
+		};
+	}
+
+	// Pattern 5: Group by district queries
+	if (/\b(group|organize|categorize|sort)\s+by\s+district/i.test(q)) {
+		return {
+			coreSearchTerms: "",
+			instructionalTerms: "group by district",
+			queryType: "group_by_district",
+			contextNeeded: false,
+			inputTokens: 0,
+			outputTokens: 0,
+		};
+	}
+
+	// Pattern 6: Simple search queries (find, search for, look for)
+	if (/^(find|search|look for|get me)\s+/i.test(q)) {
+		const searchTerms = query.replace(/^(find|search|look for|get me)\s+/i, "");
+		return {
+			coreSearchTerms: searchTerms,
+			instructionalTerms: "",
+			queryType: "specific_search",
+			contextNeeded: false,
+			inputTokens: 0,
+			outputTokens: 0,
+		};
+	}
+
+	// Pattern 7: Follow-up questions (short queries, pronouns)
+	if (
+		q.length < 20 &&
+		(/\b(he|she|they|it|him|her|them|this|that|these|those)\b/i.test(q) ||
+			/(more|details?|tell me more|elaborate|explain)/i.test(q))
+	) {
+		return {
+			coreSearchTerms: query,
+			instructionalTerms: "",
+			queryType: "follow_up",
+			contextNeeded: true,
+			inputTokens: 0,
+			outputTokens: 0,
+		};
+	}
+
+	// Pattern 8: Greetings / General queries
+	if (
+		/^(hi|hello|hey|greetings|good morning|good afternoon|good evening)/i.test(
+			q
+		) ||
+		/^(help|what can you do|how does this work)/i.test(q)
+	) {
+		return {
+			coreSearchTerms: "",
+			instructionalTerms: "",
+			queryType: "general",
+			contextNeeded: false,
+			inputTokens: 0,
+			outputTokens: 0,
+		};
+	}
+
+	// No pattern matched - need AI analysis
+	return null;
 }
 
 /**
@@ -120,32 +290,25 @@ export async function analyzeQueryForSearch(
 		| "elaboration"
 		| "general"
 		| "recent_files"
-		| "analytical_query";
+		| "analytical_query"
+		| "list_all"
+		| "group_by_district";
 	contextNeeded: boolean;
 	inputTokens: number;
 	outputTokens: number;
 }> {
 	try {
-		// First check if this is a recent/latest files query
-		const recentFilesPattern =
-			/\b(recent|latest|newest|last|most recent)\s+(files?|records?|cases?|entries?)\b/i;
-		const numberPattern =
-			/\b(\d+)\s+(recent|latest|newest|last|most recent)\s+(files?|records?|cases?|entries?)\b/i;
-
-		if (
-			recentFilesPattern.test(currentQuery) ||
-			numberPattern.test(currentQuery)
-		) {
-			console.log("[QUERY ANALYSIS] Detected recent files query");
-			return {
-				coreSearchTerms: currentQuery, // Keep original for context
-				instructionalTerms: "",
-				queryType: "recent_files",
-				contextNeeded: false,
-				inputTokens: 0,
-				outputTokens: 0,
-			};
+		// Try quick pattern-based classification first (90% of queries)
+		const quickResult = quickClassifyQuery(currentQuery);
+		if (quickResult) {
+			console.log(
+				`[QUERY ANALYSIS] Quick pattern match: ${quickResult.queryType} (skipped AI analysis)`
+			);
+			return quickResult;
 		}
+
+		// Pattern matching failed - use AI analysis for complex queries
+		console.log("[QUERY ANALYSIS] Using AI analysis for complex query");
 
 		const { client, keyId } = await getGeminiClient({
 			provider: "gemini",
@@ -165,7 +328,7 @@ export async function analyzeQueryForSearch(
 						.join("\n")}\n`
 				: "";
 
-		const prompt = `You are an AI assistant analyzing queries for a CID (Criminal Investigation Department) database search system.
+		const prompt = `You are an AI assistant analyzing queries for a ICPS (Criminal Investigation Department) database search system.
 
 ${historyContext}
 
@@ -184,9 +347,12 @@ Query Types:
 - elaboration: Requests for more details ("Elaborate", "Tell me more", "Explain further").
 - general: General questions or greetings.
 - recent_files: Queries asking for recent/latest/newest files (handled separately).
+- list_all: Queries asking to list or show all records/files (e.g., "list all records", "show all cases").
+- group_by_district: Queries asking to group or organize records by district (e.g., "group by district", "list all records, group them by district wise").
 
 IMPORTANT:
 - If the query asks for "recent", "latest", "newest", or "most recent" files/records/cases, classify it as "recent_files".
+- If the query asks to "list all", "show all", "find all", or similar requests to display all records, classify it as "list_all".
 - "coreSearchTerms" should be specific entities, names, IDs, or unique identifiers that directly map to data in the database. Do NOT include words that describe the type of query or action to be performed (e.g., 'summarize', 'analyze', 'case' when it's part of 'the case on X').
 - "instructionalTerms" are words that describe the action (e.g., 'summarize', 'analyze') or the general type of record (e.g., 'case', 'incident') when they are not specific entities.
 
@@ -196,7 +362,7 @@ Respond in this exact JSON format:
 {
   "coreSearchTerms": "extracted core search terms for database search",
   "instructionalTerms": "extracted instructional terms for database search",
-  "queryType": "one of the five types above",
+  "queryType": "one of the types above",
   "contextNeeded": true/false
 }
 
@@ -206,6 +372,8 @@ Examples:
 - "Show me the most recent 3 files" → {"coreSearchTerms": "recent files", "instructionalTerms": "3", "queryType": "recent_files", "contextNeeded": false}
 - "Latest cases" → {"coreSearchTerms": "latest cases", "instructionalTerms": "", "queryType": "recent_files", "contextNeeded": false}
 - "Summarize the case on Zothansangi" → {"coreSearchTerms": "Zothansangi", "instructionalTerms": "summarize case", "queryType": "analytical_query", "contextNeeded": false}
+- "List all records" → {"coreSearchTerms": "", "instructionalTerms": "list all records", "queryType": "list_all", "contextNeeded": false}
+- "List all records, group them by district wise" → {"coreSearchTerms": "", "instructionalTerms": "list all records group by district", "queryType": "group_by_district", "contextNeeded": false}
 
 `;
 
@@ -241,7 +409,11 @@ Examples:
 						e
 					);
 				}
-				const result = await model.generateContent(prompt);
+				const result = await withTimeout(
+					model.generateContent(prompt),
+					AI_API_TIMEOUT,
+					"Query analysis AI call"
+				);
 				const response = await result.response;
 				text = response.text().trim();
 				// Capture output tokens from usage metadata if available
@@ -252,10 +424,19 @@ Examples:
 				if (keyId) await recordKeyUsage(keyId, true);
 				lastError = null;
 				break;
-			} catch (e) {
+			} catch (e: any) {
 				lastError = e;
 				if (keyId) await recordKeyUsage(keyId, false);
-				console.warn(`[AI] model attempt failed: ${modelName}`, e);
+				const errorMsg = e?.message || String(e);
+				if (errorMsg.includes("timed out")) {
+					console.warn(
+						`[AI] Query analysis timeout after ${
+							AI_API_TIMEOUT / 1000
+						}s with model: ${modelName}`
+					);
+				} else {
+					console.warn(`[AI] model attempt failed: ${modelName}`, e);
+				}
 				continue;
 			}
 		}
@@ -281,7 +462,16 @@ Examples:
 		}
 
 		// Validate response
-		if (!analysis.coreSearchTerms || !analysis.queryType) {
+		// Allow empty coreSearchTerms for specific_search queries with instructional terms (like "all cases")
+		// or for list_all or analytical queries
+		const hasValidTerms =
+			analysis.coreSearchTerms ||
+			(analysis.queryType === "specific_search" &&
+				analysis.instructionalTerms) ||
+			analysis.queryType === "list_all" ||
+			analysis.queryType === "analytical_query";
+
+		if (!hasValidTerms || !analysis.queryType) {
 			console.error("[QUERY ANALYSIS] Incomplete analysis:", analysis);
 			throw new Error("Incomplete analysis from AI");
 		}
@@ -328,11 +518,11 @@ export async function getRecentFiles(
 		const records = await prisma.fileList.findMany({
 			select: {
 				id: true,
-				file_no: true,
 				category: true,
 				title: true,
 				note: true,
 				entry_date_real: true,
+				district: true,
 			},
 			where: {
 				entry_date_real: {
@@ -754,7 +944,7 @@ function extractKeyInformation(
 	const scoredSentences = sentences.map((sentence) => {
 		const sentenceLower = sentence.toLowerCase();
 		let score = 0;
-		let extractedInfo: string[] = [];
+		const extractedInfo: string[] = [];
 
 		// Score based on query word matches
 		queryWords.forEach((word) => {
@@ -940,22 +1130,18 @@ export function prepareContextForAI(
 	// Create a structured index of all records for quick reference
 	const recordIndex = processedRecords.map((record, index) => ({
 		id: record.id,
-		file_no: record.file_no,
 		title: record.title,
 		category: record.category || "Uncategorized",
+		district: record.district || "Unknown district",
 		date: record.entry_date_real?.toLocaleDateString() || "Unknown date",
 		relevance: record.rank ? (record.rank * 100).toFixed(1) + "%" : "Unknown",
 	}));
 
 	// Build the full record details with optimized content
 	const detailedRecords = processedRecords.map((record) => {
-		let content = record.note || "No content available";
+		const content = record.note || "No content available";
 
 		// Avoid duplicating metadata if it's already in the note
-		const fileNoPattern = new RegExp(
-			`File No[^\\n]*${escapeRegExp(record.file_no)}`,
-			"i"
-		);
 		const categoryPattern = new RegExp(
 			`Category[^\\n]*${escapeRegExp(record.category)}`,
 			"i"
@@ -966,15 +1152,14 @@ export function prepareContextForAI(
 		);
 
 		const hasMetadataPrefix =
-			fileNoPattern.test(content.substring(0, 200)) ||
 			categoryPattern.test(content.substring(0, 200)) ||
 			titlePattern.test(content.substring(0, 200));
 
 		return {
 			id: record.id,
-			file_no: record.file_no,
 			title: record.title,
 			category: record.category || "Uncategorized",
+			district: record.district || "Unknown district",
 			date: record.entry_date_real?.toLocaleDateString() || "Unknown date",
 			content: content,
 			relevance: record.rank ? (record.rank * 100).toFixed(1) + "%" : "",
@@ -986,27 +1171,26 @@ export function prepareContextForAI(
 DATABASE CONTEXT:
 
 === OVERVIEW ===
-Found ${processedRecords.length} relevant records from the CID database.
+Found ${processedRecords.length} relevant records from the ICPS database.
 The records span ${Object.keys(recordsByCategory).length} categories.
 Records are listed below ordered by relevance to your query.
 
-=== RECORD INDEX ===
-${recordIndex
-	.map(
-		(r, i) =>
-			`[${i + 1}] File: ${r.file_no} | Title: ${r.title} | Category: ${
-				r.category
-			} | Date: ${r.date} | Relevance: ${r.relevance}`
-	)
-	.join("\n")}
+  === RECORD INDEX ===
+  ${recordIndex
+		.map(
+			(r, i) =>
+				`[${i + 1}] District: ${r.district} | Title: ${r.title} | Category: ${
+					r.category
+				} | Date: ${r.date} | Relevance: ${r.relevance}`
+		)
+		.join("\n")}
 
 === FULL RECORD DETAILS ===
 ${detailedRecords
 	.map(
 		(record, index) => `
 [RECORD ${index + 1}] (Relevance: ${record.relevance})
-File: ${record.file_no}
-Title: ${record.title}
+**District:** ${record.district} **Title:** ${record.title}
 Category: ${record.category}
 Date: ${record.date}
 Content: ${record.content}
@@ -1056,6 +1240,7 @@ export async function generateAIResponse(
 		"elaboration",
 		"general",
 		"recent_files",
+		"group_by_district",
 	];
 	if (!allowedQueryTypes.includes(queryType)) {
 		queryType = "specific_search";
@@ -1112,6 +1297,15 @@ export async function generateAIResponse(
 - Mention they are sorted by most recent first.
 `;
 			break;
+		case "group_by_district":
+			roleInstructions = `
+- The user wants records grouped by district.
+- Use the "District" field from each record's metadata (shown prominently at the beginning of each record).
+- Group records by their district field, not by extracting addresses from content.
+- Present the results organized by district, with counts and summaries for each district.
+- If a record has "Unknown district", group it separately.
+`;
+			break;
 		default: // specific_search and general
 			roleInstructions = `
 - Answer the user's specific question using the provided database records.
@@ -1120,7 +1314,7 @@ export async function generateAIResponse(
 `;
 	}
 
-	const prompt = `You are a helpful AI assistant for the CID (Criminal Investigation Department) database system.\n\n${historyContext}\n\nCURRENT QUESTION: "${question}"\n\n${context}\n\nINSTRUCTIONS:\n${roleInstructions}\n\n- Always be professional and factual\n- If asked about specific cases, provide file numbers and relevant details\n- If no relevant information is found, say so clearly\n- Keep responses concise but informative\n- Use bullet points or numbered lists when presenting multiple items\n\nPlease provide a helpful response based on the database records above.`;
+	const prompt = `You are a helpful AI assistant for the ICPS (Criminal Investigation Department) database system.\n\n${historyContext}\n\nCURRENT QUESTION: "${question}"\n\n${context}\n\nINSTRUCTIONS:\n${roleInstructions}\n\n- Always be professional and factual\n- If asked about specific cases, provide file numbers and relevant details\n- If no relevant information is found, say so clearly\n- Keep responses concise but informative\n- Use bullet points or numbered lists when presenting multiple items\n\nPlease provide a helpful response based on the database records above.`;
 
 	let lastError: any = null;
 	for (const modelName of attemptModels) {
@@ -1149,7 +1343,11 @@ export async function generateAIResponse(
 				inputTokens = estimateTokenCount(prompt);
 				console.warn("[AI-GEN] countTokens failed; using heuristic", e);
 			}
-			const result = await model.generateContent(prompt);
+			const result = await withTimeout(
+				model.generateContent(prompt),
+				AI_API_TIMEOUT,
+				`AI response generation (${modelName})`
+			);
 			const response = await result.response;
 			const text = response.text();
 			timeEnd("Gemini API Call", apiCallTiming);
@@ -1175,7 +1373,16 @@ export async function generateAIResponse(
 		} catch (error: any) {
 			lastError = error;
 			if (keyId) await recordKeyUsage(keyId, false);
-			console.warn(`[AI-GEN] model attempt failed: ${modelName}`, error);
+			const errorMsg = error?.message || String(error);
+			if (errorMsg.includes("timed out")) {
+				console.warn(
+					`[AI-GEN] Response generation timeout after ${
+						AI_API_TIMEOUT / 1000
+					}s with model: ${modelName}`
+				);
+			} else {
+				console.warn(`[AI-GEN] model attempt failed: ${modelName}`, error);
+			}
 			continue;
 		}
 	}
@@ -1187,6 +1394,176 @@ export async function generateAIResponse(
 }
 
 /**
+ * Generate AI response using Gemini with streaming support
+ * Returns an async generator that yields text chunks as they arrive
+ */
+export async function* generateAIResponseStream(
+	question: string,
+	context: string,
+	conversationHistory: ChatMessage[] = [],
+	queryType: string = "specific_search",
+	opts: { provider?: "gemini"; model?: string; keyId?: number } = {}
+): AsyncGenerator<
+	{
+		type: "token" | "done";
+		text?: string;
+		inputTokens?: number;
+		outputTokens?: number;
+	},
+	void,
+	unknown
+> {
+	// Ensure queryType is one of the allowed types, default to specific_search
+	const allowedQueryTypes = [
+		"specific_search",
+		"analytical_query",
+		"follow_up",
+		"elaboration",
+		"general",
+		"recent_files",
+		"group_by_district",
+	];
+	if (!allowedQueryTypes.includes(queryType)) {
+		queryType = "specific_search";
+	}
+
+	const { client, keyId } = await getGeminiClient({
+		provider: "gemini",
+		keyId: opts.keyId,
+	});
+	const dbModels = await getActiveModelNames("gemini");
+	const attemptModels = Array.from(
+		new Set([opts.model, ...dbModels].filter(Boolean))
+	);
+
+	// Build conversation context for follow-up questions
+	const recentHistory = conversationHistory.slice(-4); // Last 2 exchanges
+	const historyContext =
+		recentHistory.length > 0
+			? `\nCONVERSATION HISTORY:\n${recentHistory
+					.map((msg) => `${msg.role.toUpperCase()}: ${msg.content}`)
+					.join("\n")}\n`
+			: "";
+
+	// Adjust prompt based on query type
+	let roleInstructions = "";
+	switch (queryType) {
+		case "analytical_query":
+			roleInstructions = `
+- The user is asking an analytical question that requires summarizing or finding patterns across multiple records.
+- Analyze all the provided database records to identify trends, frequencies, and key data points related to the user's question.
+- Synthesize your findings into a clear, structured summary.
+- Use counts, lists, and direct data points to support your analysis (e.g., 'The most common location is X, appearing 5 times.').
+- Present the information in an easy-to-understand format.
+`;
+			break;
+		case "follow_up":
+			roleInstructions = `
+- This is a follow-up question referring to previous conversation.
+- Use both the conversation history and database records to answer.
+- Connect the current question to previous context.
+`;
+			break;
+		case "elaboration":
+			roleInstructions = `
+- The user wants more detailed information about previous results.
+- Provide comprehensive details from the database records.
+- Expand on the information with additional context.
+`;
+			break;
+		case "recent_files":
+			roleInstructions = `
+- The user asked for recent/latest files.
+- Present the files in a clear, organized manner.
+- Include file numbers, titles, categories, and dates.
+- Mention they are sorted by most recent first.
+`;
+			break;
+		case "group_by_district":
+			roleInstructions = `
+- The user wants records grouped by district.
+- Use the "District" field from each record's metadata (shown prominently at the beginning of each record).
+- Group records by their district field, not by extracting addresses from content.
+- Present the results organized by district, with counts and summaries for each district.
+- If a record has "Unknown district", group it separately.
+`;
+			break;
+		default: // specific_search and general
+			roleInstructions = `
+- Answer the user's specific question using the provided database records.
+- Be factual and cite relevant information by referencing file numbers.
+- Provide clear, organized information.
+`;
+	}
+
+	const prompt = `You are a helpful AI assistant for the ICPS (Criminal Investigation Department) database system.\n\n${historyContext}\n\nCURRENT QUESTION: "${question}"\n\n${context}\n\nINSTRUCTIONS:\n${roleInstructions}\n\n- Always be professional and factual\n- If asked about specific cases, provide file numbers and relevant details\n- If no relevant information is found, say so clearly\n- Keep responses concise but informative\n- Use bullet points or numbered lists when presenting multiple items\n\nPlease provide a helpful response based on the database records above.`;
+
+	let lastError: any = null;
+	for (const modelName of attemptModels) {
+		try {
+			console.log(
+				`[AI-GEN-STREAM] Sending streaming request to Gemini API, model=${modelName}`
+			);
+			const model = client.getGenerativeModel({ model: modelName as string });
+
+			// Count input tokens
+			let inputTokens = 0;
+			try {
+				const countRes: any = await model.countTokens({
+					contents: [
+						{
+							role: "user",
+							parts: [{ text: prompt }],
+						},
+					],
+				});
+				inputTokens = (countRes?.totalTokens ??
+					countRes?.totalTokenCount ??
+					0) as number;
+			} catch (e) {
+				inputTokens = estimateTokenCount(prompt);
+				console.warn("[AI-GEN-STREAM] countTokens failed; using heuristic", e);
+			}
+
+			// Generate streaming response
+			const result = await model.generateContentStream(prompt);
+			let fullText = "";
+
+			// Stream tokens as they arrive
+			for await (const chunk of result.stream) {
+				const chunkText = chunk.text();
+				fullText += chunkText;
+				yield { type: "token", text: chunkText };
+			}
+
+			// Get final response for token counting
+			const response = await result.response;
+			const usage: any = (response as any)?.usageMetadata;
+			const outputTokens = (usage?.candidatesTokenCount ??
+				usage?.totalTokenCount ??
+				estimateTokenCount(fullText)) as number;
+
+			console.log(
+				`[AI-GEN-STREAM] Streaming completed successfully with model: ${modelName}`
+			);
+			if (keyId) await recordKeyUsage(keyId, true);
+
+			// Yield final metadata
+			yield { type: "done", inputTokens, outputTokens };
+			return;
+		} catch (error: any) {
+			lastError = error;
+			if (keyId) await recordKeyUsage(keyId, false);
+			console.warn(`[AI-GEN-STREAM] model attempt failed: ${modelName}`, error);
+			continue;
+		}
+	}
+
+	console.error("AI response streaming error (all models failed):", lastError);
+	throw new Error("Failed to generate AI response stream.");
+}
+
+/**
  * Main chat function using enhanced search with conversation context
  */
 export async function processChatMessageEnhanced(
@@ -1194,12 +1571,15 @@ export async function processChatMessageEnhanced(
 	conversationHistory: ChatMessage[] = [],
 	searchLimit?: number,
 	useEnhancedSearch: boolean = true,
-	opts: { provider?: "gemini"; model?: string; keyId?: number } = {}
+	opts: { provider?: "gemini"; model?: string; keyId?: number } = {},
+	filters?: {
+		district?: string;
+		category?: string;
+	}
 ): Promise<{
 	response: string;
 	sources: Array<{
 		id: number;
-		file_no: string;
 		title: string;
 		relevance?: number;
 	}>;
@@ -1208,7 +1588,8 @@ export async function processChatMessageEnhanced(
 		| "hybrid"
 		| "semantic_fallback"
 		| "tsvector_only"
-		| "recent_files";
+		| "recent_files"
+		| "analytical_fallback";
 	queryType: string;
 	analysisUsed: boolean;
 	tokenCount?: {
@@ -1230,12 +1611,9 @@ export async function processChatMessageEnhanced(
 
 	let analysisInputTokens = 0;
 	let analysisOutputTokens = 0;
+	let analysis: any = null;
 	try {
-		const analysis = await analyzeQueryForSearch(
-			question,
-			conversationHistory,
-			opts
-		);
+		analysis = await analyzeQueryForSearch(question, conversationHistory, opts);
 		console.log("[CHAT ANALYSIS] Processing query:", `"${question}"`);
 		console.log(
 			"[CHAT ANALYSIS] Conversation history length:",
@@ -1253,8 +1631,22 @@ export async function processChatMessageEnhanced(
 		console.log("[CHAT ANALYSIS] Context needed:", analysis.contextNeeded);
 
 		analysisUsed = true;
-		queryForSearch = analysis.coreSearchTerms;
+		// Use coreSearchTerms if available, otherwise fall back to instructional terms
+		queryForSearch =
+			analysis.coreSearchTerms || analysis.instructionalTerms || "";
 		queryType = analysis.queryType;
+
+		// Special handling for queries that want to show all records
+		if (
+			!queryForSearch &&
+			analysis.instructionalTerms?.toLowerCase().includes("all")
+		) {
+			// For "show all" type queries, use a broad search term
+			queryForSearch = "case"; // Use a common term to match most records
+			console.log(
+				'[CHAT ANALYSIS] Using broad search term "case" for "show all" query'
+			);
+		}
 		analysisInputTokens = analysis.inputTokens || 0;
 		analysisOutputTokens = analysis.outputTokens || 0;
 		console.log(
@@ -1268,10 +1660,27 @@ export async function processChatMessageEnhanced(
 				searchLimitForRecent = num;
 			}
 		}
+
+		// Handle list_all queries
+		if (analysis.queryType === "list_all") {
+			queryForSearch = ""; // Return all records
+			console.log(
+				'[CHAT ANALYSIS] Query type is "list_all", returning all records'
+			);
+		}
+
+		// Handle group_by_district queries
+		if (analysis.queryType === "group_by_district") {
+			queryForSearch = ""; // Return all records for grouping
+			console.log(
+				'[CHAT ANALYSIS] Query type is "group_by_district", returning all records for grouping'
+			);
+		}
 	} catch (error) {
 		console.error("Failed to analyze query with AI, using raw query.", error);
 		// Fallback to using the raw question if analysis fails
 		queryForSearch = question;
+		analysis = { queryType: "specific_search", contextNeeded: false };
 	}
 
 	let records: SearchResult[] = [];
@@ -1279,7 +1688,8 @@ export async function processChatMessageEnhanced(
 		| "hybrid"
 		| "semantic_fallback"
 		| "tsvector_only"
-		| "recent_files" = "hybrid";
+		| "recent_files"
+		| "analytical_fallback" = "hybrid";
 	let searchStats;
 
 	if (queryType === "recent_files") {
@@ -1298,16 +1708,58 @@ export async function processChatMessageEnhanced(
 		if (effectiveSearchLimit < 1) effectiveSearchLimit = 1;
 		if (effectiveSearchLimit > 200) effectiveSearchLimit = 200;
 
-		const hybridSearchResponse = await HybridSearchService.search(
-			queryForSearch,
-			effectiveSearchLimit
-		);
-		records = hybridSearchResponse.results;
-		searchMethod = hybridSearchResponse.searchMethod;
-		searchStats = hybridSearchResponse.stats;
+		// For analytical queries with filters, get ALL records matching the filters
+		// instead of filtering by search terms (analytical queries need complete data)
+		const hasFilters = filters && (filters.category || filters.district);
+		if (queryType === "analytical_query" && hasFilters) {
+			console.log(
+				`[CHAT ANALYSIS] Analytical query with filters - retrieving all records matching filters for complete analysis`
+			);
+			const hybridSearchResponse = await HybridSearchService.search(
+				"",
+				effectiveSearchLimit,
+				filters
+			);
+			records = hybridSearchResponse.results;
+			searchMethod = "analytical_fallback";
+			searchStats = hybridSearchResponse.stats;
+			console.log(
+				`[CHAT ANALYSIS] Retrieved ${records.length} records matching filters for analytical analysis`
+			);
+		} else {
+			const hybridSearchResponse = await HybridSearchService.search(
+				queryForSearch,
+				effectiveSearchLimit,
+				filters
+			);
+			records = hybridSearchResponse.results;
+			searchMethod = hybridSearchResponse.searchMethod;
+			searchStats = hybridSearchResponse.stats;
 
+			console.log(
+				`[CHAT ANALYSIS] Hybrid search completed. Method: ${searchMethod}, Found: ${records.length} records.`
+			);
+		}
+	}
+
+	// Fallback for analytical queries: if no records found, retrieve all records for analysis
+	if (queryType === "analytical_query" && records.length === 0) {
 		console.log(
-			`[CHAT ANALYSIS] Hybrid search completed. Method: ${searchMethod}, Found: ${records.length} records.`
+			`[CHAT ANALYSIS] Analytical query returned 0 records, falling back to all records for analysis`
+		);
+		const configuredLimit = await getSettingInt("ai.search.limit", 30);
+		let effectiveLimit = Math.min(configuredLimit, 200); // Cap at 200 for analytical queries
+
+		const allRecordsResponse = await HybridSearchService.search(
+			"",
+			effectiveLimit,
+			filters
+		);
+		records = allRecordsResponse.results;
+		searchMethod = "analytical_fallback";
+		searchStats = allRecordsResponse.stats;
+		console.log(
+			`[CHAT ANALYSIS] Fallback retrieved ${records.length} records for analytical analysis`
 		);
 	}
 
@@ -1318,81 +1770,141 @@ export async function processChatMessageEnhanced(
 	let aiTime = 0;
 	let context = "";
 
-	// Use normal processing for all queries (analytical and non-analytical)
-	console.log(
-		`[CHAT PROCESSING] Starting context preparation for ${records.length} records`
-	);
-	const contextTiming = timeStart("Context Preparation");
+	// Use chunked processing for analytical queries with many records
+	if (analysis.queryType === "analytical_query" && records.length > 20) {
+		console.log(
+			`[CHAT PROCESSING] Using chunked processing for ${records.length} records`
+		);
+		const chunkedTiming = timeStart("Chunked Processing");
+		aiResponse = await processChunkedAnalyticalQuery(
+			question,
+			records,
+			conversationHistory
+		);
+		contextTime = timeEnd("Chunked Processing", chunkedTiming);
+		console.log(
+			`[CHAT PROCESSING] Chunked processing completed in ${contextTime}ms`
+		);
+		aiTime = contextTime; // For chunked, aiTime is included
+	} else {
+		// Use normal processing for other queries or small record sets
+		console.log(
+			`[CHAT PROCESSING] Starting context preparation for ${records.length} records`
+		);
+		const contextTiming = timeStart("Context Preparation");
 
-	// Use normal processing for all queries (relevance extraction disabled)
-	context = prepareContextForAI(records, queryForSearch, false);
+		// Use normal processing for all queries (relevance extraction disabled)
+		context = prepareContextForAI(records, queryForSearch, false);
 
-	contextTime = timeEnd("Context Preparation", contextTiming);
-	console.log(`[CHAT PROCESSING] Context size: ${context.length} characters`);
+		contextTime = timeEnd("Context Preparation", contextTiming);
+		console.log(`[CHAT PROCESSING] Context size: ${context.length} characters`);
 
-	// Generate AI response
-	console.log(`[CHAT PROCESSING] Starting AI response generation`);
-	const aiTiming = timeStart("AI Response Generation");
-	aiResponse = await generateAIResponse(
-		question,
-		context,
-		conversationHistory,
-		queryType,
-		opts
-	);
-	aiTime = timeEnd("AI Response Generation", aiTiming);
-	console.log(
-		`[TOKENS] Response phase — input: ${aiResponse.inputTokens}, output: ${aiResponse.outputTokens}`
-	);
+		// Generate AI response
+		console.log(`[CHAT PROCESSING] Starting AI response generation`);
+		const aiTiming = timeStart("AI Response Generation");
+		aiResponse = await generateAIResponse(
+			question,
+			context,
+			conversationHistory,
+			analysis.queryType
+		);
+
+		aiTime = timeEnd("AI Response Generation", aiTiming);
+		console.log(
+			`[TOKENS] Response phase — input: ${aiResponse.inputTokens}, output: ${aiResponse.outputTokens}`
+		);
+	}
 
 	// Extract sources from the context that were used in the AI response
 	console.log(`[CHAT PROCESSING] Starting source extraction`);
 	const sourceTiming = timeStart("Source Extraction");
+
+	// Common words to exclude from matching (expanded list)
+	const commonWords = new Set([
+		"this",
+		"that",
+		"with",
+		"from",
+		"they",
+		"were",
+		"been",
+		"have",
+		"case",
+		"file",
+		"record",
+		"victim",
+		"accused",
+		"suspect",
+		"police",
+		"court",
+		"date",
+		"time",
+		"place",
+		"incident",
+		"report",
+		"investigation",
+		"against",
+		"under",
+	]);
+
 	const citedSources = records
-		.filter((record) => {
+		.map((record) => {
 			const response = aiResponse.text.toLowerCase();
-			const fileNo = record.file_no.toLowerCase();
 			const title = record.title.toLowerCase();
+			let score = 0;
 
-			// Check for direct file number mention
-			if (response.includes(fileNo)) return true;
+			// Strong signal: Explicit ID mention
+			if (
+				response.includes(`id: ${record.id}`) ||
+				response.includes(`record ${record.id}`) ||
+				response.includes(`[${record.id}]`)
+			) {
+				score += 10;
+			}
 
-			// Check for title mention (partial match)
-			const titleWords = title.split(" ").filter((word) => word.length > 3);
-			if (titleWords.some((word) => response.includes(word))) return true;
+			// Strong signal: Exact title match
+			if (response.includes(title)) {
+				score += 8;
+			}
 
-			// Check for content keywords from the record
+			// Medium signal: Most title words present
+			const titleWords = title
+				.split(/\s+/)
+				.filter((word) => word.length > 3 && !commonWords.has(word));
+			const titleMatches = titleWords.filter((word) => response.includes(word));
+			if (titleMatches.length >= Math.min(titleWords.length * 0.6, 3)) {
+				score += 3;
+			}
+
+			// Weak signal: Unique keywords from content
 			if (record.note) {
 				const noteWords = record.note
 					.toLowerCase()
 					.split(/\s+/)
 					.filter(
 						(word) =>
-							word.length > 4 &&
-							![
-								"this",
-								"that",
-								"with",
-								"from",
-								"they",
-								"were",
-								"been",
-								"have",
-							].includes(word)
+							word.length > 5 && // Longer words are more unique
+							!commonWords.has(word)
 					)
-					.slice(0, 10); // Check first 10 meaningful words
+					.slice(0, 15); // Check first 15 words
 
-				if (noteWords.some((word) => response.includes(word))) return true;
+				const noteMatches = noteWords.filter((word) => response.includes(word));
+				// Need at least 3 unique keywords to be confident
+				if (noteMatches.length >= 3) {
+					score += 2;
+				}
 			}
 
-			return false;
+			return {
+				id: record.id,
+				title: record.title,
+				relevance: record.combined_score || record.rank,
+				citationScore: score,
+			};
 		})
-		.map((record) => ({
-			id: record.id,
-			file_no: record.file_no,
-			title: record.title,
-			relevance: record.combined_score || record.rank,
-		}));
+		.filter((source) => source.citationScore >= 3) // Minimum score threshold
+		.sort((a, b) => b.citationScore - a.citationScore)
+		.map(({ citationScore, ...rest }) => rest); // Remove score from final output
 
 	const sourceTime = timeEnd("Source Extraction", sourceTiming);
 
@@ -1430,17 +1942,380 @@ export async function processChatMessageEnhanced(
 }
 
 /**
+ * Streaming version of processChatMessageEnhanced
+ * Yields chunks as they arrive from the AI, along with metadata
+ */
+export async function* processChatMessageEnhancedStream(
+	question: string,
+	conversationHistory: ChatMessage[] = [],
+	searchLimit?: number,
+	useEnhancedSearch: boolean = true,
+	opts: { provider?: "gemini"; model?: string; keyId?: number } = {},
+	filters?: {
+		district?: string;
+		category?: string;
+	}
+): AsyncGenerator<
+	{
+		type: "metadata" | "token" | "sources" | "done" | "progress";
+		text?: string;
+		sources?: Array<{ id: number; title: string }>;
+		searchQuery?: string;
+		searchMethod?: string;
+		queryType?: string;
+		analysisUsed?: boolean;
+		tokenCount?: { input: number; output: number };
+		stats?: any;
+		progress?: string;
+	},
+	void,
+	unknown
+> {
+	// All the same setup logic as processChatMessageEnhanced
+	let queryForSearch = question;
+	let queryType = "specific_search";
+	let analysisUsed = false;
+	let analysisInputTokens = 0;
+	let analysisOutputTokens = 0;
+	let analysis: any = null;
+
+	try {
+		analysis = await analyzeQueryForSearch(question, conversationHistory, opts);
+		console.log("[CHAT ANALYSIS] Processing query:", `"${question}"`);
+		console.log(
+			`[CHAT ANALYSIS] AI Analysis Result:`,
+			JSON.stringify(analysis, null, 2)
+		);
+		analysisInputTokens = analysis.inputTokens || 0;
+		analysisOutputTokens = analysis.outputTokens || 0;
+		analysisUsed = true;
+		queryForSearch =
+			analysis.coreSearchTerms || analysis.instructionalTerms || "";
+		queryType = analysis.queryType;
+
+		// Special handling for queries that want to show all records
+		if (
+			!queryForSearch &&
+			analysis.instructionalTerms?.toLowerCase().includes("all")
+		) {
+			queryForSearch = "case";
+			console.log(
+				'[CHAT ANALYSIS] Using broad search term "case" for "show all" query'
+			);
+		}
+
+		// Handle list_all queries
+		if (analysis.queryType === "list_all") {
+			queryForSearch = "";
+			console.log(
+				'[CHAT ANALYSIS] Query type is "list_all", returning all records'
+			);
+		}
+
+		// Handle group_by_district queries
+		if (analysis.queryType === "group_by_district") {
+			queryForSearch = "";
+			console.log(
+				'[CHAT ANALYSIS] Query type is "group_by_district", returning all records for grouping'
+			);
+		}
+	} catch (error) {
+		console.error("[CHAT ANALYSIS] Query analysis failed:", error);
+		queryForSearch = question;
+	}
+
+	// Search for relevant records
+	let records: SearchResult[] = [];
+	let searchMethod: string = "hybrid";
+	let searchStats: any = {};
+
+	const configuredLimit = await getSettingInt("ai.search.limit", 30);
+	const effectiveSearchLimit = Math.min(searchLimit || configuredLimit, 200);
+
+	console.log(
+		`[CHAT ANALYSIS] Effective search limit: ${effectiveSearchLimit}`
+	);
+
+	if (useEnhancedSearch) {
+		const hasFilters = filters && (filters.category || filters.district);
+		if (queryType === "analytical_query" && hasFilters) {
+			console.log(
+				`[CHAT ANALYSIS] Analytical query with filters - retrieving all records matching filters for complete analysis`
+			);
+			const hybridSearchResponse = await HybridSearchService.search(
+				"",
+				effectiveSearchLimit,
+				filters
+			);
+			records = hybridSearchResponse.results;
+			searchMethod = "analytical_fallback";
+			searchStats = hybridSearchResponse.stats;
+			console.log(
+				`[CHAT ANALYSIS] Retrieved ${records.length} records matching filters for analytical analysis`
+			);
+		} else {
+			const hybridSearchResponse = await HybridSearchService.search(
+				queryForSearch,
+				effectiveSearchLimit,
+				filters
+			);
+			records = hybridSearchResponse.results;
+			searchMethod = hybridSearchResponse.searchMethod;
+			searchStats = hybridSearchResponse.stats;
+
+			console.log(
+				`[CHAT ANALYSIS] Hybrid search completed. Method: ${searchMethod}, Found: ${records.length} records.`
+			);
+		}
+	}
+
+	// Fallback for analytical queries
+	if (queryType === "analytical_query" && records.length === 0) {
+		console.log(
+			`[CHAT ANALYSIS] Analytical query returned 0 records, falling back to all records for analysis`
+		);
+		const configuredLimit = await getSettingInt("ai.search.limit", 30);
+		let effectiveLimit = Math.min(configuredLimit, 200);
+
+		const allRecordsResponse = await HybridSearchService.search(
+			"",
+			effectiveLimit,
+			filters
+		);
+		records = allRecordsResponse.results;
+		searchMethod = "analytical_fallback";
+		searchStats = allRecordsResponse.stats;
+		console.log(
+			`[CHAT ANALYSIS] Fallback retrieved ${records.length} records for analytical analysis`
+		);
+	}
+
+	// Yield progress after search completes
+	yield {
+		type: "progress",
+		progress: `Found ${records.length} record${
+			records.length !== 1 ? "s" : ""
+		}. Preparing response...`,
+	};
+
+	// Yield metadata
+	yield {
+		type: "metadata",
+		searchQuery: queryForSearch,
+		searchMethod,
+		queryType,
+		analysisUsed,
+		stats: searchStats,
+	};
+
+	// Check if we need chunked processing for large analytical queries
+	let fullResponseText = "";
+	let aiInputTokens = 0;
+	let aiOutputTokens = 0;
+
+	if (queryType === "analytical_query" && records.length > 20) {
+		// Use chunked processing for large analytical queries
+		// This is more efficient than streaming for large datasets
+		console.log(
+			`[CHAT PROCESSING] Using chunked processing for ${records.length} records (streaming disabled for large analytical queries)`
+		);
+
+		try {
+			// Calculate chunk count for progress display
+			const CHUNK_SIZE = 15;
+			const chunkCount = Math.ceil(records.length / CHUNK_SIZE);
+
+			// Yield initial progress
+			yield {
+				type: "progress",
+				progress: `Processing ${records.length} records in ${chunkCount} chunks...`,
+			};
+
+			const chunkedResponse = await processChunkedAnalyticalQuery(
+				question,
+				records,
+				conversationHistory
+			);
+
+			fullResponseText = chunkedResponse.text;
+			aiInputTokens = chunkedResponse.inputTokens || 0;
+			aiOutputTokens = chunkedResponse.outputTokens || 0;
+
+			// Yield the complete response as one chunk
+			yield { type: "token", text: fullResponseText };
+
+			console.log(
+				`[CHAT PROCESSING] Chunked processing completed for ${records.length} records`
+			);
+		} catch (error) {
+			console.error("[CHAT PROCESSING] Chunked processing error:", error);
+			throw error;
+		}
+	} else {
+		// Use normal streaming for small queries or non-analytical queries
+		let context = "";
+		console.log(
+			`[CHAT PROCESSING] Starting context preparation for ${records.length} records`
+		);
+
+		// Yield progress for context preparation
+		yield {
+			type: "progress",
+			progress: `Preparing context from ${records.length} record${
+				records.length !== 1 ? "s" : ""
+			}...`,
+		};
+
+		context = prepareContextForAI(records, queryForSearch, false);
+		console.log(`[CHAT PROCESSING] Context size: ${context.length} characters`);
+
+		// Stream AI response
+		console.log(`[CHAT PROCESSING] Starting AI response streaming`);
+
+		// Yield progress before AI generation starts
+		yield {
+			type: "progress",
+			progress: "Generating response...",
+		};
+
+		try {
+			for await (const chunk of generateAIResponseStream(
+				question,
+				context,
+				conversationHistory,
+				queryType,
+				opts
+			)) {
+				if (chunk.type === "token") {
+					fullResponseText += chunk.text || "";
+					yield { type: "token", text: chunk.text };
+				} else if (chunk.type === "done") {
+					aiInputTokens = chunk.inputTokens || 0;
+					aiOutputTokens = chunk.outputTokens || 0;
+				}
+			}
+		} catch (error) {
+			console.error("[CHAT PROCESSING] Streaming error:", error);
+			throw error;
+		}
+	}
+
+	// Extract sources after streaming completes
+	console.log(`[CHAT PROCESSING] Starting source extraction`);
+	const commonWords = new Set([
+		"this",
+		"that",
+		"with",
+		"from",
+		"they",
+		"were",
+		"been",
+		"have",
+		"case",
+		"file",
+		"record",
+		"victim",
+		"accused",
+		"suspect",
+		"investigation",
+		"police",
+		"crime",
+		"criminal",
+		"report",
+		"incident",
+		"found",
+		"arrested",
+		"charged",
+	]);
+
+	const citedSources: Array<{ id: number; title: string }> = [];
+	const responseLower = fullResponseText.toLowerCase();
+
+	for (const record of records) {
+		let citationScore = 0;
+
+		// Check for explicit ID mention
+		if (
+			responseLower.includes(`id: ${record.id}`) ||
+			responseLower.includes(`[${record.id}]`) ||
+			responseLower.includes(`record ${record.id}`)
+		) {
+			citationScore += 10;
+		}
+
+		// Check for exact title match
+		const titleLower = record.title.toLowerCase();
+		if (responseLower.includes(titleLower)) {
+			citationScore += 5;
+		}
+
+		// Check for most title words present
+		const titleWords = titleLower
+			.split(/\s+/)
+			.filter((word) => word.length > 3 && !commonWords.has(word));
+		const titleMatches = titleWords.filter((word) =>
+			responseLower.includes(word)
+		);
+		if (titleMatches.length >= Math.min(titleWords.length * 0.6, 3)) {
+			citationScore += 3;
+		}
+
+		// Check for unique keywords from content
+		if (record.note) {
+			const noteWords = record.note
+				.toLowerCase()
+				.split(/\s+/)
+				.filter((word) => word.length > 4 && !commonWords.has(word))
+				.slice(0, 15);
+
+			const noteMatches = noteWords.filter((word) =>
+				responseLower.includes(word)
+			);
+			if (noteMatches.length >= 3) {
+				citationScore += 1;
+			}
+		}
+
+		// Only include if score is significant enough
+		if (citationScore >= 3) {
+			citedSources.push({
+				id: record.id,
+				title: record.title,
+			});
+		}
+	}
+
+	console.log(
+		`[ADMIN CHAT] Response generated with ${citedSources.length} sources`
+	);
+
+	// Yield sources
+	yield {
+		type: "sources",
+		sources: citedSources,
+	};
+
+	// Yield final completion with token counts
+	yield {
+		type: "done",
+		tokenCount: {
+			input: analysisInputTokens + aiInputTokens,
+			output: analysisOutputTokens + aiOutputTokens,
+		},
+	};
+}
+
+/**
  * Update search vectors for all records (maintenance function)
  */
 export async function updateSearchVectors(): Promise<void> {
-  try {
-    await prisma.$executeRaw`
-      UPDATE file_list 
-      SET search_vector = 
+	try {
+		await prisma.$executeRaw`
+      UPDATE file_list
+      SET search_vector =
         setweight(to_tsvector('english', COALESCE(title, '')),   'A') ||
         setweight(to_tsvector('english', COALESCE(category, '')),'B') ||
-        setweight(to_tsvector('english', COALESCE(note, '')),    'C') ||
-        setweight(to_tsvector('english', COALESCE(file_no, '')), 'B')
+        setweight(to_tsvector('english', COALESCE(note, '')),    'C')
       WHERE search_vector IS NULL OR note IS NOT NULL
     `;
 

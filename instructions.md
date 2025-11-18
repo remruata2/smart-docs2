@@ -15,9 +15,34 @@ PostgreSQL install checklist (Windows):
 psql --version
 pg_restore --version
 ```
-- If not found, add PostgreSQL bin to PATH :
+- If not found, add PostgreSQL bin to PATH:
 ```
 setx PATH "$($env:PATH);C:\Program Files\PostgreSQL\16\bin"
+```
+
+1.5) Install pgvector extension
+- Install Visual Studio Build Tools (2022):
+  - Download from: https://visualstudio.microsoft.com/visual-cpp-build-tools/
+  - Select "Desktop development with C++" workload
+  - Include "MSVC v143" and "Windows 10/11 SDK"
+
+- Install and build pgvector:
+```
+# In PowerShell or Command Prompt as Administrator
+cd C:\Users\<you>\projects
+git clone --branch v0.8.1 https://github.com/pgvector/pgvector.git
+cd pgvector
+
+# Set PostgreSQL bin directory in PATH (if not already set)
+$env:Path += ";C:\Program Files\PostgreSQL\16\bin"
+
+# Build using Visual Studio Build Tools
+nmake /F Makefile.win
+nmake /F Makefile.win install
+
+# Verify installation
+psql -U postgres -c "CREATE EXTENSION vector;"
+psql -U postgres -c "SELECT 'pgvector installed' AS status;"
 ```
 
 2) Clone repository

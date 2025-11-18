@@ -511,7 +511,7 @@ export default function TiptapEditor({
   // Normalize pasted plain text into semantic HTML lists where applicable
   function normalizePastedTextToHTML(text: string): string {
     const lines = (text || '').split(/\r?\n/);
-    let htmlParts: string[] = [];
+    const htmlParts: string[] = [];
     let currentListType: 'ul' | 'ol' | null = null;
     for (const rawLine of lines) {
       const line = rawLine.replace(/\u00A0/g, ' ');

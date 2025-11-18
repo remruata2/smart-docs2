@@ -1,6 +1,6 @@
-# CID AI - Next.js Starter with Authentication
+# Smart Docs - AI-Powered Document Management SaaS
 
-A modern Next.js starter template with built-in authentication, role-based access control, and Prisma ORM integration.
+A modern Next.js SaaS application with AI-powered document processing, chat interface, subscription management, and role-based access control.
 
 ## Features
 
@@ -21,8 +21,8 @@ A modern Next.js starter template with built-in authentication, role-based acces
 
 1. **Clone the repository**
    ```bash
-   git clone https://github.com/yourusername/cid-ai.git
-   cd cid-ai
+   git clone git@github.com:remruata2/smart-docs.git
+   cd smart-docs
    ```
 
 2. **Install dependencies**

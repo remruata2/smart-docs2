@@ -15,11 +15,13 @@ export async function GET(req: NextRequest) {
   const pageSize = Math.min(200, Math.max(1, parseInt(searchParams.get('pageSize') || '50', 10)));
   const q = (searchParams.get('q') || '').trim();
   const category = (searchParams.get('category') || '').trim();
+  const district = (searchParams.get('district') || '').trim();
   const yearStr = searchParams.get('year');
   const year = yearStr ? parseInt(yearStr, 10) : undefined;
 
   const where: any = {};
-  if (category) where.category = category;
+  if (category) where.category = { equals: category, mode: 'insensitive' as const };
+  if (district) where.district = { equals: district, mode: 'insensitive' as const };
   if (year && Number.isFinite(year)) {
     const start = new Date(Date.UTC(year, 0, 1));
     const end = new Date(Date.UTC(year + 1, 0, 1));
@@ -27,7 +29,6 @@ export async function GET(req: NextRequest) {
   }
   if (q) {
     where.OR = [
-      { file_no: { contains: q, mode: 'insensitive' as const } },
       { title: { contains: q, mode: 'insensitive' as const } },
       { category: { contains: q, mode: 'insensitive' as const } },
     ];
@@ -44,9 +45,9 @@ export async function GET(req: NextRequest) {
         ],
         select: {
           id: true,
-          file_no: true,
           category: true,
           title: true,
+          district: true,
           entry_date_real: true,
           created_at: true,
           doc1: true,
@@ -58,6 +59,7 @@ export async function GET(req: NextRequest) {
 
     const items = rows.map((file) => ({
       ...file,
+      district: file.district || null,
       entry_date_real: file.entry_date_real?.toISOString() || null,
       created_at: file.created_at?.toISOString() || null,
     }));

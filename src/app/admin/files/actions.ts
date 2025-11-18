@@ -60,11 +60,10 @@ export async function getFilesPaginated(params: GetFilesParams = {}): Promise<Pa
     };
   }
 
-  // Simple text search across file_no, title, category (case-insensitive)
+  // Simple text search across title, category (case-insensitive)
   if (params.q && params.q.trim() !== "") {
     const q = params.q.trim();
     where.OR = [
-      { file_no: { contains: q, mode: "insensitive" as const } },
       { title: { contains: q, mode: "insensitive" as const } },
       { category: { contains: q, mode: "insensitive" as const } },
     ];
@@ -79,15 +78,15 @@ export async function getFilesPaginated(params: GetFilesParams = {}): Promise<Pa
           { entry_date_real: "desc" },
           { id: "desc" },
         ],
-        select: {
-          id: true,
-          file_no: true,
-          category: true,
-          title: true,
-          entry_date_real: true,
-          created_at: true,
-          doc1: true,
-        },
+      select: {
+        id: true,
+        category: true,
+        title: true,
+        district: true,
+        entry_date_real: true,
+        created_at: true,
+        doc1: true,
+      },
         skip: (page - 1) * pageSize,
         take: pageSize,
       }),
@@ -108,6 +107,7 @@ export async function getFilesPaginated(params: GetFilesParams = {}): Promise<Pa
 
 export type FileFilterOptions = {
   categories: string[];
+  districts: string[];
   years: number[];
 };
 
@@ -135,10 +135,21 @@ export async function getFilterOptions(): Promise<FileFilterOptions> {
       .map((r) => (typeof r.year === "number" ? r.year : null))
       .filter((y): y is number => y !== null);
 
-    return { categories, years };
+    // Distinct districts via raw SQL
+    const districtsRows: Array<{ district: string | null }> = await prisma.$queryRaw`
+      SELECT DISTINCT district
+      FROM file_list
+      WHERE district IS NOT NULL AND district <> ''
+      ORDER BY district ASC
+    `;
+    const districts = districtsRows
+      .map((r) => r.district)
+      .filter((d): d is string => typeof d === 'string' && d.trim() !== '');
+
+    return { categories, districts, years };
   } catch (error) {
     console.error("Error fetching filter options:", error);
-    return { categories: [], years: [] };
+    return { categories: [], districts: [], years: [] };
   }
 }
 
@@ -262,10 +273,6 @@ Title - ${title}`;
 
 // Zod schema for file validation
 const fileSchema = z.object({
-  file_no: z
-    .string()
-    .min(1, { message: "File No is required" })
-    .max(100, { message: "File No must be 100 characters or less" }),
   category: z
     .string()
     .min(1, { message: "Category is required" })
@@ -274,6 +281,7 @@ const fileSchema = z.object({
     .string()
     .min(1, { message: "Title is required" })
     .max(500, { message: "Title must be 500 characters or less" }),
+  district: z.string().optional(),
   note: z.string().optional(),
   // doc1 is removed from Zod schema; will be handled directly from FormData
   entry_date: z.string().optional().nullable(), // Input as string, will be converted to Date for entry_date_real
@@ -282,9 +290,9 @@ const fileSchema = z.object({
 
 export type FileListEntry = {
   id: number;
-  file_no: string;
   category: string;
   title: string;
+  district: string | null;
   entry_date_real: string | null;
   created_at: string | null;
   doc1: string | null;
@@ -299,9 +307,9 @@ export async function getFiles(): Promise<FileListEntry[]> {
       select: {
         // Select specific fields for the list view to optimize
         id: true,
-        file_no: true,
         category: true,
         title: true,
+        district: true,
         entry_date_real: true,
         created_at: true,
         doc1: true,
@@ -321,7 +329,6 @@ export async function getFiles(): Promise<FileListEntry[]> {
 
 export interface CategoryListItem {
   id: number;
-  file_no: string;
   category: string;
 }
 
@@ -330,11 +337,10 @@ export async function getCategoryListItems(): Promise<CategoryListItem[]> {
     const items = await prisma.categoryList.findMany({
       select: {
         id: true,
-        file_no: true,
         category: true,
       },
       orderBy: {
-        file_no: "asc", // Or by category, as preferred
+        category: "asc", // Order by category name
       },
     });
     return items;
@@ -346,21 +352,20 @@ export async function getCategoryListItems(): Promise<CategoryListItem[]> {
 
 export type FileDetail = {
   id: number;
-  file_no: string;
   category: string;
   title: string;
+  district?: string | null;
   note: string | null;
   doc1: string | null;
   entry_date: string | null;
-  entry_date_real: string | null; // YYYY-MM-DD format for date input
+  entry_date_real: string | null;
   created_at: string | null;
   updated_at: string | null;
-  content_format?: 'html' | 'markdown'; // Format of the note content
+  content_format?: 'html' | 'markdown';
 };
 
 type PrismaFileSelectResult = {
   id: number;
-  file_no: string;
   category: string;
   title: string;
   note: string | null;
@@ -378,7 +383,6 @@ export async function getFileById(id: number): Promise<FileDetail | null> {
       where: { id },
       select: {
         id: true,
-        file_no: true,
         category: true,
         title: true,
         note: true,
@@ -399,14 +403,12 @@ export async function getFileById(id: number): Promise<FileDetail | null> {
 
     return {
       id: selectedFile.id,
-      file_no: selectedFile.file_no,
       category: selectedFile.category,
       title: selectedFile.title,
-      note: selectedFile.note, // Prisma String? is string | null, FileDetail expects string | null
-      content_format: selectedFile.content_format as 'html' | 'markdown' | undefined, // Include content_format
+      note: selectedFile.note,
+      content_format: selectedFile.content_format as 'html' | 'markdown' | undefined,
       doc1: selectedFile.doc1,
       entry_date: selectedFile.entry_date,
-      // Format for <input type="date"> which expects YYYY-MM-DD or empty string
       entry_date_real:
         selectedFile.entry_date_real?.toISOString().split("T")[0] || "",
       created_at: selectedFile.created_at?.toISOString() || null,
@@ -438,8 +440,6 @@ export async function createFileAction(
   }
   ensureUploadDirExists();
 
-  
-
   const file = formData.get("doc1") as File | null;
   const rawFormData = Object.fromEntries(formData.entries());
   if (file && file.size === 0) {
@@ -457,7 +457,7 @@ export async function createFileAction(
   }
 
   let doc1Path: string | null = null;
-  let finalNote = removeImagePlaceholder(validatedFields.data.note);
+  const finalNote = removeImagePlaceholder(validatedFields.data.note);
 
   if (file && file.size > 0) {
     try {
@@ -480,7 +480,6 @@ export async function createFileAction(
   // Fallback: file upload -> markdown, manual entry -> html
   const contentFormat = content_format ?? (file && file.size > 0 ? 'markdown' : 'html');
 
-
   let entryDateReal: Date | null = null;
   if (entry_date && entry_date.trim() !== "") {
     const parsedDate = new Date(entry_date);
@@ -494,6 +493,7 @@ export async function createFileAction(
     const newFile = await prisma.fileList.create({
       data: {
         ...restOfData,
+        district: restOfData.district,
         note: finalNote, // Use the potentially parsed content
         content_format: contentFormat, // Use posted format when provided; otherwise fallback
         doc1: doc1Path,
@@ -502,29 +502,26 @@ export async function createFileAction(
       },
     });
 
-
-    // Manually update the search_vector using the correct note content
+    // Manually update the search_vector with metadata
     await prisma.$executeRaw`
-      UPDATE file_list 
-      SET search_vector = to_tsvector('english', 
-        COALESCE(file_no, '') || ' ' || 
-        COALESCE(category, '') || ' ' || 
-        COALESCE(title, '') || ' ' || 
-        ${finalNote} || ' ' ||
+      UPDATE file_list
+      SET search_vector = to_tsvector('english',
+        COALESCE('District: ' || district, '') || ' | ' ||
+        COALESCE('Title: ' || title, '') || ' | ' ||
+        COALESCE('Category: ' || category, '') || ' | ' ||
+        COALESCE('Content: ' || ${finalNote}, '') || ' | ' ||
         COALESCE(entry_date, '') || ' ' ||
         COALESCE(EXTRACT(YEAR FROM entry_date_real)::text, '')
       )
       WHERE id = ${newFile.id}
     `;
 
-    // Generate and update semantic vector from the final note content
-    if (finalNote && finalNote.trim().length > 0) {
-      try {
-        await SemanticVectorService.updateSemanticVector(newFile.id, finalNote);
-      } catch (vectorError) {
-        console.error("Semantic vector update failed:", vectorError);
-        // Don't fail the entire operation if this fails
-      }
+    // Generate and update semantic vector with metadata
+    try {
+      await SemanticVectorService.updateSemanticVector(newFile.id);
+    } catch (vectorError) {
+      console.error("Semantic vector update failed:", vectorError);
+      // Don't fail the entire operation if this fails
     }
 
     revalidatePath("/admin/files");
@@ -571,12 +568,11 @@ export async function updateFileAction(
 
   // 2. Prepare data for database update
   const { note, entry_date, content_format, ...restOfData } = validatedFields.data;
-  let finalNote = removeImagePlaceholder(note);
+  const finalNote = removeImagePlaceholder(note);
 
   // Prefer the posted content_format (Option A). If not provided, infer from source
   // Fallback: file upload -> markdown, manual entry -> html
   const contentFormat = content_format ?? (file && file.size > 0 ? 'markdown' : 'html');
-
 
   let entryDateReal: Date | null = null;
   if (entry_date && entry_date.trim() !== "") {
@@ -650,28 +646,26 @@ export async function updateFileAction(
       data: prismaDataForUpdate,
     });
 
-    // 6. Update the search vector with the final note content
+    // 6. Update the search vector with metadata
     await prisma.$executeRaw`
-      UPDATE file_list 
-      SET search_vector = to_tsvector('english', 
-        COALESCE(file_no, '') || ' ' || 
-        COALESCE(category, '') || ' ' || 
-        COALESCE(title, '') || ' ' || 
-        ${finalNote} || ' ' ||
+      UPDATE file_list
+      SET search_vector = to_tsvector('english',
+        COALESCE('District: ' || district, '') || ' | ' ||
+        COALESCE('Title: ' || title, '') || ' | ' ||
+        COALESCE('Category: ' || category, '') || ' | ' ||
+        COALESCE('Content: ' || ${finalNote}, '') || ' | ' ||
         COALESCE(entry_date, '') || ' ' ||
         COALESCE(EXTRACT(YEAR FROM entry_date_real)::text, '')
       )
       WHERE id = ${id}
     `;
 
-    // 7. Generate and update semantic vector from the final note content
-    if (finalNote && finalNote.trim().length > 0) {
-      try {
-        await SemanticVectorService.updateSemanticVector(id, finalNote);
-      } catch (vectorError) {
-        console.error("❌ Semantic vector update failed:", vectorError);
-        // Don't fail the entire operation if semantic vector fails
-      }
+    // 7. Generate and update semantic vector with metadata
+    try {
+      await SemanticVectorService.updateSemanticVector(id);
+    } catch (vectorError) {
+      console.error("❌ Semantic vector update failed:", vectorError);
+      // Don't fail the entire operation if semantic vector fails
     }
 
     revalidatePath("/admin/files");

@@ -1,18 +1,17 @@
 generator client {
-  provider = "prisma-client-js"
-  output   = "../src/generated/prisma"
+  provider      = "prisma-client-js"
+  output        = "../src/generated/prisma"
+  binaryTargets = ["native", "linux-musl-openssl-3.0.x", "rhel-openssl-1.0.x", "rhel-openssl-3.0.x"]
 }
 
 datasource db {
-  provider     = "postgresql"
-  url          = env("DATABASE_URL")
-  directUrl    = env("DATABASE_URL")
-  relationMode = "prisma"
+  provider  = "postgresql"
+  url       = env("DATABASE_URL")
+  directUrl = env("DATABASE_URL")
 }
 
 model CategoryList {
   id         Int       @id @default(autoincrement())
-  file_no    String    @db.VarChar(100)
   category   String    @db.VarChar(255)
   created_at DateTime? @default(now()) @db.Timestamptz(6)
   updated_at DateTime? @default(now()) @db.Timestamptz(6)
@@ -22,42 +21,217 @@ model CategoryList {
 
 model FileList {
   id              Int                      @id @default(autoincrement())
-  file_no         String                   @db.Text
-  category        String                   @db.Text
-  title           String                   @db.Text
+  category        String
+  title           String
   note            String?
-  content_format  String?                  @db.VarChar(20) // 'html' or 'markdown'
-  doc1            String?                  @db.Text
+  content_format  String?                  @db.VarChar(20)
+  doc1            String?
   entry_date      String?                  @db.VarChar(50)
   entry_date_real DateTime?                @db.Date
   search_vector   Unsupported("tsvector")?
   created_at      DateTime?                @default(now()) @db.Timestamptz(6)
   updated_at      DateTime?                @updatedAt @db.Timestamptz(6)
   semantic_vector Unsupported("vector")?
+  district        String?                  @db.VarChar(50)
 
   @@index([category], map: "idx_file_list_category")
   @@index([entry_date_real], map: "idx_file_list_entry_date")
-  @@index([file_no], map: "idx_file_list_file_no")
   @@index([search_vector], map: "idx_search_vector", type: Gin)
   @@index([semantic_vector], map: "idx_semantic_vector")
   @@map("file_list")
 }
 
 model user {
+  id            Int                @id @default(autoincrement())
+  username      String             @unique @db.VarChar(100)
+  password_hash String             @db.VarChar(255)
+  role          UserRole           @default(staff)
+  is_active     Boolean?           @default(true)
+  last_login    DateTime?          @db.Timestamptz(6)
+  created_at    DateTime?          @default(now()) @db.Timestamptz(6)
+  conversations Conversation[]
+  subscription  UserSubscription?
+  usage_tracking UsageTracking[]
+}
+
+/// Stores conversation sessions for chat history
+model Conversation {
+  id              Int                   @id @default(autoincrement())
+  user_id         Int
+  user            user                  @relation(fields: [user_id], references: [id], onDelete: Cascade)
+  title           String                @default("New Conversation") @db.VarChar(255)
+  created_at      DateTime              @default(now()) @db.Timestamptz(6)
+  updated_at      DateTime              @updatedAt @db.Timestamptz(6)
+  last_message_at DateTime?             @db.Timestamptz(6)
+  message_count   Int                   @default(0)
+  is_pinned       Boolean               @default(false)
+  is_archived     Boolean               @default(false)
+  messages        ConversationMessage[]
+
+  @@index([user_id, updated_at(sort: Desc)], map: "idx_conversations_user_updated")
+  @@index([user_id, is_pinned, updated_at(sort: Desc)], map: "idx_conversations_user_pinned")
+  @@map("conversations")
+}
+
+/// Stores individual messages within conversations
+model ConversationMessage {
+  id              Int          @id @default(autoincrement())
+  conversation_id Int
+  conversation    Conversation @relation(fields: [conversation_id], references: [id], onDelete: Cascade)
+  role            MessageRole
+  content         String       @db.Text
+  sources         Json?
+  token_count     Json?
+  metadata        Json?
+  created_at      DateTime     @default(now()) @db.Timestamptz(6)
+
+  @@index([conversation_id, created_at], map: "idx_conversation_messages_conversation")
+  @@map("conversation_messages")
+}
+
+enum MessageRole {
+  user
+  assistant
+
+  @@map("message_role")
+}
+
+/// Stores encrypted API keys and metadata for AI providers
+model AiApiKey {
   id            Int       @id @default(autoincrement())
-  username      String    @unique @db.VarChar(100)
-  password_hash String    @db.VarChar(255)
-  role          UserRole  @default(staff)
-  is_active     Boolean?  @default(true)
-  last_login    DateTime? @db.Timestamptz(6)
-  created_at    DateTime? @default(now()) @db.Timestamptz(6)
+  provider      Provider
+  label         String    @db.VarChar(100)
+  api_key_enc   String
+  active        Boolean   @default(true)
+  priority      Int       @default(0)
+  success_count Int       @default(0)
+  error_count   Int       @default(0)
+  last_used_at  DateTime? @db.Timestamptz(6)
+  created_at    DateTime  @default(now()) @db.Timestamptz(6)
+  updated_at    DateTime  @updatedAt @db.Timestamptz(6)
+
+  @@index([provider, active, priority], map: "idx_ai_api_keys_active_priority")
+  @@map("ai_api_keys")
+}
+
+/// Lists available models per provider, manageable by admin
+model AiModel {
+  id         Int      @id @default(autoincrement())
+  provider   Provider
+  name       String   @db.VarChar(100)
+  label      String   @db.VarChar(150)
+  active     Boolean  @default(true)
+  priority   Int      @default(0)
+  created_at DateTime @default(now()) @db.Timestamptz(6)
+  updated_at DateTime @updatedAt @db.Timestamptz(6)
+
+  @@unique([provider, name], map: "uq_ai_model_provider_name")
+  @@index([provider, active, priority], map: "idx_ai_models_active_priority")
+  @@map("ai_models")
+}
+
+model app_settings {
+  key        String    @id
+  value      String
+  created_at DateTime? @default(now()) @db.Timestamptz(6)
+  updated_at DateTime? @default(now()) @db.Timestamptz(6)
 }
 
 enum UserRole {
   admin
   staff
+  user
 
   @@map("user_role")
+}
+
+/// Subscription plans available for users
+model SubscriptionPlan {
+  id                Int                @id @default(autoincrement())
+  name              String             @unique @db.VarChar(100)
+  display_name      String             @db.VarChar(150)
+  description       String?            @db.Text
+  price_monthly     Decimal            @db.Decimal(10, 2)
+  price_yearly      Decimal?           @db.Decimal(10, 2)
+  stripe_price_id_monthly String?      @db.VarChar(255)
+  stripe_price_id_yearly  String?      @db.VarChar(255)
+  features          Json?              // Array of feature strings
+  limits            Json               // Usage limits: { files: number, chats: number, exports: number }
+  is_active         Boolean            @default(true)
+  is_default        Boolean            @default(false)
+  created_at        DateTime           @default(now()) @db.Timestamptz(6)
+  updated_at        DateTime           @updatedAt @db.Timestamptz(6)
+  subscriptions     UserSubscription[]
+
+  @@index([is_active, is_default], map: "idx_subscription_plans_active")
+  @@map("subscription_plans")
+}
+
+/// User subscription information
+model UserSubscription {
+  id                    Int                @id @default(autoincrement())
+  user_id               Int                @unique
+  user                  user               @relation(fields: [user_id], references: [id], onDelete: Cascade)
+  plan_id               Int
+  plan                  SubscriptionPlan   @relation(fields: [plan_id], references: [id])
+  stripe_subscription_id String?           @unique @db.VarChar(255)
+  stripe_customer_id    String?            @db.VarChar(255)
+  status                SubscriptionStatus @default(active)
+  billing_cycle         BillingCycle       @default(monthly)
+  current_period_start  DateTime           @db.Timestamptz(6)
+  current_period_end    DateTime           @db.Timestamptz(6)
+  cancel_at_period_end  Boolean            @default(false)
+  canceled_at           DateTime?          @db.Timestamptz(6)
+  created_at            DateTime           @default(now()) @db.Timestamptz(6)
+  updated_at            DateTime           @updatedAt @db.Timestamptz(6)
+
+  @@index([status, current_period_end], map: "idx_user_subscriptions_status")
+  @@index([stripe_subscription_id], map: "idx_user_subscriptions_stripe")
+  @@map("user_subscriptions")
+}
+
+/// Usage tracking for subscription limits
+model UsageTracking {
+  id            Int            @id @default(autoincrement())
+  user_id       Int
+  user          user           @relation(fields: [user_id], references: [id], onDelete: Cascade)
+  usage_type    UsageType
+  count         Int            @default(1)
+  period_start  DateTime       @db.Timestamptz(6)
+  period_end    DateTime       @db.Timestamptz(6)
+  metadata      Json?
+  created_at    DateTime       @default(now()) @db.Timestamptz(6)
+
+  @@index([user_id, usage_type, period_start], map: "idx_usage_tracking_user_type")
+  @@index([period_start, period_end], map: "idx_usage_tracking_period")
+  @@map("usage_tracking")
+}
+
+enum SubscriptionStatus {
+  active
+  canceled
+  past_due
+  trialing
+  incomplete
+  incomplete_expired
+
+  @@map("subscription_status")
+}
+
+enum BillingCycle {
+  monthly
+  yearly
+
+  @@map("billing_cycle")
+}
+
+enum UsageType {
+  file_upload
+  chat_message
+  document_export
+  ai_processing
+
+  @@map("usage_type")
 }
 
 /// Provider enum for AI key management
@@ -66,38 +240,5 @@ enum Provider {
   openai
   anthropic
   llamaparse
-}
-
-/// Stores encrypted API keys and metadata for AI providers
-model AiApiKey {
-  id            Int        @id @default(autoincrement())
-  provider      Provider
-  label         String     @db.VarChar(100)
-  api_key_enc   String     @db.Text
-  active        Boolean    @default(true)
-  priority      Int        @default(0)
-  success_count Int        @default(0)
-  error_count   Int        @default(0)
-  last_used_at  DateTime?  @db.Timestamptz(6)
-  created_at    DateTime   @default(now()) @db.Timestamptz(6)
-  updated_at    DateTime   @updatedAt @db.Timestamptz(6)
-
-  @@index([provider, active, priority], map: "idx_ai_api_keys_active_priority")
-  @@map("ai_api_keys")
-}
-
-/// Lists available models per provider, manageable by admin
-model AiModel {
-  id         Int       @id @default(autoincrement())
-  provider   Provider
-  name       String    @db.VarChar(100) // internal model id used by API calls
-  label      String    @db.VarChar(150) // human-friendly label
-  active     Boolean   @default(true)
-  priority   Int       @default(0)
-  created_at DateTime  @default(now()) @db.Timestamptz(6)
-  updated_at DateTime  @updatedAt @db.Timestamptz(6)
-
-  @@unique([provider, name], map: "uq_ai_model_provider_name")
-  @@index([provider, active, priority], map: "idx_ai_models_active_priority")
-  @@map("ai_models")
+  openrouter
 }

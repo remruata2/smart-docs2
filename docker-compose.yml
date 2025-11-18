@@ -1,0 +1,80 @@
+version: '3.8'
+
+services:
+  # Main Next.js application
+  app:
+    build:
+      context: .
+      target: runner
+      args:
+        - NODE_ENV=production
+    container_name: cid-ai
+    ports:
+      - "3003:3003"
+    environment:
+      - NODE_ENV=production
+      - DATABASE_URL=${DATABASE_URL}
+      # Add other environment variables from your .env file here
+    depends_on:
+      - db
+    restart: unless-stopped
+    healthcheck:
+      test: ["CMD", "curl", "-f", "http://localhost:3003/api/health"]
+      interval: 30s
+      timeout: 10s
+      retries: 3
+
+  # Database service (PostgreSQL)
+  db:
+    image: postgres:15-alpine
+    container_name: cid-ai-db
+    environment:
+      POSTGRES_USER: ${DB_USER:-postgres}
+      POSTGRES_PASSWORD: ${DB_PASSWORD:-postgres}
+      POSTGRES_DB: ${DB_NAME:-ciddb}
+    volumes:
+      - postgres_data:/var/lib/postgresql/data
+    ports:
+      - "5432:5432"
+    healthcheck:
+      test: ["CMD-SHELL", "pg_isready -U ${DB_USER:-postgres} -d ${DB_NAME:-ciddb}"]
+      interval: 5s
+      timeout: 5s
+      retries: 5
+
+  # Redis for caching (optional, uncomment if needed)
+  # redis:
+  #   image: redis:alpine
+  #   container_name: cid-ai-redis
+  #   ports:
+  #     - "6379:6379"
+  #   volumes:
+  #     - redis_data:/data
+  #   healthcheck:
+  #     test: ["CMD", "redis-cli", "ping"]
+  #     interval: 5s
+  #     timeout: 3s
+  #     retries: 5
+
+  # Prisma Studio (uncomment if needed)
+  # prisma-studio:
+  #   build:
+  #     context: .
+  #     dockerfile: Dockerfile
+  #     target: deps
+  #   container_name: cid-ai-prisma-studio
+  #   command: npx prisma studio
+  #   ports:
+  #     - "5555:5555"
+  #   environment:
+  #     - DATABASE_URL=${DATABASE_URL}
+  #   depends_on:
+  #     - db
+
+volumes:
+  postgres_data:
+  # redis_data:  # Uncomment if using Redis
+
+networks:
+  default:
+    name: cid-ai-network
