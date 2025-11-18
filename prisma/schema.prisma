@@ -42,14 +42,16 @@ model FileList {
 }
 
 model user {
-  id            Int            @id @default(autoincrement())
-  username      String         @unique @db.VarChar(100)
-  password_hash String         @db.VarChar(255)
-  role          UserRole       @default(staff)
-  is_active     Boolean?       @default(true)
-  last_login    DateTime?      @db.Timestamptz(6)
-  created_at    DateTime?      @default(now()) @db.Timestamptz(6)
+  id            Int                @id @default(autoincrement())
+  username      String             @unique @db.VarChar(100)
+  password_hash String             @db.VarChar(255)
+  role          UserRole           @default(staff)
+  is_active     Boolean?           @default(true)
+  last_login    DateTime?          @db.Timestamptz(6)
+  created_at    DateTime?          @default(now()) @db.Timestamptz(6)
   conversations Conversation[]
+  subscription  UserSubscription?
+  usage_tracking UsageTracking[]
 }
 
 /// Stores conversation sessions for chat history
@@ -138,8 +140,98 @@ model app_settings {
 enum UserRole {
   admin
   staff
+  user
 
   @@map("user_role")
+}
+
+/// Subscription plans available for users
+model SubscriptionPlan {
+  id                Int                @id @default(autoincrement())
+  name              String             @unique @db.VarChar(100)
+  display_name      String             @db.VarChar(150)
+  description       String?            @db.Text
+  price_monthly     Decimal            @db.Decimal(10, 2)
+  price_yearly      Decimal?           @db.Decimal(10, 2)
+  stripe_price_id_monthly String?      @db.VarChar(255)
+  stripe_price_id_yearly  String?      @db.VarChar(255)
+  features          Json?              // Array of feature strings
+  limits            Json               // Usage limits: { files: number, chats: number, exports: number }
+  is_active         Boolean            @default(true)
+  is_default        Boolean            @default(false)
+  created_at        DateTime           @default(now()) @db.Timestamptz(6)
+  updated_at        DateTime           @updatedAt @db.Timestamptz(6)
+  subscriptions     UserSubscription[]
+
+  @@index([is_active, is_default], map: "idx_subscription_plans_active")
+  @@map("subscription_plans")
+}
+
+/// User subscription information
+model UserSubscription {
+  id                    Int                @id @default(autoincrement())
+  user_id               Int                @unique
+  user                  user               @relation(fields: [user_id], references: [id], onDelete: Cascade)
+  plan_id               Int
+  plan                  SubscriptionPlan   @relation(fields: [plan_id], references: [id])
+  stripe_subscription_id String?           @unique @db.VarChar(255)
+  stripe_customer_id    String?            @db.VarChar(255)
+  status                SubscriptionStatus @default(active)
+  billing_cycle         BillingCycle       @default(monthly)
+  current_period_start  DateTime           @db.Timestamptz(6)
+  current_period_end    DateTime           @db.Timestamptz(6)
+  cancel_at_period_end  Boolean            @default(false)
+  canceled_at           DateTime?          @db.Timestamptz(6)
+  created_at            DateTime           @default(now()) @db.Timestamptz(6)
+  updated_at            DateTime           @updatedAt @db.Timestamptz(6)
+
+  @@index([status, current_period_end], map: "idx_user_subscriptions_status")
+  @@index([stripe_subscription_id], map: "idx_user_subscriptions_stripe")
+  @@map("user_subscriptions")
+}
+
+/// Usage tracking for subscription limits
+model UsageTracking {
+  id            Int            @id @default(autoincrement())
+  user_id       Int
+  user          user           @relation(fields: [user_id], references: [id], onDelete: Cascade)
+  usage_type    UsageType
+  count         Int            @default(1)
+  period_start  DateTime       @db.Timestamptz(6)
+  period_end    DateTime       @db.Timestamptz(6)
+  metadata      Json?
+  created_at    DateTime       @default(now()) @db.Timestamptz(6)
+
+  @@index([user_id, usage_type, period_start], map: "idx_usage_tracking_user_type")
+  @@index([period_start, period_end], map: "idx_usage_tracking_period")
+  @@map("usage_tracking")
+}
+
+enum SubscriptionStatus {
+  active
+  canceled
+  past_due
+  trialing
+  incomplete
+  incomplete_expired
+
+  @@map("subscription_status")
+}
+
+enum BillingCycle {
+  monthly
+  yearly
+
+  @@map("billing_cycle")
+}
+
+enum UsageType {
+  file_upload
+  chat_message
+  document_export
+  ai_processing
+
+  @@map("usage_type")
 }
 
 /// Provider enum for AI key management
