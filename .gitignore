@@ -159,6 +159,11 @@ temp/
 *.bak
 *.backup
 *.old
+*.dump
+backups/
+database/
+backup_*.sql
+*.csv
 
 # Test files
 test_similarity.js
