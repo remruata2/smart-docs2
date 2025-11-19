@@ -14,8 +14,8 @@ const geistMono = Geist_Mono({
 });
 
 export const metadata: Metadata = {
-	title: "ICPS - AI Database",
-	description: "ICPS - AI Database",
+	title: "Smart Docs",
+	description: "Smart Docs",
 };
 
 export default function RootLayout({

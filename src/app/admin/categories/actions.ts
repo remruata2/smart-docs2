@@ -63,7 +63,7 @@ export async function createCategoryAction(formData: FormData): Promise<{ succes
     });
     revalidatePath("/admin/categories");
     return { success: true };
-  } catch (error: any) {
+  } catch (error: unknown) {
     console.error("Failed to create category:", error);
     return { success: false, error: "Failed to create category. Please try again." };
   }
@@ -99,7 +99,7 @@ export async function updateCategoryAction(id: number, formData: FormData): Prom
     revalidatePath("/admin/categories");
     revalidatePath(`/admin/categories/${id}/edit`);
     return { success: true };
-  } catch (error: any) {
+  } catch (error: unknown) {
     console.error("Failed to update category:", error);
     return { success: false, error: "Failed to update category. Please try again." };
   }

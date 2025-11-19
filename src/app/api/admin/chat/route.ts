@@ -13,6 +13,9 @@ import {
 	validateConversationHistory,
 	sanitizeFilterValue,
 } from "@/lib/input-sanitizer";
+import { enforceUsageLimit } from "@/lib/usage-limits";
+import { trackUsage } from "@/lib/usage-tracking";
+import { UsageType } from "@/generated/prisma";
 
 export async function POST(request: NextRequest) {
 	try {
@@ -27,11 +30,20 @@ export async function POST(request: NextRequest) {
 		}
 
 		const userRole = (session.user as any).role;
+		const userId = parseInt(session.user.id as string);
+
+		// Check usage limit for non-admin users
 		if (!isAdmin(userRole)) {
-			return NextResponse.json(
-				{ error: "Admin privileges required" },
-				{ status: 403 }
+			const limitCheck = await enforceUsageLimit(
+				UsageType.chat_message,
+				userId
 			);
+			if (!limitCheck.success) {
+				return NextResponse.json(
+					{ error: limitCheck.error, limitExceeded: true },
+					{ status: limitCheck.status }
+				);
+			}
 		}
 
 		// Check rate limit
@@ -55,8 +67,7 @@ export async function POST(request: NextRequest) {
 
 		// Validate request body
 		const body = await request.json();
-		const { message, provider, model, keyId, district, category, stream } =
-			body;
+		const { message, provider, model, keyId, category, stream } = body;
 		let conversationHistory = body.conversationHistory;
 
 		if (!message || typeof message !== "string") {
@@ -136,10 +147,7 @@ export async function POST(request: NextRequest) {
 		}
 
 		// Validate and sanitize optional filters
-		const filters: { district?: string; category?: string } = {};
-		if (district && typeof district === "string" && district.trim()) {
-			filters.district = sanitizeFilterValue(district);
-		}
+		const filters: { category?: string } = {};
 		if (category && typeof category === "string" && category.trim()) {
 			filters.category = sanitizeFilterValue(category);
 		}
@@ -215,6 +223,11 @@ export async function POST(request: NextRequest) {
 							}
 						}
 
+						// Track chat message usage after streaming completes (skip for admin users)
+						if (!isAdmin(userRole)) {
+							await trackUsage(userId, UsageType.chat_message);
+						}
+
 						controller.close();
 					} catch (error: any) {
 						console.error("[ADMIN CHAT] Streaming error:", error);
@@ -260,6 +273,11 @@ export async function POST(request: NextRequest) {
 			console.log(
 				`[ADMIN CHAT] Response generated with ${result.sources.length} sources`
 			);
+
+			// Track chat message usage (skip for admin users if they have unlimited)
+			if (!isAdmin(userRole)) {
+				await trackUsage(userId, UsageType.chat_message);
+			}
 
 			return NextResponse.json({
 				success: true,
@@ -324,7 +342,7 @@ export async function GET(request: NextRequest) {
 
 		return NextResponse.json({
 			success: true,
-			message: "ICPS AI Chat API is available",
+			message: "Smart Docs Chat API is available",
 			user: session.user.email,
 			timestamp: new Date().toISOString(),
 		});

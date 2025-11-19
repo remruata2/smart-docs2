@@ -6,10 +6,7 @@ import {
 } from "@/lib/ai-key-store";
 import { HybridSearchService } from "./hybrid-search";
 import { getSettingInt } from "@/lib/app-settings";
-import {
-	processChunkedAnalyticalQuery,
-	isAnalyticalQuery,
-} from "./chunked-processing";
+import { processChunkedAnalyticalQuery } from "./chunked-processing";
 
 // Developer logging toggle - set to true to see query logs in console
 const DEV_LOGGING = true;
@@ -114,6 +111,8 @@ export interface ChatMessage {
 	sources?: Array<{
 		id: number;
 		title: string;
+		relevance?: number;
+		similarity?: number; // For UI display (converted from RRF score or semantic_similarity)
 	}>;
 	tokenCount?: {
 		input: number;
@@ -127,11 +126,20 @@ export interface SearchResult {
 	title: string;
 	note: string | null;
 	entry_date_real: Date | null;
-	district: string | null;
-	rank?: number; // For relevance ranking
+
+	// NEW FIELDS from RRF
+	rrf_score?: number; // The main score now (approx 0.00 ~ 0.033)
+	semantic_rank?: number; // Where it ranked semantically
+	keyword_rank?: number; // Where it ranked by keyword
+
+	// OLD FIELDS (Keep optional for backward compatibility)
+	rank?: number;
 	ts_rank?: number;
 	semantic_similarity?: number;
 	combined_score?: number;
+
+	// Internal flag
+	_processed?: boolean;
 }
 
 /**
@@ -148,8 +156,7 @@ function quickClassifyQuery(query: string): {
 		| "general"
 		| "recent_files"
 		| "analytical_query"
-		| "list_all"
-		| "group_by_district";
+		| "list_all";
 	contextNeeded: boolean;
 	inputTokens: number;
 	outputTokens: number;
@@ -206,18 +213,6 @@ function quickClassifyQuery(query: string): {
 			coreSearchTerms: query,
 			instructionalTerms: "",
 			queryType: "recent_files",
-			contextNeeded: false,
-			inputTokens: 0,
-			outputTokens: 0,
-		};
-	}
-
-	// Pattern 5: Group by district queries
-	if (/\b(group|organize|categorize|sort)\s+by\s+district/i.test(q)) {
-		return {
-			coreSearchTerms: "",
-			instructionalTerms: "group by district",
-			queryType: "group_by_district",
 			contextNeeded: false,
 			inputTokens: 0,
 			outputTokens: 0,
@@ -291,8 +286,7 @@ export async function analyzeQueryForSearch(
 		| "general"
 		| "recent_files"
 		| "analytical_query"
-		| "list_all"
-		| "group_by_district";
+		| "list_all";
 	contextNeeded: boolean;
 	inputTokens: number;
 	outputTokens: number;
@@ -328,7 +322,7 @@ export async function analyzeQueryForSearch(
 						.join("\n")}\n`
 				: "";
 
-		const prompt = `You are an AI assistant analyzing queries for a ICPS (Criminal Investigation Department) database search system.
+		const prompt = `You are an AI assistant analyzing queries for a Smart Docs database search system.
 
 ${historyContext}
 
@@ -348,7 +342,6 @@ Query Types:
 - general: General questions or greetings.
 - recent_files: Queries asking for recent/latest/newest files (handled separately).
 - list_all: Queries asking to list or show all records/files (e.g., "list all records", "show all cases").
-- group_by_district: Queries asking to group or organize records by district (e.g., "group by district", "list all records, group them by district wise").
 
 IMPORTANT:
 - If the query asks for "recent", "latest", "newest", or "most recent" files/records/cases, classify it as "recent_files".
@@ -373,7 +366,6 @@ Examples:
 - "Latest cases" → {"coreSearchTerms": "latest cases", "instructionalTerms": "", "queryType": "recent_files", "contextNeeded": false}
 - "Summarize the case on Zothansangi" → {"coreSearchTerms": "Zothansangi", "instructionalTerms": "summarize case", "queryType": "analytical_query", "contextNeeded": false}
 - "List all records" → {"coreSearchTerms": "", "instructionalTerms": "list all records", "queryType": "list_all", "contextNeeded": false}
-- "List all records, group them by district wise" → {"coreSearchTerms": "", "instructionalTerms": "list all records group by district", "queryType": "group_by_district", "contextNeeded": false}
 
 `;
 
@@ -522,7 +514,6 @@ export async function getRecentFiles(
 				title: true,
 				note: true,
 				entry_date_real: true,
-				district: true,
 			},
 			where: {
 				entry_date_real: {
@@ -569,8 +560,6 @@ export function extractRelevantInformation(
 	// Use semantic search scores to determine relevance
 	return records.map((record) => {
 		const originalNote = record.note || "";
-		const title = record.title || "";
-		const category = record.category || "";
 
 		// Calculate relevance score based on semantic search results
 		const relevanceScore = calculateRelevanceScore(record, queryWords, query);
@@ -613,7 +602,7 @@ export function extractRelevantInformation(
 }
 
 /**
- * Calculate relevance score based on semantic search results and query analysis
+ * UPDATED: Calculate relevance score based on RRF results
  */
 function calculateRelevanceScore(
 	record: SearchResult,
@@ -622,22 +611,19 @@ function calculateRelevanceScore(
 ): number {
 	let score = 0;
 
-	// Use semantic similarity score if available
-	if (record.semantic_similarity !== undefined) {
-		score += record.semantic_similarity * 10; // Scale semantic similarity
+	// 1. Use RRF Score (Primary Signal)
+	// RRF scores are small (0.0 - 0.033), so we multiply by 1000 to make them usable integers
+	if (record.rrf_score !== undefined) {
+		score += record.rrf_score * 1000;
+		// Example: 0.032 * 1000 = 32 points (Very High)
+		// Example: 0.009 * 1000 = 9 points (Low)
+	}
+	// Fallback for legacy results
+	else if (record.combined_score !== undefined) {
+		score += record.combined_score * 20;
 	}
 
-	// Use combined score if available
-	if (record.combined_score !== undefined) {
-		score += record.combined_score * 5; // Scale combined score
-	}
-
-	// Use rank if available (lower rank = higher relevance)
-	if (record.rank !== undefined) {
-		score += (100 - record.rank) / 10; // Convert rank to score
-	}
-
-	// Query word matches in title and content
+	// 2. Query word matches in title and content (Keep this logic, it's good)
 	const titleLower = record.title.toLowerCase();
 	const noteLower = (record.note || "").toLowerCase();
 	const categoryLower = (record.category || "").toLowerCase();
@@ -657,7 +643,7 @@ function calculateRelevanceScore(
 		}
 	});
 
-	// Analyze query type and adjust scoring
+	// 3. Analyze query type and adjust scoring (Keep this, it's good)
 	const queryType = analyzeQueryType(query);
 	score = adjustScoreForQueryType(score, queryType, record);
 
@@ -798,27 +784,26 @@ function adjustScoreForQueryType(
 /**
  * Determine relevance level based on calculated score
  */
+/**
+ * UPDATED: Determine relevance level based on RRF
+ */
 function determineRelevanceLevel(
 	score: number,
 	record: SearchResult
 ): "high" | "medium" | "low" {
-	// Use semantic similarity as primary indicator if available
-	if (record.semantic_similarity !== undefined) {
-		if (record.semantic_similarity > 0.7) return "high";
-		if (record.semantic_similarity > 0.4) return "medium";
+	// 1. Check RRF Score directly if available
+	if (record.rrf_score !== undefined) {
+		// > 0.02 means it likely appeared in BOTH lists or was Top 3 in one list
+		if (record.rrf_score > 0.02) return "high";
+		// > 0.01 means it appeared in the top 30 of at least one list
+		if (record.rrf_score > 0.01) return "medium";
 		return "low";
 	}
 
-	// Use combined score if available
-	if (record.combined_score !== undefined) {
-		if (record.combined_score > 0.6) return "high";
-		if (record.combined_score > 0.3) return "medium";
-		return "low";
-	}
-
-	// Use calculated score
-	if (score > 15) return "high";
-	if (score > 8) return "medium";
+	// 2. Fallback to calculated score (from calculateRelevanceScore above)
+	// Since we multiplied RRF by 1000, a "High" score is around 30+
+	if (score > 30) return "high";
+	if (score > 15) return "medium";
 	return "low";
 }
 
@@ -1034,8 +1019,8 @@ function extractKeyInformation(
  */
 function extractMinimalInformation(
 	note: string,
-	queryWords: string[],
-	query: string
+	_queryWords: string[],
+	_query: string
 ): string {
 	if (!note) return "";
 
@@ -1128,14 +1113,25 @@ export function prepareContextForAI(
 	}, {} as Record<string, SearchResult[]>);
 
 	// Create a structured index of all records for quick reference
-	const recordIndex = processedRecords.map((record, index) => ({
-		id: record.id,
-		title: record.title,
-		category: record.category || "Uncategorized",
-		district: record.district || "Unknown district",
-		date: record.entry_date_real?.toLocaleDateString() || "Unknown date",
-		relevance: record.rank ? (record.rank * 100).toFixed(1) + "%" : "Unknown",
-	}));
+	const recordIndex = processedRecords.map((record) => {
+		let relevanceDisplay = "Unknown";
+
+		if (record.rrf_score !== undefined) {
+			// Convert RRF to a simple "Rank Score" for the AI to understand
+			// Just showing the raw number is fine for Gemini 2.0
+			relevanceDisplay = `Score ${record.rrf_score.toFixed(4)}`;
+		} else if (record.rank !== undefined) {
+			relevanceDisplay = (record.rank * 100).toFixed(1) + "%";
+		}
+
+		return {
+			id: record.id,
+			title: record.title,
+			category: record.category || "Uncategorized",
+			date: record.entry_date_real?.toLocaleDateString() || "Unknown date",
+			relevance: relevanceDisplay,
+		};
+	});
 
 	// Build the full record details with optimized content
 	const detailedRecords = processedRecords.map((record) => {
@@ -1151,18 +1147,21 @@ export function prepareContextForAI(
 			"i"
 		);
 
-		const hasMetadataPrefix =
-			categoryPattern.test(content.substring(0, 200)) ||
-			titlePattern.test(content.substring(0, 200));
+		// Determine relevance display
+		let relevanceDisplay = "";
+		if (record.rrf_score !== undefined) {
+			relevanceDisplay = `Score ${record.rrf_score.toFixed(4)}`;
+		} else if (record.rank !== undefined) {
+			relevanceDisplay = (record.rank * 100).toFixed(1) + "%";
+		}
 
 		return {
 			id: record.id,
 			title: record.title,
 			category: record.category || "Uncategorized",
-			district: record.district || "Unknown district",
 			date: record.entry_date_real?.toLocaleDateString() || "Unknown date",
 			content: content,
-			relevance: record.rank ? (record.rank * 100).toFixed(1) + "%" : "",
+			relevance: relevanceDisplay,
 		};
 	});
 
@@ -1171,7 +1170,7 @@ export function prepareContextForAI(
 DATABASE CONTEXT:
 
 === OVERVIEW ===
-Found ${processedRecords.length} relevant records from the ICPS database.
+ Found ${processedRecords.length} relevant records from the Smart Docs database.
 The records span ${Object.keys(recordsByCategory).length} categories.
 Records are listed below ordered by relevance to your query.
 
@@ -1179,9 +1178,9 @@ Records are listed below ordered by relevance to your query.
   ${recordIndex
 		.map(
 			(r, i) =>
-				`[${i + 1}] District: ${r.district} | Title: ${r.title} | Category: ${
-					r.category
-				} | Date: ${r.date} | Relevance: ${r.relevance}`
+				`[${i + 1}] Title: ${r.title} | Category: ${r.category} | Date: ${
+					r.date
+				} | Relevance: ${r.relevance}`
 		)
 		.join("\n")}
 
@@ -1190,7 +1189,7 @@ ${detailedRecords
 	.map(
 		(record, index) => `
 [RECORD ${index + 1}] (Relevance: ${record.relevance})
-**District:** ${record.district} **Title:** ${record.title}
+**Title:** ${record.title}
 Category: ${record.category}
 Date: ${record.date}
 Content: ${record.content}
@@ -1240,7 +1239,6 @@ export async function generateAIResponse(
 		"elaboration",
 		"general",
 		"recent_files",
-		"group_by_district",
 	];
 	if (!allowedQueryTypes.includes(queryType)) {
 		queryType = "specific_search";
@@ -1297,15 +1295,6 @@ export async function generateAIResponse(
 - Mention they are sorted by most recent first.
 `;
 			break;
-		case "group_by_district":
-			roleInstructions = `
-- The user wants records grouped by district.
-- Use the "District" field from each record's metadata (shown prominently at the beginning of each record).
-- Group records by their district field, not by extracting addresses from content.
-- Present the results organized by district, with counts and summaries for each district.
-- If a record has "Unknown district", group it separately.
-`;
-			break;
 		default: // specific_search and general
 			roleInstructions = `
 - Answer the user's specific question using the provided database records.
@@ -1314,7 +1303,7 @@ export async function generateAIResponse(
 `;
 	}
 
-	const prompt = `You are a helpful AI assistant for the ICPS (Criminal Investigation Department) database system.\n\n${historyContext}\n\nCURRENT QUESTION: "${question}"\n\n${context}\n\nINSTRUCTIONS:\n${roleInstructions}\n\n- Always be professional and factual\n- If asked about specific cases, provide file numbers and relevant details\n- If no relevant information is found, say so clearly\n- Keep responses concise but informative\n- Use bullet points or numbered lists when presenting multiple items\n\nPlease provide a helpful response based on the database records above.`;
+	const prompt = `You are a helpful AI assistant for the Smart Docs database system.\n\n${historyContext}\n\nCURRENT QUESTION: "${question}"\n\n${context}\n\nINSTRUCTIONS:\n${roleInstructions}\n\n- Always be professional and factual\n- If asked about specific cases, provide file numbers and relevant details\n- If no relevant information is found, say so clearly\n- Keep responses concise but informative\n- Use bullet points or numbered lists when presenting multiple items\n\nPlease provide a helpful response based on the database records above.`;
 
 	let lastError: any = null;
 	for (const modelName of attemptModels) {
@@ -1421,7 +1410,6 @@ export async function* generateAIResponseStream(
 		"elaboration",
 		"general",
 		"recent_files",
-		"group_by_district",
 	];
 	if (!allowedQueryTypes.includes(queryType)) {
 		queryType = "specific_search";
@@ -1479,15 +1467,6 @@ export async function* generateAIResponseStream(
 - Mention they are sorted by most recent first.
 `;
 			break;
-		case "group_by_district":
-			roleInstructions = `
-- The user wants records grouped by district.
-- Use the "District" field from each record's metadata (shown prominently at the beginning of each record).
-- Group records by their district field, not by extracting addresses from content.
-- Present the results organized by district, with counts and summaries for each district.
-- If a record has "Unknown district", group it separately.
-`;
-			break;
 		default: // specific_search and general
 			roleInstructions = `
 - Answer the user's specific question using the provided database records.
@@ -1496,7 +1475,7 @@ export async function* generateAIResponseStream(
 `;
 	}
 
-	const prompt = `You are a helpful AI assistant for the ICPS (Criminal Investigation Department) database system.\n\n${historyContext}\n\nCURRENT QUESTION: "${question}"\n\n${context}\n\nINSTRUCTIONS:\n${roleInstructions}\n\n- Always be professional and factual\n- If asked about specific cases, provide file numbers and relevant details\n- If no relevant information is found, say so clearly\n- Keep responses concise but informative\n- Use bullet points or numbered lists when presenting multiple items\n\nPlease provide a helpful response based on the database records above.`;
+	const prompt = `You are a helpful AI assistant for the Smart Docs database system.\n\n${historyContext}\n\nCURRENT QUESTION: "${question}"\n\n${context}\n\nINSTRUCTIONS:\n${roleInstructions}\n\n- Always be professional and factual\n- If asked about specific cases, provide file numbers and relevant details\n- If no relevant information is found, say so clearly\n- Keep responses concise but informative\n- Use bullet points or numbered lists when presenting multiple items\n\nPlease provide a helpful response based on the database records above.`;
 
 	let lastError: any = null;
 	for (const modelName of attemptModels) {
@@ -1570,11 +1549,11 @@ export async function processChatMessageEnhanced(
 	question: string,
 	conversationHistory: ChatMessage[] = [],
 	searchLimit?: number,
-	useEnhancedSearch: boolean = true,
+	_useEnhancedSearch: boolean = true,
 	opts: { provider?: "gemini"; model?: string; keyId?: number } = {},
 	filters?: {
-		district?: string;
 		category?: string;
+		userId?: number;
 	}
 ): Promise<{
 	response: string;
@@ -1582,12 +1561,15 @@ export async function processChatMessageEnhanced(
 		id: number;
 		title: string;
 		relevance?: number;
+		similarity?: number; // For UI display (converted from RRF score or semantic_similarity)
 	}>;
 	searchQuery: string;
 	searchMethod:
 		| "hybrid"
 		| "semantic_fallback"
 		| "tsvector_only"
+		| "vector_only"
+		| "keyword_only"
 		| "recent_files"
 		| "analytical_fallback";
 	queryType: string;
@@ -1668,14 +1650,6 @@ export async function processChatMessageEnhanced(
 				'[CHAT ANALYSIS] Query type is "list_all", returning all records'
 			);
 		}
-
-		// Handle group_by_district queries
-		if (analysis.queryType === "group_by_district") {
-			queryForSearch = ""; // Return all records for grouping
-			console.log(
-				'[CHAT ANALYSIS] Query type is "group_by_district", returning all records for grouping'
-			);
-		}
 	} catch (error) {
 		console.error("Failed to analyze query with AI, using raw query.", error);
 		// Fallback to using the raw question if analysis fails
@@ -1710,7 +1684,7 @@ export async function processChatMessageEnhanced(
 
 		// For analytical queries with filters, get ALL records matching the filters
 		// instead of filtering by search terms (analytical queries need complete data)
-		const hasFilters = filters && (filters.category || filters.district);
+		const hasFilters = filters && (filters.category || filters.userId);
 		if (queryType === "analytical_query" && hasFilters) {
 			console.log(
 				`[CHAT ANALYSIS] Analytical query with filters - retrieving all records matching filters for complete analysis`
@@ -1733,7 +1707,22 @@ export async function processChatMessageEnhanced(
 				filters
 			);
 			records = hybridSearchResponse.results;
-			searchMethod = hybridSearchResponse.searchMethod;
+			// Map RRF search methods to expected types
+			const methodMap: Record<
+				string,
+				| "hybrid"
+				| "semantic_fallback"
+				| "tsvector_only"
+				| "recent_files"
+				| "analytical_fallback"
+			> = {
+				hybrid: "hybrid",
+				semantic_fallback: "semantic_fallback",
+				tsvector_only: "tsvector_only",
+				vector_only: "semantic_fallback", // Map vector_only to semantic_fallback
+				keyword_only: "tsvector_only", // Map keyword_only to tsvector_only
+			};
+			searchMethod = methodMap[hybridSearchResponse.searchMethod] || "hybrid";
 			searchStats = hybridSearchResponse.stats;
 
 			console.log(
@@ -1748,7 +1737,7 @@ export async function processChatMessageEnhanced(
 			`[CHAT ANALYSIS] Analytical query returned 0 records, falling back to all records for analysis`
 		);
 		const configuredLimit = await getSettingInt("ai.search.limit", 30);
-		let effectiveLimit = Math.min(configuredLimit, 200); // Cap at 200 for analytical queries
+		const effectiveLimit = Math.min(configuredLimit, 200); // Cap at 200 for analytical queries
 
 		const allRecordsResponse = await HybridSearchService.search(
 			"",
@@ -1763,8 +1752,7 @@ export async function processChatMessageEnhanced(
 		);
 	}
 
-	// Check if this is an analytical query that needs chunked processing
-	const needsChunkedProcessing = false; // Normal processing is more efficient for all queries
+	// Normal processing is more efficient for all queries
 	let aiResponse;
 	let contextTime = 0;
 	let aiTime = 0;
@@ -1898,7 +1886,10 @@ export async function processChatMessageEnhanced(
 			return {
 				id: record.id,
 				title: record.title,
-				relevance: record.combined_score || record.rank,
+				relevance: record.rrf_score || record.combined_score || record.rank,
+				similarity: record.rrf_score
+					? record.rrf_score * 30
+					: record.semantic_similarity, // Convert RRF to similarity-like value for UI
 				citationScore: score,
 			};
 		})
@@ -1952,14 +1943,19 @@ export async function* processChatMessageEnhancedStream(
 	useEnhancedSearch: boolean = true,
 	opts: { provider?: "gemini"; model?: string; keyId?: number } = {},
 	filters?: {
-		district?: string;
 		category?: string;
+		userId?: number;
 	}
 ): AsyncGenerator<
 	{
 		type: "metadata" | "token" | "sources" | "done" | "progress";
 		text?: string;
-		sources?: Array<{ id: number; title: string }>;
+		sources?: Array<{
+			id: number;
+			title: string;
+			relevance?: number;
+			similarity?: number; // For UI display
+		}>;
 		searchQuery?: string;
 		searchMethod?: string;
 		queryType?: string;
@@ -2011,14 +2007,6 @@ export async function* processChatMessageEnhancedStream(
 				'[CHAT ANALYSIS] Query type is "list_all", returning all records'
 			);
 		}
-
-		// Handle group_by_district queries
-		if (analysis.queryType === "group_by_district") {
-			queryForSearch = "";
-			console.log(
-				'[CHAT ANALYSIS] Query type is "group_by_district", returning all records for grouping'
-			);
-		}
 	} catch (error) {
 		console.error("[CHAT ANALYSIS] Query analysis failed:", error);
 		queryForSearch = question;
@@ -2037,7 +2025,7 @@ export async function* processChatMessageEnhancedStream(
 	);
 
 	if (useEnhancedSearch) {
-		const hasFilters = filters && (filters.category || filters.district);
+		const hasFilters = filters && (filters.category || filters.userId);
 		if (queryType === "analytical_query" && hasFilters) {
 			console.log(
 				`[CHAT ANALYSIS] Analytical query with filters - retrieving all records matching filters for complete analysis`
@@ -2060,7 +2048,22 @@ export async function* processChatMessageEnhancedStream(
 				filters
 			);
 			records = hybridSearchResponse.results;
-			searchMethod = hybridSearchResponse.searchMethod;
+			// Map RRF search methods to expected types
+			const methodMap: Record<
+				string,
+				| "hybrid"
+				| "semantic_fallback"
+				| "tsvector_only"
+				| "recent_files"
+				| "analytical_fallback"
+			> = {
+				hybrid: "hybrid",
+				semantic_fallback: "semantic_fallback",
+				tsvector_only: "tsvector_only",
+				vector_only: "semantic_fallback", // Map vector_only to semantic_fallback
+				keyword_only: "tsvector_only", // Map keyword_only to tsvector_only
+			};
+			searchMethod = methodMap[hybridSearchResponse.searchMethod] || "hybrid";
 			searchStats = hybridSearchResponse.stats;
 
 			console.log(
@@ -2075,7 +2078,7 @@ export async function* processChatMessageEnhancedStream(
 			`[CHAT ANALYSIS] Analytical query returned 0 records, falling back to all records for analysis`
 		);
 		const configuredLimit = await getSettingInt("ai.search.limit", 30);
-		let effectiveLimit = Math.min(configuredLimit, 200);
+		const effectiveLimit = Math.min(configuredLimit, 200);
 
 		const allRecordsResponse = await HybridSearchService.search(
 			"",
@@ -2281,6 +2284,10 @@ export async function* processChatMessageEnhancedStream(
 			citedSources.push({
 				id: record.id,
 				title: record.title,
+				relevance: record.rrf_score || record.combined_score || record.rank,
+				similarity: record.rrf_score
+					? record.rrf_score * 30
+					: record.semantic_similarity, // Convert RRF to similarity-like value for UI
 			});
 		}
 	}

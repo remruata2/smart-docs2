@@ -10,30 +10,7 @@ export async function GET(req: NextRequest) {
     return NextResponse.json({ error: 'Unauthorized' }, { status: 401 });
   }
 
-  const { searchParams } = new URL(req.url);
-  const district = searchParams.get('district');
-
   try {
-    let categoryList: string[];
-
-    if (district) {
-      // Get distinct categories from files in the selected district
-      const fileCategories = await prisma.fileList.findMany({
-        where: {
-          district: district
-        },
-        select: {
-          category: true
-        },
-        distinct: ['category'],
-        orderBy: {
-          category: 'asc'
-        }
-      });
-
-      categoryList = fileCategories.map(f => f.category);
-    } else {
-      // Get all categories from category_list table
       const categories = await prisma.categoryList.findMany({
         select: {
           category: true
@@ -43,11 +20,8 @@ export async function GET(req: NextRequest) {
         }
       });
 
-      categoryList = categories.map(c => c.category);
-    }
-
     return NextResponse.json({
-      categories: categoryList
+      categories: categories.map(c => c.category)
     });
   } catch (error) {
     console.error('GET /api/admin/categories error:', error);

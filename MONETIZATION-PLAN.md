@@ -1,4 +1,4 @@
-# ICPS AI Public Monetization Plan
+# Smart Docs Public Monetization Plan
 
 ## Overview
 

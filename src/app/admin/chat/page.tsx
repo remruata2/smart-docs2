@@ -32,15 +32,7 @@ interface ChatSource {
 	title: string;
 }
 
-interface ChatResponse {
-	success: boolean;
-	message: ChatMessage;
-	sources: ChatSource[];
-	searchQuery: string;
-	queryType?: string;
-	analysisUsed?: boolean;
-	error?: string;
-}
+
 
 export default function AdminChatPage() {
 	const [messages, setMessages] = useState<ChatMessage[]>([]);
@@ -72,11 +64,8 @@ export default function AdminChatPage() {
 	const [expandedSources, setExpandedSources] = useState<
 		Record<string, boolean>
 	>({});
-	const [districts, setDistricts] = useState<string[]>([]);
 	const [categories, setCategories] = useState<string[]>([]);
-	const [districtsLoading, setDistrictsLoading] = useState<boolean>(false);
 	const [categoriesLoading, setCategoriesLoading] = useState<boolean>(false);
-	const [selectedDistrict, setSelectedDistrict] = useState<string>("");
 	const [selectedCategory, setSelectedCategory] = useState<string>("");
 
 	// Load available models for current provider
@@ -133,36 +122,12 @@ export default function AdminChatPage() {
 		};
 	}, [model]);
 
-	// Load available districts
-	useEffect(() => {
-		async function loadDistricts() {
-			try {
-				setDistrictsLoading(true);
-				const res = await fetch("/api/admin/districts");
-				if (!res.ok) throw new Error("Failed to load districts");
-				const data = await res.json();
-				setDistricts(data.districts || []);
-			} catch (e) {
-				console.error("[AdminChat] Failed to fetch districts", e);
-				setDistricts([]);
-			} finally {
-				setDistrictsLoading(false);
-			}
-		}
-		loadDistricts();
-	}, []);
-
 	// Load available categories
 	useEffect(() => {
 		async function loadCategories() {
 			try {
 				setCategoriesLoading(true);
-				const url = selectedDistrict
-					? `/api/admin/categories?district=${encodeURIComponent(
-							selectedDistrict
-					  )}`
-					: "/api/admin/categories";
-				const res = await fetch(url);
+				const res = await fetch("/api/admin/categories");
 				if (!res.ok) throw new Error("Failed to load categories");
 				const data = await res.json();
 				setCategories(data.categories || []);
@@ -178,7 +143,7 @@ export default function AdminChatPage() {
 			}
 		}
 		loadCategories();
-	}, [selectedDistrict]);
+	}, []);
 
 	const scrollAreaRef = useRef<HTMLDivElement>(null);
 	const inputRef = useRef<HTMLInputElement>(null);
@@ -195,11 +160,6 @@ export default function AdminChatPage() {
 			});
 		}
 	}, [messages]);
-
-	// Focus input on mount
-	useEffect(() => {
-		inputRef.current?.focus();
-	}, []);
 
 	// === CONVERSATION MANAGEMENT FUNCTIONS ===
 
@@ -331,7 +291,6 @@ export default function AdminChatPage() {
 					filters:
 						msg.role === "assistant"
 							? msg.metadata?.filters || {
-									district: "All Districts",
 									category: "All Categories",
 							  }
 							: undefined,
@@ -406,8 +365,7 @@ export default function AdminChatPage() {
 		const assistantMessageId = `assistant_${Date.now()}`;
 
 		// Always include filters (show "All Districts" / "All Categories" if not selected)
-		const activeFilters: { district: string; category: string } = {
-			district: selectedDistrict || "All Districts",
+		const activeFilters: { category: string } = {
 			category: selectedCategory || "All Categories",
 		};
 
@@ -432,7 +390,6 @@ export default function AdminChatPage() {
 					conversationHistory: messages,
 					provider: "gemini",
 					model,
-					district: selectedDistrict || undefined,
 					category: selectedCategory || undefined,
 					stream: true, // Enable streaming
 				}),
@@ -570,8 +527,7 @@ export default function AdminChatPage() {
 			// === AUTO-SAVE: Save assistant message ===
 			if (conversationId) {
 				// Always include filters (show "All Districts" / "All Categories" if not selected)
-				const saveFilters: { district: string; category: string } = {
-					district: selectedDistrict || "All Districts",
+				const saveFilters: { category: string } = {
 					category: selectedCategory || "All Categories",
 				};
 
@@ -596,7 +552,7 @@ export default function AdminChatPage() {
 				error instanceof Error ? error.message : "An unexpected error occurred";
 			setError(errorMessage);
 
-			let displayMessage = `I apologize, but I encountered an error: ${errorMessage}. Please try again.`;
+			const displayMessage = `I apologize, but I encountered an error: ${errorMessage}. Please try again.`;
 
 			// Update the assistant message with error
 			setMessages((prev) =>
@@ -663,7 +619,7 @@ export default function AdminChatPage() {
 	// Helper function to wrap bullet segments together
 
 	// Export content as PDF with markdown support
-	const handleExportText = async (text: string, sources?: ChatSource[]) => {
+	const handleExportText = async (text: string) => {
 		if (!text) return;
 
 		try {
@@ -1015,7 +971,7 @@ export default function AdminChatPage() {
 			// Add title
 			doc.setFontSize(16);
 			doc.setFont("helvetica", "bold");
-			doc.text("ICPS AI Response", margin, currentY);
+			doc.text("Smart Docs Response", margin, currentY);
 			currentY += 15;
 
 			// Add timestamp
@@ -1098,34 +1054,6 @@ export default function AdminChatPage() {
 
 								<div className="flex items-center gap-2">
 									<label
-										htmlFor="district"
-										className="text-sm text-gray-600 whitespace-nowrap"
-									>
-										District:
-									</label>
-									<select
-										id="district"
-										className="h-9 rounded-md border border-gray-300 bg-white px-2 text-sm focus:outline-none focus:ring-2 focus:ring-indigo-500"
-										value={selectedDistrict}
-										onChange={(e) => setSelectedDistrict(e.target.value)}
-										disabled={districtsLoading}
-									>
-										<option value="">All Districts</option>
-										{districtsLoading && <option>Loading districts...</option>}
-										{!districtsLoading && districts.length === 0 && (
-											<option>No districts found</option>
-										)}
-										{!districtsLoading &&
-											districts.map((district) => (
-												<option key={district} value={district}>
-													{district}
-												</option>
-											))}
-									</select>
-								</div>
-
-								<div className="flex items-center gap-2">
-									<label
 										htmlFor="category"
 										className="text-sm text-gray-600 whitespace-nowrap"
 									>
@@ -1174,7 +1102,7 @@ export default function AdminChatPage() {
 									<Bot className="h-12 w-12" />
 									<div className="text-center">
 										<p className="text-lg font-medium">
-											Welcome to ICPS AI Assistant
+											Welcome to Smart Docs Assistant
 										</p>
 										<p className="text-sm">
 											Ask me anything about the database records
@@ -1350,8 +1278,7 @@ export default function AdminChatPage() {
 																				className="h-7 w-7"
 																				onClick={async () =>
 																					await handleExportText(
-																						message.content,
-																						message.sources
+																						message.content
 																					)
 																				}
 																				title="Download as PDF"
@@ -1394,12 +1321,6 @@ export default function AdminChatPage() {
 													{/* Display active filters */}
 													{message.role === "assistant" && message.filters && (
 														<div className="mt-2 flex flex-wrap gap-2 text-xs">
-															<div className="inline-flex items-center gap-1 bg-gray-100 text-gray-700 border border-gray-300 px-2 py-1 rounded">
-																<span className="font-medium">District:</span>
-																<span>
-																	{message.filters.district || "All Districts"}
-																</span>
-															</div>
 															<div className="inline-flex items-center gap-1 bg-gray-100 text-gray-700 border border-gray-300 px-2 py-1 rounded">
 																<span className="font-medium">Category:</span>
 																<span>
@@ -1480,7 +1401,7 @@ export default function AdminChatPage() {
 									value={inputMessage}
 									onChange={(e) => setInputMessage(e.target.value)}
 									onKeyPress={handleKeyPress}
-									placeholder="Ask about ICPS database records..."
+									placeholder="Ask about Smart Docs database records..."
 									disabled={isLoading}
 									className="flex-1"
 									maxLength={1000}

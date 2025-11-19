@@ -85,7 +85,7 @@ export default function CategoryForm({
 				<FormField
 					control={form.control}
 					name="category"
-					render={({ field }: { field: any }) => (
+					render={({ field }) => (
 						<FormItem>
 							<FormLabel>Category Name</FormLabel>
 							<FormControl>

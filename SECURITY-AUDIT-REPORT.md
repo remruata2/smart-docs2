@@ -288,7 +288,7 @@ async function getEncryptionKey() {
 **Issue:**
 
 ```typescript
-const prompt = `You are an AI assistant analyzing queries for a ICPS database...
+const prompt = `You are an AI assistant analyzing queries for a Smart Docs database...
 
 CURRENT USER QUERY: "${currentQuery}"  // ⚠️ Direct injection
 ```

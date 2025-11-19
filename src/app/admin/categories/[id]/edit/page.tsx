@@ -1,6 +1,5 @@
 import { notFound } from "next/navigation";
-import Link from 'next/link';
-import { Button } from '@/components/ui/button';
+
 import CategoryForm from "../../CategoryForm";
 import { getCategoryById, updateCategoryAction } from "../../actions";
 import { Metadata } from "next";

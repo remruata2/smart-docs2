@@ -45,7 +45,6 @@ const fileFormSchema = z
   .object({
     category: z.string().min(1, { message: "Category is required" }).max(500),
     title: z.string().min(1, { message: "Title is required" }).max(500),
-    district: z.string().optional(),
     note: z.string().optional().nullable(),
     doc1: z.any(), // FileList or string
     entry_date: z.string().optional().nullable(),
@@ -106,7 +105,6 @@ export default function FileForm({
     defaultValues: {
       category: initialData?.category || "",
       title: initialData?.title || "",
-      district: initialData?.district || "",
       note: initialData?.note || "",
       doc1: initialData?.doc1 || undefined, // Use undefined for new files
       entry_date:
@@ -318,37 +316,6 @@ export default function FileForm({
               <FormLabel>Title *</FormLabel>
               <FormControl>
                 <Input placeholder="Enter the file title" {...field} />
-              </FormControl>
-              <FormMessage />
-            </FormItem>
-          )}
-        />
-        
-        <FormField
-          control={form.control}
-          name="district"
-          render={({ field }: { field: any }) => (
-            <FormItem>
-              <FormLabel>District</FormLabel>
-              <FormControl>
-                <select
-                  className="flex h-10 w-full rounded-md border border-input bg-background px-3 py-2 text-sm ring-offset-background file:border-0 file:bg-transparent file:text-sm file:font-medium placeholder:text-muted-foreground focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring focus-visible:ring-offset-2 disabled:cursor-not-allowed disabled:opacity-50"
-                  value={field.value || ""}
-                  onChange={field.onChange}
-                >
-                  <option value="">Select District</option>
-                  <option value="Aizawl">Aizawl</option>
-                  <option value="Lunglei">Lunglei</option>
-                  <option value="Champhai">Champhai</option>
-                  <option value="Lawngtlai">Lawngtlai</option>
-                  <option value="Siaha">Siaha</option>
-                  <option value="Mamit">Mamit</option>
-                  <option value="Kolasib">Kolasib</option>
-                  <option value="Saitual">Saitual</option>
-                  <option value="Hnahthial">Hnahthial</option>
-                  <option value="Serchhip">Serchhip</option>
-                  <option value="Khawzawl">Khawzawl</option>
-                </select>
               </FormControl>
               <FormMessage />
             </FormItem>

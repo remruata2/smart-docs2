@@ -17,7 +17,7 @@ export function htmlToMarkdown(html: string): string {
     const content = processHTMLDocument(document);
     const markdown = contentToMarkdown(content);
     return markdown.trim();
-  } catch (err) {
+  } catch {
     // Robust fallback: strip tags and return plain text
     const text = stripHtmlToText(html);
     return text.trim();

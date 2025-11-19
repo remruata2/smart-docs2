@@ -193,7 +193,7 @@ export default function CategoryListClient({
               <AlertDialogTitle>Are you sure?</AlertDialogTitle>
               <AlertDialogDescription>
                 This action cannot be undone. This will permanently delete the
-                category "<strong>{categoryToDelete.category}</strong>".
+                category &quot;<strong>{categoryToDelete.category}</strong>&quot;.
               </AlertDialogDescription>
             </AlertDialogHeader>
             <AlertDialogFooter>

@@ -4,7 +4,7 @@ import { useState, useEffect, useMemo } from "react";
 import Link from "next/link";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
-import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
+
 import {
   Table,
   TableHeader,
@@ -23,12 +23,11 @@ import {
   AlertDialogHeader,
   AlertDialogTitle,
 } from "@/components/ui/alert-dialog";
-import { Eye, Pencil, Trash2, Search, X, List, MapPin } from "lucide-react";
+import { Eye, Pencil, Trash2, Search, X } from "lucide-react";
 import { toast } from "sonner";
 import { deleteFileAction } from "./actions";
 import { cardContainer } from "@/styles/ui-classes";
 import { format } from "date-fns";
-import { DistrictGroups } from "./components/DistrictGroups";
 import type { FileListEntry, FileFilterOptions } from './actions';
 
 interface FileListClientProps {
@@ -51,10 +50,9 @@ export default function FileListClient({
   canDelete = false,
 }: FileListClientProps) {
   // Provide default empty arrays for all filter options
-  const { 
-    categories = [], 
-    districts = [], 
-    years = [] 
+  const {
+    categories = [],
+    years = []
   } = filterOptions;
   
   const [items, setItems] = useState<FileListEntry[]>(initialItems);
@@ -64,12 +62,10 @@ export default function FileListClient({
   const [error, setError] = useState<string | null>(initialError || null);
   const [loading, setLoading] = useState<boolean>(false);
   const [itemToDelete, setItemToDelete] = useState<FileListEntry | null>(null);
-  const [viewMode, setViewMode] = useState<"list" | "districts">("list");
 
   // Filters
   const [searchQuery, setSearchQuery] = useState("");
   const [selectedCategory, setSelectedCategory] = useState("");
-  const [selectedDistrict, setSelectedDistrict] = useState("");
   const [selectedYear, setSelectedYear] = useState("");
 
   // Debounced fetch
@@ -87,7 +83,6 @@ export default function FileListClient({
         params.set('pageSize', String(pageSize));
         if (searchQuery.trim()) params.set('q', searchQuery.trim());
         if (selectedCategory) params.set('category', selectedCategory);
-        if (selectedDistrict) params.set('district', selectedDistrict);
         if (selectedYear) params.set('year', selectedYear);
         
         const res = await fetch(`/api/admin/files?${params.toString()}`);
@@ -114,12 +109,11 @@ export default function FileListClient({
       active = false;
       clearTimeout(handler);
     };
-  }, [page, pageSize, searchQuery, selectedCategory, selectedDistrict, selectedYear]);
+  }, [page, pageSize, searchQuery, selectedCategory, selectedYear]);
 
   const clearFilters = () => {
     setSearchQuery("");
     setSelectedCategory("");
-    setSelectedDistrict("");
     setSelectedYear("");
     setPage(1);
   };
@@ -127,11 +121,10 @@ export default function FileListClient({
   const searchParams = useMemo(() => ({
     q: searchQuery,
     category: selectedCategory,
-    district: selectedDistrict,
     year: selectedYear,
-  }), [searchQuery, selectedCategory, selectedDistrict, selectedYear]);
+  }), [searchQuery, selectedCategory, selectedYear]);
 
-  const hasActiveFilters = searchQuery || selectedCategory || selectedDistrict || selectedYear;
+  const hasActiveFilters = searchQuery || selectedCategory || selectedYear;
 
   const handleDelete = async () => {
     if (!itemToDelete) return;
@@ -155,44 +148,24 @@ export default function FileListClient({
 
   if (loading && !itemToDelete) setLoading(false);
 
-  if (error && !loading && viewMode === 'list') {
+  if (error && !loading) {
     return <p className="text-red-500">Error: {error}</p>;
   }
 
   return (
     <div className={cardContainer}>
-      {/* View Mode Tabs */}
-      <Tabs 
-        value={viewMode} 
-        onValueChange={(value) => {
-          setViewMode(value as "list" | "districts");
-          setPage(1); // Reset to first page when changing view
-        }}
-        className="mb-6"
-      >
-        <div className="flex flex-col sm:flex-row justify-between gap-4 mb-4">
-          <TabsList>
-            <TabsTrigger value="list" className="flex items-center gap-2">
-              <List className="h-4 w-4" />
-              <span>List View</span>
-            </TabsTrigger>
-            <TabsTrigger value="districts" className="flex items-center gap-2">
-              <MapPin className="h-4 w-4" />
-              <span>By District</span>
-            </TabsTrigger>
-          </TabsList>
-          
-          {/* Search Input */}
-          <div className="relative w-full sm:w-96">
-            <Search className="absolute left-3 top-1/2 transform -translate-y-1/2 text-gray-400 h-4 w-4" />
-            <Input
-              placeholder={`Search by ${viewMode === 'districts' ? 'district, title, or category...' : 'title or category...'}`}
-              value={searchQuery}
-              onChange={(e) => setSearchQuery(e.target.value)}
-              className="pl-10 w-full"
-            />
-          </div>
+      <div className="flex flex-col sm:flex-row justify-between gap-4 mb-4">
+        {/* Search Input */}
+        <div className="relative w-full sm:w-96">
+          <Search className="absolute left-3 top-1/2 transform -translate-y-1/2 text-gray-400 h-4 w-4" />
+          <Input
+            placeholder="Search by title or category..."
+            value={searchQuery}
+            onChange={(e) => setSearchQuery(e.target.value)}
+            className="pl-10 w-full"
+          />
         </div>
+      </div>
 
         {/* Filters Section */}
         <div className="space-y-4">
@@ -211,21 +184,7 @@ export default function FileListClient({
               ))}
             </select>
 
-            {/* District Filter - Only show in list view */}
-            {viewMode === 'list' && (
-              <select
-                value={selectedDistrict}
-                onChange={(e) => { setSelectedDistrict(e.target.value); setPage(1); }}
-                className="px-3 py-2 border border-gray-300 rounded-md bg-white min-w-[160px] focus:outline-none focus:ring-2 focus:ring-blue-500"
-              >
-                <option value="">All Districts</option>
-                {districts.map((district) => (
-                  <option key={district} value={district}>
-                    {district}
-                  </option>
-                ))}
-              </select>
-            )}
+
 
             {/* Year Filter */}
             <select
@@ -254,9 +213,7 @@ export default function FileListClient({
           </div>
         </div>
 
-        {/* Tabs Content */}
-        <TabsContent value="list" className="mt-4">
-          {/* Table Section */}
+      {/* Table Section */}
           <div className="overflow-x-auto">
             <Table>
               <TableHeader>
@@ -264,7 +221,6 @@ export default function FileListClient({
                   <TableHead>ID</TableHead>
                   <TableHead>Category</TableHead>
                   <TableHead>Title</TableHead>
-                  <TableHead>District</TableHead>
                   <TableHead>Date</TableHead>
                   <TableHead>Created</TableHead>
                   <TableHead>Actions</TableHead>
@@ -278,7 +234,6 @@ export default function FileListClient({
                     <TableCell className="max-w-[300px] truncate">
                       {item.title || 'Untitled'}
                     </TableCell>
-                    <TableCell>{item.district || '-'}</TableCell>
                     <TableCell>
                       {item.entry_date_real ? format(new Date(item.entry_date_real), 'MMM d, yyyy') : '-'}
                     </TableCell>
@@ -313,14 +268,14 @@ export default function FileListClient({
                 ))}
                 {items.length === 0 && !loading && (
                   <TableRow>
-                    <TableCell colSpan={7} className="text-center py-8 text-gray-500">
+                    <TableCell colSpan={6} className="text-center py-8 text-gray-500">
                       No files found
                     </TableCell>
                   </TableRow>
                 )}
                 {loading && (
                   <TableRow>
-                    <TableCell colSpan={7} className="text-center py-8">
+                    <TableCell colSpan={6} className="text-center py-8">
                       Loading...
                     </TableCell>
                   </TableRow>
@@ -351,13 +306,7 @@ export default function FileListClient({
                 Next
               </Button>
             </div>
-          </div>
-        </TabsContent>
-
-        <TabsContent value="districts" className="mt-4">
-          <DistrictGroups searchParams={searchParams} />
-        </TabsContent>
-      </Tabs>
+      </div>
 
       {/* Delete Confirmation Dialog */}
       <AlertDialog

@@ -56,6 +56,7 @@ interface ConversationSidebarProps {
 	onSelectConversation: (id: number) => void;
 	onNewConversation: () => void;
 	refreshTrigger?: number; // Add this to trigger refresh from parent
+	basePath?: string; // Base path for API calls (e.g. /api/admin/conversations)
 }
 
 export default function ConversationSidebar({
@@ -63,6 +64,7 @@ export default function ConversationSidebar({
 	onSelectConversation,
 	onNewConversation,
 	refreshTrigger,
+	basePath = "/api/admin/conversations",
 }: ConversationSidebarProps) {
 	const [conversations, setConversations] = useState<Conversation[]>([]);
 	const [searchQuery, setSearchQuery] = useState("");
@@ -82,7 +84,9 @@ export default function ConversationSidebar({
 			const params = new URLSearchParams();
 			if (searchQuery) params.append("search", searchQuery);
 
-			const response = await fetch(`/api/admin/conversations?${params}`);
+			if (searchQuery) params.append("search", searchQuery);
+
+			const response = await fetch(`${basePath}?${params}`);
 			if (!response.ok) throw new Error("Failed to load conversations");
 
 			const data = await response.json();
@@ -140,7 +144,7 @@ export default function ConversationSidebar({
 	// Pin/Unpin conversation
 	const togglePin = async (id: number, currentPinned: boolean) => {
 		try {
-			const response = await fetch(`/api/admin/conversations/${id}`, {
+			const response = await fetch(`${basePath}/${id}`, {
 				method: "PATCH",
 				headers: { "Content-Type": "application/json" },
 				body: JSON.stringify({ isPinned: !currentPinned }),
@@ -159,7 +163,7 @@ export default function ConversationSidebar({
 	// Delete conversation
 	const deleteConversation = async (id: number) => {
 		try {
-			const response = await fetch(`/api/admin/conversations/${id}`, {
+			const response = await fetch(`${basePath}/${id}`, {
 				method: "DELETE",
 			});
 
@@ -184,7 +188,7 @@ export default function ConversationSidebar({
 		if (!newTitle.trim()) return;
 
 		try {
-			const response = await fetch(`/api/admin/conversations/${id}`, {
+			const response = await fetch(`${basePath}/${id}`, {
 				method: "PATCH",
 				headers: { "Content-Type": "application/json" },
 				body: JSON.stringify({ title: newTitle.trim() }),
@@ -206,7 +210,7 @@ export default function ConversationSidebar({
 	// Delete all conversations
 	const deleteAllConversations = async () => {
 		try {
-			const response = await fetch("/api/admin/conversations", {
+			const response = await fetch(basePath, {
 				method: "DELETE",
 			});
 
@@ -233,9 +237,8 @@ export default function ConversationSidebar({
 
 	return (
 		<div
-			className={`bg-white border-r border-gray-200 flex flex-col h-full transition-all duration-300 ease-in-out relative ${
-				isCollapsed ? "w-16" : "w-64"
-			}`}
+			className={`bg-white border-r border-gray-200 flex flex-col h-full transition-all duration-300 ease-in-out relative ${isCollapsed ? "w-16" : "w-64"
+				}`}
 		>
 			{/* Collapse/Expand Toggle */}
 			<button
@@ -305,11 +308,10 @@ export default function ConversationSidebar({
 										{group.conversations.map((conv) => (
 											<div
 												key={conv.id}
-												className={`group relative mx-2 rounded-lg transition-colors ${
-													currentConversationId === conv.id
-														? "bg-blue-50 border border-blue-200"
-														: "hover:bg-gray-50 border border-transparent"
-												}`}
+												className={`group relative mx-2 rounded-lg transition-colors ${currentConversationId === conv.id
+													? "bg-blue-50 border border-blue-200"
+													: "hover:bg-gray-50 border border-transparent"
+													}`}
 											>
 												{editingId === conv.id ? (
 													<div className="p-2">
@@ -422,11 +424,10 @@ export default function ConversationSidebar({
 						<button
 							key={conv.id}
 							onClick={() => onSelectConversation(conv.id)}
-							className={`w-10 h-10 rounded-lg flex items-center justify-center transition-colors ${
-								currentConversationId === conv.id
-									? "bg-blue-100 text-blue-600"
-									: "hover:bg-gray-100 text-gray-600"
-							}`}
+							className={`w-10 h-10 rounded-lg flex items-center justify-center transition-colors ${currentConversationId === conv.id
+								? "bg-blue-100 text-blue-600"
+								: "hover:bg-gray-100 text-gray-600"
+								}`}
 							title={conv.title}
 						>
 							<MessageSquare className="h-5 w-5" />

@@ -56,7 +56,7 @@ One set per record. Mark as "Unknown" if not found. Keep it concise.`;
 	}
 
 	// Location/place queries
-	if (lowerQuestion.match(/\b(location|place|where|address|district)\b/)) {
+	if (lowerQuestion.match(/\b(location|place|where|address)\b/)) {
 		return `From these records, extract ONLY locations/places mentioned.
 Format as: "Case ID: [id] | Location: [location]"
 One line per record. Be specific. No narrative.`;
@@ -75,10 +75,10 @@ Raw data only - analysis will come later. Be concise.`;
 	// Group by queries
 	if (
 		lowerQuestion.match(
-			/\b(group by|grouped by|organize by|by district|by category)\b/
+			/\b(group by|grouped by|organize by|by category)\b/
 		)
 	) {
-		return `From these records, extract: ID, relevant grouping field (district/category), and title.
+		return `From these records, extract: ID, relevant grouping field (category), and title.
 Format as: "[grouping]: ID [id] - [title]"
 One line per record. Keep it structured and concise.`;
 	}

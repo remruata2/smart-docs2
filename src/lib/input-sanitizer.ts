@@ -145,7 +145,7 @@ export function validateConversationHistory(
 }
 
 /**
- * Sanitize filter values (category, district)
+ * Sanitize filter values (category)
  */
 export function sanitizeFilterValue(value: string): string {
   return value

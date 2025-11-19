@@ -1,7 +1,8 @@
 "use client";
 
-import { useSession } from "next-auth/react";
+
 import Link from "next/link";
+import { Session } from "next-auth";
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card";
 import { Users, FileText, FolderOpen, Activity, Shield, UserCheck } from "lucide-react";
 
@@ -13,7 +14,7 @@ interface DashboardStats {
 }
 
 interface AdminDashboardProps {
-	session: any;
+	session: Session;
 	stats: DashboardStats;
 }
 
@@ -23,7 +24,7 @@ export default function AdminDashboard({ session, stats }: AdminDashboardProps) 
 			<div className="mb-8">
 				<h1 className="text-2xl font-bold text-gray-900">Dashboard</h1>
 				<p className="mt-1 text-sm text-gray-600">
-					Welcome back, {session?.user?.name || session?.user?.username}! Here's an overview of your system.
+					Welcome back, {session?.user?.name || session?.user?.username}! Here&apos;s an overview of your system.
 				</p>
 			</div>
 

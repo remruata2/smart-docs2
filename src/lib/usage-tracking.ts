@@ -1,6 +1,6 @@
 import { db } from "@/lib/db";
-import { UsageType } from "@/generated/prisma";
-import { startOfMonth, endOfMonth, startOfDay, endOfDay } from "date-fns";
+import { UsageType, Prisma } from "@/generated/prisma";
+import { startOfMonth, endOfMonth } from "date-fns";
 
 /**
  * Track usage for a user
@@ -33,6 +33,8 @@ export async function trackUsage(
 				count: existing.count + count,
 				metadata: metadata
 					? { ...(existing.metadata as object), ...metadata }
+					: existing.metadata === null
+					? Prisma.JsonNull
 					: existing.metadata,
 			},
 		});
@@ -150,4 +152,3 @@ export async function getUserUsageStats(userId: number) {
 
 	return usageRecords;
 }
-

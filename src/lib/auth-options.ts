@@ -1,5 +1,6 @@
 import type { NextAuthOptions } from "next-auth";
 import CredentialsProvider from "next-auth/providers/credentials";
+import GoogleProvider from "next-auth/providers/google";
 import { compare } from "bcryptjs";
 import { db } from "./db";
 // Import UserRole from the generated Prisma client
@@ -15,6 +16,7 @@ type AppUser = {
 };
 
 declare module "next-auth" {
+	// eslint-disable-next-line @typescript-eslint/no-empty-object-type
 	interface User extends AppUser {}
 
 	interface Session {
@@ -23,6 +25,7 @@ declare module "next-auth" {
 }
 
 declare module "next-auth/jwt" {
+	// eslint-disable-next-line @typescript-eslint/no-empty-object-type
 	interface JWT extends AppUser {}
 }
 
@@ -31,7 +34,7 @@ export const authOptions: NextAuthOptions = {
 		CredentialsProvider({
 			name: "Credentials",
 			credentials: {
-				username: { label: "Username", type: "text" },
+				username: { label: "Username or Email", type: "text" },
 				password: { label: "Password", type: "password" },
 			},
 			async authorize(credentials) {
@@ -39,9 +42,13 @@ export const authOptions: NextAuthOptions = {
 					return null;
 				}
 
-				const user = await db.user.findUnique({
+				// Try to find user by email or username
+				const user = await db.user.findFirst({
 					where: {
-						username: credentials.username,
+						OR: [
+							{ email: credentials.username.toLowerCase() },
+							{ username: credentials.username },
+						],
 					},
 				});
 
@@ -58,17 +65,63 @@ export const authOptions: NextAuthOptions = {
 					return null;
 				}
 
+				// Update last login
+				await db.user.update({
+					where: { id: user.id },
+					data: { last_login: new Date() },
+				});
+
 				return {
 					id: String(user.id),
 					username: user.username,
 					role: user.role,
-					email: user.username, // Use username as email for NextAuth compatibility
-					name: user.username, // Use username as name for NextAuth compatibility
+					email: user.email || user.username,
+					name: user.username,
 				};
 			},
 		}),
+		GoogleProvider({
+			clientId: process.env.GOOGLE_CLIENT_ID!,
+			clientSecret: process.env.GOOGLE_CLIENT_SECRET!,
+		}),
 	],
 	callbacks: {
+		async signIn({ user, account }) {
+			if (account?.provider === "google") {
+				try {
+					// Check if user exists by email
+					const existingUser = await db.user.findUnique({
+						where: { email: user.email! },
+					});
+
+					if (!existingUser) {
+						// Generate a unique username from the Google profile name
+						const baseUsername = user.name?.replace(/\s+/g, '').toLowerCase() || user.email!.split('@')[0];
+						let counter = 1;
+						let uniqueUsername = baseUsername;
+
+						while (await db.user.findUnique({ where: { username: uniqueUsername } })) {
+							uniqueUsername = `${baseUsername}${counter}`;
+							counter++;
+						}
+
+						// Create new user
+						await db.user.create({
+							data: {
+								username: uniqueUsername,
+								email: user.email!,
+								role: UserRole.user,
+								is_active: true,
+							},
+						});
+					}
+				} catch (error) {
+					console.error("Error creating Google user:", error);
+					return false;
+				}
+			}
+			return true;
+		},
 		async jwt({ token, user }) {
 			if (user) {
 				token.id = user.id;

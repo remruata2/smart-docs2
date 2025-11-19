@@ -427,7 +427,7 @@ Output: Formatted string (~50,000 characters)
 **Output Format:**
 
 ```markdown
-DATABASE CONTEXT - ICPS Criminal Investigation Department
+DATABASE CONTEXT - Smart Docs
 
 Found 30 records from the database:
 
@@ -599,7 +599,7 @@ if (analysis.queryType === "analytical_query" && records.length > 50) {
 #### Prompt Construction:
 
 ```typescript
-const prompt = `You are a helpful AI assistant for the ICPS database.
+const prompt = `You are a helpful AI assistant for the Smart Docs database.
 
 CONVERSATION HISTORY:
 USER: Previous question
