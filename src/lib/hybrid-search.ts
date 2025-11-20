@@ -16,6 +16,11 @@ export interface HybridSearchResult {
 	ts_rank?: number;
 	semantic_similarity?: number;
 	combined_score?: number;
+	citation?: {
+		pageNumber: number;
+		imageUrl: string;
+		boundingBox: any;
+	};
 }
 
 export class HybridSearchService {
@@ -78,48 +83,115 @@ export class HybridSearchService {
 
 			// 4. The "Holy Grail" RRF Query
 			// We fetch top 50 from each method to ensure good overlap
+			// UPDATED: Query file_chunks instead of file_list
 			const results = await prisma.$queryRawUnsafe<HybridSearchResult[]>(
 				`
         WITH semantic_search AS (
             SELECT 
-                id, title, category, note, entry_date_real,
-                RANK() OVER (ORDER BY semantic_vector <=> $1::vector) as rank
-            FROM file_list
-            WHERE semantic_vector IS NOT NULL
-              AND ($2::text IS NULL OR LOWER(TRIM(category)) = $2) -- Category Filter
-              AND ($3::int IS NULL OR user_id = $3)                -- User Filter
-            ORDER BY semantic_vector <=> $1::vector
+                fc.id as chunk_id, 
+                f.id as file_id, 
+                f.title, 
+                f.category, 
+                f.note, 
+                f.entry_date_real,
+                fc.content as chunk_content,
+                fc.page_number,
+                fc.bbox,
+                RANK() OVER (ORDER BY fc.semantic_vector <=> $1::vector) as rank
+            FROM file_chunks fc
+            JOIN file_list f ON fc.file_id = f.id
+            WHERE fc.semantic_vector IS NOT NULL
+              AND (f.parsing_status = 'completed' OR f.parsing_status IS NULL) -- Only search completed files
+              AND ($2::text IS NULL OR LOWER(TRIM(f.category)) = $2) -- Category Filter
+              AND ($3::int IS NULL OR f.user_id = $3)                -- User Filter
+            ORDER BY fc.semantic_vector <=> $1::vector
             LIMIT 50
+        ),
+        keyword_search_base AS (
+            -- Search file chunks (content)
+            SELECT 
+                fc.id as chunk_id, 
+                f.id as file_id, 
+                f.title, 
+                f.category, 
+                f.note, 
+                f.entry_date_real,
+                fc.content as chunk_content,
+                fc.page_number,
+                fc.bbox,
+                ts_rank_cd(fc.search_vector, websearch_to_tsquery('english', $4)) as search_rank
+            FROM file_chunks fc
+            JOIN file_list f ON fc.file_id = f.id
+            WHERE fc.search_vector @@ websearch_to_tsquery('english', $4)
+              AND (f.parsing_status = 'completed' OR f.parsing_status IS NULL) -- Only search completed files
+              AND ($2::text IS NULL OR LOWER(TRIM(f.category)) = $2) -- Category Filter
+              AND ($3::int IS NULL OR f.user_id = $3)                -- User Filter
+            
+            UNION ALL
+            
+            -- Search file metadata (title, category, note) - important for finding files by title
+            SELECT 
+                NULL as chunk_id,  -- No specific chunk, this is file-level match
+                f.id as file_id, 
+                f.title, 
+                f.category, 
+                f.note, 
+                f.entry_date_real,
+                f.note as chunk_content,  -- Use note as content for file-level matches
+                NULL as page_number,  -- No specific page for file-level matches
+                NULL as bbox,  -- No specific bbox for file-level matches
+                ts_rank_cd(f.search_vector, websearch_to_tsquery('english', $4)) as search_rank
+            FROM file_list f
+            WHERE f.search_vector @@ websearch_to_tsquery('english', $4)
+              AND (f.parsing_status = 'completed' OR f.parsing_status IS NULL) -- Only search completed files
+              AND ($2::text IS NULL OR LOWER(TRIM(f.category)) = $2) -- Category Filter
+              AND ($3::int IS NULL OR f.user_id = $3)                -- User Filter
+              -- Only include files that don't already have chunk matches (to avoid duplicates)
+              AND NOT EXISTS (
+                  SELECT 1 FROM file_chunks fc2 
+                  WHERE fc2.file_id = f.id 
+                  AND fc2.search_vector @@ websearch_to_tsquery('english', $4)
+              )
         ),
         keyword_search AS (
             SELECT 
-                id, title, category, note, entry_date_real,
-                RANK() OVER (ORDER BY ts_rank_cd(search_vector, websearch_to_tsquery('english', $4)) DESC) as rank
-            FROM file_list
-            WHERE search_vector @@ websearch_to_tsquery('english', $4)
-              AND ($2::text IS NULL OR LOWER(TRIM(category)) = $2) -- Category Filter
-              AND ($3::int IS NULL OR user_id = $3)                -- User Filter
-            ORDER BY ts_rank_cd(search_vector, websearch_to_tsquery('english', $4)) DESC
+                chunk_id,
+                file_id,
+                title,
+                category,
+                note,
+                entry_date_real,
+                chunk_content,
+                page_number,
+                bbox,
+                RANK() OVER (ORDER BY search_rank DESC) as rank
+            FROM keyword_search_base
+            ORDER BY search_rank DESC
             LIMIT 50
         )
         SELECT 
-            COALESCE(s.id, k.id) as id,
+            COALESCE(s.file_id, k.file_id) as id,
             COALESCE(s.category, k.category) as category,
             COALESCE(s.title, k.title) as title,
-            COALESCE(s.note, k.note) as note,
+            -- Use chunk content as the "note" for display/context
+            COALESCE(s.chunk_content, k.chunk_content) as note,
             COALESCE(s.entry_date_real, k.entry_date_real) as entry_date_real,
             
             -- RRF Score Calculation: 1 / (constant + rank)
             (COALESCE(1.0 / (60 + s.rank), 0.0) + COALESCE(1.0 / (60 + k.rank), 0.0)) as rrf_score,
             
             s.rank as semantic_rank,
-            k.rank as keyword_rank
+            k.rank as keyword_rank,
+            
+            -- Citation Data
+            COALESCE(s.page_number, k.page_number) as page_number,
+            COALESCE(s.bbox, k.bbox) as bbox
         FROM semantic_search s
-        FULL OUTER JOIN keyword_search k ON s.id = k.id
+        FULL OUTER JOIN keyword_search k ON s.chunk_id = k.chunk_id
         ORDER BY rrf_score DESC
         LIMIT $5
-      `,
-				embedding, // $1 - Pass array directly, Prisma will handle vector casting
+			`,
+				`[${embedding.join(",")}]`, // $1 - Explicit string formatting for pgvector
 				categoryFilter, // $2
 				userIdFilter, // $3
 				query, // $4
@@ -152,14 +224,66 @@ export class HybridSearchService {
 			}
 
 			// Map to legacy format for backward compatibility
-			const mappedResults: HybridSearchResult[] = results.map((r) => ({
-				...r,
-				combined_score: r.rrf_score,
-				ts_rank: r.keyword_rank ? 1.0 / (60 + r.keyword_rank) : undefined,
-				semantic_similarity: r.semantic_rank
-					? 1.0 / (60 + r.semantic_rank)
-					: undefined,
-			}));
+			const mappedResults: HybridSearchResult[] = results.map((r: any) => {
+				// Handle new bbox format: can be array of objects [{text, bbox}, ...] or simple array [x,y,w,h]
+				// Robust JSON parsing for raw SQL results
+				// $queryRawUnsafe might return JSON columns as strings depending on driver version
+				let parsedBbox = r.bbox;
+				if (typeof r.bbox === "string") {
+					try {
+						parsedBbox = JSON.parse(r.bbox);
+					} catch (e) {
+						console.error("[HYBRID RRF] Failed to parse bbox JSON:", e);
+						parsedBbox = null;
+					}
+				}
+
+				let boundingBox: number[] | undefined = undefined;
+				let layoutItems: Array<{ text: string; bbox: number[] }> | undefined =
+					undefined;
+
+				if (parsedBbox) {
+					if (Array.isArray(parsedBbox) && parsedBbox.length > 0) {
+						// Case 1: New format (Array of objects with text/bbox)
+						if (typeof parsedBbox[0] === "object" && parsedBbox[0].bbox) {
+							layoutItems = parsedBbox; // Store full array for fuzzy matching
+							boundingBox = parsedBbox[0].bbox; // Default to first bbox
+						}
+						// Case 2: Old format (Simple [x,y,w,h])
+						else if (typeof parsedBbox[0] === "number") {
+							boundingBox = parsedBbox;
+						}
+					}
+				}
+
+				return {
+					...r,
+					combined_score: r.rrf_score,
+					ts_rank: r.keyword_rank
+						? 1.0 / (60 + Number(r.keyword_rank))
+						: undefined,
+					semantic_similarity: r.semantic_rank
+						? 1.0 / (60 + Number(r.semantic_rank))
+						: undefined,
+					// Add citation data to the result object (will be used by frontend)
+					// Create citation if page_number exists, use full-page fallback if bbox is missing
+					citation: r.page_number
+						? {
+								pageNumber: r.page_number,
+								imageUrl: `/files/${r.id}/page-${r.page_number}.jpg`,
+								boundingBox: boundingBox || [0, 0, 1, 1], // Use full page if bbox missing
+								layoutItems: layoutItems, // Full array for fuzzy matching
+								chunkContent: r.note || "", // Chunk content for matching
+								title: r.title || "Untitled Document", // File title
+						  }
+						: undefined,
+				};
+			});
+
+			console.log(
+				`[HYBRID RRF] Sample result with citation:`,
+				mappedResults[0]?.citation
+			);
 
 			return {
 				results: mappedResults,
@@ -312,20 +436,46 @@ export class HybridSearchService {
 	}> {
 		const params: any[] = [];
 		let sql = `
-      SELECT
-        id,
-        category,
-        title,
-        note,
-        entry_date_real
-      FROM file_list
-      WHERE 1=1`;
+      WITH file_chunks_agg AS (
+        SELECT 
+          fc.file_id,
+          STRING_AGG(fc.content, E'\\n\\n' ORDER BY fc.page_number, fc.chunk_index) as aggregated_content
+        FROM file_chunks fc
+        JOIN file_list f ON fc.file_id = f.id
+        WHERE 1=1`;
 
 		let nextIndex = 1;
 
-		// Add category filter
+		// Add category filter to chunks query
 		if (filters?.category) {
-			sql += ` AND LOWER(TRIM(category)) = $${nextIndex}`;
+			sql += ` AND LOWER(TRIM(f.category)) = $${nextIndex}`;
+			params.push(filters.category.toLowerCase().trim());
+			nextIndex++;
+		}
+
+		// Add userId filter to chunks query
+		if (filters?.userId) {
+			sql += ` AND f.user_id = $${nextIndex}`;
+			params.push(filters.userId);
+			nextIndex++;
+		}
+
+		sql += `
+        GROUP BY fc.file_id
+      )
+      SELECT
+        f.id,
+        f.category,
+        f.title,
+        COALESCE(fca.aggregated_content, f.note, '') as note,
+        f.entry_date_real
+      FROM file_list f
+      LEFT JOIN file_chunks_agg fca ON f.id = fca.file_id
+      WHERE 1=1`;
+
+		// Add category filter to main query
+		if (filters?.category) {
+			sql += ` AND LOWER(TRIM(f.category)) = $${nextIndex}`;
 			params.push(filters.category.toLowerCase().trim());
 			nextIndex++;
 			console.log(
@@ -333,15 +483,18 @@ export class HybridSearchService {
 			);
 		}
 
-		// Add userId filter
+		// Add userId filter to main query
 		if (filters?.userId) {
-			sql += ` AND user_id = $${nextIndex}`;
+			sql += ` AND f.user_id = $${nextIndex}`;
 			params.push(filters.userId);
 			nextIndex++;
 		}
 
+		// Only include files that have been parsed
+		sql += ` AND (f.parsing_status = 'completed' OR f.parsing_status IS NULL)`;
+
 		sql += `
-      ORDER BY entry_date_real DESC NULLS LAST, id DESC
+      ORDER BY f.entry_date_real DESC NULLS LAST, f.id DESC
       LIMIT $${nextIndex}
     `;
 		params.push(limit);

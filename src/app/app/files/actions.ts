@@ -35,6 +35,9 @@ export type FileListEntry = {
 	entry_date_real: string | null;
 	created_at: string | null;
 	doc1: string | null;
+	parsing_status: string | null;
+	parsing_error: string | null;
+	parsed_at: string | null;
 };
 
 export type PaginatedFiles = {
@@ -99,6 +102,9 @@ export async function getFilesPaginated(
 					entry_date_real: true,
 					created_at: true,
 					doc1: true,
+					parsing_status: true,
+					parsing_error: true,
+					parsed_at: true,
 				},
 				skip: (page - 1) * pageSize,
 				take: pageSize,
@@ -109,12 +115,25 @@ export async function getFilesPaginated(
 			...file,
 			entry_date_real: file.entry_date_real?.toISOString() || null,
 			created_at: file.created_at?.toISOString() || null,
+			parsed_at: file.parsed_at?.toISOString() || null,
 		}));
 
 		return { items, total, page, pageSize };
 	} catch (error) {
 		console.error("Error fetching paginated files:", error);
-		throw new Error("Failed to fetch files.");
+		console.error(
+			"Error details:",
+			error instanceof Error ? error.message : String(error)
+		);
+		console.error(
+			"Error stack:",
+			error instanceof Error ? error.stack : "No stack"
+		);
+		throw new Error(
+			`Failed to fetch files: ${
+				error instanceof Error ? error.message : String(error)
+			}`
+		);
 	}
 }
 
@@ -206,12 +225,12 @@ const removeImagePlaceholder = (content: string | null | undefined): string => {
 const fileSchema = z.object({
 	category: z
 		.string()
-		.min(1, { message: "Category is required" })
-		.max(500, { message: "Category must be 500 characters or less" }),
+		.max(500, { message: "Category must be 500 characters or less" })
+		.optional(), // Optional - required per-file for uploads, or for manual entry
 	title: z
 		.string()
-		.min(1, { message: "Title is required" })
-		.max(500, { message: "Title must be 500 characters or less" }),
+		.max(500, { message: "Title must be 500 characters or less" })
+		.optional(), // Optional - will be generated from filename if not provided
 	note: z.string().optional(),
 	entry_date: z.string().optional().nullable(),
 	content_format: z.enum(["html", "markdown"]).optional(),
@@ -313,14 +332,27 @@ export async function createFileAction(
 	}
 	const userId = parseInt(session.user.id as string);
 
-	// Check usage limit
-	const { enforceUsageLimit } = await import("@/lib/usage-limits");
+	// Check usage limit before upload
+	const { enforceUsageLimit, checkUsageLimit } = await import(
+		"@/lib/usage-limits"
+	);
 	const { UsageType } = await import("@/generated/prisma");
-	const limitCheck = await enforceUsageLimit(UsageType.file_upload, userId);
-	if (!limitCheck.success) {
+
+	// First check if user has any remaining uploads
+	const limitCheck = await checkUsageLimit(UsageType.file_upload, userId);
+	if (!limitCheck.allowed) {
 		return {
 			success: false,
-			error: limitCheck.error || "Usage limit exceeded",
+			error: limitCheck.reason || "Usage limit exceeded",
+		};
+	}
+
+	// Enforce the limit (this will throw if limit exceeded)
+	const enforceCheck = await enforceUsageLimit(UsageType.file_upload, userId);
+	if (!enforceCheck.success) {
+		return {
+			success: false,
+			error: enforceCheck.error || "Usage limit exceeded",
 		};
 	}
 
@@ -348,10 +380,34 @@ export async function createFileAction(
 	if (file && file.size > 0) {
 		try {
 			const buffer = Buffer.from(await file.arrayBuffer());
-			const uniqueSuffix = Date.now() + "-" + Math.round(Math.random() * 1e9);
 			const sanitizedOriginalName = file.name.replace(/[^a-zA-Z0-9._-]/g, "_");
-			const filename = uniqueSuffix + "-" + sanitizedOriginalName;
-			const filePath = path.join(UPLOAD_DIR, filename);
+
+			// Generate unique filename to prevent duplicates
+			let filename: string;
+			let filePath: string;
+			let attempts = 0;
+			const maxAttempts = 10;
+
+			do {
+				const uniqueSuffix = Date.now() + "-" + Math.round(Math.random() * 1e9);
+				filename = uniqueSuffix + "-" + sanitizedOriginalName;
+				filePath = path.join(UPLOAD_DIR, filename);
+				attempts++;
+
+				// Check if file already exists
+				if (existsSync(filePath)) {
+					if (attempts >= maxAttempts) {
+						throw new Error(
+							"Unable to generate unique filename after multiple attempts"
+						);
+					}
+					// Wait a tiny bit and try again with new timestamp
+					await new Promise((resolve) => setTimeout(resolve, 1));
+					continue;
+				}
+				break;
+			} while (attempts < maxAttempts);
+
 			await fs.writeFile(filePath, buffer);
 			doc1Path = `/uploads/documents/${filename}`;
 		} catch (error) {
@@ -360,6 +416,7 @@ export async function createFileAction(
 		}
 	}
 
+	// ... existing code ...
 	const { note, entry_date, content_format, ...restOfData } =
 		validatedFields.data;
 
@@ -377,21 +434,52 @@ export async function createFileAction(
 		}
 	}
 
+	// Generate title from filename if not provided (for file uploads)
+	let fileTitle = cleanRestOfData.title;
+	if (!fileTitle && file && file.size > 0) {
+		// Remove extension from filename
+		fileTitle = file.name.replace(/\.[^/.]+$/, "");
+	}
+	// For manual entry, title is required (enforced by frontend validation)
+
+	// Category is required - should be provided per-file for uploads or in form for manual entry
+	const fileCategory = cleanRestOfData.category;
+	if (!fileCategory || fileCategory.trim().length === 0) {
+		return {
+			success: false,
+			error: "Category is required",
+			fieldErrors: {
+				category: ["Category is required"],
+			},
+		};
+	}
+
 	try {
+		// Determine parsing status: if file is uploaded, set to pending; otherwise completed (manual entry)
+		const parsingStatus = file && file.size > 0 ? "pending" : "completed";
+
 		// Create the file record with user_id (exclude district as it no longer exists)
 		const newFile = await prisma.fileList.create({
 			data: {
 				...cleanRestOfData,
+				title: fileTitle || "Untitled", // Fallback to "Untitled" if somehow still missing
+				category: fileCategory, // Use the provided category
 				note: finalNote,
 				content_format: contentFormat,
 				doc1: doc1Path,
 				entry_date: entry_date,
 				entry_date_real: entryDateReal,
 				user_id: userId,
+				parsing_status: parsingStatus,
+				// If manual entry (no file), mark as parsed immediately
+				parsed_at: parsingStatus === "completed" ? new Date() : null,
 			},
 		});
 
-		// Manually update the search_vector with metadata
+		// For files with uploaded documents, parsing will happen in background
+		// For manual entries (no file), we skip parsing
+
+		// Update search_vector with metadata (title, category, note) - this is fine to do immediately
 		await prisma.$executeRaw`
       UPDATE file_list
       SET search_vector = to_tsvector('english',
@@ -404,14 +492,18 @@ export async function createFileAction(
       WHERE id = ${newFile.id}
     `;
 
-		// Generate and update semantic vector with metadata
-		try {
-			await SemanticVectorService.updateSemanticVector(newFile.id);
-		} catch (vectorError) {
-			console.error("Semantic vector update failed:", vectorError);
+		// For manual entries (no file), generate semantic vector immediately
+		// For files with documents, semantic vectors will be generated during background parsing
+		if (parsingStatus === "completed") {
+			try {
+				await SemanticVectorService.updateSemanticVector(newFile.id);
+			} catch (vectorError) {
+				console.error("Semantic vector update failed:", vectorError);
+			}
 		}
 
-		// Track file upload usage
+		// Track file upload usage when file is created (not after parsing)
+		// This ensures limits are enforced immediately
 		try {
 			const { trackUsage } = await import("@/lib/usage-tracking");
 			const { UsageType } = await import("@/generated/prisma");
@@ -598,14 +690,90 @@ export async function deleteFileAction(id: number): Promise<ActionResponse> {
 			return { success: false, error: "File not found or unauthorized." };
 		}
 
+		// Delete associated files before deleting the database record
+		try {
+			// 1. Delete page images directory: /public/files/{fileId}/
+			const imagesDir = path.join(process.cwd(), "public", "files", String(id));
+			if (existsSync(imagesDir)) {
+				await fs.rm(imagesDir, { recursive: true, force: true });
+				console.log(`[DELETE-FILE] Deleted images directory: ${imagesDir}`);
+			}
+
+			// 2. Delete the uploaded document file (doc1)
+			if (existing.doc1) {
+				const docPath = path.join(process.cwd(), "public", existing.doc1);
+				if (existsSync(docPath)) {
+					await fs.unlink(docPath);
+					console.log(`[DELETE-FILE] Deleted document file: ${docPath}`);
+				}
+			}
+		} catch (fileError) {
+			console.error(
+				`[DELETE-FILE] Error deleting files for file ${id}:`,
+				fileError
+			);
+			// Continue with database deletion even if file deletion fails
+		}
+
+		// 3. Delete the database record (this will cascade delete DocumentPage and FileChunk records)
 		await prisma.fileList.delete({
 			where: { id },
 		});
+
 		revalidatePath("/app/files");
 		return { success: true, message: "File deleted successfully." };
 	} catch (error) {
-		console.error(`Error deleting file ${id}:`, error);
+		console.error("Error deleting file:", error);
 		return { success: false, error: "Database error: Failed to delete file." };
+	}
+}
+
+/**
+ * Retry parsing for a failed file
+ */
+export async function retryFileParsingAction(
+	fileId: number
+): Promise<ActionResponse> {
+	const session = await getServerSession(authOptions);
+	if (!session?.user?.id) {
+		return { success: false, error: "Unauthorized" };
+	}
+	const userId = parseInt(session.user.id as string);
+
+	try {
+		// Check if file exists and belongs to user
+		const file = await prisma.fileList.findFirst({
+			where: {
+				id: fileId,
+				user_id: userId,
+			},
+		});
+
+		if (!file) {
+			return { success: false, error: "File not found or access denied." };
+		}
+
+		// Reset parsing status to pending
+		await prisma.fileList.update({
+			where: { id: fileId },
+			data: {
+				parsing_status: "pending",
+				parsing_error: null,
+			},
+		});
+
+		revalidatePath("/app/files");
+		return {
+			success: true,
+			message:
+				"File parsing queued for retry. Processing will happen in the background.",
+		};
+	} catch (error) {
+		console.error("Error retrying file parsing:", error);
+		return {
+			success: false,
+			error: "Database error: Failed to retry parsing.",
+		};
 	}
 }
 

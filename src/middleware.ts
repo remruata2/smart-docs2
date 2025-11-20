@@ -43,7 +43,7 @@ export async function middleware(req: NextRequest) {
 		if (token.role === UserRole.admin) {
 			return NextResponse.redirect(new URL("/admin", req.url));
 		} else {
-			return NextResponse.redirect(new URL("/app", req.url));
+			return NextResponse.redirect(new URL("/app/chat", req.url));
 		}
 	}
 

@@ -64,18 +64,107 @@ export async function POST(req: NextRequest) {
     await fs.writeFile(tempFilePath, fileBuffer);
     console.log(`[PARSE-DOCUMENT] File saved temporarily to ${tempFilePath}`);
 
-    // Initialize and use the LlamaParse parser
-    const parser = new LlamaParseDocumentParser();
-    const content = await parser.parseFile(tempFilePath);
+    // Get parser selection from form data
+    const parserType = formData.get("parser") as string | null;
+    console.log(`[PARSE-DOCUMENT] Selected parser: ${parserType || "llamaparse"}`);
 
-    console.log(
-      "[PARSE-DOCUMENT] Document parsed successfully with LlamaParse"
-    );
+    let content = "";
+    let pages: any[] = [];
+
+    // 1. Generate Page Images (if PDF)
+    const fileId = Date.now(); // Temporary ID for storage path, real ID comes from DB later
+    // In a real app, we'd create the FileList record first to get the ID.
+    // For now, we'll use a timestamp-based folder in public/files
+    const publicDir = path.join(process.cwd(), "public", "files", String(fileId));
+    await fs.mkdir(publicDir, { recursive: true });
+
+    if (file.name.toLowerCase().endsWith(".pdf")) {
+      try {
+        // Use system-installed pdftocairo directly via child_process
+        // This avoids issues with the pdf-poppler package binaries in serverless/Next.js environments
+        const { spawn } = await import("child_process");
+
+        console.log(`[PARSE-DOCUMENT] Generating images using system pdftocairo...`);
+
+        // Command: pdftocairo -jpeg -scale-to 1024 <input> <output_prefix>
+        // Note: pdftocairo automatically appends -1.jpg, -2.jpg etc. to the prefix
+        const child = spawn("pdftocairo", [
+          "-jpeg",
+          "-scale-to", "1024",
+          tempFilePath,
+          path.join(publicDir, "page")
+        ]);
+
+        await new Promise<void>((resolve, reject) => {
+          child.on("close", (code) => {
+            if (code === 0) {
+              resolve();
+            } else {
+              reject(new Error(`pdftocairo exited with code ${code}`));
+            }
+          });
+
+          child.on("error", (err) => {
+            reject(err);
+          });
+
+          // Optional: Log stderr for debugging
+          child.stderr.on("data", (data) => {
+            console.error(`[pdftocairo stderr]: ${data}`);
+          });
+        });
+
+        console.log(`[PARSE-DOCUMENT] Generated page images in ${publicDir}`);
+      } catch (imgError) {
+        console.error("[PARSE-DOCUMENT] Failed to generate images:", imgError);
+        // Continue without images if this fails
+      }
+    }
+
+    if (parserType === "docling") {
+      // Use Docling parser
+      const { convertFileWithDocling } = await import("@/lib/docling-client");
+      const doclingContent = await convertFileWithDocling(tempFilePath);
+
+      if (!doclingContent) {
+        throw new Error("Docling parsing failed to return content");
+      }
+      content = doclingContent;
+      console.log("[PARSE-DOCUMENT] Document parsed successfully with Docling");
+    } else {
+      // Default to LlamaParse
+      const parser = new LlamaParseDocumentParser();
+      const result = await parser.parseFile(tempFilePath);
+
+      if (Array.isArray(result)) {
+        // Handle JSON output
+        pages = result;
+        // Use markdown format, fallback to text if markdown is not available
+        content = result.map((page: any) => page.md || page.text).join("\n\n");
+        console.log(`[PARSE-DOCUMENT] Parsed ${pages.length} pages with LlamaParse`);
+      } else {
+        // Fallback for string output
+        content = result;
+      }
+    }
 
     // Track file upload usage
     await trackUsage(userId, UsageType.file_upload);
 
-    return NextResponse.json({ success: true, content });
+    // Return structured data including the temporary file ID for image mapping
+    return NextResponse.json({
+      success: true,
+      content,
+      fileId: fileId, // Pass this back so the client can associate images
+      pages: pages.map((p: any, i: number) => ({
+        pageNumber: i + 1,
+        text: p.text, // Keep text for backward compatibility
+        markdown: p.md || p.text, // Use markdown format, fallback to text
+        layout: p.items, // LlamaParse layout items
+        width: p.width, // Page width in PDF points (if available)
+        height: p.height // Page height in PDF points (if available)
+      }))
+    });
   } catch (error) {
     console.error("[PARSE-DOCUMENT] Error:", error);
     console.error(

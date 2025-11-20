@@ -37,13 +37,58 @@ model FileList {
   semantic_vector Unsupported("vector")?
   user_id         Int?
   user            user?                    @relation(fields: [user_id], references: [id], onDelete: Cascade)
+  parsing_status  String?                  @default("pending") @db.VarChar(20) // 'pending' | 'processing' | 'completed' | 'failed'
+  parsing_error   String?                  @db.Text
+  parsed_at       DateTime?                @db.Timestamptz(6)
+
+  // Relations for Split-Screen Citations
+  pages  DocumentPage[]
+  chunks FileChunk[]
 
   @@index([category], map: "idx_file_list_category")
   @@index([entry_date_real], map: "idx_file_list_entry_date")
   @@index([search_vector], map: "idx_search_vector", type: Gin)
   @@index([semantic_vector], map: "idx_semantic_vector")
   @@index([user_id], map: "idx_file_list_user")
+  @@index([parsing_status], map: "idx_file_list_parsing_status")
   @@map("file_list")
+}
+
+/// Stores visual snapshots of document pages
+model DocumentPage {
+  id          Int      @id @default(autoincrement())
+  file_id     Int
+  page_number Int
+  image_url   String // URL to storage (e.g., "/files/101/page_4.jpg")
+  width       Int? // Original width
+  height      Int? // Original height
+  created_at  DateTime @default(now()) @db.Timestamptz(6)
+
+  file FileList @relation(fields: [file_id], references: [id], onDelete: Cascade)
+
+  @@index([file_id, page_number], map: "idx_document_pages_file_page")
+  @@map("document_pages")
+}
+
+/// Stores granular text chunks with layout coordinates
+model FileChunk {
+  id              Int                      @id @default(autoincrement())
+  file_id         Int
+  chunk_index     Int
+  content         String
+  page_number     Int?
+  bbox            Json? // [x, y, w, h] in percentage (0-1)
+  token_count     Int?
+  search_vector   Unsupported("tsvector")?
+  semantic_vector Unsupported("vector")?
+  created_at      DateTime                 @default(now()) @db.Timestamptz(6)
+
+  file FileList @relation(fields: [file_id], references: [id], onDelete: Cascade)
+
+  @@index([file_id], map: "idx_file_chunks_file")
+  @@index([search_vector], map: "idx_file_chunks_search_vector", type: Gin)
+  @@index([semantic_vector], map: "idx_file_chunks_vector")
+  @@map("file_chunks")
 }
 
 model user {

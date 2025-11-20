@@ -40,9 +40,9 @@ export default function DashboardLayout({
             <Toaster richColors position="top-right" />
             {/* Static sidebar for desktop */}
             <div className="hidden lg:flex lg:flex-shrink-0">
-                <div className="flex flex-col w-64">
+                <div className="flex flex-col">
                     {/* Sidebar component */}
-                    <div className="flex flex-col h-0 flex-1 border-r border-gray-700 bg-gray-900">
+                    <div className="flex flex-col h-0 flex-1 bg-gray-100">
                         <UserSidebar />
                     </div>
                 </div>
@@ -57,7 +57,7 @@ export default function DashboardLayout({
                         onClick={() => setSidebarOpen(false)}
                     ></div>
                     {/* Sidebar */}
-                    <div className="relative flex-1 flex flex-col max-w-xs w-full bg-gray-900">
+                    <div className="relative flex-1 flex flex-col max-w-xs w-full bg-gray-100">
                         <div className="absolute top-0 right-0 -mr-12 pt-2">
                             <button
                                 onClick={() => setSidebarOpen(false)}

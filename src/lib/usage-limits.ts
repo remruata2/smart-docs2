@@ -19,6 +19,21 @@ export async function checkUsageLimit(
 	userId?: number
 ): Promise<UsageLimitResult> {
 	try {
+		// Skip usage limits in development mode or if DISABLE_USAGE_LIMITS is set
+		if (
+			process.env.NODE_ENV === "development" ||
+			process.env.DISABLE_USAGE_LIMITS === "true"
+		) {
+			console.log(
+				"[USAGE-LIMITS] Usage limits disabled (development mode or DISABLE_USAGE_LIMITS=true)"
+			);
+			return {
+				allowed: true,
+				currentUsage: 0,
+				limit: -1, // Unlimited
+			};
+		}
+
 		// Get session if userId not provided
 		if (!userId) {
 			const session = await getServerSession(authOptions);
@@ -33,7 +48,14 @@ export async function checkUsageLimit(
 
 		// Get user's limits
 		const limits = await getUserLimits(userId);
-		const limit = limits[usageType === "file_upload" ? "files" : usageType === "chat_message" ? "chats" : "exports"];
+		const limit =
+			limits[
+				usageType === "file_upload"
+					? "files"
+					: usageType === "chat_message"
+					? "chats"
+					: "exports"
+			];
 
 		// Unlimited plans
 		if (limit === -1) {
@@ -54,7 +76,10 @@ export async function checkUsageLimit(
 			limit,
 			reason: allowed
 				? undefined
-				: `You have reached your ${usageType.replace("_", " ")} limit of ${limit}. Please upgrade your plan.`,
+				: `You have reached your ${usageType.replace(
+						"_",
+						" "
+				  )} limit of ${limit}. Please upgrade your plan.`,
 		};
 	} catch (error) {
 		console.error("[USAGE-LIMITS] Error checking usage limit:", error);
@@ -71,7 +96,20 @@ export async function checkUsageLimit(
 export async function enforceUsageLimit(
 	usageType: UsageType,
 	userId?: number
-): Promise<{ success: true } | { success: false; error: string; status: number }> {
+): Promise<
+	{ success: true } | { success: false; error: string; status: number }
+> {
+	// Skip usage limits in development mode or if DISABLE_USAGE_LIMITS is set
+	if (
+		process.env.NODE_ENV === "development" ||
+		process.env.DISABLE_USAGE_LIMITS === "true"
+	) {
+		console.log(
+			"[USAGE-LIMITS] Usage limits disabled (development mode or DISABLE_USAGE_LIMITS=true)"
+		);
+		return { success: true };
+	}
+
 	const result = await checkUsageLimit(usageType, userId);
 
 	if (!result.allowed) {
@@ -84,4 +122,3 @@ export async function enforceUsageLimit(
 
 	return { success: true };
 }
-

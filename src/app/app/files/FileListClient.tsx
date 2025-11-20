@@ -1,6 +1,6 @@
 "use client";
 
-import { useState, useEffect, useMemo } from "react";
+import { useState, useEffect, useMemo, useCallback } from "react";
 import Link from "next/link";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
@@ -67,10 +67,10 @@ export default function FileListClient({
 		setError(initialError || null);
 	}, [initialError]);
 
-	useEffect(() => {
-		let active = true;
-		setLoading(true);
-		const handler = setTimeout(async () => {
+	// Function to fetch files
+	const fetchFiles = useCallback(
+		async (showLoading = true) => {
+			if (showLoading) setLoading(true);
 			try {
 				const params = new URLSearchParams();
 				params.set("page", String(page));
@@ -83,20 +83,28 @@ export default function FileListClient({
 				if (!res.ok) throw new Error("Failed to fetch");
 				const data = await res.json();
 
-				if (!active) return;
 				setItems(data.items || []);
 				setTotal(data.total || 0);
 				setPage(data.page || 1);
 				setPageSize(data.pageSize || pageSize);
 				setError(null);
 			} catch (e) {
-				if (!active) return;
 				setError("Failed to load files");
 				setItems([]);
 				setTotal(0);
 			} finally {
-				if (active) setLoading(false);
+				if (showLoading) setLoading(false);
 			}
+		},
+		[page, pageSize, searchQuery, selectedCategory, selectedYear]
+	);
+
+	// Debounced fetch for filter changes
+	useEffect(() => {
+		let active = true;
+		const handler = setTimeout(async () => {
+			if (!active) return;
+			await fetchFiles();
 		}, 350); // debounce
 
 		return () => {
@@ -104,6 +112,53 @@ export default function FileListClient({
 			clearTimeout(handler);
 		};
 	}, [page, pageSize, searchQuery, selectedCategory, selectedYear]);
+
+	// Poll for status updates if there are files with pending/processing status
+	useEffect(() => {
+		const hasPendingFiles = items.some(
+			(item) =>
+				item.parsing_status === "pending" ||
+				item.parsing_status === "processing"
+		);
+
+		if (!hasPendingFiles) return; // No need to poll if all files are completed/failed
+
+		// Poll every 10 seconds for status updates
+		const statusPollInterval = setInterval(() => {
+			fetchFiles(false); // Refresh without showing loading indicator
+		}, 10000); // 10 seconds
+
+		return () => {
+			clearInterval(statusPollInterval);
+		};
+	}, [items, page, pageSize, searchQuery, selectedCategory, selectedYear]); // Re-run when items or filters change
+
+	// Listen for file processing events from FileProcessingWorker
+	useEffect(() => {
+		const handleProcessingComplete = () => {
+			// Refresh file list when processing completes
+			fetchFiles(false);
+		};
+
+		const handleProcessingFailed = () => {
+			// Refresh file list when processing fails
+			fetchFiles(false);
+		};
+
+		window.addEventListener("fileProcessingComplete", handleProcessingComplete);
+		window.addEventListener("fileProcessingFailed", handleProcessingFailed);
+
+		return () => {
+			window.removeEventListener(
+				"fileProcessingComplete",
+				handleProcessingComplete
+			);
+			window.removeEventListener(
+				"fileProcessingFailed",
+				handleProcessingFailed
+			);
+		};
+	}, [fetchFiles]); // Use fetchFiles as dependency
 
 	const clearFilters = () => {
 		setSearchQuery("");
@@ -215,6 +270,7 @@ export default function FileListClient({
 							<TableHead>Title</TableHead>
 							<TableHead>Date</TableHead>
 							<TableHead>Created</TableHead>
+							<TableHead>Status</TableHead>
 							<TableHead>Actions</TableHead>
 						</TableRow>
 					</TableHeader>
@@ -237,17 +293,42 @@ export default function FileListClient({
 										: "-"}
 								</TableCell>
 								<TableCell>
+									{item.parsing_status ? (
+										<span
+											className={`inline-flex items-center rounded-full px-2 py-1 text-xs font-medium ${
+												item.parsing_status === "completed"
+													? "bg-green-100 text-green-800"
+													: item.parsing_status === "processing"
+													? "bg-blue-100 text-blue-800"
+													: item.parsing_status === "failed"
+													? "bg-red-100 text-red-800"
+													: "bg-yellow-100 text-yellow-800"
+											}`}
+										>
+											{item.parsing_status === "completed"
+												? "Ready"
+												: item.parsing_status === "processing"
+												? "Processing"
+												: item.parsing_status === "failed"
+												? "Failed"
+												: "Pending"}
+										</span>
+									) : (
+										<span className="text-muted-foreground text-xs">-</span>
+									)}
+								</TableCell>
+								<TableCell>
 									<div className="flex items-center space-x-2">
-                                            <Link href={`/app/files/${item.id}`}>
-                                                <Button
-                                                    variant="ghost"
-                                                    size="icon"
-                                                    className="h-8 w-8 p-0"
-                                                >
-                                                    <Eye className="h-4 w-4" />
-                                                </Button>
-                                            </Link>
-                                            <Link href={`/app/files/${item.id}/edit`}>
+										<Link href={`/app/files/${item.id}`}>
+											<Button
+												variant="ghost"
+												size="icon"
+												className="h-8 w-8 p-0"
+											>
+												<Eye className="h-4 w-4" />
+											</Button>
+										</Link>
+										<Link href={`/app/files/${item.id}/edit`}>
 											<Button
 												variant="ghost"
 												size="icon"

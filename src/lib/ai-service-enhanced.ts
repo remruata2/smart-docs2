@@ -3,10 +3,14 @@ import {
 	getGeminiClient,
 	recordKeyUsage,
 	getActiveModelNames,
+	getProviderApiKey,
 } from "@/lib/ai-key-store";
 import { HybridSearchService } from "./hybrid-search";
 import { getSettingInt } from "@/lib/app-settings";
 import { processChunkedAnalyticalQuery } from "./chunked-processing";
+import { ChartSchema } from "@/lib/chart-schema";
+import { generateObject } from "ai";
+import { createGoogleGenerativeAI } from "@ai-sdk/google";
 
 // Developer logging toggle - set to true to see query logs in console
 const DEV_LOGGING = true;
@@ -113,10 +117,26 @@ export interface ChatMessage {
 		title: string;
 		relevance?: number;
 		similarity?: number; // For UI display (converted from RRF score or semantic_similarity)
+		citation?: {
+			pageNumber: number;
+			imageUrl: string;
+			boundingBox: any;
+		};
 	}>;
 	tokenCount?: {
 		input: number;
 		output: number;
+	};
+	filters?: {
+		category?: string;
+	};
+	chartData?: {
+		title: string;
+		type: "bar" | "line" | "pie" | "area";
+		description: string;
+		xAxisKey: string;
+		seriesKeys: string[];
+		data: Array<Record<string, string | number>>;
 	};
 }
 
@@ -138,6 +158,13 @@ export interface SearchResult {
 	semantic_similarity?: number;
 	combined_score?: number;
 
+	// Citation data for split-screen view
+	citation?: {
+		pageNumber: number;
+		imageUrl: string;
+		boundingBox: any;
+	};
+
 	// Internal flag
 	_processed?: boolean;
 }
@@ -148,6 +175,7 @@ export interface SearchResult {
  */
 function quickClassifyQuery(query: string): {
 	coreSearchTerms: string;
+	semanticConcepts?: string; // Optional for backward compatibility
 	instructionalTerms: string;
 	queryType:
 		| "specific_search"
@@ -156,7 +184,8 @@ function quickClassifyQuery(query: string): {
 		| "general"
 		| "recent_files"
 		| "analytical_query"
-		| "list_all";
+		| "list_all"
+		| "visualization";
 	contextNeeded: boolean;
 	inputTokens: number;
 	outputTokens: number;
@@ -197,6 +226,23 @@ function quickClassifyQuery(query: string): {
 			coreSearchTerms: query,
 			instructionalTerms: "analyze",
 			queryType: "analytical_query",
+			contextNeeded: false,
+			inputTokens: 0,
+			outputTokens: 0,
+		};
+	}
+
+	// Pattern 3.5: Visualization queries (chart, graph, plot)
+	if (
+		/^(create|make|show|generate|plot)\s+(a\s+)?(chart|graph|plot|visualization)/i.test(
+			q
+		) ||
+		/\b(bar chart|line chart|pie chart|scatter plot|histogram)\b/i.test(q)
+	) {
+		return {
+			coreSearchTerms: query,
+			instructionalTerms: "visualize",
+			queryType: "visualization",
 			contextNeeded: false,
 			inputTokens: 0,
 			outputTokens: 0,
@@ -278,6 +324,7 @@ export async function analyzeQueryForSearch(
 	opts: { provider?: "gemini"; model?: string; keyId?: number } = {}
 ): Promise<{
 	coreSearchTerms: string;
+	semanticConcepts?: string; // Optional for backward compatibility
 	instructionalTerms: string;
 	queryType:
 		| "specific_search"
@@ -286,7 +333,8 @@ export async function analyzeQueryForSearch(
 		| "general"
 		| "recent_files"
 		| "analytical_query"
-		| "list_all";
+		| "list_all"
+		| "visualization";
 	contextNeeded: boolean;
 	inputTokens: number;
 	outputTokens: number;
@@ -322,52 +370,54 @@ export async function analyzeQueryForSearch(
 						.join("\n")}\n`
 				: "";
 
-		const prompt = `You are an AI assistant analyzing queries for a Smart Docs database search system.
-
-${historyContext}
+		const prompt = `You are the Query Processor for a high-precision RAG system.
+Your goal is to break down the user's request into database search parameters.
 
 CURRENT USER QUERY: "${currentQuery}"
+${historyContext}
 
-Your task is to:
-1. Determine the query type
-2. Extract the core search terms for database search
-3. Extract the instructional terms for database search
-4. Decide if conversation context is needed
+Analyze the query and output the following JSON object:
 
-Query Types:
-- specific_search: Direct questions about cases, people, dates, etc. ("Details of case 123", "Who is John Doe?").
-- analytical_query: Questions that require analysis, summarization, or finding patterns across multiple records (e.g., 'most common', 'how many', 'what is the trend', 'summarize').
-- follow_up: Questions referring to previous results ("Who caught her?", "What happened next?").
-- elaboration: Requests for more details ("Elaborate", "Tell me more", "Explain further").
-- general: General questions or greetings.
-- recent_files: Queries asking for recent/latest/newest files (handled separately).
-- list_all: Queries asking to list or show all records/files (e.g., "list all records", "show all cases").
-
-IMPORTANT:
-- If the query asks for "recent", "latest", "newest", or "most recent" files/records/cases, classify it as "recent_files".
-- If the query asks to "list all", "show all", "find all", or similar requests to display all records, classify it as "list_all".
-- "coreSearchTerms" should be specific entities, names, IDs, or unique identifiers that directly map to data in the database. Do NOT include words that describe the type of query or action to be performed (e.g., 'summarize', 'analyze', 'case' when it's part of 'the case on X').
-- "instructionalTerms" are words that describe the action (e.g., 'summarize', 'analyze') or the general type of record (e.g., 'case', 'incident') when they are not specific entities.
-
-For follow_up and elaboration queries, you MUST extract keywords from the conversation history.
-
-Respond in this exact JSON format:
 {
-  "coreSearchTerms": "extracted core search terms for database search",
-  "instructionalTerms": "extracted instructional terms for database search",
-  "queryType": "one of the types above",
-  "contextNeeded": true/false
+  "coreSearchTerms": "string",   // KEYWORDS: Strict nouns, IDs, Names, Dates (for exact text match)
+  "semanticConcepts": "string",  // CONCEPTS: Descriptive phrasing, intent, or meaning (for vector search)
+  "queryType": "string",         // ENUM: specific_search, analytical_query, follow_up, elaboration, general, recent_files, list_all, visualization
+  "instructionalTerms": "string", // Verbs/Actions (e.g., "summarize", "list", "compare", "chart")
+  "contextNeeded": boolean       // True if the query relies on previous messages
 }
 
-Examples:
-- "Cases from 2007?" → {"coreSearchTerms": "cases 2007", "instructionalTerms": "", "queryType": "specific_search", "contextNeeded": false}
-- "Who caught her?" → {"coreSearchTerms": "caught arrest suspect", "instructionalTerms": "", "queryType": "follow_up", "contextNeeded": true}
-- "Show me the most recent 3 files" → {"coreSearchTerms": "recent files", "instructionalTerms": "3", "queryType": "recent_files", "contextNeeded": false}
-- "Latest cases" → {"coreSearchTerms": "latest cases", "instructionalTerms": "", "queryType": "recent_files", "contextNeeded": false}
-- "Summarize the case on Zothansangi" → {"coreSearchTerms": "Zothansangi", "instructionalTerms": "summarize case", "queryType": "analytical_query", "contextNeeded": false}
-- "List all records" → {"coreSearchTerms": "", "instructionalTerms": "list all records", "queryType": "list_all", "contextNeeded": false}
+GUIDELINES:
 
-`;
+1. coreSearchTerms: Extract ONLY exact identifiers.
+   - User: "Invoice Q-881 payment status" -> "Invoice Q-881"
+   - User: "Project Alpha deliverables" -> "Project Alpha deliverables"
+
+2. semanticConcepts: Extract the *meaning* or *topic*.
+   - User: "Invoice Q-881 payment status" -> "payment status pending overdue"
+   - User: "Project Alpha deliverables" -> "project completion tasks milestones deliverables"
+
+3. queryType:
+   - "analytical_query": If asking for trends, counts, averages, or summaries across multiple files.
+   - "specific_search": If looking for a specific fact, file, or person.
+   - "follow_up": Questions referring to previous results ("Who caught her?", "What happened next?").
+   - "elaboration": Requests for more details ("Elaborate", "Tell me more", "Explain further").
+   - "general": General questions or greetings.
+   - "recent_files": Queries asking for recent/latest/newest files (handled separately).
+   - "recent_files": Queries asking for recent/latest/newest files (handled separately).
+   - "list_all": Queries asking to list or show all records/files (e.g., "list all records", "show all documents").
+   - "visualization": Requests to create charts, graphs, or plots (e.g., "Plot revenue over time").
+
+4. IMPORTANT:
+   - If the query asks for "recent", "latest", "newest", or "most recent" files/records/cases, classify it as "recent_files".
+   - If the query asks to "list all", "show all", "find all", or similar requests to display all records, classify it as "list_all".
+   - For follow_up and elaboration queries, you MUST extract keywords from the conversation history.
+
+Examples:
+- "Documents from 2007?" → {"coreSearchTerms": "documents 2007", "semanticConcepts": "documents records year 2007", "instructionalTerms": "", "queryType": "specific_search", "contextNeeded": false}
+- "What happened next?" → {"coreSearchTerms": "next follow up continuation", "semanticConcepts": "sequence progression continuation", "instructionalTerms": "", "queryType": "follow_up", "contextNeeded": true}
+- "Summarize the project on Alpha" → {"coreSearchTerms": "Alpha", "semanticConcepts": "project summary overview details", "instructionalTerms": "summarize project", "queryType": "analytical_query", "contextNeeded": false}
+
+Respond ONLY with valid JSON.`;
 
 		let text: string = "";
 		let analysisInputTokens = 0;
@@ -454,7 +504,7 @@ Examples:
 		}
 
 		// Validate response
-		// Allow empty coreSearchTerms for specific_search queries with instructional terms (like "all cases")
+		// Allow empty coreSearchTerms for specific_search queries with instructional terms (like "all documents")
 		// or for list_all or analytical queries
 		const hasValidTerms =
 			analysis.coreSearchTerms ||
@@ -470,6 +520,7 @@ Examples:
 
 		return {
 			coreSearchTerms: analysis.coreSearchTerms,
+			semanticConcepts: analysis.semanticConcepts, // Extract semanticConcepts from JSON
 			instructionalTerms: analysis.instructionalTerms || "",
 			queryType: analysis.queryType,
 			contextNeeded: analysis.contextNeeded || false,
@@ -657,16 +708,23 @@ function analyzeQueryType(query: string): string {
 	const queryLower = query.toLowerCase();
 
 	// Check for specific query patterns
-	if (queryLower.includes("victim") && queryLower.includes("suspect")) {
+	if (
+		(queryLower.includes("person") ||
+			queryLower.includes("people") ||
+			queryLower.includes("individual")) &&
+		(queryLower.includes("name") ||
+			queryLower.includes("who") ||
+			queryLower.includes("participant"))
+	) {
 		// Check if age is also mentioned
 		if (
 			queryLower.includes("age") ||
 			queryLower.includes("old") ||
 			queryLower.includes("years")
 		) {
-			return "victim_suspect_with_age";
+			return "person_with_age";
 		}
-		return "victim_suspect";
+		return "person";
 	}
 	if (
 		queryLower.includes("location") ||
@@ -714,27 +772,31 @@ function adjustScoreForQueryType(
 	const noteLower = (record.note || "").toLowerCase();
 
 	switch (queryType) {
-		case "victim_suspect":
-			// Boost score for records containing victim/suspect information
+		case "person":
+			// Boost score for records containing person/people information
 			if (
-				noteLower.includes("victim") ||
-				noteLower.includes("suspect") ||
-				noteLower.includes("accused") ||
-				noteLower.includes("complainant")
+				noteLower.includes("person") ||
+				noteLower.includes("people") ||
+				noteLower.includes("individual") ||
+				noteLower.includes("participant") ||
+				noteLower.includes("member") ||
+				noteLower.includes("name")
 			) {
 				score += 10;
 			}
 			break;
-		case "victim_suspect_with_age":
-			// Boost score for records containing victim/suspect information AND age
+		case "person_with_age":
+			// Boost score for records containing person information AND age
 			if (
-				noteLower.includes("victim") ||
-				noteLower.includes("suspect") ||
-				noteLower.includes("accused") ||
-				noteLower.includes("complainant") ||
-				noteLower.includes("age") ||
-				noteLower.includes("old") ||
-				noteLower.includes("years")
+				(noteLower.includes("person") ||
+					noteLower.includes("people") ||
+					noteLower.includes("individual") ||
+					noteLower.includes("participant") ||
+					noteLower.includes("member") ||
+					noteLower.includes("name")) &&
+				(noteLower.includes("age") ||
+					noteLower.includes("old") ||
+					noteLower.includes("years"))
 			) {
 				score += 10;
 			}
@@ -793,10 +855,10 @@ function determineRelevanceLevel(
 ): "high" | "medium" | "low" {
 	// 1. Check RRF Score directly if available
 	if (record.rrf_score !== undefined) {
-		// > 0.02 means it likely appeared in BOTH lists or was Top 3 in one list
-		if (record.rrf_score > 0.02) return "high";
-		// > 0.01 means it appeared in the top 30 of at least one list
-		if (record.rrf_score > 0.01) return "medium";
+		// Rank 1 in at least one list OR Top 10 in both
+		if (record.rrf_score > 0.015) return "high";
+		// Rank 50 in at least one list (Basic relevance)
+		if (record.rrf_score > 0.005) return "medium";
 		return "low";
 	}
 
@@ -818,44 +880,57 @@ function getPatternsForQueryType(
 		{ pattern: /([A-Z][a-z]+\s+[A-Z][a-z]+)/g, weight: 2, label: "Name" },
 		// File number patterns (always relevant)
 		{ pattern: /file\s*no[:\s]*([^.!?]+)/gi, weight: 2, label: "File" },
-		{ pattern: /fir\s*no[:\s]*([^.!?]+)/gi, weight: 2, label: "FIR" },
+		{
+			pattern: /reference\s*no[:\s]*([^.!?]+)/gi,
+			weight: 2,
+			label: "Reference",
+		},
+		{ pattern: /id[:\s]*([^.!?]+)/gi, weight: 2, label: "ID" },
 	];
 
 	switch (queryType) {
-		case "victim_suspect":
+		case "person":
 			return [
 				...basePatterns,
-				{ pattern: /victim[:\s]+([^.!?]+)/gi, weight: 5, label: "Victim" },
+				{ pattern: /person[:\s]+([^.!?]+)/gi, weight: 5, label: "Person" },
 				{
-					pattern: /complainant[:\s]+([^.!?]+)/gi,
+					pattern: /participant[:\s]+([^.!?]+)/gi,
 					weight: 5,
-					label: "Complainant",
+					label: "Participant",
 				},
-				{ pattern: /injured[:\s]+([^.!?]+)/gi, weight: 4, label: "Injured" },
-				{ pattern: /suspect[:\s]+([^.!?]+)/gi, weight: 5, label: "Suspect" },
-				{ pattern: /accused[:\s]+([^.!?]+)/gi, weight: 5, label: "Accused" },
+				{ pattern: /member[:\s]+([^.!?]+)/gi, weight: 4, label: "Member" },
 				{
-					pattern: /defendant[:\s]+([^.!?]+)/gi,
-					weight: 4,
-					label: "Defendant",
+					pattern: /individual[:\s]+([^.!?]+)/gi,
+					weight: 5,
+					label: "Individual",
+				},
+				{ pattern: /contact[:\s]+([^.!?]+)/gi, weight: 4, label: "Contact" },
+				{
+					pattern: /name[:\s]+([^.!?]+)/gi,
+					weight: 5,
+					label: "Name",
 				},
 			];
-		case "victim_suspect_with_age":
+		case "person_with_age":
 			return [
 				...basePatterns,
-				{ pattern: /victim[:\s]+([^.!?]+)/gi, weight: 5, label: "Victim" },
+				{ pattern: /person[:\s]+([^.!?]+)/gi, weight: 5, label: "Person" },
 				{
-					pattern: /complainant[:\s]+([^.!?]+)/gi,
+					pattern: /participant[:\s]+([^.!?]+)/gi,
 					weight: 5,
-					label: "Complainant",
+					label: "Participant",
 				},
-				{ pattern: /injured[:\s]+([^.!?]+)/gi, weight: 4, label: "Injured" },
-				{ pattern: /suspect[:\s]+([^.!?]+)/gi, weight: 5, label: "Suspect" },
-				{ pattern: /accused[:\s]+([^.!?]+)/gi, weight: 5, label: "Accused" },
+				{ pattern: /member[:\s]+([^.!?]+)/gi, weight: 4, label: "Member" },
 				{
-					pattern: /defendant[:\s]+([^.!?]+)/gi,
-					weight: 4,
-					label: "Defendant",
+					pattern: /individual[:\s]+([^.!?]+)/gi,
+					weight: 5,
+					label: "Individual",
+				},
+				{ pattern: /contact[:\s]+([^.!?]+)/gi, weight: 4, label: "Contact" },
+				{
+					pattern: /name[:\s]+([^.!?]+)/gi,
+					weight: 5,
+					label: "Name",
 				},
 				{ pattern: /age[:\s]+(\d+)/gi, weight: 5, label: "Age" },
 				{ pattern: /(\d+)\s*years?\s*old/gi, weight: 5, label: "Age" },
@@ -899,8 +974,8 @@ function getPatternsForQueryType(
 			return [
 				...basePatterns,
 				// General patterns for unknown query types
-				{ pattern: /victim[:\s]+([^.!?]+)/gi, weight: 4, label: "Victim" },
-				{ pattern: /suspect[:\s]+([^.!?]+)/gi, weight: 4, label: "Suspect" },
+				{ pattern: /person[:\s]+([^.!?]+)/gi, weight: 4, label: "Person" },
+				{ pattern: /name[:\s]+([^.!?]+)/gi, weight: 4, label: "Name" },
 				{ pattern: /location[:\s]+([^.!?]+)/gi, weight: 3, label: "Location" },
 				{ pattern: /date[:\s]+([^.!?]+)/gi, weight: 3, label: "Date" },
 				{ pattern: /age[:\s]+(\d+)/gi, weight: 3, label: "Age" },
@@ -951,9 +1026,11 @@ function extractKeyInformation(
 
 		// Score based on relevance keywords
 		const relevanceKeywords = [
-			"victim",
-			"suspect",
-			"witness",
+			"person",
+			"people",
+			"individual",
+			"participant",
+			"member",
 			"location",
 			"place",
 			"date",
@@ -962,9 +1039,11 @@ function extractKeyInformation(
 			"name",
 			"address",
 			"phone",
-			"incident",
-			"crime",
-			"case",
+			"email",
+			"contact",
+			"project",
+			"document",
+			"record",
 		];
 
 		relevanceKeywords.forEach((keyword) => {
@@ -1026,9 +1105,10 @@ function extractMinimalInformation(
 
 	// Look for specific patterns that are always relevant
 	const essentialPatterns = [
-		/victim[:\s]+([^.!?]+)/gi,
-		/suspect[:\s]+([^.!?]+)/gi,
-		/accused[:\s]+([^.!?]+)/gi,
+		/person[:\s]+([^.!?]+)/gi,
+		/name[:\s]+([^.!?]+)/gi,
+		/individual[:\s]+([^.!?]+)/gi,
+		/participant[:\s]+([^.!?]+)/gi,
 		/location[:\s]+([^.!?]+)/gi,
 		/place[:\s]+([^.!?]+)/gi,
 		/date[:\s]+([^.!?]+)/gi,
@@ -1137,6 +1217,19 @@ export function prepareContextForAI(
 	const detailedRecords = processedRecords.map((record) => {
 		const content = record.note || "No content available";
 
+		// Debug: Log content length for age-related queries
+		if (
+			query &&
+			(query.toLowerCase().includes("age") ||
+				query.toLowerCase().includes("victim"))
+		) {
+			console.log(
+				`[CONTEXT-PREP] Record ${record.id} (${record.title}): content length=${
+					content.length
+				}, preview=${content.substring(0, 200)}...`
+			);
+		}
+
 		// Avoid duplicating metadata if it's already in the note
 		const categoryPattern = new RegExp(
 			`Category[^\\n]*${escapeRegExp(record.category)}`,
@@ -1178,7 +1271,7 @@ Records are listed below ordered by relevance to your query.
   ${recordIndex
 		.map(
 			(r, i) =>
-				`[${i + 1}] Title: ${r.title} | Category: ${r.category} | Date: ${
+				`[${i + 1}] File: ${r.title} | Category: ${r.category} | Date: ${
 					r.date
 				} | Relevance: ${r.relevance}`
 		)
@@ -1188,8 +1281,7 @@ Records are listed below ordered by relevance to your query.
 ${detailedRecords
 	.map(
 		(record, index) => `
-[RECORD ${index + 1}] (Relevance: ${record.relevance})
-**Title:** ${record.title}
+**File: ${record.title}** (Relevance: ${record.relevance})
 Category: ${record.category}
 Date: ${record.date}
 Content: ${record.content}
@@ -1230,7 +1322,12 @@ export async function generateAIResponse(
 	conversationHistory: ChatMessage[] = [],
 	queryType: string = "specific_search",
 	opts: { provider?: "gemini"; model?: string; keyId?: number } = {}
-): Promise<{ text: string; inputTokens: number; outputTokens: number }> {
+): Promise<{
+	text: string;
+	inputTokens: number;
+	outputTokens: number;
+	chartData?: any;
+}> {
 	// Ensure queryType is one of the allowed types, default to specific_search
 	const allowedQueryTypes = [
 		"specific_search",
@@ -1239,6 +1336,7 @@ export async function generateAIResponse(
 		"elaboration",
 		"general",
 		"recent_files",
+		"visualization",
 	];
 	if (!allowedQueryTypes.includes(queryType)) {
 		queryType = "specific_search";
@@ -1266,11 +1364,12 @@ export async function generateAIResponse(
 	switch (queryType) {
 		case "analytical_query":
 			roleInstructions = `
-- The user is asking an analytical question that requires summarizing or finding patterns across multiple records.
-- Analyze all the provided database records to identify trends, frequencies, and key data points related to the user's question.
-- Synthesize your findings into a clear, structured summary.
-- Use counts, lists, and direct data points to support your analysis (e.g., 'The most common location is X, appearing 5 times.').
-- Present the information in an easy-to-understand format.
+- **Goal:** Synthesize a high-level answer. Do not just list the files one by one.
+- **Structure:**
+  1. **Executive Summary:** A 2-sentence answer to the core question.
+  2. **Key Findings:** Group information by themes (e.g., "Timeline of Events", "Financial Impact", "Involved Parties").
+  3. **Data Table:** If numbers/dates are involved, create a Markdown table comparing them across records.
+  4. **Source Breakdown:** Briefly mention which records contributed to which finding.
 `;
 			break;
 		case "follow_up":
@@ -1303,7 +1402,118 @@ export async function generateAIResponse(
 `;
 	}
 
-	const prompt = `You are a helpful AI assistant for the Smart Docs database system.\n\n${historyContext}\n\nCURRENT QUESTION: "${question}"\n\n${context}\n\nINSTRUCTIONS:\n${roleInstructions}\n\n- Always be professional and factual\n- If asked about specific cases, provide file numbers and relevant details\n- If no relevant information is found, say so clearly\n- Keep responses concise but informative\n- Use bullet points or numbered lists when presenting multiple items\n\nPlease provide a helpful response based on the database records above.`;
+	const prompt = `You are the AI Analyst for the Smart Docs system.
+Your task is to answer the user's question using *only* the provided Database Context.
+
+=== DATABASE CONTEXT ===
+${context}
+
+=== CONVERSATION HISTORY ===
+${historyContext}
+
+=== USER QUESTION ===
+"${question}"
+
+=== SYSTEM INSTRUCTIONS ===
+1. **Strict Citations:** You MUST support every factual claim with a reference to the source file name/title.
+   - Format: Use the file title/name directly, or (Source: Title).
+   - Example: "The project was completed on July 4th (Source: Project Report 2024-001). The document indicates the budget was approved (Source: Budget Approval Memo)."
+   - Always use the exact file title as shown in the context, not record numbers or IDs.
+
+2. **Hybrid Synthesis:** The context contains both "Keyword Matches" (exact words) and "Semantic Matches" (related concepts).
+   - If the user asks for a specific file, prioritize records with that exact file title/name.
+   - If the user asks for a summary, synthesize information from multiple relevant records.
+   - Always cite files by their title/name, not by record numbers.
+
+3. **Formatting:**
+   - Use Markdown tables for structured data (dates, names, amounts).
+   - Use bullet points for lists.
+   - **Bold** key entities (Names, IDs, Dates).
+
+4. **Data Visualization:**
+   - You have the capability to generate charts (bar, line, pie, area).
+   - If the user asks to "visualize", "chart", "plot", or "graph" data, acknowledge the request.
+   - The system will automatically detect this intent and generate the chart for you.
+   - You do not need to generate ASCII charts; a real interactive chart will be rendered.
+
+5. **Honesty:**
+   - If the provided records do not contain the answer, state: "I cannot find information about [X] in the current retrieved documents."
+   - Do not invent information.
+
+${roleInstructions}
+
+Answer:`;
+
+	// Handle visualization queries using structured output
+	if (queryType === "visualization") {
+		try {
+			console.log("[AI-GEN] Generating structured chart configuration...");
+			// Use a model that supports structured output well
+			const modelName = opts.model || "gemini-2.5-flash";
+
+			const { apiKey } = await getProviderApiKey({ provider: "gemini" });
+			const keyToUse = apiKey || process.env.GEMINI_API_KEY;
+
+			if (!keyToUse) {
+				throw new Error("No Gemini API key configured for chart generation");
+			}
+
+			const google = createGoogleGenerativeAI({
+				apiKey: keyToUse,
+			});
+
+			// @ts-ignore - Type instantiation is excessively deep
+			const { object } = await generateObject({
+				model: google(modelName),
+				schema: ChartSchema,
+				prompt: `
+You are a data visualization expert.
+Context:
+${context}
+
+Conversation History:
+${historyContext}
+
+User Query: ${question}
+
+Generate a chart configuration based on the user's query and the provided context.
+If the data is not sufficient to create a chart, create a chart with empty data and a title indicating "Insufficient Data".
+Ensure the data is cleaned (remove currency symbols, handle missing values).
+`,
+			});
+
+			let parsedData: any = object.data;
+			if (typeof object.data === "string") {
+				try {
+					parsedData = JSON.parse(object.data);
+				} catch (e) {
+					console.error("Failed to parse chart data string:", e);
+					parsedData = [];
+				}
+			}
+
+			const chartConfig = { ...object, data: parsedData };
+			console.log(
+				"[CHART] Generated chart config:",
+				JSON.stringify(chartConfig, null, 2)
+			);
+			return {
+				text: `Here is the ${object.type} chart you requested based on the data.`,
+				inputTokens: 0, // Estimate or track if possible
+				outputTokens: 0,
+				chartData: chartConfig,
+			};
+		} catch (error) {
+			console.error("[CHART] Failed to generate chart:", error);
+			console.error(
+				"[CHART] Error details:",
+				error instanceof Error ? error.message : String(error)
+			);
+			// Fallback to normal generation if chart generation fails
+			console.log("[CHART] Falling back to text generation...");
+			// Don't return here - let it fall through to normal generation
+		}
+	}
 
 	let lastError: any = null;
 	for (const modelName of attemptModels) {
@@ -1438,11 +1648,12 @@ export async function* generateAIResponseStream(
 	switch (queryType) {
 		case "analytical_query":
 			roleInstructions = `
-- The user is asking an analytical question that requires summarizing or finding patterns across multiple records.
-- Analyze all the provided database records to identify trends, frequencies, and key data points related to the user's question.
-- Synthesize your findings into a clear, structured summary.
-- Use counts, lists, and direct data points to support your analysis (e.g., 'The most common location is X, appearing 5 times.').
-- Present the information in an easy-to-understand format.
+- **Goal:** Synthesize a high-level answer. Do not just list the files one by one.
+- **Structure:**
+  1. **Executive Summary:** A 2-sentence answer to the core question.
+  2. **Key Findings:** Group information by themes (e.g., "Timeline of Events", "Financial Impact", "Involved Parties").
+  3. **Data Table:** If numbers/dates are involved, create a Markdown table comparing them across records.
+  4. **Source Breakdown:** Briefly mention which records contributed to which finding.
 `;
 			break;
 		case "follow_up":
@@ -1475,7 +1686,41 @@ export async function* generateAIResponseStream(
 `;
 	}
 
-	const prompt = `You are a helpful AI assistant for the Smart Docs database system.\n\n${historyContext}\n\nCURRENT QUESTION: "${question}"\n\n${context}\n\nINSTRUCTIONS:\n${roleInstructions}\n\n- Always be professional and factual\n- If asked about specific cases, provide file numbers and relevant details\n- If no relevant information is found, say so clearly\n- Keep responses concise but informative\n- Use bullet points or numbered lists when presenting multiple items\n\nPlease provide a helpful response based on the database records above.`;
+	const prompt = `You are the AI Analyst for the Smart Docs system.
+Your task is to answer the user's question using *only* the provided Database Context.
+
+=== DATABASE CONTEXT ===
+${context}
+
+=== CONVERSATION HISTORY ===
+${historyContext}
+
+=== USER QUESTION ===
+"${question}"
+
+=== SYSTEM INSTRUCTIONS ===
+1. **Strict Citations:** You MUST support every factual claim with a reference to the source file name/title.
+   - Format: Use the file title/name directly, or (Source: Title).
+   - Example: "The project was completed on July 4th (Source: Project Report 2024-001). The document indicates the budget was approved (Source: Budget Approval Memo)."
+   - Always use the exact file title as shown in the context, not record numbers or IDs.
+
+2. **Hybrid Synthesis:** The context contains both "Keyword Matches" (exact words) and "Semantic Matches" (related concepts).
+   - If the user asks for a specific file, prioritize records with that exact file title/name.
+   - If the user asks for a summary, synthesize information from multiple relevant records.
+   - Always cite files by their title/name, not by record numbers.
+
+3. **Formatting:**
+   - Use Markdown tables for structured data (dates, names, amounts).
+   - Use bullet points for lists.
+   - **Bold** key entities (Names, IDs, Dates).
+
+4. **Honesty:**
+   - If the provided records do not contain the answer, state: "I cannot find information about [X] in the current retrieved documents."
+   - Do not invent information.
+
+${roleInstructions}
+
+Answer:`;
 
 	let lastError: any = null;
 	for (const modelName of attemptModels) {
@@ -1504,8 +1749,14 @@ export async function* generateAIResponseStream(
 				console.warn("[AI-GEN-STREAM] countTokens failed; using heuristic", e);
 			}
 
+			// Use a model that supports structured output well
+			const streamingModelName = opts.model || "gemini-1.5-pro";
+			const streamingModel = client.getGenerativeModel({
+				model: streamingModelName as string,
+			});
+
 			// Generate streaming response
-			const result = await model.generateContentStream(prompt);
+			const result = await streamingModel.generateContentStream(prompt);
 			let fullText = "";
 
 			// Stream tokens as they arrive
@@ -1562,6 +1813,11 @@ export async function processChatMessageEnhanced(
 		title: string;
 		relevance?: number;
 		similarity?: number; // For UI display (converted from RRF score or semantic_similarity)
+		citation?: {
+			pageNumber: number;
+			imageUrl: string;
+			boundingBox: any;
+		};
 	}>;
 	searchQuery: string;
 	searchMethod:
@@ -1583,6 +1839,7 @@ export async function processChatMessageEnhanced(
 		semanticResults: number;
 		finalResults: number;
 	};
+	chartData?: any;
 }> {
 	console.log(`[ADMIN CHAT] User admin asked: "${question}"`);
 
@@ -1606,6 +1863,12 @@ export async function processChatMessageEnhanced(
 			"[CHAT ANALYSIS] Core search terms:",
 			`"${analysis.coreSearchTerms}"`
 		);
+		if (analysis.semanticConcepts) {
+			console.log(
+				"[CHAT ANALYSIS] Semantic concepts:",
+				`"${analysis.semanticConcepts}"`
+			);
+		}
 		console.log(
 			"[CHAT ANALYSIS] Instructional terms:",
 			`"${analysis.instructionalTerms}"`
@@ -1623,10 +1886,10 @@ export async function processChatMessageEnhanced(
 			!queryForSearch &&
 			analysis.instructionalTerms?.toLowerCase().includes("all")
 		) {
-			// For "show all" type queries, use a broad search term
-			queryForSearch = "case"; // Use a common term to match most records
+			// For "show all" type queries, use empty query to match all records
+			queryForSearch = ""; // Empty query to match all records
 			console.log(
-				'[CHAT ANALYSIS] Using broad search term "case" for "show all" query'
+				'[CHAT ANALYSIS] Using empty search term for "show all" query'
 			);
 		}
 		analysisInputTokens = analysis.inputTokens || 0;
@@ -1817,42 +2080,228 @@ export async function processChatMessageEnhanced(
 		"were",
 		"been",
 		"have",
-		"case",
 		"file",
 		"record",
-		"victim",
-		"accused",
-		"suspect",
-		"police",
-		"court",
+		"document",
 		"date",
 		"time",
 		"place",
-		"incident",
 		"report",
-		"investigation",
 		"against",
 		"under",
+		"about",
+		"information",
+		"data",
 	]);
+
+	// Normalize function: remove extension, replace underscores/dashes with spaces
+	const normalize = (s: string) =>
+		s
+			.toLowerCase()
+			.replace(/\.[^/.]+$/, "") // Remove file extension
+			.replace(/[_-]/g, " ") // Replace underscores and dashes with spaces
+			.replace(/\s+/g, " ") // Normalize multiple spaces to single space
+			.trim();
+
+	/**
+	 * Score chunk by query intent - determines how well a chunk answers the question type
+	 */
+	function scoreChunkByQueryIntent(
+		chunkContent: string,
+		query: string,
+		queryType: string
+	): number {
+		if (!chunkContent) return 0;
+
+		const contentLower = chunkContent.toLowerCase();
+		const queryLower = query.toLowerCase();
+
+		// Extract question words
+		const questionWords = ["who", "what", "when", "where", "why", "how"];
+		const questionWord = questionWords.find((w) => queryLower.startsWith(w));
+
+		let intentScore = 0;
+
+		if (questionWord === "who") {
+			// Look for names, titles, people identifiers
+			const namePatterns =
+				/\b(mr|mrs|ms|miss|dr|prof|professor|sir|madam)\s+\w+/gi;
+			if (namePatterns.test(contentLower)) intentScore += 5;
+
+			// Look for age indicators (often associated with people)
+			if (/\b(age|years?\s*old|aged)\b/i.test(contentLower)) intentScore += 2;
+
+			// Look for person-related keywords
+			const personKeywords = [
+				"victim",
+				"accused",
+				"suspect",
+				"person",
+				"individual",
+				"man",
+				"woman",
+				"child",
+				"national",
+			];
+			personKeywords.forEach((keyword) => {
+				if (contentLower.includes(keyword)) intentScore += 1;
+			});
+		} else if (questionWord === "what") {
+			// Look for definitions, descriptions, events
+			const definitionPatterns = /\b(is|are|was|were|means?|refers?\s+to)\b/i;
+			if (definitionPatterns.test(contentLower)) intentScore += 3;
+
+			// Look for event descriptions
+			const eventKeywords = [
+				"happened",
+				"occurred",
+				"incident",
+				"event",
+				"case",
+				"reported",
+			];
+			eventKeywords.forEach((keyword) => {
+				if (contentLower.includes(keyword)) intentScore += 1;
+			});
+		} else if (questionWord === "when") {
+			// Look for dates, time references
+			const datePatterns =
+				/\b(\d{1,2}[\/\-]\d{1,2}[\/\-]\d{2,4}|\d{4}|\d{1,2}\s+(jan|feb|mar|apr|may|jun|jul|aug|sep|oct|nov|dec))/gi;
+			if (datePatterns.test(contentLower)) intentScore += 5;
+
+			// Look for time indicators
+			const timeKeywords = [
+				"at around",
+				"at approximately",
+				"on",
+				"date",
+				"time",
+				"am",
+				"pm",
+				"hours?",
+			];
+			timeKeywords.forEach((keyword) => {
+				if (contentLower.includes(keyword)) intentScore += 1;
+			});
+		} else if (questionWord === "where") {
+			// Look for locations, places
+			const locationKeywords = [
+				"location",
+				"place",
+				"district",
+				"area",
+				"region",
+				"border",
+				"near",
+				"at",
+				"in",
+				"found",
+			];
+			locationKeywords.forEach((keyword) => {
+				if (contentLower.includes(keyword)) intentScore += 1;
+			});
+
+			// Look for location patterns (capitalized words often indicate places)
+			const capitalizedWords = contentLower.match(/\b[A-Z][a-z]+\b/g);
+			if (capitalizedWords && capitalizedWords.length > 2) intentScore += 2;
+		} else if (questionWord === "why" || questionWord === "how") {
+			// Look for explanations, reasons, methods
+			const explanationKeywords = [
+				"because",
+				"due to",
+				"reason",
+				"caused",
+				"result",
+				"method",
+				"process",
+				"by",
+			];
+			explanationKeywords.forEach((keyword) => {
+				if (contentLower.includes(keyword)) intentScore += 1;
+			});
+		}
+
+		// Boost score if chunk content directly contains query keywords (excluding common words)
+		const queryWords = queryLower
+			.split(/\s+/)
+			.filter((w) => w.length > 3 && !commonWords.has(w));
+		const matchingQueryWords = queryWords.filter((word) =>
+			contentLower.includes(word)
+		);
+		if (matchingQueryWords.length > 0) {
+			intentScore += matchingQueryWords.length * 0.5;
+		}
+
+		return intentScore;
+	}
+
+	/**
+	 * Calculate combined relevance score for chunk selection during deduplication
+	 */
+	function calculateChunkRelevance(
+		source: any,
+		query: string,
+		queryType: string
+	): number {
+		// Get chunk content (stored as note in the record)
+		const chunkContent = source.chunkContent || source.note || "";
+
+		// Query intent score (0-10+)
+		const intentScore = scoreChunkByQueryIntent(chunkContent, query, queryType);
+
+		// Semantic similarity (0-1, converted to 0-10 scale)
+		const semanticScore =
+			(source.semanticSimilarity || source.similarity || 0) * 10;
+
+		// RRF score (0-1, converted to 0-5 scale)
+		const rrfScore = (source.rrfScore || 0) * 5;
+
+		// Combined score: intent (40%) + semantic (40%) + RRF (20%)
+		// This prioritizes chunks that answer the question over chunks with high keyword matches
+		const combinedScore =
+			intentScore * 0.4 + semanticScore * 0.4 + rrfScore * 0.2;
+
+		return combinedScore;
+	}
 
 	const citedSources = records
 		.map((record) => {
 			const response = aiResponse.text.toLowerCase();
 			const title = record.title.toLowerCase();
+			const normalizedResponse = normalize(aiResponse.text);
+			const normalizedTitle = normalize(record.title);
 			let score = 0;
 
-			// Strong signal: Explicit ID mention
+			// Strong signal: Exact title match (primary citation method)
+			if (response.includes(title)) {
+				score += 10;
+			}
+
+			// Strong signal: Normalized title match (handles cleaned up filenames)
+			if (normalizedResponse.includes(normalizedTitle)) {
+				score += 8; // High score for normalized match
+			}
+
+			// Strong signal: Title in citation format (Source: Title)
+			if (
+				response.includes(`(Source: ${record.title})`) ||
+				response.includes(`(source: ${record.title})`)
+			) {
+				score += 10;
+			}
+
+			// Medium signal: Normalized title in citation format
+			if (normalizedResponse.includes(`(source: ${normalizedTitle})`)) {
+				score += 8;
+			}
+
+			// Medium signal: Explicit ID mention (fallback for legacy)
 			if (
 				response.includes(`id: ${record.id}`) ||
 				response.includes(`record ${record.id}`) ||
 				response.includes(`[${record.id}]`)
 			) {
-				score += 10;
-			}
-
-			// Strong signal: Exact title match
-			if (response.includes(title)) {
-				score += 8;
+				score += 5;
 			}
 
 			// Medium signal: Most title words present
@@ -1890,12 +2339,76 @@ export async function processChatMessageEnhanced(
 				similarity: record.rrf_score
 					? record.rrf_score * 30
 					: record.semantic_similarity, // Convert RRF to similarity-like value for UI
+				citation: record.citation, // Pass through citation data from hybrid search
 				citationScore: score,
+				rrfScore: record.rrf_score || 0, // Store RRF score for filtering
+				chunkContent: record.note || "", // Store chunk content for query-intent matching
+				semanticSimilarity: record.semantic_similarity || 0, // Store semantic similarity
 			};
 		})
-		.filter((source) => source.citationScore >= 3) // Minimum score threshold
-		.sort((a, b) => b.citationScore - a.citationScore)
-		.map(({ citationScore, ...rest }) => rest); // Remove score from final output
+		.filter((source) => {
+			// Apply stricter filtering:
+			// 1. Minimum citation score (must be explicitly mentioned or strongly matched)
+			// 2. Minimum RRF score threshold (filter out weak semantic matches)
+			const minCitationScore = 5; // Increased from 3 to 5
+			const minRrfScore = 0.01; // Minimum RRF score (approximately top 60 results)
+
+			return (
+				source.citationScore >= minCitationScore &&
+				source.rrfScore >= minRrfScore
+			);
+		})
+		// Deduplicate by file ID (keep the chunk that best answers the query)
+		.reduce((acc: any[], source) => {
+			const existing = acc.find((s) => s.id === source.id);
+			if (!existing) {
+				acc.push(source);
+			} else {
+				// Calculate combined relevance score considering query intent
+				const existingRelevance = calculateChunkRelevance(
+					existing,
+					queryForSearch,
+					queryType
+				);
+				const sourceRelevance = calculateChunkRelevance(
+					source,
+					queryForSearch,
+					queryType
+				);
+
+				// Replace if new chunk is more relevant to the query
+				if (sourceRelevance > existingRelevance) {
+					const index = acc.indexOf(existing);
+					acc[index] = source;
+				}
+			}
+			return acc;
+		}, [])
+		// Sort by combined score: citation score first, then RRF score
+		.sort((a, b) => {
+			// Primary sort: citation score (how explicitly mentioned)
+			if (b.citationScore !== a.citationScore) {
+				return b.citationScore - a.citationScore;
+			}
+			// Secondary sort: RRF score (relevance to query)
+			return b.rrfScore - a.rrfScore;
+		})
+		// Limit to top 10 most relevant sources
+		.slice(0, 10)
+		.map(
+			({
+				citationScore,
+				rrfScore,
+				chunkContent,
+				semanticSimilarity,
+				...rest
+			}) => rest
+		); // Remove internal scores from final output
+
+	console.log(
+		`[CITATION-DEBUG] Created ${citedSources.length} sources, sample:`,
+		citedSources[0]
+	);
 
 	const sourceTime = timeEnd("Source Extraction", sourceTiming);
 
@@ -1929,6 +2442,7 @@ export async function processChatMessageEnhanced(
 			output: (analysisOutputTokens || 0) + (aiResponse.outputTokens || 0),
 		},
 		stats: searchStats,
+		chartData: (aiResponse as any).chartData,
 	};
 }
 
@@ -1948,13 +2462,18 @@ export async function* processChatMessageEnhancedStream(
 	}
 ): AsyncGenerator<
 	{
-		type: "metadata" | "token" | "sources" | "done" | "progress";
+		type: "metadata" | "token" | "sources" | "done" | "progress" | "data";
 		text?: string;
 		sources?: Array<{
 			id: number;
 			title: string;
 			relevance?: number;
-			similarity?: number; // For UI display
+			similarity?: number; // For UI display (converted from RRF score or semantic_similarity)
+			citation?: {
+				pageNumber: number;
+				imageUrl: string;
+				boundingBox: any;
+			};
 		}>;
 		searchQuery?: string;
 		searchMethod?: string;
@@ -1963,6 +2482,7 @@ export async function* processChatMessageEnhancedStream(
 		tokenCount?: { input: number; output: number };
 		stats?: any;
 		progress?: string;
+		chartData?: any;
 	},
 	void,
 	unknown
@@ -1994,9 +2514,9 @@ export async function* processChatMessageEnhancedStream(
 			!queryForSearch &&
 			analysis.instructionalTerms?.toLowerCase().includes("all")
 		) {
-			queryForSearch = "case";
+			queryForSearch = ""; // Empty query to match all records
 			console.log(
-				'[CHAT ANALYSIS] Using broad search term "case" for "show all" query'
+				'[CHAT ANALYSIS] Using empty search term for "show all" query'
 			);
 		}
 
@@ -2154,6 +2674,70 @@ export async function* processChatMessageEnhancedStream(
 			console.error("[CHAT PROCESSING] Chunked processing error:", error);
 			throw error;
 		}
+	} else if (queryType === "visualization") {
+		// Handle visualization queries using non-streaming generation to get structured data
+		console.log(`[CHAT PROCESSING] Handling visualization query`);
+
+		// Yield progress
+		yield {
+			type: "progress",
+			progress: "Generating chart...",
+		};
+
+		let context = "";
+		if (records.length > 0) {
+			context = prepareContextForAI(records, queryForSearch, false);
+		}
+
+		try {
+			// Call non-streaming generation to get chart data
+			console.log(
+				"[CHART STREAM] Calling generateAIResponse for visualization"
+			);
+			const response = await generateAIResponse(
+				question,
+				context,
+				conversationHistory,
+				queryType,
+				opts
+			);
+
+			console.log(
+				"[CHART STREAM] Response received, has chartData:",
+				!!response.chartData
+			);
+			fullResponseText = response.text;
+			aiInputTokens = response.inputTokens;
+			aiOutputTokens = response.outputTokens;
+
+			// Yield the text response
+			yield { type: "token", text: fullResponseText };
+
+			// Yield chart data if available
+			if (response.chartData) {
+				console.log(
+					"[CHART STREAM] Yielding chart data:",
+					JSON.stringify(response.chartData, null, 2)
+				);
+				yield {
+					type: "data",
+					chartData: response.chartData,
+				};
+			} else {
+				console.log(
+					"[CHART STREAM] No chart data in response - chart generation may have failed"
+				);
+			}
+
+			// Yield done event
+			yield {
+				type: "done",
+				tokenCount: { input: aiInputTokens, output: aiOutputTokens },
+			};
+		} catch (error) {
+			console.error("[CHAT PROCESSING] Visualization error:", error);
+			throw error;
+		}
 	} else {
 		// Use normal streaming for small queries or non-analytical queries
 		let context = "";
@@ -2214,41 +2798,235 @@ export async function* processChatMessageEnhancedStream(
 		"were",
 		"been",
 		"have",
-		"case",
 		"file",
 		"record",
-		"victim",
-		"accused",
-		"suspect",
-		"investigation",
-		"police",
-		"crime",
-		"criminal",
+		"document",
 		"report",
-		"incident",
+		"information",
+		"data",
+		"about",
 		"found",
-		"arrested",
-		"charged",
+		"created",
+		"updated",
 	]);
 
-	const citedSources: Array<{ id: number; title: string }> = [];
+	// Normalize function: remove extension, replace underscores/dashes with spaces
+	const normalize = (s: string) =>
+		s
+			.toLowerCase()
+			.replace(/\.[^/.]+$/, "") // Remove file extension
+			.replace(/[_-]/g, " ") // Replace underscores and dashes with spaces
+			.replace(/\s+/g, " ") // Normalize multiple spaces to single space
+			.trim();
+
+	/**
+	 * Score chunk by query intent - determines how well a chunk answers the question type
+	 * (Same function as in non-streaming version)
+	 */
+	function scoreChunkByQueryIntent(
+		chunkContent: string,
+		query: string,
+		queryType: string
+	): number {
+		if (!chunkContent) return 0;
+
+		const contentLower = chunkContent.toLowerCase();
+		const queryLower = query.toLowerCase();
+
+		// Extract question words
+		const questionWords = ["who", "what", "when", "where", "why", "how"];
+		const questionWord = questionWords.find((w) => queryLower.startsWith(w));
+
+		let intentScore = 0;
+
+		if (questionWord === "who") {
+			// Look for names, titles, people identifiers
+			const namePatterns =
+				/\b(mr|mrs|ms|miss|dr|prof|professor|sir|madam)\s+\w+/gi;
+			if (namePatterns.test(contentLower)) intentScore += 5;
+
+			// Look for age indicators (often associated with people)
+			if (/\b(age|years?\s*old|aged)\b/i.test(contentLower)) intentScore += 2;
+
+			// Look for person-related keywords
+			const personKeywords = [
+				"victim",
+				"accused",
+				"suspect",
+				"person",
+				"individual",
+				"man",
+				"woman",
+				"child",
+				"national",
+			];
+			personKeywords.forEach((keyword) => {
+				if (contentLower.includes(keyword)) intentScore += 1;
+			});
+		} else if (questionWord === "what") {
+			// Look for definitions, descriptions, events
+			const definitionPatterns = /\b(is|are|was|were|means?|refers?\s+to)\b/i;
+			if (definitionPatterns.test(contentLower)) intentScore += 3;
+
+			// Look for event descriptions
+			const eventKeywords = [
+				"happened",
+				"occurred",
+				"incident",
+				"event",
+				"case",
+				"reported",
+			];
+			eventKeywords.forEach((keyword) => {
+				if (contentLower.includes(keyword)) intentScore += 1;
+			});
+		} else if (questionWord === "when") {
+			// Look for dates, time references
+			const datePatterns =
+				/\b(\d{1,2}[\/\-]\d{1,2}[\/\-]\d{2,4}|\d{4}|\d{1,2}\s+(jan|feb|mar|apr|may|jun|jul|aug|sep|oct|nov|dec))/gi;
+			if (datePatterns.test(contentLower)) intentScore += 5;
+
+			// Look for time indicators
+			const timeKeywords = [
+				"at around",
+				"at approximately",
+				"on",
+				"date",
+				"time",
+				"am",
+				"pm",
+				"hours?",
+			];
+			timeKeywords.forEach((keyword) => {
+				if (contentLower.includes(keyword)) intentScore += 1;
+			});
+		} else if (questionWord === "where") {
+			// Look for locations, places
+			const locationKeywords = [
+				"location",
+				"place",
+				"district",
+				"area",
+				"region",
+				"border",
+				"near",
+				"at",
+				"in",
+				"found",
+			];
+			locationKeywords.forEach((keyword) => {
+				if (contentLower.includes(keyword)) intentScore += 1;
+			});
+
+			// Look for location patterns (capitalized words often indicate places)
+			const capitalizedWords = contentLower.match(/\b[A-Z][a-z]+\b/g);
+			if (capitalizedWords && capitalizedWords.length > 2) intentScore += 2;
+		} else if (questionWord === "why" || questionWord === "how") {
+			// Look for explanations, reasons, methods
+			const explanationKeywords = [
+				"because",
+				"due to",
+				"reason",
+				"caused",
+				"result",
+				"method",
+				"process",
+				"by",
+			];
+			explanationKeywords.forEach((keyword) => {
+				if (contentLower.includes(keyword)) intentScore += 1;
+			});
+		}
+
+		// Boost score if chunk content directly contains query keywords (excluding common words)
+		const queryWords = queryLower
+			.split(/\s+/)
+			.filter((w) => w.length > 3 && !commonWords.has(w));
+		const matchingQueryWords = queryWords.filter((word) =>
+			contentLower.includes(word)
+		);
+		if (matchingQueryWords.length > 0) {
+			intentScore += matchingQueryWords.length * 0.5;
+		}
+
+		return intentScore;
+	}
+
+	/**
+	 * Calculate combined relevance score for chunk selection during deduplication
+	 * (Same function as in non-streaming version)
+	 */
+	function calculateChunkRelevance(
+		source: any,
+		query: string,
+		queryType: string
+	): number {
+		// Get chunk content (stored as note in the record)
+		const chunkContent = source.chunkContent || source.note || "";
+
+		// Query intent score (0-10+)
+		const intentScore = scoreChunkByQueryIntent(chunkContent, query, queryType);
+
+		// Semantic similarity (0-1, converted to 0-10 scale)
+		const semanticScore =
+			(source.semanticSimilarity || source.similarity || 0) * 10;
+
+		// RRF score (0-1, converted to 0-5 scale)
+		const rrfScore = (source.rrfScore || 0) * 5;
+
+		// Combined score: intent (40%) + semantic (40%) + RRF (20%)
+		// This prioritizes chunks that answer the question over chunks with high keyword matches
+		const combinedScore =
+			intentScore * 0.4 + semanticScore * 0.4 + rrfScore * 0.2;
+
+		return combinedScore;
+	}
+
+	const citedSources: Array<{
+		id: number;
+		title: string;
+		relevance?: number;
+		similarity?: number;
+		citation?: any;
+		citationScore: number;
+		rrfScore: number;
+		chunkContent?: string;
+		semanticSimilarity?: number;
+	}> = [];
 	const responseLower = fullResponseText.toLowerCase();
+	const normalizedResponse = normalize(fullResponseText);
 
 	for (const record of records) {
 		let citationScore = 0;
 
-		// Check for explicit ID mention
+		// Check for exact title match (primary citation method)
+		const titleLower = record.title.toLowerCase();
+		if (responseLower.includes(titleLower)) {
+			citationScore += 10;
+		}
+
+		// Check for normalized title match (handles cleaned up filenames)
+		const normalizedTitle = normalize(record.title);
+		if (normalizedResponse.includes(normalizedTitle)) {
+			citationScore += 8; // High score for normalized match
+		}
+
+		// Check for title in citation format (Source: Title)
+		if (responseLower.includes(`(source: ${titleLower})`)) {
+			citationScore += 10;
+		}
+
+		// Check for normalized title in citation format
+		if (normalizedResponse.includes(`(source: ${normalizedTitle})`)) {
+			citationScore += 8;
+		}
+
+		// Medium signal: Explicit ID mention (fallback for legacy)
 		if (
 			responseLower.includes(`id: ${record.id}`) ||
 			responseLower.includes(`[${record.id}]`) ||
 			responseLower.includes(`record ${record.id}`)
 		) {
-			citationScore += 10;
-		}
-
-		// Check for exact title match
-		const titleLower = record.title.toLowerCase();
-		if (responseLower.includes(titleLower)) {
 			citationScore += 5;
 		}
 
@@ -2279,8 +3057,12 @@ export async function* processChatMessageEnhancedStream(
 			}
 		}
 
-		// Only include if score is significant enough
-		if (citationScore >= 3) {
+		// Only include if score is significant enough and has minimum relevance
+		const minCitationScore = 5; // Increased from 3 to 5
+		const minRrfScore = 0.01; // Minimum RRF score threshold
+		const rrfScore = record.rrf_score || 0;
+
+		if (citationScore >= minCitationScore && rrfScore >= minRrfScore) {
 			citedSources.push({
 				id: record.id,
 				title: record.title,
@@ -2288,18 +3070,72 @@ export async function* processChatMessageEnhancedStream(
 				similarity: record.rrf_score
 					? record.rrf_score * 30
 					: record.semantic_similarity, // Convert RRF to similarity-like value for UI
+				citation: record.citation, // Pass through citation data from hybrid search
+				citationScore, // Store for sorting/deduplication
+				rrfScore, // Store for sorting/deduplication
+				chunkContent: record.note || "", // Store chunk content for query-intent matching
+				semanticSimilarity: record.semantic_similarity || 0, // Store semantic similarity
 			});
 		}
 	}
 
+	// Deduplicate by file ID (keep the chunk that best answers the query)
+	const uniqueSources = citedSources.reduce((acc: any[], source) => {
+		const existing = acc.find((s) => s.id === source.id);
+		if (!existing) {
+			acc.push(source);
+		} else {
+			// Calculate combined relevance score considering query intent
+			const existingRelevance = calculateChunkRelevance(
+				existing,
+				queryForSearch,
+				queryType
+			);
+			const sourceRelevance = calculateChunkRelevance(
+				source,
+				queryForSearch,
+				queryType
+			);
+
+			// Replace if new chunk is more relevant to the query
+			if (sourceRelevance > existingRelevance) {
+				const index = acc.indexOf(existing);
+				acc[index] = source;
+			}
+		}
+		return acc;
+	}, []);
+
+	// Sort by combined score: citation score first, then RRF score
+	const sortedSources = uniqueSources
+		.sort((a, b) => {
+			// Primary sort: citation score (how explicitly mentioned)
+			if (b.citationScore !== a.citationScore) {
+				return b.citationScore - a.citationScore;
+			}
+			// Secondary sort: RRF score (relevance to query)
+			return b.rrfScore - a.rrfScore;
+		})
+		// Limit to top 10 most relevant sources
+		.slice(0, 10)
+		.map(
+			({
+				citationScore,
+				rrfScore,
+				chunkContent,
+				semanticSimilarity,
+				...rest
+			}) => rest
+		); // Remove internal scores from final output
+
 	console.log(
-		`[ADMIN CHAT] Response generated with ${citedSources.length} sources`
+		`[ADMIN CHAT] Response generated with ${sortedSources.length} sources (filtered from ${citedSources.length} candidates)`
 	);
 
 	// Yield sources
 	yield {
 		type: "sources",
-		sources: citedSources,
+		sources: sortedSources,
 	};
 
 	// Yield final completion with token counts

@@ -10,11 +10,8 @@ import {
 	Pin,
 	Trash2,
 	Edit2,
-	Archive,
 	MoreVertical,
 	Loader2,
-	ChevronLeft,
-	ChevronRight,
 } from "lucide-react";
 import {
 	DropdownMenu,
@@ -33,6 +30,7 @@ import {
 	AlertDialogHeader,
 	AlertDialogTitle,
 } from "@/components/ui/alert-dialog";
+import { useRouter } from "next/navigation";
 
 interface Conversation {
 	id: number;
@@ -51,21 +49,18 @@ interface ConversationGroup {
 	conversations: Conversation[];
 }
 
-interface ConversationSidebarProps {
-	currentConversationId: number | null;
-	onSelectConversation: (id: number) => void;
-	onNewConversation: () => void;
-	refreshTrigger?: number; // Add this to trigger refresh from parent
-	basePath?: string; // Base path for API calls (e.g. /api/admin/conversations)
+interface ConversationListProps {
+	isCollapsed: boolean;
+	onSelectConversation?: (id: number) => void;
+	basePath?: string;
 }
 
-export default function ConversationSidebar({
-	currentConversationId,
+export default function ConversationList({
+	isCollapsed,
 	onSelectConversation,
-	onNewConversation,
-	refreshTrigger,
-	basePath = "/api/admin/conversations",
-}: ConversationSidebarProps) {
+	basePath = "/api/dashboard/conversations",
+}: ConversationListProps) {
+	const router = useRouter();
 	const [conversations, setConversations] = useState<Conversation[]>([]);
 	const [searchQuery, setSearchQuery] = useState("");
 	const [isLoading, setIsLoading] = useState(true);
@@ -76,14 +71,11 @@ export default function ConversationSidebar({
 		number | null
 	>(null);
 	const [clearAllDialogOpen, setClearAllDialogOpen] = useState(false);
-	const [isCollapsed, setIsCollapsed] = useState(false);
 
 	// Load conversations
 	const loadConversations = async () => {
 		try {
 			const params = new URLSearchParams();
-			if (searchQuery) params.append("search", searchQuery);
-
 			if (searchQuery) params.append("search", searchQuery);
 
 			const response = await fetch(`${basePath}?${params}`);
@@ -101,7 +93,7 @@ export default function ConversationSidebar({
 
 	useEffect(() => {
 		loadConversations();
-	}, [searchQuery, refreshTrigger]);
+	}, [searchQuery]);
 
 	// Group conversations by date
 	const groupConversations = (): ConversationGroup[] => {
@@ -141,6 +133,19 @@ export default function ConversationSidebar({
 		return groups.filter((group) => group.conversations.length > 0);
 	};
 
+	const handleNewConversation = async () => {
+		router.push("/app/chat");
+		// Ideally we would trigger a refresh or reset state here
+	};
+
+	const handleSelectConversation = (id: number) => {
+		if (onSelectConversation) {
+			onSelectConversation(id);
+		} else {
+			router.push(`/app/chat?id=${id}`);
+		}
+	};
+
 	// Pin/Unpin conversation
 	const togglePin = async (id: number, currentPinned: boolean) => {
 		try {
@@ -170,9 +175,6 @@ export default function ConversationSidebar({
 			if (!response.ok) throw new Error("Failed to delete conversation");
 
 			toast.success("Conversation deleted");
-			if (currentConversationId === id) {
-				onNewConversation(); // Start new conversation if current was deleted
-			}
 			loadConversations();
 		} catch (error) {
 			console.error("Error deleting conversation:", error);
@@ -218,12 +220,6 @@ export default function ConversationSidebar({
 
 			const data = await response.json();
 			toast.success(data.message || "All conversations deleted");
-
-			// Clear current conversation if it was deleted
-			if (currentConversationId) {
-				onNewConversation();
-			}
-
 			loadConversations();
 		} catch (error) {
 			console.error("Error deleting all conversations:", error);
@@ -236,31 +232,16 @@ export default function ConversationSidebar({
 	const groupedConversations = groupConversations();
 
 	return (
-		<div
-			className={`bg-white border-r border-gray-200 flex flex-col h-full transition-all duration-300 ease-in-out relative ${isCollapsed ? "w-16" : "w-64"
-				}`}
-		>
-			{/* Collapse/Expand Toggle */}
-			<button
-				onClick={() => setIsCollapsed(!isCollapsed)}
-				className="absolute -right-3 top-8 z-10 bg-white border border-gray-200 rounded-full p-1 hover:bg-gray-50 shadow-sm"
-				title={isCollapsed ? "Expand sidebar" : "Collapse sidebar"}
-			>
-				{isCollapsed ? (
-					<ChevronRight className="h-4 w-4 text-gray-600" />
-				) : (
-					<ChevronLeft className="h-4 w-4 text-gray-600" />
-				)}
-			</button>
-
+		<div className="flex flex-col h-full">
 			{/* Header */}
-			<div
-				className={`p-4 border-b border-gray-200 ${isCollapsed ? "px-2" : ""}`}
-			>
+			<div className={`px-2 py-2 ${isCollapsed ? "text-center" : ""}`}>
 				<Button
-					onClick={onNewConversation}
-					className={`w-full ${isCollapsed ? "px-2" : ""}`}
+					onClick={handleNewConversation}
+					className={`w-full bg-white text-gray-900 hover:bg-gray-200 ${
+						isCollapsed ? "px-2" : ""
+					}`}
 					variant="default"
+					size={isCollapsed ? "icon" : "default"}
 					title={isCollapsed ? "New Chat" : ""}
 				>
 					<MessageSquarePlus
@@ -273,48 +254,43 @@ export default function ConversationSidebar({
 			{!isCollapsed && (
 				<>
 					{/* Search */}
-					<div className="p-3 border-b border-gray-200">
+					<div className="px-2 pb-2">
 						<div className="relative">
-							<Search className="absolute left-3 top-1/2 transform -translate-y-1/2 h-4 w-4 text-white" />
+							<Search className="absolute left-2 top-1/2 transform -translate-y-1/2 h-3 w-3 text-gray-400" />
 							<Input
 								type="text"
-								placeholder="Search conversations..."
+								placeholder="Search..."
 								value={searchQuery}
 								onChange={(e) => setSearchQuery(e.target.value)}
-								className="pl-9 h-9"
+								className="pl-7 h-8 text-xs bg-white border border-gray-300 text-gray-900 placeholder:text-gray-500 focus-visible:ring-gray-400 focus-visible:ring-1"
 							/>
 						</div>
 					</div>
 
 					{/* Conversation List */}
-					<div className="flex-1 overflow-y-auto">
+					<div className="flex-1 overflow-y-auto px-2 custom-scrollbar">
 						{isLoading ? (
-							<div className="flex items-center justify-center h-32">
-								<Loader2 className="h-6 w-6 animate-spin text-gray-400" />
+							<div className="flex items-center justify-center h-20">
+								<Loader2 className="h-4 w-4 animate-spin text-gray-500" />
 							</div>
 						) : groupedConversations.length === 0 ? (
-							<div className="p-4 text-center text-gray-500 text-sm">
+							<div className="p-4 text-center text-gray-500 text-md">
 								No conversations yet.
-								<br />
-								Start chatting to create one!
 							</div>
 						) : (
 							groupedConversations.map((group) => (
-								<div key={group.label} className="mb-4">
-									<div className="px-3 py-2 text-xs font-semibold text-gray-500 uppercase">
+								<div key={group.label} className="mb-3">
+									<div className="px-2 py-1 text-[10px] font-semibold text-gray-500 uppercase tracking-wider">
 										{group.label}
 									</div>
-									<div className="space-y-1">
+									<div className="space-y-0.5">
 										{group.conversations.map((conv) => (
 											<div
 												key={conv.id}
-												className={`group relative mx-2 rounded-lg transition-colors ${currentConversationId === conv.id
-													? "bg-blue-50 border border-blue-200"
-													: "hover:bg-gray-50 border border-transparent"
-													}`}
+												className="group relative rounded-md transition-colors hover:bg-gray-200"
 											>
 												{editingId === conv.id ? (
-													<div className="p-2">
+													<div className="p-1">
 														<Input
 															value={editTitle}
 															onChange={(e) => setEditTitle(e.target.value)}
@@ -330,33 +306,22 @@ export default function ConversationSidebar({
 																}
 															}}
 															autoFocus
-															className="h-8 text-sm"
+															className="h-6 text-sm bg-white border border-gray-300 text-gray-900"
 														/>
 													</div>
 												) : (
 													<>
 														<button
-															onClick={() => onSelectConversation(conv.id)}
-															className="w-full text-left p-2 pr-8"
+															onClick={() => handleSelectConversation(conv.id)}
+															className="w-full text-left px-2 py-1.5 pr-6"
 														>
-															<div className="flex items-start gap-2">
+															<div className="flex items-center gap-2">
 																{conv.isPinned && (
-																	<Pin className="h-3 w-3 text-blue-500 mt-1 flex-shrink-0" />
+																	<Pin className="h-3 w-3 text-gray-600 flex-shrink-0" />
 																)}
 																<div className="flex-1 min-w-0">
-																	<div className="text-sm font-medium text-gray-900 truncate">
+																	<div className="text-sm font-medium text-gray-900 truncate group-hover:text-gray-900">
 																		{conv.title}
-																	</div>
-																	{conv.lastMessage && (
-																		<div className="text-xs text-gray-500 truncate mt-0.5">
-																			{conv.lastMessage}
-																		</div>
-																	)}
-																	<div className="text-xs text-gray-400 mt-0.5">
-																		{conv.messageCount}{" "}
-																		{conv.messageCount === 1
-																			? "message"
-																			: "messages"}
 																	</div>
 																</div>
 															</div>
@@ -369,27 +334,32 @@ export default function ConversationSidebar({
 																	<Button
 																		variant="ghost"
 																		size="icon"
-																		className="h-7 w-7"
+																		className="h-5 w-5 text-gray-500 hover:text-gray-900 hover:bg-gray-200"
 																	>
-																		<MoreVertical className="h-3.5 w-3.5" />
+																		<MoreVertical className="h-3 w-3" />
 																	</Button>
 																</DropdownMenuTrigger>
-																<DropdownMenuContent align="end">
+																<DropdownMenuContent
+																	align="end"
+																	className="w-32 bg-white border border-gray-200 text-gray-800"
+																>
 																	<DropdownMenuItem
 																		onClick={() => {
 																			setEditingId(conv.id);
 																			setEditTitle(conv.title);
 																		}}
+																		className="text-xs focus:bg-gray-100 focus:text-gray-900"
 																	>
-																		<Edit2 className="h-3.5 w-3.5 mr-2" />
+																		<Edit2 className="h-3 w-3 mr-2" />
 																		Rename
 																	</DropdownMenuItem>
 																	<DropdownMenuItem
 																		onClick={() =>
 																			togglePin(conv.id, conv.isPinned)
 																		}
+																		className="text-xs focus:bg-gray-100 focus:text-gray-900"
 																	>
-																		<Pin className="h-3.5 w-3.5 mr-2" />
+																		<Pin className="h-3 w-3 mr-2" />
 																		{conv.isPinned ? "Unpin" : "Pin"}
 																	</DropdownMenuItem>
 																	<DropdownMenuItem
@@ -397,9 +367,9 @@ export default function ConversationSidebar({
 																			setConversationToDelete(conv.id);
 																			setDeleteDialogOpen(true);
 																		}}
-																		className="text-red-600"
+																		className="text-xs text-red-500 focus:bg-gray-100 focus:text-red-600"
 																	>
-																		<Trash2 className="h-3.5 w-3.5 mr-2" />
+																		<Trash2 className="h-3 w-3 mr-2" />
 																		Delete
 																	</DropdownMenuItem>
 																</DropdownMenuContent>
@@ -419,18 +389,15 @@ export default function ConversationSidebar({
 
 			{/* Collapsed State - Show Icons Only */}
 			{isCollapsed && (
-				<div className="flex-1 flex flex-col items-center py-4 gap-3 overflow-y-auto">
+				<div className="flex-1 flex flex-col items-center py-2 gap-2 overflow-y-auto custom-scrollbar">
 					{conversations.slice(0, 10).map((conv) => (
 						<button
 							key={conv.id}
-							onClick={() => onSelectConversation(conv.id)}
-							className={`w-10 h-10 rounded-lg flex items-center justify-center transition-colors ${currentConversationId === conv.id
-								? "bg-blue-100 text-blue-600"
-								: "hover:bg-gray-100 text-gray-600"
-								}`}
+							onClick={() => handleSelectConversation(conv.id)}
+							className="w-8 h-8 rounded-md flex items-center justify-center transition-colors hover:bg-gray-200 text-gray-500 hover:text-gray-900"
 							title={conv.title}
 						>
-							<MessageSquare className="h-5 w-5" />
+							<MessageSquare className="h-4 w-4" />
 						</button>
 					))}
 				</div>
@@ -438,14 +405,15 @@ export default function ConversationSidebar({
 
 			{/* Clear All Conversations Button */}
 			{!isCollapsed && conversations.length > 0 && (
-				<div className="border-t border-gray-200 p-3">
+				<div className="p-2 border-t border-gray-200">
 					<Button
-						variant="outline"
-						className="w-full text-red-600 hover:text-red-700 hover:bg-red-50 border-red-200"
+						variant="ghost"
+						size="sm"
+						className="w-full text-xs text-red-500 hover:text-red-600 hover:bg-red-100 justify-start px-2"
 						onClick={() => setClearAllDialogOpen(true)}
 					>
-						<Trash2 className="h-4 w-4 mr-2" />
-						Clear All Conversations
+						<Trash2 className="h-3 w-3 mr-2" />
+						Clear History
 					</Button>
 				</div>
 			)}

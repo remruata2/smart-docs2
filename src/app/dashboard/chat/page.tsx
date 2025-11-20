@@ -22,10 +22,11 @@ import {
 } from "lucide-react";
 // PDF generation removed - using text export instead
 import { toast } from "sonner";
-import { ChatMessage } from "@/lib/ai-service";
+import { ChatMessage } from "@/lib/ai-service-enhanced";
 import ReactMarkdown from "react-markdown";
 import remarkGfm from "remark-gfm";
 import ConversationSidebar from "@/components/ConversationSidebar";
+import { SmartChart } from "@/components/dashboard/SmartChart";
 
 interface ChatSource {
 	id: number;
@@ -226,6 +227,7 @@ export default function DashboardChatPage() {
 			sources?: any[];
 			tokenCount?: any;
 			metadata?: any;
+			chartData?: any;
 		}
 	) => {
 		try {
@@ -290,6 +292,7 @@ export default function DashboardChatPage() {
 					timestamp: new Date(msg.timestamp),
 					sources: msg.sources || [],
 					tokenCount: msg.tokenCount,
+					chartData: msg.metadata?.chartData || null, // Extract chartData from metadata
 					// For assistant messages, always show filters (default to "All" if not saved)
 					filters:
 						msg.role === "assistant"
@@ -440,6 +443,7 @@ export default function DashboardChatPage() {
 			let isFirstToken = true;
 			let assistantSources: any[] = [];
 			let assistantTokenCount: any = null;
+			let assistantChartData: any = null;
 
 			if (!reader) {
 				throw new Error("Failed to get response reader");
@@ -456,6 +460,12 @@ export default function DashboardChatPage() {
 					if (line.startsWith("data: ")) {
 						try {
 							const data = JSON.parse(line.slice(6));
+							console.log(
+								"[STREAM] Received event type:",
+								data.type,
+								"for message:",
+								assistantMessageId
+							);
 
 							if (data.type === "metadata") {
 								metadata = data;
@@ -502,16 +512,128 @@ export default function DashboardChatPage() {
 											: msg
 									)
 								);
-							} else if (data.type === "done") {
-								// Update token count
-								assistantTokenCount = data.tokenCount;
-								setMessages((prev) =>
-									prev.map((msg) =>
-										msg.id === assistantMessageId
-											? { ...msg, tokenCount: assistantTokenCount }
-											: msg
-									)
+							} else if (data.type === "data") {
+								// Handle chart data
+								console.log("[CHART FRONTEND] Received 'data' event:", data);
+								console.log(
+									"[CHART FRONTEND] Current assistantMessageId:",
+									assistantMessageId
 								);
+								if (data.chartData) {
+									console.log(
+										"[CHART FRONTEND] Chart data present, updating message:",
+										assistantMessageId
+									);
+									console.log(
+										"[CHART FRONTEND] Chart data:",
+										JSON.stringify(data.chartData, null, 2)
+									);
+									setMessages((prev) => {
+										console.log(
+											"[CHART FRONTEND] Current messages before update:",
+											prev.map((m) => ({
+												id: m.id,
+												hasChartData: !!m.chartData,
+											}))
+										);
+										const messageExists = prev.some(
+											(m) => m.id === assistantMessageId
+										);
+										console.log(
+											"[CHART FRONTEND] Message exists:",
+											messageExists
+										);
+										if (!messageExists) {
+											console.error(
+												"[CHART FRONTEND] Message not found! Cannot update chartData"
+											);
+											return prev;
+										}
+										const updated = prev.map((msg) =>
+											msg.id === assistantMessageId
+												? { ...msg, chartData: data.chartData }
+												: msg
+										);
+										const updatedMessage = updated.find(
+											(m) => m.id === assistantMessageId
+										);
+										console.log(
+											"[CHART FRONTEND] Updated message chartData:",
+											updatedMessage?.chartData ? "PRESENT" : "MISSING"
+										);
+										if (updatedMessage?.chartData) {
+											console.log(
+												"[CHART FRONTEND] Chart data structure:",
+												Object.keys(updatedMessage.chartData)
+											);
+										}
+										return updated;
+									});
+								} else {
+									console.warn(
+										"[CHART FRONTEND] 'data' event received but chartData is missing"
+									);
+								}
+							} else if (data.type === "done") {
+								// Update token count and chart data
+								assistantTokenCount = data.tokenCount;
+								const chartDataFromDone = data.chartData;
+								if (chartDataFromDone) {
+									assistantChartData = chartDataFromDone;
+									console.log(
+										"[CHART] Chart data in done event:",
+										chartDataFromDone
+									);
+								}
+
+								setMessages((prev) =>
+									prev.map((msg) => {
+										if (msg.id === assistantMessageId) {
+											// Preserve existing chartData if done event doesn't have it
+											const finalChartData =
+												chartDataFromDone ||
+												assistantChartData ||
+												msg.chartData;
+											console.log(
+												"[CHART DONE] Final chartData:",
+												finalChartData ? "PRESENT" : "MISSING"
+											);
+											return {
+												...msg,
+												tokenCount: assistantTokenCount,
+												chartData: finalChartData,
+											};
+										}
+										return msg;
+									})
+								);
+
+								// === AUTO-SAVE: Save assistant message ===
+								if (conversationId) {
+									const saveFilters: { category: string } = {
+										category: selectedCategory || "All Categories",
+									};
+
+									// Use the tracked chartData
+									const finalChartData =
+										chartDataFromDone || assistantChartData;
+
+									await saveMessageToConversation(conversationId, {
+										role: "assistant",
+										content: accumulatedContent,
+										sources: assistantSources,
+										tokenCount: assistantTokenCount,
+										metadata: {
+											queryType: metadata.queryType,
+											searchMethod: metadata.searchMethod,
+											analysisUsed: metadata.analysisUsed,
+											filters: saveFilters,
+											chartData: finalChartData, // Store chartData in metadata
+										},
+									});
+									// Trigger sidebar refresh to update message count
+									setSidebarRefreshTrigger((prev) => prev + 1);
+								}
 							} else if (data.type === "error") {
 								throw new Error(data.error || "Streaming error occurred");
 							}
@@ -527,27 +649,7 @@ export default function DashboardChatPage() {
 				throw new Error("No response received from server");
 			}
 
-			// === AUTO-SAVE: Save assistant message ===
-			if (conversationId) {
-				const saveFilters: { category: string } = {
-					category: selectedCategory || "All Categories",
-				};
-
-				await saveMessageToConversation(conversationId, {
-					role: "assistant",
-					content: accumulatedContent,
-					sources: assistantSources,
-					tokenCount: assistantTokenCount,
-					metadata: {
-						queryType: metadata.queryType,
-						searchMethod: metadata.searchMethod,
-						analysisUsed: metadata.analysisUsed,
-						filters: saveFilters,
-					},
-				});
-				// Trigger sidebar refresh to update message count
-				setSidebarRefreshTrigger((prev) => prev + 1);
-			}
+			// Auto-save is now handled in the 'done' event to ensure we have all data including chartData
 		} catch (error: unknown) {
 			console.error("Chat error:", error);
 			const errorMessage =
@@ -617,7 +719,7 @@ export default function DashboardChatPage() {
 	};
 
 	return (
-		<div className="flex h-[calc(100vh-4rem)] overflow-hidden">
+		<div className="flex h-screen overflow-hidden">
 			{/* Sidebar */}
 			<ConversationSidebar
 				currentConversationId={currentConversationId}
@@ -628,8 +730,8 @@ export default function DashboardChatPage() {
 			/>
 
 			{/* Main Chat Area */}
-			<div className="flex-1 flex flex-col h-full overflow-hidden bg-gray-50/50 dark:bg-gray-900/50">
-				<div className="flex-1 overflow-hidden flex flex-col relative">
+			<div className="flex-1 flex flex-col overflow-hidden bg-gray-50/50 dark:bg-gray-900/50">
+				<div className="flex-1 flex flex-col overflow-hidden min-h-0">
 					{/* Header */}
 					<div className="border-b bg-white/80 dark:bg-gray-900/80 backdrop-blur-sm p-4 flex items-center justify-between sticky top-0 z-10">
 						<div className="flex items-center gap-3">
@@ -667,7 +769,7 @@ export default function DashboardChatPage() {
 					{/* Messages Area */}
 					<div
 						ref={scrollAreaRef}
-						className="flex-1 overflow-y-auto p-4 space-y-6 scroll-smooth"
+						className="flex-1 overflow-y-auto p-4 space-y-6 scroll-smooth min-h-0"
 					>
 						{messages.length === 0 ? (
 							<div className="h-full flex flex-col items-center justify-center text-center p-8 animate-in fade-in duration-500">
@@ -786,151 +888,104 @@ export default function DashboardChatPage() {
 																<span>{msg.content}</span>
 															</div>
 														) : (
-															<ReactMarkdown
-																remarkPlugins={[remarkGfm]}
-																components={{
-																	table: ({ node, ...props }) => (
-																		<div className="overflow-x-auto my-4 rounded-lg border">
-																			<table
-																				className="min-w-full divide-y divide-gray-200 dark:divide-gray-700"
+															<>
+																<ReactMarkdown
+																	remarkPlugins={[remarkGfm]}
+																	components={{
+																		table: ({ node, ...props }) => (
+																			<div className="overflow-x-auto my-4 rounded-lg border">
+																				<table
+																					className="min-w-full divide-y divide-gray-200 dark:divide-gray-700"
+																					{...props}
+																				/>
+																			</div>
+																		),
+																		thead: ({ node, ...props }) => (
+																			<thead
+																				className="bg-gray-50 dark:bg-gray-800"
 																				{...props}
 																			/>
+																		),
+																		th: ({ node, ...props }) => (
+																			<th
+																				className="px-4 py-3 text-left text-xs font-medium text-gray-500 dark:text-gray-400 uppercase tracking-wider"
+																				{...props}
+																			/>
+																		),
+																		td: ({ node, ...props }) => (
+																			<td
+																				className="px-4 py-3 whitespace-nowrap text-sm text-gray-700 dark:text-gray-300 border-t border-gray-100 dark:border-gray-700"
+																				{...props}
+																			/>
+																		),
+																		a: ({ node, ...props }) => (
+																			<a
+																				className="text-primary hover:underline"
+																				target="_blank"
+																				rel="noopener noreferrer"
+																				{...props}
+																			/>
+																		),
+																		p: ({ node, ...props }) => (
+																			<p
+																				className="mb-2 last:mb-0"
+																				{...props}
+																			/>
+																		),
+																		ul: ({ node, ...props }) => (
+																			<ul
+																				className="list-disc pl-4 mb-2 space-y-1"
+																				{...props}
+																			/>
+																		),
+																		ol: ({ node, ...props }) => (
+																			<ol
+																				className="list-decimal pl-4 mb-2 space-y-1"
+																				{...props}
+																			/>
+																		),
+																		li: ({ node, ...props }) => (
+																			<li className="pl-1" {...props} />
+																		),
+																		blockquote: ({ node, ...props }) => (
+																			<blockquote
+																				className="border-l-4 border-primary/30 pl-4 italic text-gray-600 dark:text-gray-400 my-2"
+																				{...props}
+																			/>
+																		),
+																		code: ({ node, ...props }) => (
+																			<code
+																				className="bg-gray-100 dark:bg-gray-800 px-1.5 py-0.5 rounded text-sm font-mono text-pink-600 dark:text-pink-400"
+																				{...props}
+																			/>
+																		),
+																	}}
+																>
+																	{msg.content}
+																</ReactMarkdown>
+
+																{/* Chart Section */}
+																{(() => {
+																	const hasChartData = !!msg.chartData;
+																	console.log(
+																		`[CHART RENDER] Message ${msg.id} - hasChartData:`,
+																		hasChartData,
+																		"chartData:",
+																		msg.chartData
+																	);
+																	return hasChartData ? (
+																		<div className="mt-4">
+																			<SmartChart
+																				config={msg.chartData as any}
+																			/>
 																		</div>
-																	),
-																	thead: ({ node, ...props }) => (
-																		<thead
-																			className="bg-gray-50 dark:bg-gray-800"
-																			{...props}
-																		/>
-																	),
-																	th: ({ node, ...props }) => (
-																		<th
-																			className="px-4 py-3 text-left text-xs font-medium text-gray-500 dark:text-gray-400 uppercase tracking-wider"
-																			{...props}
-																		/>
-																	),
-																	td: ({ node, ...props }) => (
-																		<td
-																			className="px-4 py-3 whitespace-nowrap text-sm text-gray-700 dark:text-gray-300 border-t border-gray-100 dark:border-gray-700"
-																			{...props}
-																		/>
-																	),
-																	a: ({ node, ...props }) => (
-																		<a
-																			className="text-primary hover:underline"
-																			target="_blank"
-																			rel="noopener noreferrer"
-																			{...props}
-																		/>
-																	),
-																	p: ({ node, ...props }) => (
-																		<p className="mb-2 last:mb-0" {...props} />
-																	),
-																	ul: ({ node, ...props }) => (
-																		<ul
-																			className="list-disc pl-4 mb-2 space-y-1"
-																			{...props}
-																		/>
-																	),
-																	ol: ({ node, ...props }) => (
-																		<ol
-																			className="list-decimal pl-4 mb-2 space-y-1"
-																			{...props}
-																		/>
-																	),
-																	li: ({ node, ...props }) => (
-																		<li className="pl-1" {...props} />
-																	),
-																	blockquote: ({ node, ...props }) => (
-																		<blockquote
-																			className="border-l-4 border-primary/30 pl-4 italic text-gray-600 dark:text-gray-400 my-2"
-																			{...props}
-																		/>
-																	),
-																	code: ({ node, ...props }) => (
-																		<code
-																			className="bg-gray-100 dark:bg-gray-800 px-1.5 py-0.5 rounded text-sm font-mono text-pink-600 dark:text-pink-400"
-																			{...props}
-																		/>
-																	),
-																}}
-															>
-																{msg.content}
-															</ReactMarkdown>
+																	) : null;
+																})()}
+															</>
 														)}
 													</>
 												) : (
-													<ReactMarkdown
-														remarkPlugins={[remarkGfm]}
-														components={{
-															table: ({ node, ...props }) => (
-																<div className="overflow-x-auto my-4 rounded-lg border">
-																	<table
-																		className="min-w-full divide-y divide-gray-200 dark:divide-gray-700"
-																		{...props}
-																	/>
-																</div>
-															),
-															thead: ({ node, ...props }) => (
-																<thead
-																	className="bg-gray-50 dark:bg-gray-800"
-																	{...props}
-																/>
-															),
-															th: ({ node, ...props }) => (
-																<th
-																	className="px-4 py-3 text-left text-xs font-medium text-gray-500 dark:text-gray-400 uppercase tracking-wider"
-																	{...props}
-																/>
-															),
-															td: ({ node, ...props }) => (
-																<td
-																	className="px-4 py-3 whitespace-nowrap text-sm text-gray-700 dark:text-gray-300 border-t border-gray-100 dark:border-gray-700"
-																	{...props}
-																/>
-															),
-															a: ({ node, ...props }) => (
-																<a
-																	className="text-primary hover:underline"
-																	target="_blank"
-																	rel="noopener noreferrer"
-																	{...props}
-																/>
-															),
-															p: ({ node, ...props }) => (
-																<p className="mb-2 last:mb-0" {...props} />
-															),
-															ul: ({ node, ...props }) => (
-																<ul
-																	className="list-disc pl-4 mb-2 space-y-1"
-																	{...props}
-																/>
-															),
-															ol: ({ node, ...props }) => (
-																<ol
-																	className="list-decimal pl-4 mb-2 space-y-1"
-																	{...props}
-																/>
-															),
-															li: ({ node, ...props }) => (
-																<li className="pl-1" {...props} />
-															),
-															blockquote: ({ node, ...props }) => (
-																<blockquote
-																	className="border-l-4 border-primary/30 pl-4 italic text-gray-600 dark:text-gray-400 my-2"
-																	{...props}
-																/>
-															),
-															code: ({ node, ...props }) => (
-																<code
-																	className="bg-gray-100 dark:bg-gray-800 px-1.5 py-0.5 rounded text-sm font-mono text-pink-600 dark:text-pink-400"
-																	{...props}
-																/>
-															),
-														}}
-													>
-														{msg.content}
-													</ReactMarkdown>
+													msg.content
 												)}
 											</div>
 
@@ -1050,7 +1105,7 @@ export default function DashboardChatPage() {
 					</div>
 
 					{/* Input Area */}
-					<div className="p-4 bg-white dark:bg-gray-900 border-t shadow-lg z-20">
+					<div className="p-4 bg-white dark:bg-gray-900 border-t shadow-lg z-20 flex-shrink-0">
 						<div className="max-w-4xl mx-auto space-y-3">
 							{/* Filters Row */}
 							<div className="flex flex-wrap items-center gap-2">

@@ -22,7 +22,7 @@ import {
 } from "lucide-react";
 // PDF generation removed - using text export instead
 import { toast } from "sonner";
-import { ChatMessage } from "@/lib/ai-service";
+import { ChatMessage } from "@/lib/ai-service-enhanced";
 import ReactMarkdown from "react-markdown";
 import remarkGfm from "remark-gfm";
 import ConversationSidebar from "@/components/ConversationSidebar";

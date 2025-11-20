@@ -2,6 +2,7 @@
 
 import { useState, useRef, useEffect } from "react";
 import Link from "next/link";
+import { useSearchParams } from "next/navigation";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
@@ -22,10 +23,15 @@ import {
 } from "lucide-react";
 // PDF generation removed - using text export instead
 import { toast } from "sonner";
-import { ChatMessage } from "@/lib/ai-service";
+import { ChatMessage } from "@/lib/ai-service-enhanced";
 import ReactMarkdown from "react-markdown";
 import remarkGfm from "remark-gfm";
-import ConversationSidebar from "@/components/ConversationSidebar";
+import { SmartChart } from "@/components/dashboard/SmartChart";
+import {
+	SplitScreenProvider,
+	useSplitScreen,
+} from "@/components/split-screen/SplitScreenContext";
+import { SplitScreenLayout } from "@/components/split-screen/SplitScreenLayout";
 
 interface ChatSource {
 	id: number;
@@ -33,6 +39,14 @@ interface ChatSource {
 }
 
 export default function DashboardChatPage() {
+	return (
+		<SplitScreenProvider>
+			<ChatPageContent />
+		</SplitScreenProvider>
+	);
+}
+
+function ChatPageContent() {
 	const [messages, setMessages] = useState<ChatMessage[]>([]);
 	const [inputMessage, setInputMessage] = useState("");
 	const [isLoading, setIsLoading] = useState(false);
@@ -65,6 +79,20 @@ export default function DashboardChatPage() {
 	const [categories, setCategories] = useState<string[]>([]);
 	const [categoriesLoading, setCategoriesLoading] = useState<boolean>(false);
 	const [selectedCategory, setSelectedCategory] = useState<string>("");
+
+	// Get conversation ID from URL
+	const searchParams = useSearchParams();
+	const urlConversationId = searchParams.get("id");
+
+	// Load conversation from URL on mount
+	useEffect(() => {
+		if (urlConversationId) {
+			const convId = parseInt(urlConversationId);
+			if (!isNaN(convId)) {
+				loadConversation(convId);
+			}
+		}
+	}, [urlConversationId]);
 
 	// Load available models for current provider
 	useEffect(() => {
@@ -143,7 +171,8 @@ export default function DashboardChatPage() {
 		loadCategories();
 	}, []);
 
-	const scrollAreaRef = useRef<HTMLDivElement>(null);
+	const scrollContainerRef = useRef<HTMLDivElement>(null);
+	const messagesEndRef = useRef<HTMLDivElement>(null);
 	const inputRef = useRef<HTMLInputElement>(null);
 
 	// Initial number of sources to show
@@ -151,12 +180,7 @@ export default function DashboardChatPage() {
 
 	// Auto-scroll to bottom when new messages arrive
 	useEffect(() => {
-		if (scrollAreaRef.current) {
-			scrollAreaRef.current.scrollTo({
-				top: scrollAreaRef.current.scrollHeight,
-				behavior: "smooth",
-			});
-		}
+		messagesEndRef.current?.scrollIntoView({ behavior: "smooth" });
 	}, [messages]);
 
 	// Focus input on mount
@@ -225,6 +249,7 @@ export default function DashboardChatPage() {
 			content: string;
 			sources?: any[];
 			tokenCount?: any;
+			chartData?: any;
 			metadata?: any;
 		}
 	) => {
@@ -290,6 +315,7 @@ export default function DashboardChatPage() {
 					timestamp: new Date(msg.timestamp),
 					sources: msg.sources || [],
 					tokenCount: msg.tokenCount,
+					chartData: msg.metadata?.chartData || null, // Extract chartData from metadata
 					// For assistant messages, always show filters (default to "All" if not saved)
 					filters:
 						msg.role === "assistant"
@@ -440,6 +466,7 @@ export default function DashboardChatPage() {
 			let isFirstToken = true;
 			let assistantSources: any[] = [];
 			let assistantTokenCount: any = null;
+			let assistantChartData: any = null;
 
 			if (!reader) {
 				throw new Error("Failed to get response reader");
@@ -502,15 +529,72 @@ export default function DashboardChatPage() {
 											: msg
 									)
 								);
+							} else if (data.type === "data") {
+								// Handle chart data
+								console.log("[CHART FRONTEND] Received 'data' event:", data);
+								if (data.chartData) {
+									assistantChartData = data.chartData;
+									console.log(
+										"[CHART FRONTEND] Chart data present, updating message:",
+										assistantMessageId
+									);
+									setMessages((prev) => {
+										const messageExists = prev.some(
+											(m) => m.id === assistantMessageId
+										);
+										if (!messageExists) {
+											console.error(
+												"[CHART FRONTEND] Message not found! Cannot update chartData"
+											);
+											return prev;
+										}
+										const updated = prev.map((msg) =>
+											msg.id === assistantMessageId
+												? { ...msg, chartData: data.chartData }
+												: msg
+										);
+										console.log(
+											"[CHART FRONTEND] Updated message chartData:",
+											updated.find((m) => m.id === assistantMessageId)
+												?.chartData
+												? "PRESENT"
+												: "MISSING"
+										);
+										return updated;
+									});
+								}
 							} else if (data.type === "done") {
-								// Update token count
+								// Update token count and chart data
 								assistantTokenCount = data.tokenCount;
+								const chartDataFromDone = data.chartData;
+								if (chartDataFromDone) {
+									assistantChartData = chartDataFromDone;
+									console.log(
+										"[CHART] Chart data in done event:",
+										chartDataFromDone
+									);
+								}
+
 								setMessages((prev) =>
-									prev.map((msg) =>
-										msg.id === assistantMessageId
-											? { ...msg, tokenCount: assistantTokenCount }
-											: msg
-									)
+									prev.map((msg) => {
+										if (msg.id === assistantMessageId) {
+											// Preserve existing chartData if done event doesn't have it
+											const finalChartData =
+												chartDataFromDone ||
+												assistantChartData ||
+												msg.chartData;
+											console.log(
+												"[CHART DONE] Final chartData:",
+												finalChartData ? "PRESENT" : "MISSING"
+											);
+											return {
+												...msg,
+												tokenCount: assistantTokenCount,
+												chartData: finalChartData,
+											};
+										}
+										return msg;
+									})
 								);
 							} else if (data.type === "error") {
 								throw new Error(data.error || "Streaming error occurred");
@@ -543,6 +627,7 @@ export default function DashboardChatPage() {
 						searchMethod: metadata.searchMethod,
 						analysisUsed: metadata.analysisUsed,
 						filters: saveFilters,
+						chartData: assistantChartData, // Store chartData in metadata
 					},
 				});
 				// Trigger sidebar refresh to update message count
@@ -616,441 +701,468 @@ export default function DashboardChatPage() {
 		}
 	};
 
+	const { openCitation } = useSplitScreen();
+
 	return (
-		<div className="flex h-[calc(100vh-4rem)] overflow-hidden">
-			{/* Sidebar */}
-			<ConversationSidebar
-				currentConversationId={currentConversationId}
-				onSelectConversation={loadConversation}
-				onNewConversation={startNewConversation}
-				refreshTrigger={sidebarRefreshTrigger}
-				basePath="/api/dashboard/conversations"
-			/>
-
-			{/* Main Chat Area */}
-			<div className="flex-1 flex flex-col h-full overflow-hidden bg-gray-50/50 dark:bg-gray-900/50">
-				<div className="flex-1 overflow-hidden flex flex-col relative">
-					{/* Header */}
-					<div className="border-b bg-white/80 dark:bg-gray-900/80 backdrop-blur-sm p-4 flex items-center justify-between sticky top-0 z-10">
-						<div className="flex items-center gap-3">
-							<div className="p-2 bg-primary/10 rounded-lg">
-								<Bot className="h-5 w-5 text-primary" />
-							</div>
-							<div>
-								<h2 className="font-semibold text-gray-900 dark:text-gray-100">
-									{conversationTitle}
-								</h2>
-								<div className="flex items-center gap-2 text-xs text-gray-500">
-									<span className="flex items-center gap-1">
-										<div className="w-1.5 h-1.5 rounded-full bg-green-500 animate-pulse" />
-										Online
-									</span>
-									<span>•</span>
-									<span>{model}</span>
+		<div className="flex h-screen overflow-hidden">
+			<SplitScreenLayout>
+				{/* Main Chat Area */}
+				<div className="flex-1 flex flex-col overflow-hidden bg-gray-50/50 dark:bg-gray-900/50 h-full">
+					<div className="flex-1 flex flex-col overflow-hidden min-h-0">
+						{/* Header */}
+						<div className="border-b bg-white/80 dark:bg-gray-900/80 backdrop-blur-sm p-4 flex items-center justify-between sticky top-0 z-10">
+							<div className="flex items-center gap-3">
+								<div className="p-2 bg-primary/10 rounded-lg">
+									<Bot className="h-5 w-5 text-primary" />
 								</div>
+								<div>
+									<h2 className="font-semibold text-gray-900 dark:text-gray-100">
+										{conversationTitle}
+									</h2>
+									<div className="flex items-center gap-2 text-xs text-gray-500">
+										<span className="flex items-center gap-1">
+											<div className="w-1.5 h-1.5 rounded-full bg-green-500 animate-pulse" />
+											Online
+										</span>
+										<span>•</span>
+										<span>{model}</span>
+									</div>
+								</div>
+							</div>
+							<div className="flex items-center gap-2">
+								<Button
+									variant="outline"
+									size="sm"
+									onClick={clearChat}
+									disabled={messages.length === 0 || isLoading}
+									className="hidden sm:flex"
+								>
+									<MessageSquare className="h-4 w-4 mr-2" />
+									New Chat
+								</Button>
 							</div>
 						</div>
-						<div className="flex items-center gap-2">
-							<Button
-								variant="outline"
-								size="sm"
-								onClick={clearChat}
-								disabled={messages.length === 0 || isLoading}
-								className="hidden sm:flex"
-							>
-								<MessageSquare className="h-4 w-4 mr-2" />
-								New Chat
-							</Button>
-						</div>
-					</div>
 
-					{/* Messages Area */}
-					<div
-						ref={scrollAreaRef}
-						className="flex-1 overflow-y-auto p-4 space-y-6 scroll-smooth"
-					>
-						{messages.length === 0 ? (
-							<div className="h-full flex flex-col items-center justify-center text-center p-8 animate-in fade-in duration-500">
-								<div className="w-24 h-24 bg-primary/5 rounded-full flex items-center justify-center mb-6 ring-1 ring-primary/10">
-									<Bot className="h-12 w-12 text-primary/80" />
-								</div>
-								<h3 className="text-2xl font-bold text-gray-900 dark:text-gray-100 mb-2">
-									How can I help you today?
-								</h3>
-								<p className="text-gray-500 max-w-md mb-8">
-									I can analyze your documents, summarize information, and
-									answer questions about your files.
-								</p>
+						{/* Messages Area */}
+						<div
+							ref={scrollContainerRef}
+							className="flex-1 overflow-y-auto p-4 space-y-6 scroll-smooth min-h-0"
+						>
+							{messages.length === 0 ? (
+								<div className="h-full flex flex-col items-center justify-center text-center p-8 animate-in fade-in duration-500">
+									<div className="w-24 h-24 bg-primary/5 rounded-full flex items-center justify-center mb-6 ring-1 ring-primary/10">
+										<Bot className="h-12 w-12 text-primary/80" />
+									</div>
+									<h3 className="text-2xl font-bold text-gray-900 dark:text-gray-100 mb-2">
+										How can I help you today?
+									</h3>
+									<p className="text-gray-500 max-w-md mb-8">
+										I can analyze your documents, summarize information, and
+										answer questions about your files.
+									</p>
 
-								<div className="grid grid-cols-1 sm:grid-cols-2 gap-3 max-w-2xl w-full">
-									{[
-										"Summarize the latest documents",
-										"Find information about...",
-										"What are the key points in...",
-										"Compare documents related to...",
-									].map((suggestion, i) => (
-										<button
-											key={i}
-											onClick={() => {
-												setInputMessage(suggestion);
-												inputRef.current?.focus();
-											}}
-											className="p-4 text-left text-sm bg-white dark:bg-gray-800 border rounded-xl hover:border-primary/50 hover:shadow-sm transition-all duration-200 group"
-										>
-											<span className="text-gray-700 dark:text-gray-300 group-hover:text-primary transition-colors">
-												{suggestion}
-											</span>
-										</button>
-									))}
-								</div>
-							</div>
-						) : (
-							<div className="space-y-6 pb-4">
-								{messages.map((msg) => (
-									<div
-										key={msg.id}
-										className={`flex gap-4 ${
-											msg.role === "assistant" ? "bg-transparent" : ""
-										} animate-in slide-in-from-bottom-2 duration-300`}
-									>
-										<div
-											className={`w-8 h-8 rounded-full flex items-center justify-center flex-shrink-0 mt-1 shadow-sm ${
-												msg.role === "assistant"
-													? "bg-primary text-primary-foreground ring-2 ring-primary/20"
-													: "bg-gray-200 dark:bg-gray-700 text-gray-600 dark:text-gray-300"
-											}`}
-										>
-											{msg.role === "assistant" ? (
-												<Bot className="h-5 w-5" />
-											) : (
-												<User className="h-5 w-5" />
-											)}
-										</div>
-										<div className="flex-1 min-w-0 space-y-2">
-											<div className="flex items-center justify-between">
-												<span className="font-medium text-sm text-gray-900 dark:text-gray-100">
-													{msg.role === "assistant" ? "AI Assistant" : "You"}
+									<div className="grid grid-cols-1 sm:grid-cols-2 gap-3 max-w-2xl w-full">
+										{[
+											"Summarize the latest documents",
+											"Find information about...",
+											"What are the key points in...",
+											"Compare documents related to...",
+										].map((suggestion, i) => (
+											<button
+												key={i}
+												onClick={() => {
+													setInputMessage(suggestion);
+													inputRef.current?.focus();
+												}}
+												className="p-4 text-left text-sm bg-white dark:bg-gray-800 border rounded-xl hover:border-primary/50 hover:shadow-sm transition-all duration-200 group"
+											>
+												<span className="text-gray-700 dark:text-gray-300 group-hover:text-primary transition-colors">
+													{suggestion}
 												</span>
-												<div className="flex items-center gap-2">
-													<span className="text-xs text-gray-400">
-														{formatTimestamp(msg.timestamp)}
-													</span>
-													{msg.role === "assistant" && (
-														<Button
-															variant="ghost"
-															size="icon"
-															className="h-6 w-6 text-gray-400 hover:text-gray-600"
-															onClick={() => handleCopy(msg.content, msg.id)}
-														>
-															{copiedMessageId === msg.id ? (
-																<Check className="h-3 w-3 text-green-500" />
-															) : (
-																<Copy className="h-3 w-3" />
-															)}
-														</Button>
-													)}
-												</div>
-											</div>
-
-											{/* Filters Badge (Assistant Only) */}
-											{msg.role === "assistant" && msg.filters && (
-												<div className="flex flex-wrap gap-2 mb-2">
-													{msg.filters.category &&
-														msg.filters.category !== "All Categories" && (
-															<Badge
-																variant="outline"
-																className="text-[10px] h-5 px-2 bg-purple-50 text-purple-700 border-purple-200"
-															>
-																Category: {msg.filters.category}
-															</Badge>
-														)}
-												</div>
-											)}
-
+											</button>
+										))}
+									</div>
+								</div>
+							) : (
+								<div className="space-y-6 pb-4">
+									{messages.map((msg) => (
+										<div
+											key={msg.id}
+											className={`flex gap-4 ${
+												msg.role === "assistant" ? "bg-transparent" : ""
+											} animate-in slide-in-from-bottom-2 duration-300`}
+										>
 											<div
-												className={`prose prose-sm max-w-none dark:prose-invert ${
-													msg.role === "user"
-														? "bg-white dark:bg-gray-800 p-4 rounded-2xl rounded-tl-none shadow-sm border border-gray-100 dark:border-gray-700"
-														: ""
+												className={`w-8 h-8 rounded-full flex items-center justify-center flex-shrink-0 mt-1 shadow-sm ${
+													msg.role === "assistant"
+														? "bg-primary text-primary-foreground ring-2 ring-primary/20"
+														: "bg-gray-200 dark:bg-gray-700 text-gray-600 dark:text-gray-300"
 												}`}
 											>
 												{msg.role === "assistant" ? (
-													<>
-														{/* Show loading indicator for placeholder and progress messages */}
-														{msg.content.includes("Analyzing your question") ||
-														msg.content.includes("Generating response") ||
-														msg.content.includes("Processing") ||
-														msg.content.includes("Synthesizing") ? (
-															<div className="flex items-center gap-2 text-gray-600 dark:text-gray-400">
-																<Loader2 className="h-4 w-4 animate-spin" />
-																<span>{msg.content}</span>
-															</div>
-														) : (
-															<ReactMarkdown
-																remarkPlugins={[remarkGfm]}
-																components={{
-																	table: ({ node, ...props }) => (
-																		<div className="overflow-x-auto my-4 rounded-lg border">
-																			<table
-																				className="min-w-full divide-y divide-gray-200 dark:divide-gray-700"
-																				{...props}
-																			/>
-																		</div>
-																	),
-																	thead: ({ node, ...props }) => (
-																		<thead
-																			className="bg-gray-50 dark:bg-gray-800"
-																			{...props}
-																		/>
-																	),
-																	th: ({ node, ...props }) => (
-																		<th
-																			className="px-4 py-3 text-left text-xs font-medium text-gray-500 dark:text-gray-400 uppercase tracking-wider"
-																			{...props}
-																		/>
-																	),
-																	td: ({ node, ...props }) => (
-																		<td
-																			className="px-4 py-3 whitespace-nowrap text-sm text-gray-700 dark:text-gray-300 border-t border-gray-100 dark:border-gray-700"
-																			{...props}
-																		/>
-																	),
-																	a: ({ node, ...props }) => (
-																		<a
-																			className="text-primary hover:underline"
-																			target="_blank"
-																			rel="noopener noreferrer"
-																			{...props}
-																		/>
-																	),
-																	p: ({ node, ...props }) => (
-																		<p className="mb-2 last:mb-0" {...props} />
-																	),
-																	ul: ({ node, ...props }) => (
-																		<ul
-																			className="list-disc pl-4 mb-2 space-y-1"
-																			{...props}
-																		/>
-																	),
-																	ol: ({ node, ...props }) => (
-																		<ol
-																			className="list-decimal pl-4 mb-2 space-y-1"
-																			{...props}
-																		/>
-																	),
-																	li: ({ node, ...props }) => (
-																		<li className="pl-1" {...props} />
-																	),
-																	blockquote: ({ node, ...props }) => (
-																		<blockquote
-																			className="border-l-4 border-primary/30 pl-4 italic text-gray-600 dark:text-gray-400 my-2"
-																			{...props}
-																		/>
-																	),
-																	code: ({ node, ...props }) => (
-																		<code
-																			className="bg-gray-100 dark:bg-gray-800 px-1.5 py-0.5 rounded text-sm font-mono text-pink-600 dark:text-pink-400"
-																			{...props}
-																		/>
-																	),
-																}}
-															>
-																{msg.content}
-															</ReactMarkdown>
-														)}
-													</>
+													<Bot className="h-5 w-5" />
 												) : (
-													<ReactMarkdown
-														remarkPlugins={[remarkGfm]}
-														components={{
-															table: ({ node, ...props }) => (
-																<div className="overflow-x-auto my-4 rounded-lg border">
-																	<table
-																		className="min-w-full divide-y divide-gray-200 dark:divide-gray-700"
-																		{...props}
-																	/>
-																</div>
-															),
-															thead: ({ node, ...props }) => (
-																<thead
-																	className="bg-gray-50 dark:bg-gray-800"
-																	{...props}
-																/>
-															),
-															th: ({ node, ...props }) => (
-																<th
-																	className="px-4 py-3 text-left text-xs font-medium text-gray-500 dark:text-gray-400 uppercase tracking-wider"
-																	{...props}
-																/>
-															),
-															td: ({ node, ...props }) => (
-																<td
-																	className="px-4 py-3 whitespace-nowrap text-sm text-gray-700 dark:text-gray-300 border-t border-gray-100 dark:border-gray-700"
-																	{...props}
-																/>
-															),
-															a: ({ node, ...props }) => (
-																<a
-																	className="text-primary hover:underline"
-																	target="_blank"
-																	rel="noopener noreferrer"
-																	{...props}
-																/>
-															),
-															p: ({ node, ...props }) => (
-																<p className="mb-2 last:mb-0" {...props} />
-															),
-															ul: ({ node, ...props }) => (
-																<ul
-																	className="list-disc pl-4 mb-2 space-y-1"
-																	{...props}
-																/>
-															),
-															ol: ({ node, ...props }) => (
-																<ol
-																	className="list-decimal pl-4 mb-2 space-y-1"
-																	{...props}
-																/>
-															),
-															li: ({ node, ...props }) => (
-																<li className="pl-1" {...props} />
-															),
-															blockquote: ({ node, ...props }) => (
-																<blockquote
-																	className="border-l-4 border-primary/30 pl-4 italic text-gray-600 dark:text-gray-400 my-2"
-																	{...props}
-																/>
-															),
-															code: ({ node, ...props }) => (
-																<code
-																	className="bg-gray-100 dark:bg-gray-800 px-1.5 py-0.5 rounded text-sm font-mono text-pink-600 dark:text-pink-400"
-																	{...props}
-																/>
-															),
-														}}
-													>
-														{msg.content}
-													</ReactMarkdown>
+													<User className="h-5 w-5" />
 												)}
 											</div>
-
-											{/* Sources Section */}
-											{msg.sources && msg.sources.length > 0 && (
-												<div className="mt-3">
-													<Button
-														variant="ghost"
-														size="sm"
-														onClick={() => toggleSourceExpansion(msg.id)}
-														className="text-xs text-gray-500 hover:text-gray-900 flex items-center gap-1 h-6 px-2"
-													>
-														<FileText className="h-3 w-3" />
-														{msg.sources.length} Source
-														{msg.sources.length !== 1 ? "s" : ""} Used
-														{expandedSources[msg.id] ? (
-															<span className="text-[10px] ml-1">
-																(Click to hide)
-															</span>
-														) : (
-															<span className="text-[10px] ml-1">
-																(Click to view)
-															</span>
+											<div className="flex-1 min-w-0 space-y-2">
+												<div className="flex items-center justify-between">
+													<span className="font-medium text-sm text-gray-900 dark:text-gray-100">
+														{msg.role === "assistant" ? "AI Assistant" : "You"}
+													</span>
+													<div className="flex items-center gap-2">
+														<span className="text-xs text-gray-400">
+															{formatTimestamp(msg.timestamp)}
+														</span>
+														{msg.role === "assistant" && (
+															<Button
+																variant="ghost"
+																size="icon"
+																className="h-6 w-6 text-gray-400 hover:text-gray-600"
+																onClick={() => handleCopy(msg.content, msg.id)}
+															>
+																{copiedMessageId === msg.id ? (
+																	<Check className="h-3 w-3 text-green-500" />
+																) : (
+																	<Copy className="h-3 w-3" />
+																)}
+															</Button>
 														)}
-													</Button>
+													</div>
+												</div>
 
-													{expandedSources[msg.id] && (
-														<div className="mt-2 grid gap-2 grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 animate-in fade-in slide-in-from-top-1 duration-200">
-															{msg.sources
-																.slice(
-																	0,
-																	expandedSources[msg.id]
-																		? undefined
-																		: INITIAL_SOURCES_SHOWN
-																)
-																.map((source: any, idx: number) => (
-																	<Link
-																		key={idx}
-																		href={`/app/files/${source.id}`}
-																		className="block group"
-																	>
-																		<Card className="h-full hover:shadow-md transition-all duration-200 border-l-4 border-l-primary/20 hover:border-l-primary cursor-pointer bg-white/50 dark:bg-gray-800/50">
-																			<CardContent className="p-3">
-																				<div className="flex items-start justify-between gap-2">
-																					<div className="flex-1 min-w-0">
-																						<p className="text-xs font-medium text-gray-900 dark:text-gray-100 truncate group-hover:text-primary transition-colors">
-																							{truncateTitle(
-																								source.title ||
-																									"Untitled Document"
-																							)}
-																						</p>
-																						<div className="flex items-center gap-2 mt-1">
-																							<Badge
-																								variant="secondary"
-																								className="text-[10px] h-4 px-1 font-normal bg-gray-100 text-gray-600"
-																							>
-																								ID: {source.id}
-																							</Badge>
-																							{source.similarity && (
-																								<span className="text-[10px] text-green-600 font-medium">
-																									{(
-																										source.similarity * 100
-																									).toFixed(0)}
-																									% match
-																								</span>
-																							)}
-																						</div>
-																					</div>
-																					<ExternalLink className="h-3 w-3 text-gray-400 group-hover:text-primary opacity-0 group-hover:opacity-100 transition-all" />
+												{/* Filters Badge (Assistant Only) */}
+												{msg.role === "assistant" && msg.filters && (
+													<div className="flex flex-wrap gap-2 mb-2">
+														{msg.filters.category &&
+															msg.filters.category !== "All Categories" && (
+																<Badge
+																	variant="outline"
+																	className="text-[10px] h-5 px-2 bg-purple-50 text-purple-700 border-purple-200"
+																>
+																	Category: {msg.filters.category}
+																</Badge>
+															)}
+													</div>
+												)}
+
+												<div
+													className={`prose prose-sm max-w-none dark:prose-invert ${
+														msg.role === "user"
+															? "bg-white dark:bg-gray-800 p-4 rounded-2xl rounded-tl-none shadow-sm border border-gray-100 dark:border-gray-700"
+															: ""
+													}`}
+												>
+													{msg.role === "assistant" ? (
+														<>
+															{/* Show loading indicator for placeholder and progress messages */}
+															{msg.content.includes(
+																"Analyzing your question"
+															) ||
+															msg.content.includes("Generating response") ||
+															msg.content.includes("Processing") ||
+															msg.content.includes("Synthesizing") ? (
+																<div className="flex items-center gap-2 text-gray-600 dark:text-gray-400">
+																	<Loader2 className="h-4 w-4 animate-spin" />
+																	<span>{msg.content}</span>
+																</div>
+															) : (
+																<>
+																	<ReactMarkdown
+																		remarkPlugins={[remarkGfm]}
+																		components={{
+																			table: ({ node, ...props }) => (
+																				<div className="overflow-x-auto my-4 rounded-lg border">
+																					<table
+																						className="min-w-full divide-y divide-gray-200 dark:divide-gray-700"
+																						{...props}
+																					/>
 																				</div>
-																			</CardContent>
-																		</Card>
-																	</Link>
-																))}
-														</div>
+																			),
+																			thead: ({ node, ...props }) => (
+																				<thead
+																					className="bg-gray-50 dark:bg-gray-800"
+																					{...props}
+																				/>
+																			),
+																			th: ({ node, ...props }) => (
+																				<th
+																					className="px-4 py-3 text-left text-xs font-medium text-gray-500 dark:text-gray-400 uppercase tracking-wider"
+																					{...props}
+																				/>
+																			),
+																			td: ({ node, ...props }) => (
+																				<td
+																					className="px-4 py-3 whitespace-nowrap text-sm text-gray-700 dark:text-gray-300 border-t border-gray-100 dark:border-gray-700"
+																					{...props}
+																				/>
+																			),
+																			a: ({ node, ...props }) => (
+																				<a
+																					className="text-primary hover:underline"
+																					target="_blank"
+																					rel="noopener noreferrer"
+																					{...props}
+																				/>
+																			),
+																			p: ({ node, ...props }) => (
+																				<p
+																					className="mb-2 last:mb-0"
+																					{...props}
+																				/>
+																			),
+																			ul: ({ node, ...props }) => (
+																				<ul
+																					className="list-disc pl-4 mb-2 space-y-1"
+																					{...props}
+																				/>
+																			),
+																			ol: ({ node, ...props }) => (
+																				<ol
+																					className="list-decimal pl-4 mb-2 space-y-1"
+																					{...props}
+																				/>
+																			),
+																			li: ({ node, ...props }) => (
+																				<li className="pl-1" {...props} />
+																			),
+																			blockquote: ({ node, ...props }) => (
+																				<blockquote
+																					className="border-l-4 border-primary/30 pl-4 italic text-gray-600 dark:text-gray-400 my-2"
+																					{...props}
+																				/>
+																			),
+																			code: ({ node, ...props }) => (
+																				<code
+																					className="bg-gray-100 dark:bg-gray-800 px-1.5 py-0.5 rounded text-sm font-mono text-pink-600 dark:text-pink-400"
+																					{...props}
+																				/>
+																			),
+																		}}
+																	>
+																		{msg.content}
+																	</ReactMarkdown>
+
+																	{/* Chart Section */}
+																	{msg.chartData && (
+																		<div className="mt-4">
+																			<SmartChart
+																				config={msg.chartData as any}
+																			/>
+																		</div>
+																	)}
+																</>
+															)}
+														</>
+													) : (
+														<ReactMarkdown
+															remarkPlugins={[remarkGfm]}
+															components={{
+																table: ({ node, ...props }) => (
+																	<div className="overflow-x-auto my-4 rounded-lg border">
+																		<table
+																			className="min-w-full divide-y divide-gray-200 dark:divide-gray-700"
+																			{...props}
+																		/>
+																	</div>
+																),
+																thead: ({ node, ...props }) => (
+																	<thead
+																		className="bg-gray-50 dark:bg-gray-800"
+																		{...props}
+																	/>
+																),
+																th: ({ node, ...props }) => (
+																	<th
+																		className="px-4 py-3 text-left text-xs font-medium text-gray-500 dark:text-gray-400 uppercase tracking-wider"
+																		{...props}
+																	/>
+																),
+																td: ({ node, ...props }) => (
+																	<td
+																		className="px-4 py-3 whitespace-nowrap text-sm text-gray-700 dark:text-gray-300 border-t border-gray-100 dark:border-gray-700"
+																		{...props}
+																	/>
+																),
+																a: ({ node, ...props }) => (
+																	<a
+																		className="text-primary hover:underline"
+																		target="_blank"
+																		rel="noopener noreferrer"
+																		{...props}
+																	/>
+																),
+																p: ({ node, ...props }) => (
+																	<p className="mb-2 last:mb-0" {...props} />
+																),
+																ul: ({ node, ...props }) => (
+																	<ul
+																		className="list-disc pl-4 mb-2 space-y-1"
+																		{...props}
+																	/>
+																),
+																ol: ({ node, ...props }) => (
+																	<ol
+																		className="list-decimal pl-4 mb-2 space-y-1"
+																		{...props}
+																	/>
+																),
+																li: ({ node, ...props }) => (
+																	<li className="pl-1" {...props} />
+																),
+																blockquote: ({ node, ...props }) => (
+																	<blockquote
+																		className="border-l-4 border-primary/30 pl-4 italic text-gray-600 dark:text-gray-400 my-2"
+																		{...props}
+																	/>
+																),
+																code: ({ node, ...props }) => (
+																	<code
+																		className="bg-gray-100 dark:bg-gray-800 px-1.5 py-0.5 rounded text-sm font-mono text-pink-600 dark:text-pink-400"
+																		{...props}
+																	/>
+																),
+															}}
+														>
+															{msg.content}
+														</ReactMarkdown>
 													)}
 												</div>
-											)}
 
-											{/* Token Usage Info (Optional) */}
-											{msg.tokenCount && (
-												<div className="mt-1 text-[10px] text-gray-400 flex gap-2 opacity-0 group-hover:opacity-100 transition-opacity">
-													<span>Input: {msg.tokenCount.input || 0} tokens</span>
-													<span>•</span>
-													<span>
-														Output: {msg.tokenCount.output || 0} tokens
-													</span>
-												</div>
-											)}
-										</div>
-									</div>
-								))}
+												{/* Sources Section */}
+												{msg.sources && msg.sources.length > 0 && (
+													<div className="mt-3">
+														<Button
+															variant="ghost"
+															size="sm"
+															onClick={() => toggleSourceExpansion(msg.id)}
+															className="text-xs text-gray-500 hover:text-gray-900 flex items-center gap-1 h-6 px-2"
+														>
+															<FileText className="h-3 w-3" />
+															{msg.sources.length} Source
+															{msg.sources.length !== 1 ? "s" : ""} Used
+															{expandedSources[msg.id] ? (
+																<span className="text-[10px] ml-1">
+																	(Click to hide)
+																</span>
+															) : (
+																<span className="text-[10px] ml-1">
+																	(Click to view)
+																</span>
+															)}
+														</Button>
 
-								{/* Loading Indicator */}
-								{isLoading &&
-									messages[messages.length - 1]?.role === "user" && (
-										<div className="flex gap-4 animate-in fade-in duration-300">
-											<div className="w-8 h-8 rounded-full bg-primary/10 flex items-center justify-center flex-shrink-0 ring-1 ring-primary/20">
-												<Loader2 className="h-4 w-4 text-primary animate-spin" />
-											</div>
-											<div className="flex-1 space-y-2">
-												<div className="flex items-center gap-2">
-													<span className="font-medium text-sm text-gray-900 dark:text-gray-100">
-														AI Assistant
-													</span>
-													<span className="text-xs text-gray-400 animate-pulse">
-														Thinking...
-													</span>
-												</div>
-												<div className="h-4 w-24 bg-gray-200 dark:bg-gray-700 rounded animate-pulse" />
+														{expandedSources[msg.id] && (
+															<div className="mt-2 flex flex-wrap gap-1.5 animate-in fade-in slide-in-from-top-1 duration-200">
+																{msg.sources
+																	.slice(
+																		0,
+																		expandedSources[msg.id]
+																			? undefined
+																			: INITIAL_SOURCES_SHOWN
+																	)
+																	.map((source: any, idx: number) => (
+																		<div
+																			key={idx}
+																			onClick={() => {
+																				// If source has citation data, open split-screen
+																				if (source.citation) {
+																					openCitation({
+																						pageNumber:
+																							source.citation.pageNumber,
+																						imageUrl: source.citation.imageUrl,
+																						boundingBox:
+																							source.citation.boundingBox,
+																						layoutItems: (
+																							source.citation as any
+																						).layoutItems,
+																						chunkContent: (
+																							source.citation as any
+																						).chunkContent,
+																						title:
+																							(source.citation as any).title ||
+																							source.title ||
+																							"Untitled Document",
+																					});
+																				} else {
+																					// Fallback: navigate to file page
+																					window.location.href = `/app/files/${source.id}`;
+																				}
+																			}}
+																			className="group cursor-pointer"
+																		>
+																			<Badge
+																				variant="secondary"
+																				className="text-xs h-6 px-2 py-1 font-normal bg-gray-100 hover:bg-gray-200 dark:bg-gray-700 dark:hover:bg-gray-600 text-gray-700 dark:text-gray-300 transition-colors cursor-pointer max-w-xs flex items-center gap-1.5 border border-gray-200 dark:border-gray-600"
+																			>
+																				<FileText className="h-3 w-3 flex-shrink-0" />
+																				<span className="truncate max-w-[200px]">
+																					{truncateTitle(
+																						source.title || "Untitled Document",
+																						40
+																					)}
+																				</span>
+																				{source.similarity && (
+																					<span className="text-[10px] text-green-600 dark:text-green-400 font-medium flex-shrink-0 ml-0.5">
+																						{(source.similarity * 100).toFixed(
+																							0
+																						)}
+																						%
+																					</span>
+																				)}
+																				<ExternalLink className="h-3 w-3 opacity-0 group-hover:opacity-100 transition-opacity flex-shrink-0" />
+																			</Badge>
+																		</div>
+																	))}
+															</div>
+														)}
+													</div>
+												)}
+
+												{/* Token Usage Info (Optional) */}
+												{msg.tokenCount && (
+													<div className="mt-1 text-[10px] text-gray-400 flex gap-2 opacity-0 group-hover:opacity-100 transition-opacity">
+														<span>
+															Input: {msg.tokenCount.input || 0} tokens
+														</span>
+														<span>•</span>
+														<span>
+															Output: {msg.tokenCount.output || 0} tokens
+														</span>
+													</div>
+												)}
 											</div>
 										</div>
-									)}
-								<div ref={scrollAreaRef} />
-							</div>
-						)}
+									))}
+
+									{/* Loading Indicator */}
+									{isLoading &&
+										messages[messages.length - 1]?.role === "user" && (
+											<div className="flex gap-4 animate-in fade-in duration-300">
+												<div className="w-8 h-8 rounded-full bg-primary/10 flex items-center justify-center flex-shrink-0 ring-1 ring-primary/20">
+													<Loader2 className="h-4 w-4 text-primary animate-spin" />
+												</div>
+												<div className="flex-1 space-y-2">
+													<div className="flex items-center gap-2">
+														<span className="font-medium text-sm text-gray-900 dark:text-gray-100">
+															AI Assistant
+														</span>
+														<span className="text-xs text-gray-400 animate-pulse">
+															Thinking...
+														</span>
+													</div>
+													<div className="h-4 w-24 bg-gray-200 dark:bg-gray-700 rounded animate-pulse" />
+												</div>
+											</div>
+										)}
+									<div ref={messagesEndRef} />
+								</div>
+							)}
+						</div>
 					</div>
 
 					{/* Input Area */}
-					<div className="p-4 bg-white dark:bg-gray-900 border-t shadow-lg z-20">
+					<div className="p-4 bg-white dark:bg-gray-900 border-t shadow-lg z-20 flex-shrink-0">
 						<div className="max-w-4xl mx-auto space-y-3">
 							{/* Filters Row */}
 							<div className="flex flex-wrap items-center gap-2">
@@ -1126,7 +1238,7 @@ export default function DashboardChatPage() {
 						</div>
 					</div>
 				</div>
-			</div>
+			</SplitScreenLayout>
 		</div>
 	);
 }

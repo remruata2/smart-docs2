@@ -105,14 +105,22 @@ export const authOptions: NextAuthOptions = {
 							counter++;
 						}
 
-						// Create new user
+						// Create new user (OAuth users don't have passwords)
 						await db.user.create({
 							data: {
 								username: uniqueUsername,
 								email: user.email!,
+								password_hash: null, // OAuth users don't have passwords
 								role: UserRole.user,
 								is_active: true,
+								last_login: new Date(),
 							},
+						});
+					} else {
+						// Update last login for existing user
+						await db.user.update({
+							where: { id: existingUser.id },
+							data: { last_login: new Date() },
 						});
 					}
 				} catch (error) {
@@ -122,11 +130,26 @@ export const authOptions: NextAuthOptions = {
 			}
 			return true;
 		},
-		async jwt({ token, user }) {
+		async jwt({ token, user, account }) {
 			if (user) {
-				token.id = user.id;
-				token.role = user.role;
-				token.username = user.username;
+				// For OAuth users, fetch from database to get complete user data
+				if (account?.provider === "google" && user.email) {
+					const dbUser = await db.user.findUnique({
+						where: { email: user.email },
+					});
+					if (dbUser) {
+						token.id = String(dbUser.id);
+						token.role = dbUser.role;
+						token.username = dbUser.username;
+						token.email = dbUser.email || user.email;
+						token.name = dbUser.username;
+					}
+				} else {
+					// For credentials-based login, use the user object directly
+					token.id = user.id;
+					token.role = user.role;
+					token.username = user.username;
+				}
 			}
 			return token;
 		},

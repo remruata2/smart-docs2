@@ -141,7 +141,16 @@ export async function getUserLimits(userId: number) {
 		// Return default plan limits if no subscription
 		const defaultPlan = await getDefaultPlan();
 		if (!defaultPlan) {
-			throw new Error("No default plan found");
+			// Fallback to free tier limits if no default plan exists in database
+			// This handles cases where the database hasn't been seeded yet
+			console.warn(
+				"[SUBSCRIPTION-SERVICE] No default plan found, using fallback free tier limits"
+			);
+			return {
+				files: 10,
+				chats: 20,
+				exports: 5,
+			};
 		}
 		return defaultPlan.limits as {
 			files: number;

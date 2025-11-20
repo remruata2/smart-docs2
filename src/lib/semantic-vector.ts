@@ -1,198 +1,155 @@
+// semantic-vector.ts
 import { pipeline } from "@xenova/transformers";
-// Use explicit file path to avoid ESM directory import issues under ts-node
-import { PrismaClient } from "../generated/prisma/index.js";
+import { PrismaClient } from "../generated/prisma";
 
 const prisma = new PrismaClient();
 
+// Define the model we want to use. 
+// 'Xenova/all-MiniLM-L6-v2' is standard for RAG: fast, small (23MB), and accurate.
+const EMBEDDING_MODEL = "Xenova/all-MiniLM-L6-v2";
+
 export class SemanticVectorService {
+	// Singleton instance of the embedder pipeline to avoid reloading model on every call
 	private static embedder: any = null;
 
+	/**
+	 * Initialize the local embedding pipeline.
+	 * This downloads the model files (once) and caches them.
+	 */
 	static async initialize() {
 		if (!this.embedder) {
-			console.log("Initializing semantic embedder...");
-			this.embedder = await pipeline(
-				"feature-extraction",
-				"Xenova/all-MiniLM-L6-v2"
-			);
-			console.log("Semantic embedder initialized successfully");
+			console.log(`[SEMANTIC] Initializing local embedder model: ${EMBEDDING_MODEL}...`);
+			this.embedder = await pipeline("feature-extraction", EMBEDDING_MODEL);
+			console.log("[SEMANTIC] Embedder initialized successfully");
 		}
 	}
 
+	/**
+	 * Generates a vector embedding locally using Transformers.js
+	 * No API limits, no costs.
+	 */
 	static async generateEmbedding(text: string): Promise<number[]> {
 		await this.initialize();
 
-		// Prepare text for embedding while preserving Markdown structure
-		const preparedText = text
-			.replace(/\n+/g, " ") // Replace multiple newlines with single space
-			.trim()
-			.substring(0, 3000); // Increased limit to capture more content with structure
+		if (!text || !text.trim()) {
+			throw new Error("Text is required for embedding generation");
+		}
 
-		const result = await this.embedder(preparedText, {
-			pooling: "mean",
-			normalize: true,
-		});
+		// 1. Pre-process text: 
+		// Replace newlines to keep semantic meaning consistent and trim
+		const cleanedText = text.replace(/\n+/g, " ").trim();
 
-		return Array.from(result.data);
-	}
+		// 2. Truncate text to avoid model limits (512 tokens approx ~2000 chars)
+		// We truncate to 2000 characters to be safe. 
+		// For full document search, you should ideally chunk the document and average the vectors,
+		// but for a simple file-level vector, truncating the first 2000 chars (header + summary) works well.
+		const truncatedText = cleanedText.substring(0, 2000);
 
-	static async updateSemanticVector(fileId: number) {
 		try {
-			// Fetch the record to get metadata and content
-			const record = await prisma.fileList.findUnique({
-				where: { id: fileId },
-				select: {
-					id: true,
-					title: true,
-					category: true,
-					note: true,
-				},
+			// 3. Run inference
+			const result = await this.embedder(truncatedText, {
+				pooling: "mean", // Average the token vectors to get one sentence vector
+				normalize: true, // Important for cosine similarity
 			});
 
-			if (!record) {
-				console.log(
-					`Skipping semantic vector update for file ${fileId} - record not found`
-				);
-				return;
-			}
-
-			// Build enriched content with metadata
-			const metadataParts = [
-				record.title ? `Title: ${record.title}` : "",
-				record.category ? `Category: ${record.category}` : "",
-			].filter(Boolean);
-
-			const enrichedContent = [metadataParts.join(" | "), record.note || ""]
-				.filter(Boolean)
-				.join(" | Content: ");
-
-			if (!enrichedContent || enrichedContent.trim().length === 0) {
-				console.log(
-					`Skipping semantic vector update for file ${fileId} - no content`
-				);
-				return;
-			}
-
-			const embedding = await this.generateEmbedding(enrichedContent);
-
-			await prisma.$executeRaw`
-        UPDATE file_list
-        SET semantic_vector = ${embedding}::vector
-        WHERE id = ${fileId}
-      `;
-
-			console.log(`✅ Updated semantic vector for file ${fileId}`);
+			// 4. Convert Float32Array to regular number array
+			return Array.from(result.data);
 		} catch (error) {
-			console.error(
-				`❌ Failed to update semantic vector for file ${fileId}:`,
-				error
-			);
+			console.error("[SEMANTIC] Error generating embedding:", error);
 			throw error;
 		}
 	}
 
-	static async semanticSearch(
-		query: string,
-		_limit: number = 10,
-		filters: { category?: string; userId?: number } = {}
-	): Promise<any[]> {
+	/**
+	 * Updates the semantic vector for a specific file.
+	 */
+	static async updateSemanticVector(fileId: number) {
 		try {
-			const queryEmbedding = await this.generateEmbedding(query);
-			const SIMILARITY_THRESHOLD = 0.3; // Only return results with >30% similarity
+			const file = await prisma.fileList.findUnique({
+				where: { id: fileId },
+				select: { title: true, category: true, note: true },
+			});
 
-			const params: any[] = [queryEmbedding, SIMILARITY_THRESHOLD];
-			let whereClause = `semantic_vector IS NOT NULL
-          AND (1 - (semantic_vector <=> $1::vector)) > $2`;
-
-			if (filters.category) {
-				params.push(filters.category.toLowerCase().trim());
-				whereClause += ` AND LOWER(TRIM(category)) = $${params.length}`;
-			}
-			if (filters.userId) {
-				params.push(filters.userId);
-				whereClause += ` AND user_id = $${params.length}`;
+			if (!file) {
+				throw new Error(`File with ID ${fileId} not found`);
 			}
 
-			const sql = `
-        SELECT
-          id,
-          category,
-          title,
-          note,
-          entry_date_real,
-          1 - (semantic_vector <=> $1::vector) as similarity
-        FROM file_list
-        WHERE ${whereClause}
-        ORDER BY semantic_vector <=> $1::vector
-      `;
+			// Combine fields. 
+			// Tip: Put the most important keywords (Title/Category) FIRST 
+			// because truncation happens at the end.
+			const textToEmbed = `Title: ${file.title}. Category: ${file.category}. Content: ${file.note || ""}`;
 
-			const results = (await prisma.$queryRawUnsafe(sql, ...params)) as any[];
+			console.log(`[SEMANTIC] Generating vector for file ${fileId} (${textToEmbed.length} chars)...`);
 
-			console.log(
-				`🔍 Semantic search found ${results.length} results for query: "${query}" (threshold: ${SIMILARITY_THRESHOLD}, no limit)`
-			);
+			const embedding = await this.generateEmbedding(textToEmbed);
 
-			// Log similarity scores for debugging
-			if (results.length > 0) {
-				console.log(
-					`   Similarity scores: ${results
-						.map((r) => `ID:${r.id}:${(r.similarity * 100).toFixed(1)}%`)
-						.join(", ")}`
-				);
-			}
+			// Update DB using raw query for pgvector compatibility
+			await prisma.$executeRaw`
+				UPDATE file_list
+				SET semantic_vector = ${JSON.stringify(embedding)}::vector
+				WHERE id = ${fileId}
+			`;
 
-			return results;
+			console.log(`[SEMANTIC] Successfully updated vector for file ${fileId}`);
 		} catch (error) {
-			console.error("Semantic search error:", error);
-			return [];
+			console.error(`[SEMANTIC] Failed to update vector for file ${fileId}:`, error);
+			// Don't throw here if this is part of a background batch job, just log it.
+			// throw error; 
 		}
 	}
 
-	static async batchUpdateSemanticVectors() {
+	/**
+	 * Generate semantic vectors for file chunks
+	 */
+	static async generateChunkVectors(fileId: number) {
 		try {
-			console.log(
-				"🔄 Starting batch semantic vector update (NULL-only, with fallbacks)..."
-			);
+			// Get all chunks for this file
+			const chunks = await prisma.fileChunk.findMany({
+				where: { file_id: fileId },
+				select: { id: true, content: true },
+			});
 
-			// Count rows missing semantic_vector before
-			const missingBeforeRes = (await prisma.$queryRawUnsafe(
-				`SELECT COUNT(*)::int AS c FROM file_list WHERE semantic_vector IS NULL`
-			)) as Array<{ c: number }>;
-			const missingBefore = missingBeforeRes[0]?.c ?? 0;
-			console.log(`📊 Missing semantic_vector before: ${missingBefore}`);
+			console.log(`[SEMANTIC] Generating vectors for ${chunks.length} chunks of file ${fileId}...`);
 
-			// Fetch only rows where semantic_vector is NULL, use raw SQL since Prisma can't filter Unsupported(vector)
-			const records = (await prisma.$queryRawUnsafe(
-				`SELECT id, note, title, category, entry_date FROM file_list WHERE semantic_vector IS NULL`
-			)) as Array<{
-				id: number;
-				note: string | null;
-				title?: string | null;
-				category?: string | null;
-				entry_date?: string | null;
-			}>;
+			for (const chunk of chunks) {
+				try {
+					const embedding = await this.generateEmbedding(chunk.content);
 
-			console.log(`📦 Rows to process: ${records.length}`);
-
-			for (let i = 0; i < records.length; i++) {
-				const r = records[i];
-				await this.updateSemanticVector(r.id);
-
-				if ((i + 1) % 10 === 0) {
-					console.log(`Progress: ${i + 1}/${records.length} records processed`);
+					// Update chunk's semantic vector
+					await prisma.$executeRaw`
+						UPDATE file_chunks
+						SET semantic_vector = ${JSON.stringify(embedding)}::vector
+						WHERE id = ${chunk.id}
+					`;
+				} catch (err) {
+					console.error(`[SEMANTIC] Failed to generate vector for chunk ${chunk.id}:`, err);
+					// Continue with other chunks
 				}
 			}
 
-			// Count rows missing semantic_vector after
-			const missingAfterRes = (await prisma.$queryRawUnsafe(
-				`SELECT COUNT(*)::int AS c FROM file_list WHERE semantic_vector IS NULL`
-			)) as Array<{ c: number }>;
-			const missingAfter = missingAfterRes[0]?.c ?? 0;
-			console.log(
-				`✅ Batch semantic vector update completed. Remaining NULL: ${missingAfter}`
-			);
+			console.log(`[SEMANTIC] Successfully updated vectors for file ${fileId} chunks`);
 		} catch (error) {
-			console.error("❌ Batch update failed:", error);
-			throw error;
+			console.error(`[SEMANTIC] Failed to generate chunk vectors for file ${fileId}:`, error);
 		}
+	}
+
+	/**
+	 * Batch/Repair function: Find all files missing vectors and generate them.
+	 */
+	static async batchUpdateSemanticVectors() {
+		console.log("[SEMANTIC] Starting batch update for missing vectors...");
+
+		// Find IDs where vector is NULL
+		const records = await prisma.$queryRaw<{ id: number }[]>`
+			SELECT id FROM file_list WHERE semantic_vector IS NULL
+		`;
+
+		console.log(`[SEMANTIC] Found ${records.length} records to update.`);
+
+		for (const record of records) {
+			await this.updateSemanticVector(record.id);
+		}
+
+		console.log("[SEMANTIC] Batch update completed.");
 	}
 }

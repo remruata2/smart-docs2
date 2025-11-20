@@ -40,31 +40,47 @@ import { htmlToMarkdown } from "@/lib/markdown/htmlToMarkdown";
 
 const fileFormSchema = z
     .object({
-        category: z.string().min(1, { message: "Category is required" }).max(500),
-        title: z.string().min(1, { message: "Title is required" }).max(500),
+        category: z.string().max(500).optional(), // Optional - required only for manual entry, or per-file for uploads
+        title: z.string().max(500).optional(), // Optional - required only for manual entry
         note: z.string().optional().nullable(),
         doc1: z.any(), // FileList or string
         entry_date: z.string().optional().nullable(),
         content_source: z.enum(["file", "editor"]),
     })
-    .refine(
-        (data) => {
-            if (data.content_source === "editor") {
-                return true;
+    .superRefine((data, ctx) => {
+        // Title and category are required for manual entry
+        if (data.content_source === "editor") {
+            if (!data.title || data.title.trim().length === 0) {
+                ctx.addIssue({
+                    code: z.ZodIssueCode.custom,
+                    message: "Title is required for manual entry",
+                    path: ["title"],
+                });
             }
+            if (!data.category || data.category.trim().length === 0) {
+                ctx.addIssue({
+                    code: z.ZodIssueCode.custom,
+                    message: "Category is required for manual entry",
+                    path: ["category"],
+                });
+            }
+        }
+        
+        // File is required for file upload
+        if (data.content_source === "file") {
             if (typeof data.doc1 === "string" && data.doc1) {
-                return true;
+                return; // Valid
             }
             if (data.doc1 instanceof FileList && data.doc1.length > 0) {
-                return true;
+                return; // Valid
             }
-            return false;
-        },
-        {
-            message: "A document file is required when using file upload.",
-            path: ["doc1"],
+            ctx.addIssue({
+                code: z.ZodIssueCode.custom,
+                message: "A document file is required when using file upload.",
+                path: ["doc1"],
+            });
         }
-    );
+    });
 
 type FileFormValues = z.infer<typeof fileFormSchema>;
 
@@ -83,8 +99,11 @@ export default function FileForm({
 }: FileFormProps) {
 
     const [categoryPopoverOpen, setCategoryPopoverOpen] = useState(false);
-    const [isParsing, setIsParsing] = useState(false);
     const [editorContent, setEditorContent] = useState<string>("");
+    const [uploadingFiles, setUploadingFiles] = useState<Array<{ file: File; status: 'pending' | 'uploading' | 'success' | 'error'; error?: string }>>([]);
+    const [fileTitles, setFileTitles] = useState<Record<string, string>>({});
+    const [fileCategories, setFileCategories] = useState<Record<string, string>>({});
+    const [usageLimit, setUsageLimit] = useState<{ current: number; limit: number; allowed: boolean } | null>(null);
 
     const router = useRouter();
     const form = useForm<FileFormValues>({
@@ -104,67 +123,189 @@ export default function FileForm({
         formState: { isSubmitting },
     } = form;
 
-    async function onSubmit(values: FileFormValues) {
-        const formData = new FormData();
-
-        formData.append("content_source", values.content_source);
-
-        Object.entries(values).forEach(([key, value]) => {
-            if (key === "doc1") {
-                if (
-                    values.content_source === "file" &&
-                    value instanceof FileList &&
-                    value.length > 0
-                ) {
-                    formData.append(key, value[0]);
+    // Fetch usage limits on mount
+    useEffect(() => {
+        async function fetchUsageLimits() {
+            try {
+                const response = await fetch("/api/usage-limits?type=file_upload");
+                if (response.ok) {
+                    const data = await response.json();
+                    setUsageLimit({
+                        current: data.currentUsage || 0,
+                        limit: data.limit || 0,
+                        allowed: data.allowed !== false,
+                    });
                 }
-            } else if (value !== null && value !== undefined) {
-                formData.append(key, String(value));
+            } catch (error) {
+                console.error("Failed to fetch usage limits:", error);
             }
-        });
-
-        if (values.content_source === "editor") {
-            formData.set("content_format", "markdown");
-        } else {
-            formData.set("content_format", "markdown");
         }
+        fetchUsageLimits();
+    }, []);
 
-        try {
-            const result = await onSubmitAction(formData);
-            if (result.success) {
-                toast.success(result.message || "Operation successful!");
-                router.push("/app/files");
-                router.refresh();
-            } else {
-                toast.error(result.error || "An error occurred.");
-                if (result.fieldErrors) {
-                    Object.entries(result.fieldErrors).forEach(([field, errors]) => {
-                        if (errors && errors.length > 0) {
-                            form.setError(field as keyof FileFormValues, {
-                                type: "manual",
-                                message: errors.join(", "),
-                            });
-                        }
+    async function onSubmit(values: FileFormValues) {
+        if (values.content_source === "editor") {
+            // Manual entry - single record
+            const formData = new FormData();
+            formData.append("content_source", values.content_source);
+            formData.append("content_format", "markdown");
+
+            Object.entries(values).forEach(([key, value]) => {
+                if (key !== "doc1" && key !== "content_source" && value !== null && value !== undefined) {
+                    formData.append(key, String(value));
+                }
+            });
+
+            try {
+                const result = await onSubmitAction(formData);
+                if (result.success) {
+                    toast.success(result.message || "Operation successful!");
+                    router.push("/app/files");
+                    router.refresh();
+                } else {
+                    toast.error(result.error || "An error occurred.");
+                    if (result.fieldErrors) {
+                        Object.entries(result.fieldErrors).forEach(([field, errors]) => {
+                            if (errors && errors.length > 0) {
+                                form.setError(field as keyof FileFormValues, {
+                                    type: "manual",
+                                    message: errors.join(", "),
+                                });
+                            }
+                        });
+                    }
+                }
+            } catch (error) {
+                toast.error("An unexpected error occurred. Please try again.");
+                console.error("Form submission error:", error);
+            }
+        } else {
+            // File upload - handle multiple files
+            const files = values.doc1 instanceof FileList ? Array.from(values.doc1) : [];
+            
+            if (files.length === 0) {
+                toast.error("Please select at least one file to upload.");
+                return;
+            }
+
+            // Check usage limits before upload
+            if (usageLimit && !usageLimit.allowed) {
+                toast.error(`You have reached your file upload limit of ${usageLimit.limit}. Please upgrade your plan.`);
+                return;
+            }
+
+            // Check if user has enough remaining uploads for all files
+            if (usageLimit && usageLimit.limit !== -1) {
+                const remaining = usageLimit.limit - usageLimit.current;
+                if (files.length > remaining) {
+                    toast.error(`You can only upload ${remaining} more file(s) this month. Please select fewer files or upgrade your plan.`);
+                    return;
+                }
+            }
+
+            // Initialize upload tracking
+            setUploadingFiles(files.map(file => ({ file, status: 'pending' as const })));
+
+            let successCount = 0;
+            let errorCount = 0;
+
+            // Upload each file separately
+            for (let i = 0; i < files.length; i++) {
+                const file = files[i];
+                
+                // Update status to uploading
+                setUploadingFiles(prev => {
+                    const updated = [...prev];
+                    updated[i] = { ...updated[i], status: 'uploading' };
+                    return updated;
+                });
+
+                try {
+                    const formData = new FormData();
+                    formData.append("content_source", "file");
+                    formData.append("content_format", "markdown");
+                    
+                    // Get title and category from state, fallback to filename
+                    const fileId = `${file.name}-${file.size}-${file.lastModified}`;
+                    const fileTitle = fileTitles[fileId]?.trim() || file.name.replace(/\.[^/.]+$/, "");
+                    const fileCategory = fileCategories[fileId]?.trim() || "";
+                    
+                    // Validate category is provided
+                    if (!fileCategory) {
+                        errorCount++;
+                        setUploadingFiles(prev => {
+                            const updated = [...prev];
+                            updated[i] = { ...updated[i], status: 'error', error: 'Category is required' };
+                            return updated;
+                        });
+                        continue;
+                    }
+                    
+                    formData.append("title", fileTitle);
+                    formData.append("category", fileCategory);
+                    if (values.note) formData.append("note", values.note);
+                    if (values.entry_date) formData.append("entry_date", values.entry_date);
+                    formData.append("doc1", file);
+
+                    const result = await onSubmitAction(formData);
+                    
+                    if (result.success) {
+                        successCount++;
+                        setUploadingFiles(prev => {
+                            const updated = [...prev];
+                            updated[i] = { ...updated[i], status: 'success' };
+                            return updated;
+                        });
+                    } else {
+                        errorCount++;
+                        setUploadingFiles(prev => {
+                            const updated = [...prev];
+                            updated[i] = { ...updated[i], status: 'error', error: result.error };
+                            return updated;
+                        });
+                    }
+                } catch (error) {
+                    errorCount++;
+                    const errorMessage = error instanceof Error ? error.message : "Unknown error";
+                    setUploadingFiles(prev => {
+                        const updated = [...prev];
+                        updated[i] = { ...updated[i], status: 'error', error: errorMessage };
+                        return updated;
                     });
                 }
             }
-        } catch (error) {
-            toast.error("An unexpected error occurred. Please try again.");
-            console.error("Form submission error:", error);
-        }
-    }
 
-    async function parseDocumentViaApi(
-        file: File
-    ): Promise<{ content: string; metadata: any; error?: string }> {
-        const formData = new FormData();
-        formData.append("file", file);
-        const res = await fetch("/api/parse-document", {
-            method: "POST",
-            body: formData,
-        });
-        const data = await res.json();
-        return data;
+            // Show summary
+            if (successCount > 0) {
+                toast.success(`Successfully uploaded ${successCount} file(s). Parsing will happen in the background.`);
+            }
+            if (errorCount > 0) {
+                toast.error(`Failed to upload ${errorCount} file(s).`);
+            }
+
+            // Navigate to files page after a short delay
+            if (successCount > 0) {
+                // Refresh usage limits after successful upload
+                try {
+                    const response = await fetch("/api/usage-limits?type=file_upload");
+                    if (response.ok) {
+                        const data = await response.json();
+                        setUsageLimit({
+                            current: data.currentUsage || 0,
+                            limit: data.limit || 0,
+                            allowed: data.allowed !== false,
+                        });
+                    }
+                } catch (error) {
+                    console.error("Failed to refresh usage limits:", error);
+                }
+
+                setTimeout(() => {
+                    router.push("/app/files");
+                    router.refresh();
+                }, 1000);
+            }
+        }
     }
 
     return (
@@ -210,93 +351,99 @@ export default function FileForm({
                     )}
                 />
 
-                <FormField
-                    control={form.control}
-                    name="category"
-                    render={({ field }: { field: any }) => (
-                        <FormItem className="flex flex-col">
-                            <FormLabel>Category *</FormLabel>
-                            <Popover
-                                open={categoryPopoverOpen}
-                                onOpenChange={setCategoryPopoverOpen}
-                            >
-                                <PopoverTrigger asChild>
-                                    <FormControl>
-                                        <Button
-                                            variant="outline"
-                                            role="combobox"
-                                            className={cn(
-                                                "w-full justify-between",
-                                                !field.value && "text-muted-foreground"
-                                            )}
-                                        >
-                                            {field.value
-                                                ? categoryListItems.find(
-                                                    (item) => item.category === field.value
-                                                )?.category
-                                                : "Select Category"}
-                                            <ChevronsUpDown className="ml-2 h-4 w-4 shrink-0 opacity-50" />
-                                        </Button>
-                                    </FormControl>
-                                </PopoverTrigger>
-                                <PopoverContent
-                                    className="w-[--radix-popover-trigger-width] p-0"
-                                    align="start"
+                {/* Category field only shown for manual entry */}
+                {form.watch("content_source") === "editor" && (
+                    <FormField
+                        control={form.control}
+                        name="category"
+                        render={({ field }: { field: any }) => (
+                            <FormItem className="flex flex-col">
+                                <FormLabel>Category *</FormLabel>
+                                <Popover
+                                    open={categoryPopoverOpen}
+                                    onOpenChange={setCategoryPopoverOpen}
                                 >
-                                    <Command>
-                                        <CommandInput placeholder="Search category..." />
-                                        <CommandList>
-                                            <CommandEmpty>No category found.</CommandEmpty>
-                                            <CommandGroup>
-                                                {categoryListItems.map((item) => (
-                                                    <CommandItem
-                                                        value={item.category}
-                                                        key={`${item.id}-cat-${item.category}`}
-                                                        onSelect={(currentValue: string) => {
-                                                            form.setValue(
-                                                                "category",
-                                                                currentValue === field.value
-                                                                    ? ""
-                                                                    : currentValue,
-                                                                { shouldValidate: true, shouldDirty: true }
-                                                            );
-                                                            setCategoryPopoverOpen(false);
-                                                        }}
-                                                    >
-                                                        <Check
-                                                            className={cn(
-                                                                "mr-2 h-4 w-4 shrink-0",
-                                                                item.category === field.value
-                                                                    ? "opacity-100"
-                                                                    : "opacity-0"
-                                                            )}
-                                                        />
-                                                        <span className="truncate">{item.category}</span>
-                                                    </CommandItem>
-                                                ))}
-                                            </CommandGroup>
-                                        </CommandList>
-                                    </Command>
-                                </PopoverContent>
-                            </Popover>
-                            <FormMessage />
-                        </FormItem>
-                    )}
-                />
+                                    <PopoverTrigger asChild>
+                                        <FormControl>
+                                            <Button
+                                                variant="outline"
+                                                role="combobox"
+                                                className={cn(
+                                                    "w-full justify-between",
+                                                    !field.value && "text-muted-foreground"
+                                                )}
+                                            >
+                                                {field.value
+                                                    ? categoryListItems.find(
+                                                        (item) => item.category === field.value
+                                                    )?.category
+                                                    : "Select Category"}
+                                                <ChevronsUpDown className="ml-2 h-4 w-4 shrink-0 opacity-50" />
+                                            </Button>
+                                        </FormControl>
+                                    </PopoverTrigger>
+                                    <PopoverContent
+                                        className="w-[--radix-popover-trigger-width] p-0"
+                                        align="start"
+                                    >
+                                        <Command>
+                                            <CommandInput placeholder="Search category..." />
+                                            <CommandList>
+                                                <CommandEmpty>No category found.</CommandEmpty>
+                                                <CommandGroup>
+                                                    {categoryListItems.map((item) => (
+                                                        <CommandItem
+                                                            value={item.category}
+                                                            key={`${item.id}-cat-${item.category}`}
+                                                            onSelect={(currentValue: string) => {
+                                                                form.setValue(
+                                                                    "category",
+                                                                    currentValue === field.value
+                                                                        ? ""
+                                                                        : currentValue,
+                                                                    { shouldValidate: true, shouldDirty: true }
+                                                                );
+                                                                setCategoryPopoverOpen(false);
+                                                            }}
+                                                        >
+                                                            <Check
+                                                                className={cn(
+                                                                    "mr-2 h-4 w-4 shrink-0",
+                                                                    item.category === field.value
+                                                                        ? "opacity-100"
+                                                                        : "opacity-0"
+                                                                )}
+                                                            />
+                                                            <span className="truncate">{item.category}</span>
+                                                        </CommandItem>
+                                                    ))}
+                                                </CommandGroup>
+                                            </CommandList>
+                                        </Command>
+                                    </PopoverContent>
+                                </Popover>
+                                <FormMessage />
+                            </FormItem>
+                        )}
+                    />
+                )}
 
-                <FormField
-                    control={form.control}
-                    name="title"
-                    render={({ field }: { field: any }) => (
-                        <FormItem>
-                            <FormLabel>Title *</FormLabel>
-                            <FormControl>
-                                <Input placeholder="Enter the file title" {...field} />
-                            </FormControl>
-                            <FormMessage />
-                        </FormItem>
-                    )}
-                />
+                {/* Title field only shown for manual entry */}
+                {form.watch("content_source") === "editor" && (
+                    <FormField
+                        control={form.control}
+                        name="title"
+                        render={({ field }: { field: any }) => (
+                            <FormItem>
+                                <FormLabel>Title *</FormLabel>
+                                <FormControl>
+                                    <Input placeholder="Enter the file title" {...field} />
+                                </FormControl>
+                                <FormMessage />
+                            </FormItem>
+                        )}
+                    />
+                )}
 
 
                 {form.watch("content_source") === "file" && (
@@ -306,11 +453,11 @@ export default function FileForm({
                             name="doc1"
                             render={({ field }: { field: any }) => (
                                 <FormItem>
-                                    <FormLabel className="flex items-center">
+                                    <FormLabel>
                                         Document Upload (Word, Excel, PDF) *
-                                        {isParsing && (
-                                            <span className="ml-2 flex items-center text-sm text-gray-500">
-                                                Parsing document...
+                                        {uploadingFiles.length > 0 && (
+                                            <span className="ml-2 text-sm text-muted-foreground">
+                                                ({uploadingFiles.filter(f => f.status === 'success').length}/{uploadingFiles.length} uploaded)
                                             </span>
                                         )}
                                     </FormLabel>
@@ -318,36 +465,150 @@ export default function FileForm({
                                         <Input
                                             type="file"
                                             accept=".docx,.xlsx,.xls,.pdf"
-                                            disabled={isParsing}
-                                            onChange={async (e) => {
-                                                const file = e.target.files?.[0];
-                                                if (file) {
+                                            multiple
+                                            onChange={(e) => {
+                                                const files = e.target.files;
+                                                if (files && files.length > 0) {
+                                                    // Check file count limit (5 files max)
+                                                    if (files.length > 5) {
+                                                        toast.error("Maximum 5 files allowed per upload");
+                                                        e.target.value = "";
+                                                        return;
+                                                    }
+
+                                                    // Check file sizes
                                                     const maxSize = 50 * 1024 * 1024;
-                                                    if (file.size > maxSize) {
+                                                    const oversizedFiles = Array.from(files).filter(f => f.size > maxSize);
+                                                    if (oversizedFiles.length > 0) {
                                                         toast.error(
-                                                            `File too large. Maximum size is 50MB.`
+                                                            `${oversizedFiles.length} file(s) too large. Maximum size is 50MB.`
                                                         );
                                                         e.target.value = "";
                                                         return;
                                                     }
 
-                                                    setIsParsing(true);
-                                                    const result = await parseDocumentViaApi(file);
-                                                    if (result.error) {
-                                                        toast.error(result.error);
-                                                        form.setValue("note", "");
-                                                    } else {
-                                                        form.setValue("note", result.content || "");
-                                                        toast.success("Document parsed successfully!");
-                                                    }
-                                                    form.setValue("doc1", e.target.files, {
-                                                        shouldValidate: true,
+                                                    field.onChange(files);
+                                                    
+                                                    // Initialize upload tracking
+                                                    setUploadingFiles(Array.from(files).map(file => ({ file, status: 'pending' as const })));
+                                                    
+                                                    // Initialize file titles and categories (default to filename without extension, empty category)
+                                                    const titles: Record<string, string> = {};
+                                                    const categories: Record<string, string> = {};
+                                                    Array.from(files).forEach(file => {
+                                                        const fileId = `${file.name}-${file.size}-${file.lastModified}`;
+                                                        titles[fileId] = file.name.replace(/\.[^/.]+$/, "");
+                                                        categories[fileId] = ""; // Empty category, user must select
                                                     });
-                                                    setIsParsing(false);
+                                                    setFileTitles(titles);
+                                                    setFileCategories(categories);
+                                                } else {
+                                                    field.onChange(null);
+                                                    setUploadingFiles([]);
+                                                    setFileTitles({});
+                                                    setFileCategories({});
                                                 }
                                             }}
                                         />
                                     </FormControl>
+                                    <FormDescription>
+                                        Upload up to 5 document files. Files will be parsed in the background after upload.
+                                    </FormDescription>
+                                    {form.watch("doc1") && form.watch("doc1") instanceof FileList && Array.from(form.watch("doc1")).length > 0 && (
+                                        <div className="mt-4 space-y-3">
+                                            <FormLabel>Files to Upload</FormLabel>
+                                            {Array.from(form.watch("doc1")).map((file: File) => {
+                                                const fileId = `${file.name}-${file.size}-${file.lastModified}`;
+                                                return (
+                                                    <div key={fileId} className="p-3 border rounded-md bg-gray-50 space-y-2">
+                                                        <div className="flex items-center gap-2">
+                                                            <div className="flex-1 min-w-0">
+                                                                <p className="text-sm font-medium truncate">{file.name}</p>
+                                                                <p className="text-xs text-muted-foreground">
+                                                                    {(file.size / 1024 / 1024).toFixed(2)} MB
+                                                                </p>
+                                                            </div>
+                                                        </div>
+                                                        <div className="grid grid-cols-2 gap-2">
+                                                            <div>
+                                                                <label className="text-xs text-muted-foreground mb-1 block">Title (optional)</label>
+                                                                <Input
+                                                                    placeholder="Enter title"
+                                                                    value={fileTitles[fileId] || ""}
+                                                                    onChange={(e) => {
+                                                                        setFileTitles(prev => ({
+                                                                            ...prev,
+                                                                            [fileId]: e.target.value
+                                                                        }));
+                                                                    }}
+                                                                    className="text-sm"
+                                                                />
+                                                            </div>
+                                                            <div>
+                                                                <label className="text-xs text-muted-foreground mb-1 block">Category *</label>
+                                                                <Popover>
+                                                                    <PopoverTrigger asChild>
+                                                                        <Button
+                                                                            variant="outline"
+                                                                            role="combobox"
+                                                                            className="w-full justify-between text-sm h-9"
+                                                                        >
+                                                                            {fileCategories[fileId] && categoryListItems.find(
+                                                                                (item) => item.category === fileCategories[fileId]
+                                                                            )?.category || "Select Category"}
+                                                                            <ChevronsUpDown className="ml-2 h-4 w-4 shrink-0 opacity-50" />
+                                                                        </Button>
+                                                                    </PopoverTrigger>
+                                                                    <PopoverContent className="w-[--radix-popover-trigger-width] p-0" align="start">
+                                                                        <Command>
+                                                                            <CommandInput placeholder="Search category..." />
+                                                                            <CommandList>
+                                                                                <CommandEmpty>No category found.</CommandEmpty>
+                                                                                <CommandGroup>
+                                                                                    {categoryListItems.map((item) => (
+                                                                                        <CommandItem
+                                                                                            value={item.category}
+                                                                                            key={`${item.id}-cat-${item.category}-${fileId}`}
+                                                                                            onSelect={(currentValue: string) => {
+                                                                                                setFileCategories(prev => ({
+                                                                                                    ...prev,
+                                                                                                    [fileId]: currentValue === fileCategories[fileId] ? "" : currentValue
+                                                                                                }));
+                                                                                            }}
+                                                                                        >
+                                                                                            <Check
+                                                                                                className={cn(
+                                                                                                    "mr-2 h-4 w-4 shrink-0",
+                                                                                                    item.category === fileCategories[fileId]
+                                                                                                        ? "opacity-100"
+                                                                                                        : "opacity-0"
+                                                                                                )}
+                                                                                            />
+                                                                                            <span className="truncate">{item.category}</span>
+                                                                                        </CommandItem>
+                                                                                    ))}
+                                                                                </CommandGroup>
+                                                                            </CommandList>
+                                                                        </Command>
+                                                                    </PopoverContent>
+                                                                </Popover>
+                                                            </div>
+                                                        </div>
+                                                    </div>
+                                                );
+                                            })}
+                                        </div>
+                                    )}
+                                    {usageLimit && (
+                                        <div className="mt-2 text-sm">
+                                            <span className={usageLimit.allowed ? "text-muted-foreground" : "text-red-600 font-medium"}>
+                                                {usageLimit.limit === -1 
+                                                    ? "Unlimited uploads"
+                                                    : `${Math.max(0, usageLimit.limit - usageLimit.current)}/${usageLimit.limit} files remaining this month`
+                                                }
+                                            </span>
+                                        </div>
+                                    )}
                                     {initialData?.doc1 && (
                                         <FormDescription>
                                             Current file:{" "}
@@ -362,29 +623,6 @@ export default function FileForm({
                                             . Uploading a new file will replace it.
                                         </FormDescription>
                                     )}
-                                    <FormMessage />
-                                </FormItem>
-                            )}
-                        />
-
-                        <FormField
-                            control={form.control}
-                            name="note"
-                            render={({ field }: { field: any }) => (
-                                <FormItem>
-                                    <FormLabel>Document Content</FormLabel>
-                                    <FormControl>
-                                        <Textarea
-                                            {...field}
-                                            value={field.value || ""}
-                                            className="min-h-[200px] font-mono text-sm"
-                                            readOnly={isParsing}
-                                        />
-                                    </FormControl>
-                                    <FormDescription>
-                                        This content is automatically generated from the uploaded
-                                        file. You can edit it if needed.
-                                    </FormDescription>
                                     <FormMessage />
                                 </FormItem>
                             )}
