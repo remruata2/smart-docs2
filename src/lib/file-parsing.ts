@@ -68,6 +68,7 @@ export async function processFileParsing(
 
 		// 2. Generate page images (if PDF)
 		const publicDir = path.join(process.cwd(), "public", "files", String(fileId));
+		let imagesGenerated = false;
 		
 		// Ensure directory doesn't already exist (clean up any leftover files from previous attempts)
 		if (existsSync(publicDir)) {
@@ -119,21 +120,34 @@ export async function processFileParsing(
 					}
 				}
 
-				console.log(`[FILE-PARSING] Generated page images for file ${fileId}`);
+				// Verify images were actually created
+				const imageFiles = await fs.readdir(publicDir);
+				const jpgFiles = imageFiles.filter(f => f.endsWith('.jpg'));
+				if (jpgFiles.length > 0) {
+					imagesGenerated = true;
+					console.log(`[FILE-PARSING] Generated ${jpgFiles.length} page images for file ${fileId}`);
+				} else {
+					console.warn(`[FILE-PARSING] No image files found after generation for file ${fileId}`);
+				}
 			} catch (imgError) {
 				console.error(`[FILE-PARSING] Failed to generate images for file ${fileId}:`, imgError);
 				// Continue without images if this fails
 			}
 		}
 
-		// 3. Create DocumentPage records
+		// 3. Create DocumentPage records (only if images were generated or if not a PDF)
 		if (pages.length > 0) {
 			const pagePromises = pages.map((p: any, i: number) => {
+				// Use array index for consistent page numbering
+				const pageNumber = i + 1;
+				// Only set image_url if images were generated
+				const imageUrl = imagesGenerated ? `/files/${fileId}/page-${pageNumber}.jpg` : null;
+				
 				return prisma.documentPage.create({
 					data: {
 						file_id: fileId,
-						page_number: i + 1,
-						image_url: `/files/${fileId}/page-${i + 1}.jpg`,
+						page_number: pageNumber,
+						image_url: imageUrl || "", // Empty string if no images
 						width: p.width || 0,
 						height: p.height || 0,
 					},
@@ -150,18 +164,34 @@ export async function processFileParsing(
 			actualPageWidth: number = 595,
 			actualPageHeight: number = 842
 		): number[] {
+			// Validate bbox values and handle null/undefined
+			const x = bbox.x ?? 0;
+			const y = bbox.y ?? 0;
+			const w = bbox.w ?? 1;
+			const h = bbox.h ?? 1;
+			
+			// Ensure dimensions are valid (greater than 0)
+			if (actualPageWidth <= 0 || actualPageHeight <= 0) {
+				console.warn(`[FILE-PARSING] Invalid page dimensions: ${actualPageWidth}x${actualPageHeight}, using defaults`);
+				actualPageWidth = 595;
+				actualPageHeight = 842;
+			}
+			
 			return [
-				Math.max(0, Math.min(1, (bbox.x || 0) / actualPageWidth)),
-				Math.max(0, Math.min(1, (bbox.y || 0) / actualPageHeight)),
-				Math.max(0, Math.min(1, (bbox.w || 1) / actualPageWidth)),
-				Math.max(0, Math.min(1, (bbox.h || 1) / actualPageHeight)),
+				Math.max(0, Math.min(1, x / actualPageWidth)),
+				Math.max(0, Math.min(1, y / actualPageHeight)),
+				Math.max(0, Math.min(1, w / actualPageWidth)),
+				Math.max(0, Math.min(1, h / actualPageHeight)),
 			];
 		}
 
 		let chunkIndex = 0;
-		for (const p of pages) {
+		for (let i = 0; i < pages.length; i++) {
+			const p = pages[i];
 			const pageWidth = p.width || 595;
 			const pageHeight = p.height || 842;
+			// Use array index for consistent page numbering (matches DocumentPage)
+			const pageNumber = i + 1;
 
 			// Consolidate all text for the search engine (ONE chunk per page)
 			let fullPageText = "";
@@ -181,13 +211,19 @@ export async function processFileParsing(
 
 					fullPageText += text.trim() + "\n\n";
 
-					if (item.bBox) {
-						const bbox = convertBBoxToPercentages(item.bBox, pageWidth, pageHeight);
-						const textSnippet = text.trim().substring(0, 200);
-						layoutItemsArray.push({
-							text: textSnippet,
-							bbox: bbox,
-						});
+					if (item.bBox && typeof item.bBox === 'object') {
+						// Validate bbox structure
+						if (typeof item.bBox.x === 'number' && typeof item.bBox.y === 'number' &&
+						    typeof item.bBox.w === 'number' && typeof item.bBox.h === 'number') {
+							const bbox = convertBBoxToPercentages(item.bBox, pageWidth, pageHeight);
+							const textSnippet = text.trim().substring(0, 200);
+							layoutItemsArray.push({
+								text: textSnippet,
+								bbox: bbox,
+							});
+						} else {
+							console.warn(`[FILE-PARSING] Invalid bbox structure for item on page ${pageNumber}:`, item.bBox);
+						}
 					}
 				}
 			} else {
@@ -201,13 +237,12 @@ export async function processFileParsing(
 			}
 
 			// Create ONE chunk per page
-			const pageNumber = p.pageNumber || (chunkIndex + 1);
 			const chunk = await prisma.fileChunk.create({
 				data: {
 					file_id: fileId,
 					chunk_index: chunkIndex++,
 					content: fullPageText.trim(),
-					page_number: pageNumber,
+					page_number: pageNumber, // Use consistent page number
 					bbox:
 						layoutItemsArray.length > 0
 							? layoutItemsArray

@@ -36,7 +36,12 @@ export async function POST(req: NextRequest) {
 		const fileId = searchParams.get("fileId"); // Optional: process specific file
 
 		// Find pending files
-		let pendingFiles;
+		let pendingFiles: Array<{
+			id: number;
+			title: string;
+			doc1: string | null;
+			created_at: Date | null;
+		}> = [];
 		if (fileId) {
 			// Process specific file
 			pendingFiles = await prisma.fileList.findMany({
@@ -47,17 +52,52 @@ export async function POST(req: NextRequest) {
 				take: 1,
 			});
 		} else {
-			// Find oldest pending files (FIFO)
-			pendingFiles = await prisma.fileList.findMany({
-				where: {
-					parsing_status: "pending",
-					doc1: { not: null }, // Only process files with uploaded documents
-				},
-				orderBy: {
-					created_at: "asc", // Process oldest first
-				},
-				take: limit,
+			// Find oldest pending files (FIFO) with concurrency control
+			// Use transaction to atomically claim files for processing
+			// This prevents multiple workers from processing the same file
+			const updateResult = await prisma.$transaction(async (tx) => {
+				// Find and claim files atomically
+				const filesToProcess = await tx.fileList.findMany({
+					where: {
+						parsing_status: "pending",
+						doc1: { not: null },
+					},
+					orderBy: {
+						created_at: "asc",
+					},
+					take: limit,
+					select: {
+						id: true,
+					},
+				});
+
+				// Update status to processing for claimed files (only if still pending)
+				if (filesToProcess.length > 0) {
+					await tx.fileList.updateMany({
+						where: {
+							id: { in: filesToProcess.map((f) => f.id) },
+							parsing_status: "pending", // Only update if still pending (prevents race condition)
+						},
+						data: {
+							parsing_status: "processing",
+						},
+					});
+				}
+
+				return filesToProcess;
 			});
+
+			// Fetch the full file records for successfully claimed files
+			if (updateResult.length > 0) {
+				pendingFiles = await prisma.fileList.findMany({
+					where: {
+						id: { in: updateResult.map((f) => f.id) },
+						parsing_status: "processing", // Only get files we successfully claimed
+					},
+				});
+			} else {
+				pendingFiles = [];
+			}
 		}
 
 		if (pendingFiles.length === 0) {

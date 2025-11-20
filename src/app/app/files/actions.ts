@@ -458,39 +458,53 @@ export async function createFileAction(
 		// Determine parsing status: if file is uploaded, set to pending; otherwise completed (manual entry)
 		const parsingStatus = file && file.size > 0 ? "pending" : "completed";
 
-		// Create the file record with user_id (exclude district as it no longer exists)
-		const newFile = await prisma.fileList.create({
-			data: {
-				...cleanRestOfData,
-				title: fileTitle || "Untitled", // Fallback to "Untitled" if somehow still missing
-				category: fileCategory, // Use the provided category
-				note: finalNote,
-				content_format: contentFormat,
-				doc1: doc1Path,
-				entry_date: entry_date,
-				entry_date_real: entryDateReal,
-				user_id: userId,
-				parsing_status: parsingStatus,
-				// If manual entry (no file), mark as parsed immediately
-				parsed_at: parsingStatus === "completed" ? new Date() : null,
-			},
+		// Use transaction to ensure atomicity of file creation and usage tracking
+		const newFile = await prisma.$transaction(async (tx) => {
+			// Create the file record with user_id (exclude district as it no longer exists)
+			const createdFile = await tx.fileList.create({
+				data: {
+					...cleanRestOfData,
+					title: fileTitle || "Untitled", // Fallback to "Untitled" if somehow still missing
+					category: fileCategory, // Use the provided category
+					note: finalNote,
+					content_format: contentFormat,
+					doc1: doc1Path,
+					entry_date: entry_date,
+					entry_date_real: entryDateReal,
+					user_id: userId,
+					parsing_status: parsingStatus,
+					// If manual entry (no file), mark as parsed immediately
+					parsed_at: parsingStatus === "completed" ? new Date() : null,
+				},
+			});
+
+			// Update search_vector with metadata (title, category, note) - this is fine to do immediately
+			await tx.$executeRaw`
+        UPDATE file_list
+        SET search_vector = to_tsvector('english',
+          COALESCE('Title: ' || title, '') || ' | ' ||
+          COALESCE('Category: ' || category, '') || ' | ' ||
+          COALESCE('Content: ' || ${finalNote}, '') || ' | ' ||
+          COALESCE(entry_date, '') || ' ' ||
+          COALESCE(EXTRACT(YEAR FROM entry_date_real)::text, '')
+        )
+        WHERE id = ${createdFile.id}
+      `;
+
+			// Track file upload usage when file is created (not after parsing)
+			// This must be in the transaction to ensure consistency
+			// This ensures limits are enforced immediately
+			try {
+				const { trackUsage } = await import("@/lib/usage-tracking");
+				const { UsageType } = await import("@/generated/prisma");
+				await trackUsage(userId, UsageType.file_upload);
+			} catch (trackingError) {
+				console.error("Usage tracking failed:", trackingError);
+				// Don't fail the transaction if tracking fails, but log it
+			}
+
+			return createdFile;
 		});
-
-		// For files with uploaded documents, parsing will happen in background
-		// For manual entries (no file), we skip parsing
-
-		// Update search_vector with metadata (title, category, note) - this is fine to do immediately
-		await prisma.$executeRaw`
-      UPDATE file_list
-      SET search_vector = to_tsvector('english',
-        COALESCE('Title: ' || title, '') || ' | ' ||
-        COALESCE('Category: ' || category, '') || ' | ' ||
-        COALESCE('Content: ' || ${finalNote}, '') || ' | ' ||
-        COALESCE(entry_date, '') || ' ' ||
-        COALESCE(EXTRACT(YEAR FROM entry_date_real)::text, '')
-      )
-      WHERE id = ${newFile.id}
-    `;
 
 		// For manual entries (no file), generate semantic vector immediately
 		// For files with documents, semantic vectors will be generated during background parsing
@@ -500,16 +514,6 @@ export async function createFileAction(
 			} catch (vectorError) {
 				console.error("Semantic vector update failed:", vectorError);
 			}
-		}
-
-		// Track file upload usage when file is created (not after parsing)
-		// This ensures limits are enforced immediately
-		try {
-			const { trackUsage } = await import("@/lib/usage-tracking");
-			const { UsageType } = await import("@/generated/prisma");
-			await trackUsage(userId, UsageType.file_upload);
-		} catch (trackingError) {
-			console.error("Usage tracking failed:", trackingError);
 		}
 
 		revalidatePath("/app/files");

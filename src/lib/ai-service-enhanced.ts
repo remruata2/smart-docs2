@@ -2364,22 +2364,92 @@ export async function processChatMessageEnhanced(
 			if (!existing) {
 				acc.push(source);
 			} else {
-				// Calculate combined relevance score considering query intent
-				const existingRelevance = calculateChunkRelevance(
-					existing,
-					queryForSearch,
-					queryType
-				);
-				const sourceRelevance = calculateChunkRelevance(
-					source,
-					queryForSearch,
-					queryType
-				);
+				// NEW: Check if chunk content actually appears in AI response
+				// This ensures we cite the page that contains the actual answer
+				const aiResponseLower = aiResponse.text.toLowerCase();
+				const existingContent = (existing.chunkContent || "").toLowerCase();
+				const sourceContent = (source.chunkContent || "").toLowerCase();
 
-				// Replace if new chunk is more relevant to the query
-				if (sourceRelevance > existingRelevance) {
+				// Extract key phrases from AI response (words/phrases that might be quoted)
+				const extractKeyPhrases = (text: string): string[] => {
+					// Extract quoted text, capitalized phrases, and significant words
+					const quoted = text.match(/"([^"]+)"/g) || [];
+					const capitalized =
+						text.match(/\b[A-Z][a-z]+(?:\s+[A-Z][a-z]+)*\b/g) || [];
+					// Extract bullet points or list items (often contain specific answers)
+					const bulletPoints = text.match(/[•\*\-]\s*([^\n]+)/g) || [];
+					// Extract text after colons (often contains specific answers)
+					const afterColons = text.match(/:\s*([^\n]+)/g) || [];
+					const significantWords = text
+						.toLowerCase()
+						.split(/\s+/)
+						.filter((w) => w.length > 3 && !commonWords.has(w))
+						.slice(0, 15);
+
+					return [
+						...quoted.map((q) => q.replace(/"/g, "").toLowerCase()),
+						...capitalized.map((c) => c.toLowerCase()),
+						...bulletPoints.map((b) =>
+							b
+								.replace(/[•\*\-]\s*/, "")
+								.toLowerCase()
+								.trim()
+						),
+						...afterColons.map((a) =>
+							a.replace(/:\s*/, "").toLowerCase().trim()
+						),
+						...significantWords,
+					].filter((phrase) => phrase.length > 2); // Filter out very short phrases
+				};
+
+				const keyPhrases = extractKeyPhrases(aiResponse.text);
+
+				// Count how many key phrases appear in each chunk
+				const existingMatches = keyPhrases.filter((phrase) =>
+					existingContent.includes(phrase)
+				).length;
+				const sourceMatches = keyPhrases.filter((phrase) =>
+					sourceContent.includes(phrase)
+				).length;
+
+				// Prefer chunk with more matching phrases from AI response
+				if (sourceMatches > existingMatches) {
 					const index = acc.indexOf(existing);
 					acc[index] = source;
+				} else if (sourceMatches === existingMatches && sourceMatches > 0) {
+					// If same number of matches, use relevance score as tiebreaker
+					const existingRelevance = calculateChunkRelevance(
+						existing,
+						queryForSearch,
+						queryType
+					);
+					const sourceRelevance = calculateChunkRelevance(
+						source,
+						queryForSearch,
+						queryType
+					);
+
+					if (sourceRelevance > existingRelevance) {
+						const index = acc.indexOf(existing);
+						acc[index] = source;
+					}
+				} else {
+					// Fallback to original logic if no content matches
+					const existingRelevance = calculateChunkRelevance(
+						existing,
+						queryForSearch,
+						queryType
+					);
+					const sourceRelevance = calculateChunkRelevance(
+						source,
+						queryForSearch,
+						queryType
+					);
+
+					if (sourceRelevance > existingRelevance) {
+						const index = acc.indexOf(existing);
+						acc[index] = source;
+					}
 				}
 			}
 			return acc;
@@ -3085,22 +3155,90 @@ export async function* processChatMessageEnhancedStream(
 		if (!existing) {
 			acc.push(source);
 		} else {
-			// Calculate combined relevance score considering query intent
-			const existingRelevance = calculateChunkRelevance(
-				existing,
-				queryForSearch,
-				queryType
-			);
-			const sourceRelevance = calculateChunkRelevance(
-				source,
-				queryForSearch,
-				queryType
-			);
+			// NEW: Check if chunk content actually appears in AI response
+			// This ensures we cite the page that contains the actual answer
+			const aiResponseLower = fullResponseText.toLowerCase();
+			const existingContent = (existing.chunkContent || "").toLowerCase();
+			const sourceContent = (source.chunkContent || "").toLowerCase();
 
-			// Replace if new chunk is more relevant to the query
-			if (sourceRelevance > existingRelevance) {
+			// Extract key phrases from AI response (words/phrases that might be quoted)
+			const extractKeyPhrases = (text: string): string[] => {
+				// Extract quoted text, capitalized phrases, and significant words
+				const quoted = text.match(/"([^"]+)"/g) || [];
+				const capitalized =
+					text.match(/\b[A-Z][a-z]+(?:\s+[A-Z][a-z]+)*\b/g) || [];
+				// Extract bullet points or list items (often contain specific answers)
+				const bulletPoints = text.match(/[•\*\-]\s*([^\n]+)/g) || [];
+				// Extract text after colons (often contains specific answers)
+				const afterColons = text.match(/:\s*([^\n]+)/g) || [];
+				const significantWords = text
+					.toLowerCase()
+					.split(/\s+/)
+					.filter((w) => w.length > 3 && !commonWords.has(w))
+					.slice(0, 15);
+
+				return [
+					...quoted.map((q) => q.replace(/"/g, "").toLowerCase()),
+					...capitalized.map((c) => c.toLowerCase()),
+					...bulletPoints.map((b) =>
+						b
+							.replace(/[•\*\-]\s*/, "")
+							.toLowerCase()
+							.trim()
+					),
+					...afterColons.map((a) => a.replace(/:\s*/, "").toLowerCase().trim()),
+					...significantWords,
+				].filter((phrase) => phrase.length > 2); // Filter out very short phrases
+			};
+
+			const keyPhrases = extractKeyPhrases(fullResponseText);
+
+			// Count how many key phrases appear in each chunk
+			const existingMatches = keyPhrases.filter((phrase) =>
+				existingContent.includes(phrase)
+			).length;
+			const sourceMatches = keyPhrases.filter((phrase) =>
+				sourceContent.includes(phrase)
+			).length;
+
+			// Prefer chunk with more matching phrases from AI response
+			if (sourceMatches > existingMatches) {
 				const index = acc.indexOf(existing);
 				acc[index] = source;
+			} else if (sourceMatches === existingMatches && sourceMatches > 0) {
+				// If same number of matches, use relevance score as tiebreaker
+				const existingRelevance = calculateChunkRelevance(
+					existing,
+					queryForSearch,
+					queryType
+				);
+				const sourceRelevance = calculateChunkRelevance(
+					source,
+					queryForSearch,
+					queryType
+				);
+
+				if (sourceRelevance > existingRelevance) {
+					const index = acc.indexOf(existing);
+					acc[index] = source;
+				}
+			} else {
+				// Fallback to original logic if no content matches
+				const existingRelevance = calculateChunkRelevance(
+					existing,
+					queryForSearch,
+					queryType
+				);
+				const sourceRelevance = calculateChunkRelevance(
+					source,
+					queryForSearch,
+					queryType
+				);
+
+				if (sourceRelevance > existingRelevance) {
+					const index = acc.indexOf(existing);
+					acc[index] = source;
+				}
 			}
 		}
 		return acc;
