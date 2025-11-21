@@ -166,7 +166,10 @@ export default function ConversationList({
 	};
 
 	// Delete conversation
+	const [isDeleting, setIsDeleting] = useState(false);
+
 	const deleteConversation = async (id: number) => {
+		setIsDeleting(true);
 		try {
 			const response = await fetch(`${basePath}/${id}`, {
 				method: "DELETE",
@@ -175,11 +178,21 @@ export default function ConversationList({
 			if (!response.ok) throw new Error("Failed to delete conversation");
 
 			toast.success("Conversation deleted");
-			loadConversations();
+
+			// If the deleted conversation is the current one, redirect to new chat
+			// We need to parse the current ID from URL to check
+			const params = new URLSearchParams(window.location.search);
+			const currentId = params.get("id");
+			if (currentId && parseInt(currentId) === id) {
+				router.push("/app/chat");
+			}
+
+			await loadConversations();
 		} catch (error) {
 			console.error("Error deleting conversation:", error);
 			toast.error("Failed to delete conversation");
 		} finally {
+			setIsDeleting(false);
 			setDeleteDialogOpen(false);
 			setConversationToDelete(null);
 		}
@@ -220,6 +233,10 @@ export default function ConversationList({
 
 			const data = await response.json();
 			toast.success(data.message || "All conversations deleted");
+
+			// Redirect to new chat if we were viewing a conversation
+			router.push("/app/chat");
+
 			loadConversations();
 		} catch (error) {
 			console.error("Error deleting all conversations:", error);
@@ -237,9 +254,8 @@ export default function ConversationList({
 			<div className={`px-2 py-2 ${isCollapsed ? "text-center" : ""}`}>
 				<Button
 					onClick={handleNewConversation}
-					className={`w-full bg-white text-gray-900 hover:bg-gray-200 ${
-						isCollapsed ? "px-2" : ""
-					}`}
+					className={`w-full bg-white text-gray-900 hover:bg-gray-200 ${isCollapsed ? "px-2" : ""
+						}`}
 					variant="default"
 					size={isCollapsed ? "icon" : "default"}
 					title={isCollapsed ? "New Chat" : ""}
@@ -446,7 +462,7 @@ export default function ConversationList({
 			</AlertDialog>
 
 			{/* Delete Confirmation Dialog */}
-			<AlertDialog open={deleteDialogOpen} onOpenChange={setDeleteDialogOpen}>
+			<AlertDialog open={deleteDialogOpen} onOpenChange={(open) => !isDeleting && setDeleteDialogOpen(open)}>
 				<AlertDialogContent>
 					<AlertDialogHeader>
 						<AlertDialogTitle>Delete Conversation?</AlertDialogTitle>
@@ -456,14 +472,23 @@ export default function ConversationList({
 						</AlertDialogDescription>
 					</AlertDialogHeader>
 					<AlertDialogFooter>
-						<AlertDialogCancel>Cancel</AlertDialogCancel>
+						<AlertDialogCancel disabled={isDeleting}>Cancel</AlertDialogCancel>
 						<AlertDialogAction
-							onClick={() =>
-								conversationToDelete && deleteConversation(conversationToDelete)
-							}
+							onClick={(e) => {
+								e.preventDefault();
+								if (conversationToDelete) deleteConversation(conversationToDelete);
+							}}
 							className="bg-red-600 hover:bg-red-700"
+							disabled={isDeleting}
 						>
-							Delete
+							{isDeleting ? (
+								<>
+									<Loader2 className="mr-2 h-4 w-4 animate-spin" />
+									Deleting...
+								</>
+							) : (
+								"Delete"
+							)}
 						</AlertDialogAction>
 					</AlertDialogFooter>
 				</AlertDialogContent>

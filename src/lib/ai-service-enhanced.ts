@@ -2092,388 +2092,26 @@ export async function processChatMessageEnhanced(
 		"about",
 		"information",
 		"data",
+		"the",
+		"and",
+		"source",
+		"based",
+		"according",
+		"provided",
+		"found",
 	]);
-
-	// Normalize function: remove extension, replace underscores/dashes with spaces
-	const normalize = (s: string) =>
-		s
-			.toLowerCase()
-			.replace(/\.[^/.]+$/, "") // Remove file extension
-			.replace(/[_-]/g, " ") // Replace underscores and dashes with spaces
-			.replace(/\s+/g, " ") // Normalize multiple spaces to single space
-			.trim();
 
 	/**
 	 * Score chunk by query intent - determines how well a chunk answers the question type
 	 */
-	function scoreChunkByQueryIntent(
-		chunkContent: string,
-		query: string,
-		queryType: string
-	): number {
-		if (!chunkContent) return 0;
 
-		const contentLower = chunkContent.toLowerCase();
-		const queryLower = query.toLowerCase();
-
-		// Extract question words
-		const questionWords = ["who", "what", "when", "where", "why", "how"];
-		const questionWord = questionWords.find((w) => queryLower.startsWith(w));
-
-		let intentScore = 0;
-
-		if (questionWord === "who") {
-			// Look for names, titles, people identifiers
-			const namePatterns =
-				/\b(mr|mrs|ms|miss|dr|prof|professor|sir|madam)\s+\w+/gi;
-			if (namePatterns.test(contentLower)) intentScore += 5;
-
-			// Look for age indicators (often associated with people)
-			if (/\b(age|years?\s*old|aged)\b/i.test(contentLower)) intentScore += 2;
-
-			// Look for person-related keywords
-			const personKeywords = [
-				"victim",
-				"accused",
-				"suspect",
-				"person",
-				"individual",
-				"man",
-				"woman",
-				"child",
-				"national",
-			];
-			personKeywords.forEach((keyword) => {
-				if (contentLower.includes(keyword)) intentScore += 1;
-			});
-		} else if (questionWord === "what") {
-			// Look for definitions, descriptions, events
-			const definitionPatterns = /\b(is|are|was|were|means?|refers?\s+to)\b/i;
-			if (definitionPatterns.test(contentLower)) intentScore += 3;
-
-			// Look for event descriptions
-			const eventKeywords = [
-				"happened",
-				"occurred",
-				"incident",
-				"event",
-				"case",
-				"reported",
-			];
-			eventKeywords.forEach((keyword) => {
-				if (contentLower.includes(keyword)) intentScore += 1;
-			});
-		} else if (questionWord === "when") {
-			// Look for dates, time references
-			const datePatterns =
-				/\b(\d{1,2}[\/\-]\d{1,2}[\/\-]\d{2,4}|\d{4}|\d{1,2}\s+(jan|feb|mar|apr|may|jun|jul|aug|sep|oct|nov|dec))/gi;
-			if (datePatterns.test(contentLower)) intentScore += 5;
-
-			// Look for time indicators
-			const timeKeywords = [
-				"at around",
-				"at approximately",
-				"on",
-				"date",
-				"time",
-				"am",
-				"pm",
-				"hours?",
-			];
-			timeKeywords.forEach((keyword) => {
-				if (contentLower.includes(keyword)) intentScore += 1;
-			});
-		} else if (questionWord === "where") {
-			// Look for locations, places
-			const locationKeywords = [
-				"location",
-				"place",
-				"district",
-				"area",
-				"region",
-				"border",
-				"near",
-				"at",
-				"in",
-				"found",
-			];
-			locationKeywords.forEach((keyword) => {
-				if (contentLower.includes(keyword)) intentScore += 1;
-			});
-
-			// Look for location patterns (capitalized words often indicate places)
-			const capitalizedWords = contentLower.match(/\b[A-Z][a-z]+\b/g);
-			if (capitalizedWords && capitalizedWords.length > 2) intentScore += 2;
-		} else if (questionWord === "why" || questionWord === "how") {
-			// Look for explanations, reasons, methods
-			const explanationKeywords = [
-				"because",
-				"due to",
-				"reason",
-				"caused",
-				"result",
-				"method",
-				"process",
-				"by",
-			];
-			explanationKeywords.forEach((keyword) => {
-				if (contentLower.includes(keyword)) intentScore += 1;
-			});
-		}
-
-		// Boost score if chunk content directly contains query keywords (excluding common words)
-		const queryWords = queryLower
-			.split(/\s+/)
-			.filter((w) => w.length > 3 && !commonWords.has(w));
-		const matchingQueryWords = queryWords.filter((word) =>
-			contentLower.includes(word)
-		);
-		if (matchingQueryWords.length > 0) {
-			intentScore += matchingQueryWords.length * 0.5;
-		}
-
-		return intentScore;
-	}
-
-	/**
-	 * Calculate combined relevance score for chunk selection during deduplication
-	 */
-	function calculateChunkRelevance(
-		source: any,
-		query: string,
-		queryType: string
-	): number {
-		// Get chunk content (stored as note in the record)
-		const chunkContent = source.chunkContent || source.note || "";
-
-		// Query intent score (0-10+)
-		const intentScore = scoreChunkByQueryIntent(chunkContent, query, queryType);
-
-		// Semantic similarity (0-1, converted to 0-10 scale)
-		const semanticScore =
-			(source.semanticSimilarity || source.similarity || 0) * 10;
-
-		// RRF score (0-1, converted to 0-5 scale)
-		const rrfScore = (source.rrfScore || 0) * 5;
-
-		// Combined score: intent (40%) + semantic (40%) + RRF (20%)
-		// This prioritizes chunks that answer the question over chunks with high keyword matches
-		const combinedScore =
-			intentScore * 0.4 + semanticScore * 0.4 + rrfScore * 0.2;
-
-		return combinedScore;
-	}
-
-	const citedSources = records
-		.map((record) => {
-			const response = aiResponse.text.toLowerCase();
-			const title = record.title.toLowerCase();
-			const normalizedResponse = normalize(aiResponse.text);
-			const normalizedTitle = normalize(record.title);
-			let score = 0;
-
-			// Strong signal: Exact title match (primary citation method)
-			if (response.includes(title)) {
-				score += 10;
-			}
-
-			// Strong signal: Normalized title match (handles cleaned up filenames)
-			if (normalizedResponse.includes(normalizedTitle)) {
-				score += 8; // High score for normalized match
-			}
-
-			// Strong signal: Title in citation format (Source: Title)
-			if (
-				response.includes(`(Source: ${record.title})`) ||
-				response.includes(`(source: ${record.title})`)
-			) {
-				score += 10;
-			}
-
-			// Medium signal: Normalized title in citation format
-			if (normalizedResponse.includes(`(source: ${normalizedTitle})`)) {
-				score += 8;
-			}
-
-			// Medium signal: Explicit ID mention (fallback for legacy)
-			if (
-				response.includes(`id: ${record.id}`) ||
-				response.includes(`record ${record.id}`) ||
-				response.includes(`[${record.id}]`)
-			) {
-				score += 5;
-			}
-
-			// Medium signal: Most title words present
-			const titleWords = title
-				.split(/\s+/)
-				.filter((word) => word.length > 3 && !commonWords.has(word));
-			const titleMatches = titleWords.filter((word) => response.includes(word));
-			if (titleMatches.length >= Math.min(titleWords.length * 0.6, 3)) {
-				score += 3;
-			}
-
-			// Weak signal: Unique keywords from content
-			if (record.note) {
-				const noteWords = record.note
-					.toLowerCase()
-					.split(/\s+/)
-					.filter(
-						(word) =>
-							word.length > 5 && // Longer words are more unique
-							!commonWords.has(word)
-					)
-					.slice(0, 15); // Check first 15 words
-
-				const noteMatches = noteWords.filter((word) => response.includes(word));
-				// Need at least 3 unique keywords to be confident
-				if (noteMatches.length >= 3) {
-					score += 2;
-				}
-			}
-
-			return {
-				id: record.id,
-				title: record.title,
-				relevance: record.rrf_score || record.combined_score || record.rank,
-				similarity: record.rrf_score
-					? record.rrf_score * 30
-					: record.semantic_similarity, // Convert RRF to similarity-like value for UI
-				citation: record.citation, // Pass through citation data from hybrid search
-				citationScore: score,
-				rrfScore: record.rrf_score || 0, // Store RRF score for filtering
-				chunkContent: record.note || "", // Store chunk content for query-intent matching
-				semanticSimilarity: record.semantic_similarity || 0, // Store semantic similarity
-			};
-		})
-		.filter((source) => {
-			// Apply stricter filtering:
-			// 1. Minimum citation score (must be explicitly mentioned or strongly matched)
-			// 2. Minimum RRF score threshold (filter out weak semantic matches)
-			const minCitationScore = 5; // Increased from 3 to 5
-			const minRrfScore = 0.01; // Minimum RRF score (approximately top 60 results)
-
-			return (
-				source.citationScore >= minCitationScore &&
-				source.rrfScore >= minRrfScore
-			);
-		})
-		// Deduplicate by file ID (keep the chunk that best answers the query)
-		.reduce((acc: any[], source) => {
-			const existing = acc.find((s) => s.id === source.id);
-			if (!existing) {
-				acc.push(source);
-			} else {
-				// NEW: Check if chunk content actually appears in AI response
-				// This ensures we cite the page that contains the actual answer
-				const aiResponseLower = aiResponse.text.toLowerCase();
-				const existingContent = (existing.chunkContent || "").toLowerCase();
-				const sourceContent = (source.chunkContent || "").toLowerCase();
-
-				// Extract key phrases from AI response (words/phrases that might be quoted)
-				const extractKeyPhrases = (text: string): string[] => {
-					// Extract quoted text, capitalized phrases, and significant words
-					const quoted = text.match(/"([^"]+)"/g) || [];
-					const capitalized =
-						text.match(/\b[A-Z][a-z]+(?:\s+[A-Z][a-z]+)*\b/g) || [];
-					// Extract bullet points or list items (often contain specific answers)
-					const bulletPoints = text.match(/[•\*\-]\s*([^\n]+)/g) || [];
-					// Extract text after colons (often contains specific answers)
-					const afterColons = text.match(/:\s*([^\n]+)/g) || [];
-					const significantWords = text
-						.toLowerCase()
-						.split(/\s+/)
-						.filter((w) => w.length > 3 && !commonWords.has(w))
-						.slice(0, 15);
-
-					return [
-						...quoted.map((q) => q.replace(/"/g, "").toLowerCase()),
-						...capitalized.map((c) => c.toLowerCase()),
-						...bulletPoints.map((b) =>
-							b
-								.replace(/[•\*\-]\s*/, "")
-								.toLowerCase()
-								.trim()
-						),
-						...afterColons.map((a) =>
-							a.replace(/:\s*/, "").toLowerCase().trim()
-						),
-						...significantWords,
-					].filter((phrase) => phrase.length > 2); // Filter out very short phrases
-				};
-
-				const keyPhrases = extractKeyPhrases(aiResponse.text);
-
-				// Count how many key phrases appear in each chunk
-				const existingMatches = keyPhrases.filter((phrase) =>
-					existingContent.includes(phrase)
-				).length;
-				const sourceMatches = keyPhrases.filter((phrase) =>
-					sourceContent.includes(phrase)
-				).length;
-
-				// Prefer chunk with more matching phrases from AI response
-				if (sourceMatches > existingMatches) {
-					const index = acc.indexOf(existing);
-					acc[index] = source;
-				} else if (sourceMatches === existingMatches && sourceMatches > 0) {
-					// If same number of matches, use relevance score as tiebreaker
-					const existingRelevance = calculateChunkRelevance(
-						existing,
-						queryForSearch,
-						queryType
-					);
-					const sourceRelevance = calculateChunkRelevance(
-						source,
-						queryForSearch,
-						queryType
-					);
-
-					if (sourceRelevance > existingRelevance) {
-						const index = acc.indexOf(existing);
-						acc[index] = source;
-					}
-				} else {
-					// Fallback to original logic if no content matches
-					const existingRelevance = calculateChunkRelevance(
-						existing,
-						queryForSearch,
-						queryType
-					);
-					const sourceRelevance = calculateChunkRelevance(
-						source,
-						queryForSearch,
-						queryType
-					);
-
-					if (sourceRelevance > existingRelevance) {
-						const index = acc.indexOf(existing);
-						acc[index] = source;
-					}
-				}
-			}
-			return acc;
-		}, [])
-		// Sort by combined score: citation score first, then RRF score
-		.sort((a, b) => {
-			// Primary sort: citation score (how explicitly mentioned)
-			if (b.citationScore !== a.citationScore) {
-				return b.citationScore - a.citationScore;
-			}
-			// Secondary sort: RRF score (relevance to query)
-			return b.rrfScore - a.rrfScore;
-		})
-		// Limit to top 10 most relevant sources
-		.slice(0, 10)
-		.map(
-			({
-				citationScore,
-				rrfScore,
-				chunkContent,
-				semanticSimilarity,
-				...rest
-			}) => rest
-		); // Remove internal scores from final output
+	const citedSources = extractAndRankSources(
+		records,
+		aiResponse.text,
+		queryForSearch,
+		queryType,
+		commonWords
+	);
 
 	console.log(
 		`[CITATION-DEBUG] Created ${citedSources.length} sources, sample:`,
@@ -2871,403 +2509,36 @@ export async function* processChatMessageEnhancedStream(
 		"file",
 		"record",
 		"document",
+		"date",
+		"time",
+		"place",
 		"report",
+		"against",
+		"under",
+		"about",
 		"information",
 		"data",
-		"about",
+		"the",
+		"and",
+		"source",
+		"based",
+		"according",
+		"provided",
 		"found",
-		"created",
-		"updated",
 	]);
 
-	// Normalize function: remove extension, replace underscores/dashes with spaces
-	const normalize = (s: string) =>
-		s
-			.toLowerCase()
-			.replace(/\.[^/.]+$/, "") // Remove file extension
-			.replace(/[_-]/g, " ") // Replace underscores and dashes with spaces
-			.replace(/\s+/g, " ") // Normalize multiple spaces to single space
-			.trim();
+	// Use centralized evidence-based extraction
 
-	/**
-	 * Score chunk by query intent - determines how well a chunk answers the question type
-	 * (Same function as in non-streaming version)
-	 */
-	function scoreChunkByQueryIntent(
-		chunkContent: string,
-		query: string,
-		queryType: string
-	): number {
-		if (!chunkContent) return 0;
-
-		const contentLower = chunkContent.toLowerCase();
-		const queryLower = query.toLowerCase();
-
-		// Extract question words
-		const questionWords = ["who", "what", "when", "where", "why", "how"];
-		const questionWord = questionWords.find((w) => queryLower.startsWith(w));
-
-		let intentScore = 0;
-
-		if (questionWord === "who") {
-			// Look for names, titles, people identifiers
-			const namePatterns =
-				/\b(mr|mrs|ms|miss|dr|prof|professor|sir|madam)\s+\w+/gi;
-			if (namePatterns.test(contentLower)) intentScore += 5;
-
-			// Look for age indicators (often associated with people)
-			if (/\b(age|years?\s*old|aged)\b/i.test(contentLower)) intentScore += 2;
-
-			// Look for person-related keywords
-			const personKeywords = [
-				"victim",
-				"accused",
-				"suspect",
-				"person",
-				"individual",
-				"man",
-				"woman",
-				"child",
-				"national",
-			];
-			personKeywords.forEach((keyword) => {
-				if (contentLower.includes(keyword)) intentScore += 1;
-			});
-		} else if (questionWord === "what") {
-			// Look for definitions, descriptions, events
-			const definitionPatterns = /\b(is|are|was|were|means?|refers?\s+to)\b/i;
-			if (definitionPatterns.test(contentLower)) intentScore += 3;
-
-			// Look for event descriptions
-			const eventKeywords = [
-				"happened",
-				"occurred",
-				"incident",
-				"event",
-				"case",
-				"reported",
-			];
-			eventKeywords.forEach((keyword) => {
-				if (contentLower.includes(keyword)) intentScore += 1;
-			});
-		} else if (questionWord === "when") {
-			// Look for dates, time references
-			const datePatterns =
-				/\b(\d{1,2}[\/\-]\d{1,2}[\/\-]\d{2,4}|\d{4}|\d{1,2}\s+(jan|feb|mar|apr|may|jun|jul|aug|sep|oct|nov|dec))/gi;
-			if (datePatterns.test(contentLower)) intentScore += 5;
-
-			// Look for time indicators
-			const timeKeywords = [
-				"at around",
-				"at approximately",
-				"on",
-				"date",
-				"time",
-				"am",
-				"pm",
-				"hours?",
-			];
-			timeKeywords.forEach((keyword) => {
-				if (contentLower.includes(keyword)) intentScore += 1;
-			});
-		} else if (questionWord === "where") {
-			// Look for locations, places
-			const locationKeywords = [
-				"location",
-				"place",
-				"district",
-				"area",
-				"region",
-				"border",
-				"near",
-				"at",
-				"in",
-				"found",
-			];
-			locationKeywords.forEach((keyword) => {
-				if (contentLower.includes(keyword)) intentScore += 1;
-			});
-
-			// Look for location patterns (capitalized words often indicate places)
-			const capitalizedWords = contentLower.match(/\b[A-Z][a-z]+\b/g);
-			if (capitalizedWords && capitalizedWords.length > 2) intentScore += 2;
-		} else if (questionWord === "why" || questionWord === "how") {
-			// Look for explanations, reasons, methods
-			const explanationKeywords = [
-				"because",
-				"due to",
-				"reason",
-				"caused",
-				"result",
-				"method",
-				"process",
-				"by",
-			];
-			explanationKeywords.forEach((keyword) => {
-				if (contentLower.includes(keyword)) intentScore += 1;
-			});
-		}
-
-		// Boost score if chunk content directly contains query keywords (excluding common words)
-		const queryWords = queryLower
-			.split(/\s+/)
-			.filter((w) => w.length > 3 && !commonWords.has(w));
-		const matchingQueryWords = queryWords.filter((word) =>
-			contentLower.includes(word)
-		);
-		if (matchingQueryWords.length > 0) {
-			intentScore += matchingQueryWords.length * 0.5;
-		}
-
-		return intentScore;
-	}
-
-	/**
-	 * Calculate combined relevance score for chunk selection during deduplication
-	 * (Same function as in non-streaming version)
-	 */
-	function calculateChunkRelevance(
-		source: any,
-		query: string,
-		queryType: string
-	): number {
-		// Get chunk content (stored as note in the record)
-		const chunkContent = source.chunkContent || source.note || "";
-
-		// Query intent score (0-10+)
-		const intentScore = scoreChunkByQueryIntent(chunkContent, query, queryType);
-
-		// Semantic similarity (0-1, converted to 0-10 scale)
-		const semanticScore =
-			(source.semanticSimilarity || source.similarity || 0) * 10;
-
-		// RRF score (0-1, converted to 0-5 scale)
-		const rrfScore = (source.rrfScore || 0) * 5;
-
-		// Combined score: intent (40%) + semantic (40%) + RRF (20%)
-		// This prioritizes chunks that answer the question over chunks with high keyword matches
-		const combinedScore =
-			intentScore * 0.4 + semanticScore * 0.4 + rrfScore * 0.2;
-
-		return combinedScore;
-	}
-
-	const citedSources: Array<{
-		id: number;
-		title: string;
-		relevance?: number;
-		similarity?: number;
-		citation?: any;
-		citationScore: number;
-		rrfScore: number;
-		chunkContent?: string;
-		semanticSimilarity?: number;
-	}> = [];
-	const responseLower = fullResponseText.toLowerCase();
-	const normalizedResponse = normalize(fullResponseText);
-
-	for (const record of records) {
-		let citationScore = 0;
-
-		// Check for exact title match (primary citation method)
-		const titleLower = record.title.toLowerCase();
-		if (responseLower.includes(titleLower)) {
-			citationScore += 10;
-		}
-
-		// Check for normalized title match (handles cleaned up filenames)
-		const normalizedTitle = normalize(record.title);
-		if (normalizedResponse.includes(normalizedTitle)) {
-			citationScore += 8; // High score for normalized match
-		}
-
-		// Check for title in citation format (Source: Title)
-		if (responseLower.includes(`(source: ${titleLower})`)) {
-			citationScore += 10;
-		}
-
-		// Check for normalized title in citation format
-		if (normalizedResponse.includes(`(source: ${normalizedTitle})`)) {
-			citationScore += 8;
-		}
-
-		// Medium signal: Explicit ID mention (fallback for legacy)
-		if (
-			responseLower.includes(`id: ${record.id}`) ||
-			responseLower.includes(`[${record.id}]`) ||
-			responseLower.includes(`record ${record.id}`)
-		) {
-			citationScore += 5;
-		}
-
-		// Check for most title words present
-		const titleWords = titleLower
-			.split(/\s+/)
-			.filter((word) => word.length > 3 && !commonWords.has(word));
-		const titleMatches = titleWords.filter((word) =>
-			responseLower.includes(word)
-		);
-		if (titleMatches.length >= Math.min(titleWords.length * 0.6, 3)) {
-			citationScore += 3;
-		}
-
-		// Check for unique keywords from content
-		if (record.note) {
-			const noteWords = record.note
-				.toLowerCase()
-				.split(/\s+/)
-				.filter((word) => word.length > 4 && !commonWords.has(word))
-				.slice(0, 15);
-
-			const noteMatches = noteWords.filter((word) =>
-				responseLower.includes(word)
-			);
-			if (noteMatches.length >= 3) {
-				citationScore += 1;
-			}
-		}
-
-		// Only include if score is significant enough and has minimum relevance
-		const minCitationScore = 5; // Increased from 3 to 5
-		const minRrfScore = 0.01; // Minimum RRF score threshold
-		const rrfScore = record.rrf_score || 0;
-
-		if (citationScore >= minCitationScore && rrfScore >= minRrfScore) {
-			citedSources.push({
-				id: record.id,
-				title: record.title,
-				relevance: record.rrf_score || record.combined_score || record.rank,
-				similarity: record.rrf_score
-					? record.rrf_score * 30
-					: record.semantic_similarity, // Convert RRF to similarity-like value for UI
-				citation: record.citation, // Pass through citation data from hybrid search
-				citationScore, // Store for sorting/deduplication
-				rrfScore, // Store for sorting/deduplication
-				chunkContent: record.note || "", // Store chunk content for query-intent matching
-				semanticSimilarity: record.semantic_similarity || 0, // Store semantic similarity
-			});
-		}
-	}
-
-	// Deduplicate by file ID (keep the chunk that best answers the query)
-	const uniqueSources = citedSources.reduce((acc: any[], source) => {
-		const existing = acc.find((s) => s.id === source.id);
-		if (!existing) {
-			acc.push(source);
-		} else {
-			// NEW: Check if chunk content actually appears in AI response
-			// This ensures we cite the page that contains the actual answer
-			const aiResponseLower = fullResponseText.toLowerCase();
-			const existingContent = (existing.chunkContent || "").toLowerCase();
-			const sourceContent = (source.chunkContent || "").toLowerCase();
-
-			// Extract key phrases from AI response (words/phrases that might be quoted)
-			const extractKeyPhrases = (text: string): string[] => {
-				// Extract quoted text, capitalized phrases, and significant words
-				const quoted = text.match(/"([^"]+)"/g) || [];
-				const capitalized =
-					text.match(/\b[A-Z][a-z]+(?:\s+[A-Z][a-z]+)*\b/g) || [];
-				// Extract bullet points or list items (often contain specific answers)
-				const bulletPoints = text.match(/[•\*\-]\s*([^\n]+)/g) || [];
-				// Extract text after colons (often contains specific answers)
-				const afterColons = text.match(/:\s*([^\n]+)/g) || [];
-				const significantWords = text
-					.toLowerCase()
-					.split(/\s+/)
-					.filter((w) => w.length > 3 && !commonWords.has(w))
-					.slice(0, 15);
-
-				return [
-					...quoted.map((q) => q.replace(/"/g, "").toLowerCase()),
-					...capitalized.map((c) => c.toLowerCase()),
-					...bulletPoints.map((b) =>
-						b
-							.replace(/[•\*\-]\s*/, "")
-							.toLowerCase()
-							.trim()
-					),
-					...afterColons.map((a) => a.replace(/:\s*/, "").toLowerCase().trim()),
-					...significantWords,
-				].filter((phrase) => phrase.length > 2); // Filter out very short phrases
-			};
-
-			const keyPhrases = extractKeyPhrases(fullResponseText);
-
-			// Count how many key phrases appear in each chunk
-			const existingMatches = keyPhrases.filter((phrase) =>
-				existingContent.includes(phrase)
-			).length;
-			const sourceMatches = keyPhrases.filter((phrase) =>
-				sourceContent.includes(phrase)
-			).length;
-
-			// Prefer chunk with more matching phrases from AI response
-			if (sourceMatches > existingMatches) {
-				const index = acc.indexOf(existing);
-				acc[index] = source;
-			} else if (sourceMatches === existingMatches && sourceMatches > 0) {
-				// If same number of matches, use relevance score as tiebreaker
-				const existingRelevance = calculateChunkRelevance(
-					existing,
-					queryForSearch,
-					queryType
-				);
-				const sourceRelevance = calculateChunkRelevance(
-					source,
-					queryForSearch,
-					queryType
-				);
-
-				if (sourceRelevance > existingRelevance) {
-					const index = acc.indexOf(existing);
-					acc[index] = source;
-				}
-			} else {
-				// Fallback to original logic if no content matches
-				const existingRelevance = calculateChunkRelevance(
-					existing,
-					queryForSearch,
-					queryType
-				);
-				const sourceRelevance = calculateChunkRelevance(
-					source,
-					queryForSearch,
-					queryType
-				);
-
-				if (sourceRelevance > existingRelevance) {
-					const index = acc.indexOf(existing);
-					acc[index] = source;
-				}
-			}
-		}
-		return acc;
-	}, []);
-
-	// Sort by combined score: citation score first, then RRF score
-	const sortedSources = uniqueSources
-		.sort((a, b) => {
-			// Primary sort: citation score (how explicitly mentioned)
-			if (b.citationScore !== a.citationScore) {
-				return b.citationScore - a.citationScore;
-			}
-			// Secondary sort: RRF score (relevance to query)
-			return b.rrfScore - a.rrfScore;
-		})
-		// Limit to top 10 most relevant sources
-		.slice(0, 10)
-		.map(
-			({
-				citationScore,
-				rrfScore,
-				chunkContent,
-				semanticSimilarity,
-				...rest
-			}) => rest
-		); // Remove internal scores from final output
+	const sortedSources = extractAndRankSources(
+		records,
+		fullResponseText,
+		queryForSearch,
+		queryType,
+		commonWords
+	);
 
 	console.log(
-		`[ADMIN CHAT] Response generated with ${sortedSources.length} sources (filtered from ${citedSources.length} candidates)`
+		`[ADMIN CHAT] Response generated with ${sortedSources.length} sources`
 	);
 
 	// Yield sources
@@ -3305,4 +2576,188 @@ export async function updateSearchVectors(): Promise<void> {
 		console.error("Error updating search vectors:", error);
 		throw new Error("Failed to update search vectors");
 	}
+}
+
+/**
+ * CENTRALIZED HELPER: Evidence-Based Source Extraction with Final Score Logging
+ * Logic:
+ * 1. Identify specific data points (names, times, numbers) in the AI's answer.
+ * 2. Filter sources that actually contain those data points.
+ * 3. Deduplicate by File + Page.
+ * 4. Rank by evidence count and score.
+ * 5. Dynamic Cutoff: Stop listing sources when quality drops significantly below the top result.
+ */
+
+function extractAndRankSources(
+	records: SearchResult[],
+	responseText: string,
+	query: string,
+	queryType: string,
+	commonWords: Set<string>
+): Array<any> {
+	const responseLower = responseText.toLowerCase();
+
+	// --- 1. Extract Evidence Terms ---
+	const extractEvidenceTerms = (text: string): string[] => {
+		const properNouns = text.match(/\b[A-Z][a-z]+(?:\s+[A-Z][a-z]+)*\b/g) || [];
+		const dataPoints =
+			text.match(
+				/\b\d+(?::\d{2})?|noon|midnight|am|pm|\$\d+|\d{1,2}[\/\-.]\d{1,2}[\/\-.]\d{2,4}/gi
+			) || [];
+		const phrases =
+			text.match(/(?:due to|because of|using|via)\s+([^.,!]{3,20})/gi) || [];
+
+		return [
+			...properNouns,
+			...dataPoints,
+			...phrases.map((p) =>
+				p.replace(/^(due to|because of|using|via)\s+/i, "").trim()
+			),
+		]
+			.map((t) => t.toLowerCase().trim())
+			.filter((t) => t.length > 2 && !commonWords.has(t));
+	};
+
+	const evidenceTerms = extractEvidenceTerms(responseText);
+	// DEBUG LOG: Evidence terms
+	console.log(`[CITATION-DEBUG] Evidence Terms:`, evidenceTerms);
+
+	// --- 2. Initial Candidate Scoring ---
+	const candidates = records.map((record) => {
+		const title = record.title.toLowerCase();
+		const content = (record.note || "").toLowerCase();
+		let score = 0;
+		let hasEvidence = false;
+
+		// A. Evidence Check
+		if (evidenceTerms.some((term) => content.includes(term))) {
+			score += 10;
+			hasEvidence = true;
+		}
+
+		// B. Title Match (Tie-breaker only)
+		if (responseLower.includes(title)) score += 2;
+
+		// C. Explicit Citation
+		if (responseLower.includes(`(source: ${title})`)) score += 5;
+
+		// D. Keyword Matches
+		if (record.note) {
+			const noteWords = record.note
+				.toLowerCase()
+				.split(/\s+/)
+				.filter((w) => w.length > 4 && !commonWords.has(w))
+				.slice(0, 15);
+			const noteMatches = noteWords.filter((w) => responseLower.includes(w));
+			if (noteMatches.length >= 2) score += 2;
+		}
+
+		return {
+			id: record.id,
+			title: record.title,
+			relevance: record.rrf_score || record.combined_score || record.rank,
+			citationScore: score, // Internal Evidence Score
+			rrfScore: record.rrf_score || 0, // Search Confidence
+			chunkContent: record.note || "",
+			citation: record.citation,
+			hasEvidence: hasEvidence,
+			evidenceCount: 0,
+			semanticSimilarity: record.semantic_similarity || 0,
+		};
+	});
+
+	// --- 3. Filter, Deduplicate & Sort ---
+	const processedCandidates = candidates
+		.filter((source) => {
+			const passed =
+				(source.citationScore >= 5 && source.rrfScore >= 0.01) ||
+				(source.hasEvidence && source.citationScore >= 4);
+
+			// Log drops only if they had some score but failed thresholds
+			if (!passed && source.citationScore > 2) {
+				console.log(
+					`[CITATION-DROP] "${source.title}" (Pg ${source.citation?.pageNumber}) dropped. Score: ${source.citationScore}, Evidence: ${source.hasEvidence}`
+				);
+			}
+			return passed;
+		})
+		.filter(
+			(source, index, self) =>
+				index ===
+				self.findIndex(
+					(s) =>
+						s.id === source.id &&
+						s.citation?.pageNumber === source.citation?.pageNumber
+				)
+		);
+
+	const sortedCandidates = processedCandidates.sort((a, b) => {
+		const contentA = (a.chunkContent || "").toLowerCase();
+		const contentB = (b.chunkContent || "").toLowerCase();
+		const evidenceCountA = evidenceTerms.filter((t) =>
+			contentA.includes(t)
+		).length;
+		const evidenceCountB = evidenceTerms.filter((t) =>
+			contentB.includes(t)
+		).length;
+
+		a.evidenceCount = evidenceCountA;
+		b.evidenceCount = evidenceCountB;
+
+		if (evidenceCountB !== evidenceCountA)
+			return evidenceCountB - evidenceCountA;
+		if (b.citationScore !== a.citationScore)
+			return b.citationScore - a.citationScore;
+		return b.rrfScore - a.rrfScore;
+	});
+
+	// --- 4. Dynamic Cutoff & Final Selection ---
+	if (sortedCandidates.length === 0) return [];
+
+	const topResult = sortedCandidates[0];
+	const topScore = topResult.citationScore;
+	const strictMode = topResult.hasEvidence;
+
+	const finalSelection = sortedCandidates.filter((source, index) => {
+		if (index === 0) return true;
+		if (index >= 5) return false;
+
+		const scoreDrop = source.citationScore < topScore * 0.5;
+		const evidenceDrop = strictMode && !source.hasEvidence;
+
+		if (evidenceDrop) {
+			console.log(
+				`[CITATION-CUT] "${source.title}" removed: No evidence vs Top Result`
+			);
+			return false;
+		}
+		if (scoreDrop) {
+			console.log(
+				`[CITATION-CUT] "${source.title}" removed: Low score (${source.citationScore}) vs Top (${topScore})`
+			);
+			return false;
+		}
+		return true;
+	});
+
+	// --- 5. LOG FINAL SELECTED SCORES ---
+	console.log(`[CITATION-FINAL] Selected ${finalSelection.length} sources:`);
+	finalSelection.forEach((s, i) => {
+		console.log(
+			`  #${i + 1}: "${s.title}" (Pg ${s.citation?.pageNumber}) | Score: ${
+				s.citationScore
+			} | Evidence: ${s.hasEvidence} | RRF: ${s.rrfScore?.toFixed(4)}`
+		);
+	});
+
+	return finalSelection.map(
+		({
+			hasEvidence,
+			evidenceCount,
+			citationScore, // We remove this from the return object to match interface
+			...rest
+		}) => {
+			return rest;
+		}
+	);
 }

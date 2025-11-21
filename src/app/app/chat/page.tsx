@@ -472,17 +472,23 @@ function ChatPageContent() {
 				throw new Error("Failed to get response reader");
 			}
 
+			let pendingLine = "";
 			while (true) {
 				const { done, value } = await reader.read();
 				if (done) break;
 
 				const chunk = decoder.decode(value, { stream: true });
-				const lines = chunk.split("\n");
+				const lines = (pendingLine + chunk).split("\n");
+				pendingLine = lines.pop() ?? "";
 
 				for (const line of lines) {
 					if (line.startsWith("data: ")) {
 						try {
-							const data = JSON.parse(line.slice(6));
+							const payload = line.slice(6).trim();
+							if (!payload || payload === "[DONE]") {
+								continue;
+							}
+							const data = JSON.parse(payload);
 
 							if (data.type === "metadata") {
 								metadata = data;
@@ -600,7 +606,7 @@ function ChatPageContent() {
 								throw new Error(data.error || "Streaming error occurred");
 							}
 						} catch (parseError) {
-							console.error("Error parsing SSE data:", parseError);
+							console.error("Error parsing SSE data:", parseError, line);
 						}
 					}
 				}

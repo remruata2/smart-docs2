@@ -48,6 +48,72 @@ export function SmartChart({ config }: { config: ChartConfig }) {
         return <div className="text-gray-500 p-4">No data available for chart</div>;
     }
 
+    const SAFE_THEME_COLORS: Record<string, string> = {
+        "--background": "#ffffff",
+        "--foreground": "#0f172a",
+        "--card": "#ffffff",
+        "--card-foreground": "#0f172a",
+        "--popover": "#ffffff",
+        "--popover-foreground": "#0f172a",
+        "--primary": "#2563eb",
+        "--primary-foreground": "#f8fafc",
+        "--secondary": "#0ea5e9",
+        "--secondary-foreground": "#0f172a",
+        "--muted": "#e2e8f0",
+        "--muted-foreground": "#334155",
+        "--accent": "#fef3c7",
+        "--accent-foreground": "#0f172a",
+        "--destructive": "#ef4444",
+        "--border": "#e2e8f0",
+        "--input": "#e2e8f0",
+        "--ring": "#94a3b8",
+        "--chart-1": "#3b82f6",
+        "--chart-2": "#10b981",
+        "--chart-3": "#f59e0b",
+        "--chart-4": "#ec4899",
+        "--chart-5": "#8b5cf6",
+        "--sidebar": "#0f172a",
+        "--sidebar-foreground": "#f8fafc",
+        "--sidebar-primary": "#2563eb",
+        "--sidebar-primary-foreground": "#f8fafc",
+        "--sidebar-accent": "#1e293b",
+        "--sidebar-accent-foreground": "#f8fafc",
+        "--sidebar-border": "#1f2937",
+        "--sidebar-ring": "#94a3b8",
+    };
+
+    const sanitizeColorString = (value: string | null, fallback = "#000000") => {
+        if (!value) return value;
+        if (value.includes("oklch(")) {
+            return value.replace(/oklch\([^)]*\)/g, fallback);
+        }
+        return value;
+    };
+
+    const applySafeTheme = (root: HTMLElement | null) => {
+        if (!root) return;
+        Object.entries(SAFE_THEME_COLORS).forEach(([token, value]) => {
+            root.style.setProperty(token, value);
+        });
+    };
+
+    const scrubInlineColors = (clonedDoc: Document) => {
+        const elements = clonedDoc.querySelectorAll<HTMLElement | SVGElement>("*");
+        const svgColorAttrs = ["fill", "stroke", "stop-color"];
+        elements.forEach((el) => {
+            const styleAttr = el.getAttribute("style");
+            if (styleAttr?.includes("oklch(")) {
+                el.setAttribute("style", sanitizeColorString(styleAttr) ?? "");
+            }
+            svgColorAttrs.forEach((attr) => {
+                const attrValue = el.getAttribute(attr);
+                if (attrValue?.includes("oklch(")) {
+                    el.setAttribute(attr, sanitizeColorString(attrValue, "#3b82f6") ?? "");
+                }
+            });
+        });
+    };
+
     // Helper to fix oklch colors in cloned DOM by removing problematic CSS
     const fixOklchColors = (clonedDoc: Document) => {
         try {
@@ -93,12 +159,11 @@ export function SmartChart({ config }: { config: ChartConfig }) {
             const root = clonedDoc.documentElement;
             if (root) {
                 root.removeAttribute('style');
-                // Remove any inline styles that might have oklch
-                const rootStyle = root.getAttribute('style');
-                if (rootStyle && rootStyle.includes('oklch')) {
-                    root.removeAttribute('style');
-                }
             }
+            const body = clonedDoc.body;
+            applySafeTheme(root);
+            applySafeTheme(body);
+            scrubInlineColors(clonedDoc);
         } catch (error) {
             console.warn('Error fixing oklch colors:', error);
         }
