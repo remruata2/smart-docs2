@@ -11,6 +11,7 @@ import { processChunkedAnalyticalQuery } from "./chunked-processing";
 import { ChartSchema } from "@/lib/chart-schema";
 import { generateObject } from "ai";
 import { createGoogleGenerativeAI } from "@ai-sdk/google";
+import { z } from "zod";
 
 // Developer logging toggle - set to true to see query logs in console
 const DEV_LOGGING = true;
@@ -128,7 +129,9 @@ export interface ChatMessage {
 		output: number;
 	};
 	filters?: {
-		category?: string;
+		boardId?: string;
+		subjectId?: number;
+		chapterId?: number;
 	};
 	chartData?: {
 		title: string;
@@ -141,8 +144,8 @@ export interface ChatMessage {
 }
 
 export interface SearchResult {
-	id: number;
-	category: string;
+	id: string | number;
+	category: string; // Mapped from subject
 	title: string;
 	note: string | null;
 	entry_date_real: Date | null;
@@ -178,14 +181,14 @@ function quickClassifyQuery(query: string): {
 	semanticConcepts?: string; // Optional for backward compatibility
 	instructionalTerms: string;
 	queryType:
-		| "specific_search"
-		| "follow_up"
-		| "elaboration"
-		| "general"
-		| "recent_files"
-		| "analytical_query"
-		| "list_all"
-		| "visualization";
+	| "specific_search"
+	| "follow_up"
+	| "elaboration"
+	| "general"
+	| "recent_files"
+	| "analytical_query"
+	| "list_all"
+	| "visualization";
 	contextNeeded: boolean;
 	inputTokens: number;
 	outputTokens: number;
@@ -327,14 +330,14 @@ export async function analyzeQueryForSearch(
 	semanticConcepts?: string; // Optional for backward compatibility
 	instructionalTerms: string;
 	queryType:
-		| "specific_search"
-		| "follow_up"
-		| "elaboration"
-		| "general"
-		| "recent_files"
-		| "analytical_query"
-		| "list_all"
-		| "visualization";
+	| "specific_search"
+	| "follow_up"
+	| "elaboration"
+	| "general"
+	| "recent_files"
+	| "analytical_query"
+	| "list_all"
+	| "visualization";
 	contextNeeded: boolean;
 	inputTokens: number;
 	outputTokens: number;
@@ -366,8 +369,8 @@ export async function analyzeQueryForSearch(
 		const historyContext =
 			recentHistory.length > 0
 				? `\nRECENT CONVERSATION:\n${recentHistory
-						.map((msg) => `${msg.role.toUpperCase()}: ${msg.content}`)
-						.join("\n")}\n`
+					.map((msg) => `${msg.role.toUpperCase()}: ${msg.content}`)
+					.join("\n")}\n`
 				: "";
 
 		const prompt = `You are the Query Processor for a high-precision RAG system.
@@ -427,8 +430,7 @@ Respond ONLY with valid JSON.`;
 			try {
 				const model = client.getGenerativeModel({ model: modelName as string });
 				console.log(
-					`[AI] provider=gemini model=${modelName} keyId=${
-						keyId ?? "env-fallback"
+					`[AI] provider=gemini model=${modelName} keyId=${keyId ?? "env-fallback"
 					}`
 				);
 				// Count input tokens using provider-native method
@@ -472,8 +474,7 @@ Respond ONLY with valid JSON.`;
 				const errorMsg = e?.message || String(e);
 				if (errorMsg.includes("timed out")) {
 					console.warn(
-						`[AI] Query analysis timeout after ${
-							AI_API_TIMEOUT / 1000
+						`[AI] Query analysis timeout after ${AI_API_TIMEOUT / 1000
 						}s with model: ${modelName}`
 					);
 				} else {
@@ -1084,9 +1085,8 @@ function extractKeyInformation(
 
 	// If no relevant sentences found, return a very short summary
 	if (relevantSentences.length === 0) {
-		return `[Summary] ${note.substring(0, 100)}${
-			note.length > 100 ? "..." : ""
-		}`;
+		return `[Summary] ${note.substring(0, 100)}${note.length > 100 ? "..." : ""
+			}`;
 	}
 
 	// Return relevant sentences
@@ -1224,8 +1224,7 @@ export function prepareContextForAI(
 				query.toLowerCase().includes("victim"))
 		) {
 			console.log(
-				`[CONTEXT-PREP] Record ${record.id} (${record.title}): content length=${
-					content.length
+				`[CONTEXT-PREP] Record ${record.id} (${record.title}): content length=${content.length
 				}, preview=${content.substring(0, 200)}...`
 			);
 		}
@@ -1269,30 +1268,29 @@ Records are listed below ordered by relevance to your query.
 
   === RECORD INDEX ===
   ${recordIndex
-		.map(
-			(r, i) =>
-				`[${i + 1}] File: ${r.title} | Category: ${r.category} | Date: ${
-					r.date
-				} | Relevance: ${r.relevance}`
-		)
-		.join("\n")}
+			.map(
+				(r, i) =>
+					`[${i + 1}] File: ${r.title} | Category: ${r.category} | Date: ${r.date
+					} | Relevance: ${r.relevance}`
+			)
+			.join("\n")}
 
 === FULL RECORD DETAILS ===
 ${detailedRecords
-	.map(
-		(record, index) => `
+			.map(
+				(record, index) => `
 **File: ${record.title}** (Relevance: ${record.relevance})
 Category: ${record.category}
 Date: ${record.date}
 Content: ${record.content}
 ---`
-	)
-	.join("\n")}
+			)
+			.join("\n")}
 
 === CATEGORY SUMMARY ===
 ${Object.entries(recordsByCategory)
-	.map(([category, records]) => `${category}: ${records.length} records`)
-	.join("\n")}
+			.map(([category, records]) => `${category}: ${records.length} records`)
+			.join("\n")}
 
 END OF DATABASE CONTEXT
 `;
@@ -1355,8 +1353,8 @@ export async function generateAIResponse(
 	const historyContext =
 		recentHistory.length > 0
 			? `\nCONVERSATION HISTORY:\n${recentHistory
-					.map((msg) => `${msg.role.toUpperCase()}: ${msg.content}`)
-					.join("\n")}\n`
+				.map((msg) => `${msg.role.toUpperCase()}: ${msg.content}`)
+				.join("\n")}\n`
 			: "";
 
 	// Adjust prompt based on query type
@@ -1575,8 +1573,7 @@ Ensure the data is cleaned (remove currency symbols, handle missing values).
 			const errorMsg = error?.message || String(error);
 			if (errorMsg.includes("timed out")) {
 				console.warn(
-					`[AI-GEN] Response generation timeout after ${
-						AI_API_TIMEOUT / 1000
+					`[AI-GEN] Response generation timeout after ${AI_API_TIMEOUT / 1000
 					}s with model: ${modelName}`
 				);
 			} else {
@@ -1639,8 +1636,8 @@ export async function* generateAIResponseStream(
 	const historyContext =
 		recentHistory.length > 0
 			? `\nCONVERSATION HISTORY:\n${recentHistory
-					.map((msg) => `${msg.role.toUpperCase()}: ${msg.content}`)
-					.join("\n")}\n`
+				.map((msg) => `${msg.role.toUpperCase()}: ${msg.content}`)
+				.join("\n")}\n`
 			: "";
 
 	// Adjust prompt based on query type
@@ -1803,8 +1800,9 @@ export async function processChatMessageEnhanced(
 	_useEnhancedSearch: boolean = true,
 	opts: { provider?: "gemini"; model?: string; keyId?: number } = {},
 	filters?: {
-		category?: string;
-		userId?: number;
+		boardId?: string;
+		subjectId?: number;
+		chapterId?: number;
 	}
 ): Promise<{
 	response: string;
@@ -1821,13 +1819,13 @@ export async function processChatMessageEnhanced(
 	}>;
 	searchQuery: string;
 	searchMethod:
-		| "hybrid"
-		| "semantic_fallback"
-		| "tsvector_only"
-		| "vector_only"
-		| "keyword_only"
-		| "recent_files"
-		| "analytical_fallback";
+	| "hybrid"
+	| "semantic_fallback"
+	| "tsvector_only"
+	| "vector_only"
+	| "keyword_only"
+	| "recent_files"
+	| "analytical_fallback";
 	queryType: string;
 	analysisUsed: boolean;
 	tokenCount?: {
@@ -1947,7 +1945,9 @@ export async function processChatMessageEnhanced(
 
 		// For analytical queries with filters, get ALL records matching the filters
 		// instead of filtering by search terms (analytical queries need complete data)
-		const hasFilters = filters && (filters.category || filters.userId);
+		// For analytical queries with filters, get ALL records matching the filters
+		// instead of filtering by search terms (analytical queries need complete data)
+		const hasFilters = filters && (filters.boardId || filters.subjectId);
 		if (queryType === "analytical_query" && hasFilters) {
 			console.log(
 				`[CHAT ANALYSIS] Analytical query with filters - retrieving all records matching filters for complete analysis`
@@ -1955,9 +1955,18 @@ export async function processChatMessageEnhanced(
 			const hybridSearchResponse = await HybridSearchService.search(
 				"",
 				effectiveSearchLimit,
-				filters
+				{
+					boardId: filters?.boardId || 'CBSE',
+					subjectId: filters?.subjectId,
+					chapterId: filters?.chapterId
+				}
 			);
-			records = hybridSearchResponse.results;
+			records = hybridSearchResponse.results.map(r => ({
+				...r,
+				category: r.subject,
+				note: r.content,
+				entry_date_real: r.created_at
+			}));
 			searchMethod = "analytical_fallback";
 			searchStats = hybridSearchResponse.stats;
 			console.log(
@@ -1967,9 +1976,18 @@ export async function processChatMessageEnhanced(
 			const hybridSearchResponse = await HybridSearchService.search(
 				queryForSearch,
 				effectiveSearchLimit,
-				filters
+				{
+					boardId: filters?.boardId || 'CBSE',
+					subjectId: filters?.subjectId,
+					chapterId: filters?.chapterId
+				}
 			);
-			records = hybridSearchResponse.results;
+			records = hybridSearchResponse.results.map(r => ({
+				...r,
+				category: r.subject,
+				note: r.content,
+				entry_date_real: r.created_at
+			}));
 			// Map RRF search methods to expected types
 			const methodMap: Record<
 				string,
@@ -2005,9 +2023,18 @@ export async function processChatMessageEnhanced(
 		const allRecordsResponse = await HybridSearchService.search(
 			"",
 			effectiveLimit,
-			filters
+			{
+				boardId: filters?.boardId || 'CBSE',
+				subjectId: filters?.subjectId,
+				chapterId: filters?.chapterId
+			}
 		);
-		records = allRecordsResponse.results;
+		records = allRecordsResponse.results.map(r => ({
+			...r,
+			category: r.subject,
+			note: r.content,
+			entry_date_real: r.created_at
+		}));
 		searchMethod = "analytical_fallback";
 		searchStats = allRecordsResponse.stats;
 		console.log(
@@ -2495,8 +2522,7 @@ export async function processChatMessageEnhanced(
 	console.log(`[TIMING-SUMMARY] - AI response generation: ${aiTime}ms`);
 	console.log(`[TIMING-SUMMARY] - Source extraction: ${sourceTime}ms`);
 	console.log(
-		`[TIMING-SUMMARY] - Total post-search time: ${
-			contextTime + aiTime + sourceTime
+		`[TIMING-SUMMARY] - Total post-search time: ${contextTime + aiTime + sourceTime
 		}ms`
 	);
 
@@ -2527,8 +2553,9 @@ export async function* processChatMessageEnhancedStream(
 	useEnhancedSearch: boolean = true,
 	opts: { provider?: "gemini"; model?: string; keyId?: number } = {},
 	filters?: {
-		category?: string;
-		userId?: number;
+		boardId?: string;
+		subjectId?: number;
+		chapterId?: number;
 	}
 ): AsyncGenerator<
 	{
@@ -2615,7 +2642,7 @@ export async function* processChatMessageEnhancedStream(
 	);
 
 	if (useEnhancedSearch) {
-		const hasFilters = filters && (filters.category || filters.userId);
+		const hasFilters = filters && (filters.boardId || filters.subjectId);
 		if (queryType === "analytical_query" && hasFilters) {
 			console.log(
 				`[CHAT ANALYSIS] Analytical query with filters - retrieving all records matching filters for complete analysis`
@@ -2623,9 +2650,18 @@ export async function* processChatMessageEnhancedStream(
 			const hybridSearchResponse = await HybridSearchService.search(
 				"",
 				effectiveSearchLimit,
-				filters
+				{
+					boardId: filters?.boardId || 'CBSE',
+					subjectId: filters?.subjectId,
+					chapterId: filters?.chapterId
+				}
 			);
-			records = hybridSearchResponse.results;
+			records = hybridSearchResponse.results.map(r => ({
+				...r,
+				category: r.subject,
+				note: r.content,
+				entry_date_real: r.created_at
+			}));
 			searchMethod = "analytical_fallback";
 			searchStats = hybridSearchResponse.stats;
 			console.log(
@@ -2635,9 +2671,18 @@ export async function* processChatMessageEnhancedStream(
 			const hybridSearchResponse = await HybridSearchService.search(
 				queryForSearch,
 				effectiveSearchLimit,
-				filters
+				{
+					boardId: filters?.boardId || 'CBSE',
+					subjectId: filters?.subjectId,
+					chapterId: filters?.chapterId
+				}
 			);
-			records = hybridSearchResponse.results;
+			records = hybridSearchResponse.results.map(r => ({
+				...r,
+				category: r.subject,
+				note: r.content,
+				entry_date_real: r.created_at
+			}));
 			// Map RRF search methods to expected types
 			const methodMap: Record<
 				string,
@@ -2673,9 +2718,18 @@ export async function* processChatMessageEnhancedStream(
 		const allRecordsResponse = await HybridSearchService.search(
 			"",
 			effectiveLimit,
-			filters
+			{
+				boardId: filters?.boardId || 'CBSE',
+				subjectId: filters?.subjectId,
+				chapterId: filters?.chapterId
+			}
 		);
-		records = allRecordsResponse.results;
+		records = allRecordsResponse.results.map(r => ({
+			...r,
+			category: r.subject,
+			note: r.content,
+			entry_date_real: r.created_at
+		}));
 		searchMethod = "analytical_fallback";
 		searchStats = allRecordsResponse.stats;
 		console.log(
@@ -2686,9 +2740,8 @@ export async function* processChatMessageEnhancedStream(
 	// Yield progress after search completes
 	yield {
 		type: "progress",
-		progress: `Found ${records.length} record${
-			records.length !== 1 ? "s" : ""
-		}. Preparing response...`,
+		progress: `Found ${records.length} record${records.length !== 1 ? "s" : ""
+			}. Preparing response...`,
 	};
 
 	// Yield metadata
@@ -2818,9 +2871,8 @@ export async function* processChatMessageEnhancedStream(
 		// Yield progress for context preparation
 		yield {
 			type: "progress",
-			progress: `Preparing context from ${records.length} record${
-				records.length !== 1 ? "s" : ""
-			}...`,
+			progress: `Preparing context from ${records.length} record${records.length !== 1 ? "s" : ""
+				}...`,
 		};
 
 		context = prepareContextForAI(records, queryForSearch, false);
@@ -3053,7 +3105,7 @@ export async function* processChatMessageEnhancedStream(
 	}
 
 	const citedSources: Array<{
-		id: number;
+		id: string | number;
 		title: string;
 		relevance?: number;
 		similarity?: number;
@@ -3304,5 +3356,135 @@ export async function updateSearchVectors(): Promise<void> {
 	} catch (error) {
 		console.error("Error updating search vectors:", error);
 		throw new Error("Failed to update search vectors");
+	}
+}
+
+// --- Exam Prep & Quiz Generation ---
+
+export interface QuizGenerationConfig {
+	subject: string;
+	topic: string;
+	chapterTitle?: string;
+	difficulty: "easy" | "medium" | "hard";
+	questionCount: number;
+	questionTypes: ("MCQ" | "TRUE_FALSE" | "FILL_IN_BLANK" | "SHORT_ANSWER" | "LONG_ANSWER")[];
+	context: string; // The content to generate questions from
+}
+
+const QuizQuestionSchema = z.object({
+	question_text: z.string(),
+	question_type: z.enum(["MCQ", "TRUE_FALSE", "FILL_IN_BLANK", "SHORT_ANSWER", "LONG_ANSWER"]),
+	options: z.array(z.string()).optional().describe("Array of options for MCQ/TF. Null for others."),
+	correct_answer: z.union([z.string(), z.number(), z.array(z.string())]).describe("The correct answer. Index for MCQ, string for others."),
+	points: z.number().default(1),
+	explanation: z.string().describe("Explanation of why the answer is correct"),
+});
+
+const QuizSchema = z.object({
+	title: z.string(),
+	description: z.string(),
+	questions: z.array(QuizQuestionSchema),
+});
+
+export async function generateQuiz(config: QuizGenerationConfig, opts: { model?: string; keyId?: number } = {}) {
+	try {
+		const { client, keyId } = await getGeminiClient({
+			provider: "gemini",
+			keyId: opts.keyId,
+		});
+
+		const modelName = opts.model || "gemini-1.5-flash"; // Flash is good for high volume tasks
+
+		// Note: We use the Vercel AI SDK's generateObject which needs a provider instance
+		// We'll reuse the key from getGeminiClient but we need to instantiate the provider
+		const { apiKey } = await getProviderApiKey({ provider: "gemini", keyId: opts.keyId });
+		if (!apiKey) throw new Error("No Gemini API key found");
+		const google = createGoogleGenerativeAI({ apiKey });
+
+		const prompt = `Generate a ${config.difficulty} difficulty quiz on "${config.subject}: ${config.topic}" based on the provided context.
+        
+        Context:
+        ${config.context.substring(0, 20000)} // Limit context to avoid token limits
+        
+        Requirements:
+        - Total Questions: ${config.questionCount}
+        - Question Types: ${config.questionTypes.join(", ")}
+        - Ensure questions are accurate and directly answerable from the context.
+        - For MCQ, provide 4 options and assign 1 point.
+        - For True/False, provide 2 options (True, False) and assign 1 point.
+        - For Fill in the Blank, the correct_answer should be the missing word(s) and assign 1 point.
+        - For SHORT_ANSWER, the correct_answer should be a concise ideal answer (2-3 sentences) and assign 3 points.
+        - For LONG_ANSWER (essay), the correct_answer should be a detailed model answer (5+ sentences) and assign 5 points.
+        `;
+
+		const result = await generateObject({
+			model: google(modelName),
+			schema: QuizSchema,
+			prompt: prompt,
+		});
+
+		if (keyId) await recordKeyUsage(keyId, true);
+
+		return result.object;
+
+	} catch (error) {
+		console.error("Error generating quiz:", error);
+		throw new Error("Failed to generate quiz");
+	}
+}
+
+export async function gradeQuiz(
+	questions: { question_text: string; user_answer: string; correct_answer: string; type: string }[],
+	opts: { model?: string; keyId?: number } = {}
+) {
+	try {
+		// Filter for subjective questions that need AI grading
+		const subjectiveQuestions = questions.filter(q => ["SHORT_ANSWER", "LONG_ANSWER"].includes(q.type));
+
+		if (subjectiveQuestions.length === 0) {
+			return [];
+		}
+
+		const { client, keyId } = await getGeminiClient({
+			provider: "gemini",
+			keyId: opts.keyId,
+		});
+
+		const modelName = opts.model || "gemini-1.5-flash";
+		const { apiKey } = await getProviderApiKey({ provider: "gemini", keyId: opts.keyId });
+		if (!apiKey) throw new Error("No Gemini API key found");
+		const google = createGoogleGenerativeAI({ apiKey });
+
+		const GradingSchema = z.object({
+			grades: z.array(z.object({
+				question_text: z.string(),
+				is_correct: z.boolean(),
+				score_percentage: z.number().min(0).max(100),
+				feedback: z.string(),
+			}))
+		});
+
+		const prompt = `Grade the following student answers based on the model answer.
+        
+        Questions:
+        ${JSON.stringify(subjectiveQuestions, null, 2)}
+        
+        Provide a score (0-100) and feedback for each. Be lenient on phrasing but strict on factual accuracy.`;
+
+		const result = await generateObject({
+			model: google(modelName),
+			schema: GradingSchema,
+			prompt: prompt,
+		});
+
+		if (keyId) await recordKeyUsage(keyId, true);
+
+		return result.object.grades;
+
+	} catch (error) {
+		console.error("Error grading quiz:", error);
+		// Fallback: mark all as needing manual review or give full credit? 
+		// For now, throw error
+		throw new Error("Failed to grade quiz");
 	}
 }

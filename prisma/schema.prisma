@@ -105,6 +105,9 @@ model user {
    files          FileList[]
    usage_tracking UsageTracking[]
    subscription   UserSubscription?
+   profile        Profile?
+   quizzes        Quiz[]
+   points         UserPoints[]
 
    @@index([email], map: "idx_user_email")
 }
@@ -247,6 +250,192 @@ model UsageTracking {
   @@map("usage_tracking")
 }
 
+// --- Bharat-Tutor Multi-Tenancy Models ---
+
+model Country {
+  id       String  @id // 'IN', 'NG', 'PK', 'PH'
+  name     String // 'India', 'Nigeria'...
+  currency String // '₹', '₦'...
+  locale   String  @default("en")
+  is_active Boolean @default(true)
+
+  boards Board[]
+
+  @@map("countries")
+}
+
+model Board {
+  id         String   @id // 'CBSE', 'MBSE', 'WAEC', 'IIT-JEE', 'UPSC', etc.
+  name       String   // 'Central Board of Secondary Education', 'Union Public Service Commission'
+  country_id String   @default("IN")
+  state      String?  // 'Mizoram' (null for national/central)
+  type       String   @default("academic") // 'academic', 'competitive_exam', 'professional'
+  is_active  Boolean  @default(true)
+  created_at DateTime @default(now())
+  updated_at DateTime @updatedAt
+
+  country      Country       @relation(fields: [country_id], references: [id])
+  institutions Institution[]
+  programs     Program[]
+  chunkBoards  ChapterChunkBoard[]
+
+  @@index([country_id, is_active])
+  @@index([type])
+  @@map("boards")
+}
+
+// Replaces old "School" model - supports schools, colleges, universities, coaching centers
+model Institution {
+  id             BigInt   @id @default(autoincrement())
+  board_id       String
+  name           String
+  type           String   // 'school', 'college', 'university', 'coaching_center'
+  district       String?
+  state          String?
+  license_expiry DateTime?
+  is_active      Boolean  @default(true)
+  created_at     DateTime @default(now())
+
+  board    Board     @relation(fields: [board_id], references: [id])
+  programs Program[]
+  profiles Profile[]
+
+  @@index([board_id, is_active])
+  @@index([type])
+  @@map("institutions")
+}
+
+// New model: represents Class 10, B.Tech IT, MBBS Year 2, UPSC Prelims, etc.
+model Program {
+  id             Int      @id @default(autoincrement())
+  board_id       String
+  institution_id BigInt?  // null for board-level programs (e.g., UPSC CSE)
+  name           String   // 'Class 10', 'B.Tech - Computer Science', 'MBBS - Year 2', 'UPSC Civil Services'
+  code           String?  // 'CLS10', 'BTECH_CS', 'MBBS_Y2', 'UPSC_CSE'
+  level          String?  // 'secondary', 'undergraduate', 'postgraduate', 'competitive'
+  duration_years Int?     // 1, 4, 5, etc. (null for one-time exams)
+  is_active      Boolean  @default(true)
+  created_at     DateTime @default(now())
+
+  board       Board        @relation(fields: [board_id], references: [id])
+  institution Institution? @relation(fields: [institution_id], references: [id])
+  subjects    Subject[]
+  profiles    Profile[]
+
+  @@unique([board_id, institution_id, name])
+  @@index([board_id, level])
+  @@map("programs")
+}
+
+model Profile {
+  id            Int      @id @default(autoincrement())
+  user_id       Int      @unique
+  institution_id BigInt? // null for self-paced learners
+  program_id    Int?     // null until program selected
+  is_premium    Boolean  @default(false)
+  last_sync_at  BigInt?  // Unix ms for mobile sync
+
+  user        user         @relation(fields: [user_id], references: [id], onDelete: Cascade)
+  institution Institution? @relation(fields: [institution_id], references: [id])
+  program     Program?     @relation(fields: [program_id], references: [id])
+
+  @@index([institution_id])
+  @@index([program_id])
+  @@map("profiles")
+}
+
+// Subjects now linked to Programs instead of Boards
+model Subject {
+  id         Int      @id @default(autoincrement())
+  program_id Int      // Required: subjects belong to programs
+  name       String   // 'Physics', 'Data Structures', 'General Studies', 'Pharmacology'
+  code       String?  // 'PHY', 'DS', 'GS', 'PHARM'
+  is_active  Boolean  @default(true)
+  created_at DateTime @default(now())
+
+  program  Program   @relation(fields: [program_id], references: [id])
+  term       String?   // e.g. "Semester 1", "Year 2", or null for annual
+  chapters Chapter[]
+  quizzes    Quiz[]
+
+  @@unique([program_id, name])
+  @@index([program_id])
+  @@map("subjects")
+}
+
+model Chapter {
+  id                BigInt    @id @default(autoincrement())
+  subject_id        Int
+  title             String    // 'Chapter 6: Life Processes'
+  chapter_number    Int?
+  content_json      Json      // LlamaParse output
+  version_id        String    @default(cuid()) // For sync
+  accessible_boards String[]  // For cross-board content (e.g., NCERT used by multiple boards)
+  is_global         Boolean   @default(false) // true = accessible to all boards
+  is_active         Boolean   @default(true)
+  created_at        DateTime  @default(now())
+  updated_at        DateTime  @updatedAt
+  parsed_at         DateTime?
+
+  subject     Subject             @relation(fields: [subject_id], references: [id])
+  chunks      ChapterChunk[]
+  pages       ChapterPage[]
+  quizzes     Quiz[]
+
+  @@index([subject_id, chapter_number])
+  @@index([accessible_boards], type: Gin) // For RLS
+  @@map("chapters")
+}
+
+model ChapterChunk {
+  id              BigInt                   @id @default(autoincrement())
+  chapter_id      BigInt
+  chunk_index     Int
+  content         String
+  page_number     Int?
+  bbox            Json?                    // Bounding box
+  search_vector   Unsupported("tsvector")?
+  semantic_vector Unsupported("vector")?
+  subject_id      Int?                     // Denormalized
+  created_at      DateTime                 @default(now())
+
+  chapter     Chapter             @relation(fields: [chapter_id], references: [id], onDelete: Cascade)
+  chunkBoards ChapterChunkBoard[]
+
+  @@index([chapter_id, chunk_index])
+  @@index([search_vector], type: Gin)
+  @@index([semantic_vector])
+  @@index([subject_id])
+  @@map("chapter_chunks")
+}
+
+// Junction table for board access (scales better than array)
+model ChapterChunkBoard {
+  chunk_id BigInt
+  board_id String
+  chunk    ChapterChunk @relation(fields: [chunk_id], references: [id], onDelete: Cascade)
+  board    Board        @relation(fields: [board_id], references: [id])
+
+  @@id([chunk_id, board_id])
+  @@index([board_id])
+  @@map("chapter_chunk_boards")
+}
+
+model ChapterPage {
+  id          BigInt   @id @default(autoincrement())
+  chapter_id  BigInt
+  page_number Int
+  image_url   String
+  width       Int?
+  height      Int?
+  created_at  DateTime @default(now())
+
+  chapter Chapter @relation(fields: [chapter_id], references: [id], onDelete: Cascade)
+
+  @@index([chapter_id, page_number])
+  @@map("chapter_pages")
+}
+
 enum MessageRole {
   user
   assistant
@@ -296,4 +485,92 @@ enum Provider {
   anthropic
   llamaparse
   openrouter
+}
+
+// --- Exam Prep & Gamification Models ---
+
+enum QuestionType {
+  MCQ
+  TRUE_FALSE
+  FILL_IN_BLANK
+  SHORT_ANSWER
+  LONG_ANSWER
+}
+
+enum QuizStatus {
+  IN_PROGRESS
+  COMPLETED
+  ABANDONED
+}
+
+model Quiz {
+  id          String     @id @default(cuid())
+  user_id     Int
+  subject_id  Int
+  chapter_id  BigInt?    // Optional: quiz can be for a whole subject or specific chapter
+  title       String
+  description String?
+  
+  status      QuizStatus @default(IN_PROGRESS)
+  score       Int        @default(0)
+  total_points Int       @default(0)
+  
+  created_at  DateTime   @default(now())
+  updated_at  DateTime   @updatedAt
+  completed_at DateTime?
+
+  user        user       @relation(fields: [user_id], references: [id], onDelete: Cascade)
+  subject     Subject    @relation(fields: [subject_id], references: [id])
+  chapter     Chapter?   @relation(fields: [chapter_id], references: [id])
+  
+  questions   QuizQuestion[]
+
+  @@index([user_id])
+  @@index([subject_id])
+  @@map("quizzes")
+}
+
+model QuizQuestion {
+  id             String       @id @default(cuid())
+  quiz_id        String
+  question_text  String       @db.Text
+  question_type  QuestionType
+  
+  // For MCQ/TF: JSON array of options e.g. ["Option A", "Option B"]
+  options        Json?
+  
+  // The correct answer(s). For MCQ: index or string. For FITB: correct word.
+  correct_answer Json
+  
+  // User's submitted answer
+  user_answer    Json?
+  
+  is_correct     Boolean?
+  points         Int          @default(1)
+  
+  // AI-generated explanation for the answer
+  explanation    String?      @db.Text
+  
+  // AI feedback for subjective questions (Short/Long answer)
+  feedback       String?      @db.Text
+
+  quiz           Quiz         @relation(fields: [quiz_id], references: [id], onDelete: Cascade)
+
+  @@index([quiz_id])
+  @@map("quiz_questions")
+}
+
+model UserPoints {
+  id          String   @id @default(cuid())
+  user_id     Int
+  points      Int
+  reason      String   // e.g. "quiz_completion", "daily_streak", "bonus"
+  metadata    Json?    // e.g. { quiz_id: "..." }
+  
+  created_at  DateTime @default(now())
+
+  user        user     @relation(fields: [user_id], references: [id], onDelete: Cascade)
+
+  @@index([user_id])
+  @@map("user_points")
 }

@@ -17,7 +17,7 @@ type AppUser = {
 
 declare module "next-auth" {
 	// eslint-disable-next-line @typescript-eslint/no-empty-object-type
-	interface User extends AppUser {}
+	interface User extends AppUser { }
 
 	interface Session {
 		user: AppUser;
@@ -26,7 +26,7 @@ declare module "next-auth" {
 
 declare module "next-auth/jwt" {
 	// eslint-disable-next-line @typescript-eslint/no-empty-object-type
-	interface JWT extends AppUser {}
+	interface JWT extends AppUser { }
 }
 
 export const authOptions: NextAuthOptions = {
@@ -83,6 +83,13 @@ export const authOptions: NextAuthOptions = {
 		GoogleProvider({
 			clientId: process.env.GOOGLE_CLIENT_ID!,
 			clientSecret: process.env.GOOGLE_CLIENT_SECRET!,
+			authorization: {
+				params: {
+					prompt: "select_account",
+					access_type: "offline",
+					response_type: "code",
+				},
+			},
 		}),
 	],
 	callbacks: {

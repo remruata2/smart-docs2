@@ -52,9 +52,8 @@ export default function AdminSidebar({ setSidebarOpen }: AdminSidebarProps) {
 				<Link
 					href="/admin"
 					onClick={() => setSidebarOpen && setSidebarOpen(false)}
-					className={`${baseLinkClasses} ${
-						pathname === "/admin" ? activeLinkClasses : inactiveLinkClasses
-					}`}
+					className={`${baseLinkClasses} ${pathname === "/admin" ? activeLinkClasses : inactiveLinkClasses
+						}`}
 				>
 					<svg
 						className="mr-3 h-5 w-5 text-gray-400"
@@ -76,11 +75,10 @@ export default function AdminSidebar({ setSidebarOpen }: AdminSidebarProps) {
 					<Link
 						href="/admin/users"
 						onClick={() => setSidebarOpen && setSidebarOpen(false)}
-						className={`${baseLinkClasses} ${
-							pathname.startsWith("/admin/users")
-								? activeLinkClasses
-								: inactiveLinkClasses
-						}`}
+						className={`${baseLinkClasses} ${pathname.startsWith("/admin/users")
+							? activeLinkClasses
+							: inactiveLinkClasses
+							}`}
 					>
 						<svg
 							className="mr-3 h-5 w-5 text-slate-400"
@@ -101,71 +99,197 @@ export default function AdminSidebar({ setSidebarOpen }: AdminSidebarProps) {
 
 				{(session?.user.role === UserRole.admin ||
 					session?.user.role === UserRole.staff) && (
-					<Link
-						href="/admin/categories"
-						onClick={() => setSidebarOpen && setSidebarOpen(false)}
-						className={`${baseLinkClasses} ${
-							pathname.startsWith("/admin/categories")
+						<Link
+							href="/admin/categories"
+							onClick={() => setSidebarOpen && setSidebarOpen(false)}
+							className={`${baseLinkClasses} ${pathname.startsWith("/admin/categories")
 								? activeLinkClasses
 								: inactiveLinkClasses
-						}`}
-					>
-						{/* You can replace this SVG with a more relevant one for categories if desired */}
-						<svg
-							className="mr-3 h-5 w-5 text-slate-400"
-							fill="none"
-							viewBox="0 0 24 24"
-							stroke="currentColor"
+								}`}
 						>
-							<path
-								strokeLinecap="round"
-								strokeLinejoin="round"
-								strokeWidth={2}
-								d="M3 7v10a2 2 0 002 2h14a2 2 0 002-2V9a2 2 0 00-2-2h-6l-2-2H5a2 2 0 00-2 2z"
-							/>
-						</svg>
-						Categories
-					</Link>
-				)}
+							{/* You can replace this SVG with a more relevant one for categories if desired */}
+							<svg
+								className="mr-3 h-5 w-5 text-slate-400"
+								fill="none"
+								viewBox="0 0 24 24"
+								stroke="currentColor"
+							>
+								<path
+									strokeLinecap="round"
+									strokeLinejoin="round"
+									strokeWidth={2}
+									d="M3 7v10a2 2 0 002 2h14a2 2 0 002-2V9a2 2 0 00-2-2h-6l-2-2H5a2 2 0 00-2 2z"
+								/>
+							</svg>
+							Categories
+						</Link>
+					)}
 
 				{(session?.user.role === UserRole.admin ||
 					session?.user.role === UserRole.staff) && (
-					<Link
-						href="/admin/files"
-						onClick={() => setSidebarOpen && setSidebarOpen(false)}
-						className={`${baseLinkClasses} ${
-							pathname.startsWith("/admin/files")
+						<Link
+							href="/admin/files"
+							onClick={() => setSidebarOpen && setSidebarOpen(false)}
+							className={`${baseLinkClasses} ${pathname.startsWith("/admin/files")
 								? activeLinkClasses
 								: inactiveLinkClasses
-						}`}
-					>
-						{/* Icon for Files - using a generic document/folder icon */}
-						<svg
-							className="mr-3 h-5 w-5 text-slate-400"
-							fill="none"
-							viewBox="0 0 24 24"
-							stroke="currentColor"
+								}`}
 						>
-							<path
-								strokeLinecap="round"
-								strokeLinejoin="round"
-								strokeWidth={2}
-								d="M9 12h6m-6 4h6m2 5H7a2 2 0 01-2-2V5a2 2 0 012-2h5.586a1 1 0 01.707.293l5.414 5.414a1 1 0 01.293.707V19a2 2 0 01-2 2z"
-							/>
-						</svg>
-						Manage Files
-					</Link>
+							{/* Icon for Files - using a generic document/folder icon */}
+							<svg
+								className="mr-3 h-5 w-5 text-slate-400"
+								fill="none"
+								viewBox="0 0 24 24"
+								stroke="currentColor"
+							>
+								<path
+									strokeLinecap="round"
+									strokeLinejoin="round"
+									strokeWidth={2}
+									d="M9 12h6m-6 4h6m2 5H7a2 2 0 01-2-2V5a2 2 0 012-2h5.586a1 1 0 01.707.293l5.414 5.414a1 1 0 01.293.707V19a2 2 0 01-2 2z"
+								/>
+							</svg>
+							Manage Files
+						</Link>
+					)}
+
+				{session?.user.role === UserRole.admin && (
+					<div className="mt-6">
+						<div className="px-3 py-2 text-xs font-semibold text-gray-400 uppercase tracking-wider">
+							Content Management
+						</div>
+						<div className="space-y-1">
+							<Link
+								href="/admin/boards"
+								onClick={() => setSidebarOpen && setSidebarOpen(false)}
+								className={`${baseLinkClasses} ${pathname.startsWith("/admin/boards")
+									? activeLinkClasses
+									: inactiveLinkClasses
+									}`}
+							>
+								<svg
+									className="mr-3 h-5 w-5 text-gray-500"
+									fill="none"
+									viewBox="0 0 24 24"
+									stroke="currentColor"
+								>
+									<path
+										strokeLinecap="round"
+										strokeLinejoin="round"
+										strokeWidth={2}
+										d="M19 21V5a2 2 0 00-2-2H7a2 2 0 00-2 2v16m14 0h2m-2 0h-5m-9 0H3m2 0h5M9 7h1m-1 4h1m4-4h1m-1 4h1m-5 10v-5a1 1 0 011-1h2a1 1 0 011 1v5m-4 0h4"
+									/>
+								</svg>
+								Boards
+							</Link>
+
+							<Link
+								href="/admin/institutions"
+								onClick={() => setSidebarOpen && setSidebarOpen(false)}
+								className={`${baseLinkClasses} ${pathname.startsWith("/admin/institutions")
+										? activeLinkClasses
+										: inactiveLinkClasses
+									}`}
+							>
+								<svg
+									className="mr-3 h-5 w-5 text-gray-500"
+									fill="none"
+									viewBox="0 0 24 24"
+									stroke="currentColor"
+								>
+									<path
+										strokeLinecap="round"
+										strokeLinejoin="round"
+										strokeWidth={2}
+										d="M8 14v3m4-3v3m4-3v3M3 21h18M3 10h18M3 7l9-4 9 4M4 10h16v11H4V10z"
+									/>
+								</svg>
+								Institutions
+							</Link>
+
+							<Link
+								href="/admin/programs"
+								onClick={() => setSidebarOpen && setSidebarOpen(false)}
+								className={`${baseLinkClasses} ${pathname.startsWith("/admin/programs")
+										? activeLinkClasses
+										: inactiveLinkClasses
+									}`}
+							>
+								<svg
+									className="mr-3 h-5 w-5 text-gray-500"
+									fill="none"
+									viewBox="0 0 24 24"
+									stroke="currentColor"
+								>
+									<path
+										strokeLinecap="round"
+										strokeLinejoin="round"
+										strokeWidth={2}
+										d="M9 5H7a2 2 0 00-2 2v12a2 2 0 002 2h10a2 2 0 002-2V7a2 2 0 00-2-2h-2M9 5a2 2 0 002 2h2a2 2 0 002-2M9 5a2 2 0 012-2h2a2 2 0 012 2"
+									/>
+								</svg>
+								Programs
+							</Link>
+
+							<Link
+								href="/admin/subjects"
+								onClick={() => setSidebarOpen && setSidebarOpen(false)}
+								className={`${baseLinkClasses} ${pathname.startsWith("/admin/subjects")
+										? activeLinkClasses
+										: inactiveLinkClasses
+									}`}
+							>
+								<svg
+									className="mr-3 h-5 w-5 text-gray-500"
+									fill="none"
+									viewBox="0 0 24 24"
+									stroke="currentColor"
+								>
+									<path
+										strokeLinecap="round"
+										strokeLinejoin="round"
+										strokeWidth={2}
+										d="M9 12h6m-6 4h6m2 5H7a2 2 0 01-2-2V5a2 2 0 012-2h5.586a1 1 0 01.707.293l5.414 5.414a1 1 0 01.293.707V19a2 2 0 01-2 2z"
+									/>
+								</svg>
+								Subjects
+							</Link>
+
+							<Link
+								href="/admin/chapters"
+								onClick={() => setSidebarOpen && setSidebarOpen(false)}
+								className={`${baseLinkClasses} ${pathname.startsWith("/admin/chapters")
+									? activeLinkClasses
+									: inactiveLinkClasses
+									}`}
+							>
+								<svg
+									className="mr-3 h-5 w-5 text-gray-500"
+									fill="none"
+									viewBox="0 0 24 24"
+									stroke="currentColor"
+								>
+									<path
+										strokeLinecap="round"
+										strokeLinejoin="round"
+										strokeWidth={2}
+										d="M12 6.253v13m0-13C10.832 5.477 9.246 5 7.5 5S4.168 5.477 3 6.253v13C4.168 18.477 5.754 18 7.5 18s3.332.477 4.5 1.253m0-13C13.168 5.477 14.754 5 16.5 5c1.747 0 3.332.477 4.5 1.253v13C19.832 18.477 18.247 18 16.5 18c-1.746 0-3.332.477-4.5 1.253"
+									/>
+								</svg>
+								Chapters
+							</Link>
+						</div>
+					</div>
 				)}
 
 				{session?.user.role === UserRole.admin && (
 					<Link
 						href="/admin/chat"
 						onClick={() => setSidebarOpen && setSidebarOpen(false)}
-						className={`${baseLinkClasses} ${
-							pathname.startsWith("/admin/chat")
-								? activeLinkClasses
-								: inactiveLinkClasses
-						}`}
+						className={`${baseLinkClasses} ${pathname.startsWith("/admin/chat")
+							? activeLinkClasses
+							: inactiveLinkClasses
+							}`}
 					>
 						{/* Icon for AI Chat - using a chat/message icon */}
 						<svg
@@ -194,11 +318,10 @@ export default function AdminSidebar({ setSidebarOpen }: AdminSidebarProps) {
 							<Link
 								href="/admin/settings/ai-models"
 								onClick={() => setSidebarOpen && setSidebarOpen(false)}
-								className={`${baseLinkClasses} ${
-									pathname.startsWith("/admin/settings/ai-models")
-										? activeLinkClasses
-										: inactiveLinkClasses
-								}`}
+								className={`${baseLinkClasses} ${pathname.startsWith("/admin/settings/ai-models")
+									? activeLinkClasses
+									: inactiveLinkClasses
+									}`}
 							>
 								{/* Icon for Models - layers */}
 								<svg
@@ -220,11 +343,10 @@ export default function AdminSidebar({ setSidebarOpen }: AdminSidebarProps) {
 							<Link
 								href="/admin/settings/ai-keys"
 								onClick={() => setSidebarOpen && setSidebarOpen(false)}
-								className={`${baseLinkClasses} ${
-									pathname.startsWith("/admin/settings/ai-keys")
-										? activeLinkClasses
-										: inactiveLinkClasses
-								}`}
+								className={`${baseLinkClasses} ${pathname.startsWith("/admin/settings/ai-keys")
+									? activeLinkClasses
+									: inactiveLinkClasses
+									}`}
 							>
 								{/* Icon for API Keys - key */}
 								<svg
@@ -246,11 +368,10 @@ export default function AdminSidebar({ setSidebarOpen }: AdminSidebarProps) {
 							<Link
 								href="/admin/settings/ai-config"
 								onClick={() => setSidebarOpen && setSidebarOpen(false)}
-								className={`${baseLinkClasses} ${
-									pathname.startsWith("/admin/settings/ai-config")
-										? activeLinkClasses
-										: inactiveLinkClasses
-								}`}
+								className={`${baseLinkClasses} ${pathname.startsWith("/admin/settings/ai-config")
+									? activeLinkClasses
+									: inactiveLinkClasses
+									}`}
 							>
 								{/* Icon for Settings - cog */}
 								<svg

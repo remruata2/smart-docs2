@@ -7,10 +7,12 @@ import { useState } from "react";
 import {
 	ChevronLeft,
 	ChevronRight,
-	FolderOpen,
-	LayoutGrid,
+	BookOpen,
+	LayoutDashboard,
 	LogOut,
 	Settings,
+	BrainCircuit,
+	Trophy,
 } from "lucide-react";
 import {
 	DropdownMenu,
@@ -38,9 +40,8 @@ export default function UserSidebar({ setSidebarOpen }: UserSidebarProps) {
 	return (
 		// This is the actual sidebar panel content
 		<div
-			className={`flex flex-col h-screen sticky top-0 bg-gray-100 text-gray-900 border-r border-gray-200 transition-all duration-300 ease-in-out ${
-				isCollapsed ? "w-16" : "w-64"
-			}`}
+			className={`flex flex-col h-screen sticky top-0 bg-gray-100 text-gray-900 border-r border-gray-200 transition-all duration-300 ease-in-out ${isCollapsed ? "w-16" : "w-64"
+				}`}
 		>
 			{/* Collapse/Expand Toggle */}
 			<button
@@ -71,35 +72,63 @@ export default function UserSidebar({ setSidebarOpen }: UserSidebarProps) {
 			{/* Navigation Links */}
 			<nav className="flex-shrink-0 px-2 py-4 space-y-1">
 				<Link
-					href="/app/categories"
+					href="/app/dashboard"
 					onClick={() => setSidebarOpen && setSidebarOpen(false)}
-					className={`${baseLinkClasses} ${
-						pathname.startsWith("/app/categories")
-							? activeLinkClasses
-							: inactiveLinkClasses
-					} ${isCollapsed ? "justify-center px-0" : ""}`}
-					title={isCollapsed ? "Categories" : ""}
+					className={`${baseLinkClasses} ${pathname.startsWith("/app/dashboard")
+						? activeLinkClasses
+						: inactiveLinkClasses
+						} ${isCollapsed ? "justify-center px-0" : ""}`}
+					title={isCollapsed ? "Dashboard" : ""}
 				>
-					<LayoutGrid
+					<LayoutDashboard
 						className={`${isCollapsed ? "h-5 w-5" : "mr-3 h-5 w-5"}`}
 					/>
-					{!isCollapsed && "Categories"}
+					{!isCollapsed && "Dashboard"}
 				</Link>
 
 				<Link
-					href="/app/files"
+					href="/app/subjects"
 					onClick={() => setSidebarOpen && setSidebarOpen(false)}
-					className={`${baseLinkClasses} ${
-						pathname.startsWith("/app/files")
-							? activeLinkClasses
-							: inactiveLinkClasses
-					} ${isCollapsed ? "justify-center px-0" : ""}`}
-					title={isCollapsed ? "My Files" : ""}
+					className={`${baseLinkClasses} ${pathname.startsWith("/app/subjects") || pathname.startsWith("/app/chapters")
+						? activeLinkClasses
+						: inactiveLinkClasses
+						} ${isCollapsed ? "justify-center px-0" : ""}`}
+					title={isCollapsed ? "Subjects" : ""}
 				>
-					<FolderOpen
+					<BookOpen
 						className={`${isCollapsed ? "h-5 w-5" : "mr-3 h-5 w-5"}`}
 					/>
-					{!isCollapsed && "My Files"}
+					{!isCollapsed && "Subjects"}
+				</Link>
+
+				<Link
+					href="/app/practice"
+					onClick={() => setSidebarOpen && setSidebarOpen(false)}
+					className={`${baseLinkClasses} ${pathname.startsWith("/app/practice")
+						? activeLinkClasses
+						: inactiveLinkClasses
+						} ${isCollapsed ? "justify-center px-0" : ""}`}
+					title={isCollapsed ? "Practice" : ""}
+				>
+					<BrainCircuit
+						className={`${isCollapsed ? "h-5 w-5" : "mr-3 h-5 w-5"}`}
+					/>
+					{!isCollapsed && "Practice"}
+				</Link>
+
+				<Link
+					href="/app/leaderboard"
+					onClick={() => setSidebarOpen && setSidebarOpen(false)}
+					className={`${baseLinkClasses} ${pathname.startsWith("/app/leaderboard")
+						? activeLinkClasses
+						: inactiveLinkClasses
+						} ${isCollapsed ? "justify-center px-0" : ""}`}
+					title={isCollapsed ? "Leaderboard" : ""}
+				>
+					<Trophy
+						className={`${isCollapsed ? "h-5 w-5" : "mr-3 h-5 w-5"}`}
+					/>
+					{!isCollapsed && "Leaderboard"}
 				</Link>
 			</nav>
 
