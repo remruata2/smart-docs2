@@ -2,9 +2,11 @@ import { getChapterById } from "../actions";
 import { redirect } from "next/navigation";
 import Link from "next/link";
 import { Button } from "@/components/ui/button";
-import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
+
 import { Badge } from "@/components/ui/badge";
-import { ArrowLeft, MessageSquare, BookOpen } from "lucide-react";
+import { ArrowLeft, MessageSquare, BookOpen, Brain } from "lucide-react";
+import { ChapterPagesViewer } from "@/components/study/ChapterPagesViewer";
+import { prisma } from "@/lib/prisma";
 
 export default async function ChapterDetailPage({
     params,
@@ -19,6 +21,12 @@ export default async function ChapterDetailPage({
     }
 
     const { chapter, subjectInfo } = data;
+
+    // Fetch text chunks for the invisible layer
+    const chunks = await prisma.chapterChunk.findMany({
+        where: { chapter_id: BigInt(id) },
+        select: { page_number: true, bbox: true }
+    });
 
     return (
         <div className="container mx-auto px-4 py-8">
@@ -62,77 +70,33 @@ export default async function ChapterDetailPage({
                             )}
                         </div>
                     </div>
-
-                    <div>
-                        <Link href={`/app/chat?chapterId=${id}&subjectId=${chapter.subject_id}`}>
-                            <Button size="lg" className="w-full sm:w-auto">
-                                <MessageSquare className="h-5 w-5 mr-2" />
-                                Ask AI About This Chapter
-                            </Button>
-                        </Link>
-                    </div>
                 </div>
             </div>
 
             {/* Chapter Pages */}
             {chapter.pages.length > 0 && (
                 <div className="mb-8">
-                    <Card>
-                        <CardHeader>
-                            <CardTitle className="flex items-center gap-2">
-                                <BookOpen className="h-5 w-5" />
-                                Chapter Pages
-                            </CardTitle>
-                        </CardHeader>
-                        <CardContent>
-                            <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4">
-                                {chapter.pages.map((page) => (
-                                    <div
-                                        key={page.id.toString()}
-                                        className="border rounded-lg overflow-hidden hover:shadow-md transition-shadow"
-                                    >
-                                        <img
-                                            src={page.image_url}
-                                            alt={`Page ${page.page_number}`}
-                                            className="w-full h-auto"
-                                            style={{
-                                                aspectRatio: page.width && page.height
-                                                    ? `${page.width}/${page.height}`
-                                                    : "auto"
-                                            }}
-                                        />
-                                        <div className="p-3 bg-gray-50 text-center">
-                                            <p className="text-sm font-medium text-gray-700">
-                                                Page {page.page_number}
-                                            </p>
-                                        </div>
-                                    </div>
-                                ))}
-                            </div>
-                        </CardContent>
-                    </Card>
+                    <ChapterPagesViewer
+                        pages={chapter.pages.map(p => {
+                            // Find matching chunk for this page
+                            const chunk = chunks.find(c => c.page_number === p.page_number);
+                            const textItems = (chunk?.bbox as any) || [];
+
+                            return {
+                                ...p,
+                                id: p.id.toString(),
+                                chapter_id: p.chapter_id.toString(),
+                                width: p.width ?? 0,
+                                height: p.height ?? 0,
+                                text_items: textItems
+                            };
+                        })}
+                    />
                 </div>
             )}
 
             {/* Chapter Content */}
-            <Card>
-                <CardHeader>
-                    <CardTitle>Chapter Content</CardTitle>
-                </CardHeader>
-                <CardContent>
-                    <div className="prose max-w-none">
-                        {typeof chapter.content_json === 'object' && chapter.content_json !== null ? (
-                            <pre className="bg-gray-50 p-4 rounded-lg overflow-auto text-sm">
-                                {JSON.stringify(chapter.content_json, null, 2)}
-                            </pre>
-                        ) : (
-                            <p className="text-gray-600">
-                                No content available for this chapter.
-                            </p>
-                        )}
-                    </div>
-                </CardContent>
-            </Card>
+
         </div>
     );
 }

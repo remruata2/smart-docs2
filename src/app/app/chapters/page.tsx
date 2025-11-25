@@ -4,7 +4,7 @@ import Link from "next/link";
 import { Card, CardContent } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
 import { Badge } from "@/components/ui/badge";
-import { BookOpen, MessageSquare, Eye, ArrowLeft, FileText } from "lucide-react";
+import { BookOpen, MessageSquare, Eye, ArrowLeft, FileText, Brain } from "lucide-react";
 
 export default async function ChaptersPage({
     searchParams,
@@ -124,30 +124,40 @@ export default async function ChaptersPage({
                                         </div>
 
                                         {/* Action Buttons */}
-                                        <div className="flex gap-2">
+                                        <div className="grid grid-cols-3 gap-2">
                                             <Link
                                                 href={`/app/chat?chapterId=${chapter.id}&subjectId=${subjectId}`}
-                                                className="flex-1"
                                             >
                                                 <Button
                                                     size="sm"
                                                     className="w-full"
                                                     variant="default"
                                                 >
-                                                    <MessageSquare className="h-4 w-4 mr-2" />
+                                                    <MessageSquare className="h-4 w-4 mr-1" />
                                                     Ask AI
                                                 </Button>
                                             </Link>
                                             <Link
+                                                href={`/app/study/${chapter.id}`}
+                                            >
+                                                <Button
+                                                    size="sm"
+                                                    variant="outline"
+                                                    className="w-full border-purple-500 text-purple-600 hover:bg-purple-50"
+                                                >
+                                                    <Brain className="h-4 w-4 mr-1" />
+                                                    Study
+                                                </Button>
+                                            </Link>
+                                            <Link
                                                 href={`/app/chapters/${chapter.id}`}
-                                                className="flex-1"
                                             >
                                                 <Button
                                                     size="sm"
                                                     variant="outline"
                                                     className="w-full"
                                                 >
-                                                    <Eye className="h-4 w-4 mr-2" />
+                                                    <Eye className="h-4 w-4 mr-1" />
                                                     View
                                                 </Button>
                                             </Link>

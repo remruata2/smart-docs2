@@ -11,31 +11,58 @@ export async function POST(request: NextRequest) {
         }
 
         const token = authHeader.split(" ")[1];
-        const { data: { user }, error: authError } = await supabaseAdmin.auth.getUser(token);
+        if (!supabaseAdmin) {
+            return NextResponse.json({ error: "Supabase Admin not initialized" }, { status: 500 });
+        }
+        const { data: { user: supabaseUser }, error: authError } = await supabaseAdmin.auth.getUser(token);
 
-        if (authError || !user) {
+        if (authError || !supabaseUser || !supabaseUser.email) {
             console.error("[MOBILE AUTH] Invalid token:", authError);
             return NextResponse.json({ error: "Invalid token" }, { status: 401 });
         }
 
-        // 2. Sync User to Local DB (Profile)
-        // We use the Supabase User ID as the unique identifier
-        // Check if profile exists, if not create it
-        let profile = await prisma.profile.findUnique({
-            where: { email: user.email },
+        // 2. Sync User to Local DB
+        // First check if user exists by email
+        let dbUser = await prisma.user.findUnique({
+            where: { email: supabaseUser.email },
+            include: { profile: true }
         });
 
-        if (!profile && user.email) {
-            console.log(`[MOBILE AUTH] Creating new profile for ${user.email}`);
-            // Create new profile
-            profile = await prisma.profile.create({
+        if (!dbUser) {
+            console.log(`[MOBILE AUTH] Creating new user for ${supabaseUser.email}`);
+            // Create new user
+            try {
+                dbUser = await prisma.user.create({
+                    data: {
+                        email: supabaseUser.email,
+                        username: supabaseUser.email.split("@")[0] + "_" + Math.floor(Math.random() * 10000), // Ensure uniqueness
+                        role: "user",
+                        is_active: true,
+                        profile: {
+                            create: {
+                                is_premium: false
+                            }
+                        }
+                    },
+                    include: { profile: true }
+                });
+            } catch (e) {
+                // Handle potential username collision by retrying or just failing
+                console.error("Error creating user:", e);
+                return NextResponse.json({ error: "Failed to create user record" }, { status: 500 });
+            }
+        } else if (!dbUser.profile) {
+            // User exists but no profile, create it
+            await prisma.profile.create({
                 data: {
-                    email: user.email,
-                    full_name: user.user_metadata?.full_name || user.email.split("@")[0],
-                    role: "student", // Default role
-                    // Link to Supabase ID if we had a field for it, currently using email as link
-                    // In a real production app, we should add supabase_id to Profile model
-                },
+                    user_id: dbUser.id,
+                    is_premium: false
+                }
+            });
+            // Refetch to get profile
+            dbUser = await prisma.user.findUniqueOrThrow({
+                where: { id: dbUser.id },
+                include: { profile: true }
             });
         }
 
@@ -43,11 +70,19 @@ export async function POST(request: NextRequest) {
         return NextResponse.json({
             success: true,
             user: {
-                id: profile?.id,
-                email: profile?.email,
-                full_name: profile?.full_name,
-                role: profile?.role,
-                supabase_id: user.id,
+                id: dbUser.profile?.id, // Mobile app expects profile ID as user ID likely? Or maybe user.id?
+                // Based on previous code: id: profile?.id. So it wants profile ID.
+                // But wait, previous code had: user_id: user.id (Supabase ID).
+                // Let's return both to be safe, or stick to what was there.
+                // Previous: id: profile?.id, email: profile?.email (wrong), full_name: profile?.full_name (wrong)
+
+                // Let's map correctly:
+                profile_id: dbUser.profile?.id,
+                user_id: dbUser.id,
+                email: dbUser.email,
+                username: dbUser.username,
+                role: dbUser.role,
+                supabase_id: supabaseUser.id,
             },
             sync_compatibility: {
                 min_version: 1,

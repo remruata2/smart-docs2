@@ -1,10 +1,12 @@
 import { getServerSession } from "next-auth";
 import { authOptions } from "@/lib/auth-options";
 import { redirect } from "next/navigation";
-import { getUserStatsAction, getLeaderboardAction } from "@/app/app/practice/actions";
+import { getUserStatsAction } from "@/app/app/practice/actions";
+import { getLeaderboardData } from "@/app/app/leaderboard/actions";
 import { UserStatsCard } from "@/components/leaderboard/UserStatsCard";
-import { LeaderboardTable } from "@/components/leaderboard/LeaderboardTable";
+import { LeaderboardClient } from "@/components/leaderboard/LeaderboardClient";
 import { Trophy } from "lucide-react";
+import { prisma } from "@/lib/prisma";
 
 export default async function LeaderboardPage() {
     const session = await getServerSession(authOptions);
@@ -14,10 +16,18 @@ export default async function LeaderboardPage() {
 
     const userId = parseInt(session.user.id as string);
 
+    // Check if user has institution to determine default scope
+    const profile = await prisma.profile.findUnique({
+        where: { user_id: userId },
+        select: { institution_id: true }
+    });
+
+    const initialScope = profile?.institution_id ? "INSTITUTION" : "BOARD";
+
     // Fetch data in parallel
-    const [userStats, leaderboard] = await Promise.all([
+    const [userStats, leaderboardData] = await Promise.all([
         getUserStatsAction(),
-        getLeaderboardAction(100), // Top 100 users
+        getLeaderboardData(initialScope, "POINTS"),
     ]);
 
     return (
@@ -38,8 +48,18 @@ export default async function LeaderboardPage() {
                 {/* User Stats */}
                 <UserStatsCard stats={userStats} />
 
-                {/* Leaderboard */}
-                <LeaderboardTable entries={leaderboard} currentUserId={userId} />
+                {/* Advanced Leaderboard */}
+                {leaderboardData ? (
+                    <LeaderboardClient
+                        initialEntries={leaderboardData.entries}
+                        initialUserRank={leaderboardData.currentUserRank}
+                        userContext={leaderboardData.userContext}
+                    />
+                ) : (
+                    <div className="text-center py-12 text-muted-foreground bg-muted/30 rounded-lg border border-dashed">
+                        <p>Please join a program to view the leaderboard.</p>
+                    </div>
+                )}
             </div>
         </div>
     );

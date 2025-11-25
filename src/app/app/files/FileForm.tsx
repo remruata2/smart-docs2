@@ -517,7 +517,8 @@ export default function FileForm({
                                     {form.watch("doc1") && form.watch("doc1") instanceof FileList && Array.from(form.watch("doc1")).length > 0 && (
                                         <div className="mt-4 space-y-3">
                                             <FormLabel>Files to Upload</FormLabel>
-                                            {Array.from(form.watch("doc1")).map((file: File) => {
+                                            {Array.from(form.watch("doc1") || []).map((file: unknown) => {
+                                                if (!(file instanceof File)) return null;
                                                 const fileId = `${file.name}-${file.size}-${file.lastModified}`;
                                                 return (
                                                     <div key={fileId} className="p-3 border rounded-md bg-gray-50 space-y-2">

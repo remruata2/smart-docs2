@@ -10,6 +10,9 @@ export async function GET(request: NextRequest) {
             return NextResponse.json({ error: "Missing Bearer token" }, { status: 401 });
         }
         const token = authHeader.split(" ")[1];
+        if (!supabaseAdmin) {
+            return NextResponse.json({ error: "Supabase Admin not initialized" }, { status: 500 });
+        }
         const { data: { user }, error: authError } = await supabaseAdmin.auth.getUser(token);
 
         if (authError || !user) {
@@ -42,14 +45,14 @@ export async function GET(request: NextRequest) {
         // Checking schema... Subject has created_at, updated_at? 
         // Let's assume standard timestamps exist. If not, we'll need to check schema.
 
-        // Fetch Subjects
+        // Fetch Subjects (Subject only has created_at, not updated_at)
         const subjects = await prisma.subject.findMany({
             where: {
-                updated_at: { gt: new Date(lastPulledAt) }
+                created_at: { gt: new Date(lastPulledAt) }
             }
         });
 
-        // Fetch Chapters
+        // Fetch Chapters (Chapter has both created_at and updated_at)
         // TODO: Filter by user's board
         const chapters = await prisma.chapter.findMany({
             where: {
@@ -57,12 +60,10 @@ export async function GET(request: NextRequest) {
             }
         });
 
-        // Fetch Chapter Pages
-        // We need to join with chapters to filter by time, or if pages have updated_at
-        // Assuming pages have updated_at
+        // Fetch Chapter Pages (ChapterPage only has created_at, not updated_at)
         const pages = await prisma.chapterPage.findMany({
             where: {
-                updated_at: { gt: new Date(lastPulledAt) }
+                created_at: { gt: new Date(lastPulledAt) }
             }
         });
 

@@ -1,6 +1,19 @@
 import { LlamaParseReader } from "llama-cloud-services";
 import { getProviderApiKey, recordKeyUsage } from "@/lib/ai-key-store";
 
+// Suppress llamaindex duplicate import warning (harmless - happens when package is imported multiple times)
+// This is a known issue with llama-cloud-services and doesn't affect functionality
+if (typeof process !== "undefined" && process.env.NODE_ENV !== "development") {
+	const originalWarn = console.warn;
+	console.warn = (...args: any[]) => {
+		const message = args[0];
+		if (typeof message === "string" && message.includes("llamaindex was already imported")) {
+			return; // Suppress this specific warning in production
+		}
+		originalWarn.apply(console, args);
+	};
+}
+
 export interface LlamaParseOptions {
 	fastMode?: boolean; // If true, uses "fast" mode (cheaper, no OCR)
 	language?: "en" | "es" | "fr" | "de" | "it" | "pt" | "ja" | "zh" | string;

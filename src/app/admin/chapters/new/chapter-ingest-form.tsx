@@ -1,7 +1,8 @@
 'use client';
 
 import { useState } from "react";
-import { ingestChapter, batchCreateChapters, analyzeTextbook } from "@/app/actions/admin";
+import { batchCreateChapters, analyzeTextbook } from "@/app/actions/admin";
+import { ingestChapterAsync } from "../actions-async";
 import { useRouter } from "next/navigation";
 import { toast } from "sonner";
 import { TextbookSplitter, DetectedChapter, LlamaParsePageResult } from "@/lib/textbook-splitter";
@@ -109,23 +110,29 @@ export default function ChapterIngestForm({
 
         setIsAnalyzing(true);
         try {
-            // Send file to server for parsing
+            // SERVER-SIDE: Extract text using API route (avoids bundling issues)
             const formData = new FormData();
-            formData.append("file", textbookFile);
+            formData.append('file', textbookFile);
 
-            const result = await analyzeTextbook(formData);
+            const response = await fetch('/api/extract-pdf-text', {
+                method: 'POST',
+                body: formData,
+            });
 
-            if (!result.success || !result.pages) {
-                throw new Error(result.error || "Failed to analyze textbook");
+            if (!response.ok) {
+                const error = await response.json();
+                throw new Error(error.error || 'Failed to extract PDF text');
             }
 
-            // Detect chapters from returned pages
-            const chapters = await TextbookSplitter.detectChapters(result.pages);
+            const { pages } = await response.json();
 
-            setFullPages(result.pages);
+            // Detect chapters from extracted text
+            const chapters = await TextbookSplitter.detectChapters(pages);
+
+            setFullPages(pages);
             setDetectedChapters(chapters);
 
-            toast.success(`Detected ${chapters.length} chapter(s)`);
+            toast.success(`Detected ${chapters.length} chapter(s) - Ready to save!`);
         } catch (error: any) {
             toast.error(error.message || "Failed to analyze textbook");
             console.error("Textbook analysis error:", error);
@@ -176,7 +183,8 @@ export default function ChapterIngestForm({
                     });
                 }
 
-                const result = await ingestChapter(formData);
+                // Use async action
+                const result = await ingestChapterAsync(formData);
 
                 if (result.success) {
                     successCount++;
@@ -205,10 +213,10 @@ export default function ChapterIngestForm({
         }
 
         if (successCount > 0) {
-            toast.success(`Successfully ingested ${successCount} chapter(s).`);
+            toast.success(`Started processing ${successCount} chapter(s).`);
         }
         if (errorCount > 0) {
-            toast.error(`Failed to ingest ${errorCount} chapter(s).`);
+            toast.error(`Failed to upload ${errorCount} chapter(s).`);
         }
 
         setIsLoading(false);
@@ -251,20 +259,21 @@ export default function ChapterIngestForm({
                 formData.append("file", textbookFile);
             }
 
-            const result = await batchCreateChapters(formData);
+            // Use async action - creates chapters immediately with PENDING status
+            const { batchCreateChaptersAsync } = await import('../actions-async');
+            const result = await batchCreateChaptersAsync(formData);
 
             if (result.success) {
-                toast.success(result.message || `Created ${detectedChapters.length} chapters`);
-                setTimeout(() => {
-                    router.push("/admin/chapters");
-                    router.refresh();
-                }, 1000);
+                toast.success(result.message || `Created ${detectedChapters.length} chapters - Processing in background`);
+                // Redirect immediately - no waiting!
+                router.push("/admin/chapters");
+                router.refresh();
             } else {
                 toast.error(result.error || "Failed to create chapters");
+                setIsLoading(false);
             }
         } catch (error: any) {
             toast.error(error.message || "Failed to create chapters");
-        } finally {
             setIsLoading(false);
         }
     }

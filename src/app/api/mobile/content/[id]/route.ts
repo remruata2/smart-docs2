@@ -4,7 +4,7 @@ import { prisma } from "@/lib/prisma";
 
 export async function GET(
     request: NextRequest,
-    { params }: { params: { id: string } }
+    { params }: { params: Promise<{ id: string }> }
 ) {
     try {
         // 1. Authenticate
@@ -13,13 +13,17 @@ export async function GET(
             return NextResponse.json({ error: "Missing Bearer token" }, { status: 401 });
         }
         const token = authHeader.split(" ")[1];
+        if (!supabaseAdmin) {
+            return NextResponse.json({ error: "Supabase Admin not initialized" }, { status: 500 });
+        }
         const { data: { user }, error: authError } = await supabaseAdmin.auth.getUser(token);
 
         if (authError || !user) {
             return NextResponse.json({ error: "Invalid token" }, { status: 401 });
         }
 
-        const chapterId = parseInt(params.id);
+        const { id } = await params;
+        const chapterId = parseInt(id);
         if (isNaN(chapterId)) {
             return NextResponse.json({ error: "Invalid chapter ID" }, { status: 400 });
         }

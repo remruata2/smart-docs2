@@ -104,6 +104,51 @@ export class TextbookSplitter {
         // Clean text to remove extra whitespace
         const cleanText = text.trim();
 
+        // Pattern 0: Quote/Preceding text + Chapter + Multi-line Title
+        // Handles cases where there's a quote or other text before the chapter header
+        // and the title spans multiple lines.
+        // Example:
+        // "Facts are not science..."
+        // Chapter 1
+        // Chemical Reactions
+        // and Equations
+        const quotePattern = /(?:^|[\r\n]+)(?:(?:.*?)[\r\n]+){0,6}\s*(?:CHAPTER|Chapter)\s+(\d+)\s*[\r\n]+\s*([^\r\n]{3,100})(?:[\r\n]+\s*([^\r\n]{3,100}))?[\r\n]+([\s\S]{50,})/i;
+        const quoteMatch = cleanText.match(quotePattern);
+
+        if (quoteMatch) {
+            const chapterNum = this.parseChapterNumber(quoteMatch[1]);
+            let titlePart1 = quoteMatch[2].trim();
+            let titlePart2 = quoteMatch[3]?.trim();
+            const followingContent = quoteMatch[4];
+
+            // Validate Title Part 1
+            // If it looks like body text (too long or ends with period), ignore
+            if (titlePart1.length > 100 || /[.]$/.test(titlePart1)) {
+                // Fallback: maybe Part 1 is actually body text?
+                // But "Chapter X" was found, so it's likely a chapter.
+                // We'll accept it but be cautious about Part 2.
+            }
+
+            let fullTitle = titlePart1;
+
+            // Validate Title Part 2 (optional)
+            if (titlePart2) {
+                const isShort = titlePart2.length < 60;
+                const startsWithLower = /^[a-z]/.test(titlePart2);
+                const isContinuation = /^(?:and|of|the|in|on|at|to|for|with)\b/i.test(titlePart2);
+
+                // If it's short OR starts with lowercase OR starts with a connector, treat as title
+                if (isShort || startsWithLower || isContinuation) {
+                    fullTitle += ' ' + titlePart2;
+                }
+            }
+
+            // Ensure title isn't just a page number or header artifact
+            if (!/^[A-Z\s]+\d+$/.test(fullTitle)) {
+                return { title: fullTitle, number: chapterNum };
+            }
+        }
+
         // Pattern 1: Multi-line format - "Chapter 1" on one line, "Title" on next line
         // This handles textbooks where chapter number and title are on separate lines (opening pages)
         const multiLinePattern = /^(?:Chapter|CHAPTER|Ch\.?)\s+(\d+|One|Two|Three|Four|Five|Six|Seven|Eight|Nine|Ten|Eleven|Twelve|[IVX]+)\s*\n\s*([A-Z][^\n]{3,100})/i;

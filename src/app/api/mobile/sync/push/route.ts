@@ -10,6 +10,9 @@ export async function POST(request: NextRequest) {
             return NextResponse.json({ error: "Missing Bearer token" }, { status: 401 });
         }
         const token = authHeader.split(" ")[1];
+        if (!supabaseAdmin) {
+            return NextResponse.json({ error: "Supabase Admin not initialized" }, { status: 500 });
+        }
         const { data: { user }, error: authError } = await supabaseAdmin.auth.getUser(token);
 
         if (authError || !user) {

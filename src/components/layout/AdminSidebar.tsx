@@ -97,61 +97,7 @@ export default function AdminSidebar({ setSidebarOpen }: AdminSidebarProps) {
 					</Link>
 				)}
 
-				{(session?.user.role === UserRole.admin ||
-					session?.user.role === UserRole.staff) && (
-						<Link
-							href="/admin/categories"
-							onClick={() => setSidebarOpen && setSidebarOpen(false)}
-							className={`${baseLinkClasses} ${pathname.startsWith("/admin/categories")
-								? activeLinkClasses
-								: inactiveLinkClasses
-								}`}
-						>
-							{/* You can replace this SVG with a more relevant one for categories if desired */}
-							<svg
-								className="mr-3 h-5 w-5 text-slate-400"
-								fill="none"
-								viewBox="0 0 24 24"
-								stroke="currentColor"
-							>
-								<path
-									strokeLinecap="round"
-									strokeLinejoin="round"
-									strokeWidth={2}
-									d="M3 7v10a2 2 0 002 2h14a2 2 0 002-2V9a2 2 0 00-2-2h-6l-2-2H5a2 2 0 00-2 2z"
-								/>
-							</svg>
-							Categories
-						</Link>
-					)}
 
-				{(session?.user.role === UserRole.admin ||
-					session?.user.role === UserRole.staff) && (
-						<Link
-							href="/admin/files"
-							onClick={() => setSidebarOpen && setSidebarOpen(false)}
-							className={`${baseLinkClasses} ${pathname.startsWith("/admin/files")
-								? activeLinkClasses
-								: inactiveLinkClasses
-								}`}
-						>
-							{/* Icon for Files - using a generic document/folder icon */}
-							<svg
-								className="mr-3 h-5 w-5 text-slate-400"
-								fill="none"
-								viewBox="0 0 24 24"
-								stroke="currentColor"
-							>
-								<path
-									strokeLinecap="round"
-									strokeLinejoin="round"
-									strokeWidth={2}
-									d="M9 12h6m-6 4h6m2 5H7a2 2 0 01-2-2V5a2 2 0 012-2h5.586a1 1 0 01.707.293l5.414 5.414a1 1 0 01.293.707V19a2 2 0 01-2 2z"
-								/>
-							</svg>
-							Manage Files
-						</Link>
-					)}
 
 				{session?.user.role === UserRole.admin && (
 					<div className="mt-6">
@@ -187,8 +133,8 @@ export default function AdminSidebar({ setSidebarOpen }: AdminSidebarProps) {
 								href="/admin/institutions"
 								onClick={() => setSidebarOpen && setSidebarOpen(false)}
 								className={`${baseLinkClasses} ${pathname.startsWith("/admin/institutions")
-										? activeLinkClasses
-										: inactiveLinkClasses
+									? activeLinkClasses
+									: inactiveLinkClasses
 									}`}
 							>
 								<svg
@@ -211,8 +157,8 @@ export default function AdminSidebar({ setSidebarOpen }: AdminSidebarProps) {
 								href="/admin/programs"
 								onClick={() => setSidebarOpen && setSidebarOpen(false)}
 								className={`${baseLinkClasses} ${pathname.startsWith("/admin/programs")
-										? activeLinkClasses
-										: inactiveLinkClasses
+									? activeLinkClasses
+									: inactiveLinkClasses
 									}`}
 							>
 								<svg
@@ -235,8 +181,8 @@ export default function AdminSidebar({ setSidebarOpen }: AdminSidebarProps) {
 								href="/admin/subjects"
 								onClick={() => setSidebarOpen && setSidebarOpen(false)}
 								className={`${baseLinkClasses} ${pathname.startsWith("/admin/subjects")
-										? activeLinkClasses
-										: inactiveLinkClasses
+									? activeLinkClasses
+									: inactiveLinkClasses
 									}`}
 							>
 								<svg
@@ -277,6 +223,54 @@ export default function AdminSidebar({ setSidebarOpen }: AdminSidebarProps) {
 									/>
 								</svg>
 								Chapters
+							</Link>
+
+							<Link
+								href="/admin/exams"
+								onClick={() => setSidebarOpen && setSidebarOpen(false)}
+								className={`${baseLinkClasses} ${pathname.startsWith("/admin/exams")
+									? activeLinkClasses
+									: inactiveLinkClasses
+									}`}
+							>
+								<svg
+									className="mr-3 h-5 w-5 text-gray-500"
+									fill="none"
+									viewBox="0 0 24 24"
+									stroke="currentColor"
+								>
+									<path
+										strokeLinecap="round"
+										strokeLinejoin="round"
+										strokeWidth={2}
+										d="M8 7V3m8 4V3m-9 8h10M5 21h14a2 2 0 002-2V7a2 2 0 00-2-2H5a2 2 0 00-2 2v12a2 2 0 002 2z"
+									/>
+								</svg>
+								Exams
+							</Link>
+
+							<Link
+								href="/admin/badges"
+								onClick={() => setSidebarOpen && setSidebarOpen(false)}
+								className={`${baseLinkClasses} ${pathname.startsWith("/admin/badges")
+									? activeLinkClasses
+									: inactiveLinkClasses
+									}`}
+							>
+								<svg
+									className="mr-3 h-5 w-5 text-gray-500"
+									fill="none"
+									viewBox="0 0 24 24"
+									stroke="currentColor"
+								>
+									<path
+										strokeLinecap="round"
+										strokeLinejoin="round"
+										strokeWidth={2}
+										d="M9 12l2 2 4-4M7.835 4.697a3.42 3.42 0 001.946-.806 3.42 3.42 0 014.438 0 3.42 3.42 0 001.946.806 3.42 3.42 0 013.138 3.138 3.42 3.42 0 00.806 1.946 3.42 3.42 0 010 4.438 3.42 3.42 0 00-.806 1.946 3.42 3.42 0 01-3.138 3.138 3.42 3.42 0 00-1.946.806 3.42 3.42 0 01-4.438 0 3.42 3.42 0 00-1.946-.806 3.42 3.42 0 01-3.138-3.138 3.42 3.42 0 00-.806-1.946 3.42 3.42 0 010-4.438 3.42 3.42 0 00.806-1.946 3.42 3.42 0 013.138-3.138z"
+									/>
+								</svg>
+								Badges
 							</Link>
 						</div>
 					</div>
@@ -388,6 +382,31 @@ export default function AdminSidebar({ setSidebarOpen }: AdminSidebarProps) {
 									/>
 								</svg>
 								AI Search Settings
+							</Link>
+
+							<Link
+								href="/admin/settings/quiz-timers"
+								onClick={() => setSidebarOpen && setSidebarOpen(false)}
+								className={`${baseLinkClasses} ${pathname.startsWith("/admin/settings/quiz-timers")
+									? activeLinkClasses
+									: inactiveLinkClasses
+									}`}
+							>
+								{/* Icon for Timer - clock */}
+								<svg
+									className="mr-3 h-5 w-5 text-gray-500"
+									fill="none"
+									viewBox="0 0 24 24"
+									stroke="currentColor"
+								>
+									<path
+										strokeLinecap="round"
+										strokeLinejoin="round"
+										strokeWidth={2}
+										d="M12 8v4l3 3m6-3a9 9 0 11-18 0 9 9 0 0118 0z"
+									/>
+								</svg>
+								Quiz Timers
 							</Link>
 						</div>
 					</div>

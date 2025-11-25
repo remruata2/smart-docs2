@@ -4,7 +4,7 @@ import { PrismaClient } from "../generated/prisma";
 
 const prisma = new PrismaClient();
 
-// Define the model we want to use. 
+// Define the model we want to use.
 // 'Xenova/all-MiniLM-L6-v2' is standard for RAG: fast, small (23MB), and accurate.
 const EMBEDDING_MODEL = "Xenova/all-MiniLM-L6-v2";
 
@@ -18,7 +18,9 @@ export class SemanticVectorService {
 	 */
 	static async initialize() {
 		if (!this.embedder) {
-			console.log(`[SEMANTIC] Initializing local embedder model: ${EMBEDDING_MODEL}...`);
+			console.log(
+				`[SEMANTIC] Initializing local embedder model: ${EMBEDDING_MODEL}...`
+			);
 			this.embedder = await pipeline("feature-extraction", EMBEDDING_MODEL);
 			console.log("[SEMANTIC] Embedder initialized successfully");
 		}
@@ -35,12 +37,12 @@ export class SemanticVectorService {
 			throw new Error("Text is required for embedding generation");
 		}
 
-		// 1. Pre-process text: 
+		// 1. Pre-process text:
 		// Replace newlines to keep semantic meaning consistent and trim
 		const cleanedText = text.replace(/\n+/g, " ").trim();
 
 		// 2. Truncate text to avoid model limits (512 tokens approx ~2000 chars)
-		// We truncate to 2000 characters to be safe. 
+		// We truncate to 2000 characters to be safe.
 		// For full document search, you should ideally chunk the document and average the vectors,
 		// but for a simple file-level vector, truncating the first 2000 chars (header + summary) works well.
 		const truncatedText = cleanedText.substring(0, 2000);
@@ -62,6 +64,7 @@ export class SemanticVectorService {
 
 	/**
 	 * Updates the semantic vector for a specific file.
+	 * @deprecated This function references the old file_list table. Use chapter-processor.ts for chapter chunks instead.
 	 */
 	static async updateSemanticVector(fileId: number) {
 		try {
@@ -74,12 +77,16 @@ export class SemanticVectorService {
 				throw new Error(`File with ID ${fileId} not found`);
 			}
 
-			// Combine fields. 
-			// Tip: Put the most important keywords (Title/Category) FIRST 
+			// Combine fields.
+			// Tip: Put the most important keywords (Title/Category) FIRST
 			// because truncation happens at the end.
-			const textToEmbed = `Title: ${file.title}. Category: ${file.category}. Content: ${file.note || ""}`;
+			const textToEmbed = `Title: ${file.title}. Category: ${
+				file.category
+			}. Content: ${file.note || ""}`;
 
-			console.log(`[SEMANTIC] Generating vector for file ${fileId} (${textToEmbed.length} chars)...`);
+			console.log(
+				`[SEMANTIC] Generating vector for file ${fileId} (${textToEmbed.length} chars)...`
+			);
 
 			const embedding = await this.generateEmbedding(textToEmbed);
 
@@ -92,14 +99,18 @@ export class SemanticVectorService {
 
 			console.log(`[SEMANTIC] Successfully updated vector for file ${fileId}`);
 		} catch (error) {
-			console.error(`[SEMANTIC] Failed to update vector for file ${fileId}:`, error);
+			console.error(
+				`[SEMANTIC] Failed to update vector for file ${fileId}:`,
+				error
+			);
 			// Don't throw here if this is part of a background batch job, just log it.
-			// throw error; 
+			// throw error;
 		}
 	}
 
 	/**
 	 * Generate semantic vectors for file chunks
+	 * @deprecated This function references the old file_chunks table. Use chapter-processor.ts for chapter chunks instead.
 	 */
 	static async generateChunkVectors(fileId: number) {
 		try {
@@ -109,7 +120,9 @@ export class SemanticVectorService {
 				select: { id: true, content: true },
 			});
 
-			console.log(`[SEMANTIC] Generating vectors for ${chunks.length} chunks of file ${fileId}...`);
+			console.log(
+				`[SEMANTIC] Generating vectors for ${chunks.length} chunks of file ${fileId}...`
+			);
 
 			for (const chunk of chunks) {
 				try {
@@ -122,19 +135,28 @@ export class SemanticVectorService {
 						WHERE id = ${chunk.id}
 					`;
 				} catch (err) {
-					console.error(`[SEMANTIC] Failed to generate vector for chunk ${chunk.id}:`, err);
+					console.error(
+						`[SEMANTIC] Failed to generate vector for chunk ${chunk.id}:`,
+						err
+					);
 					// Continue with other chunks
 				}
 			}
 
-			console.log(`[SEMANTIC] Successfully updated vectors for file ${fileId} chunks`);
+			console.log(
+				`[SEMANTIC] Successfully updated vectors for file ${fileId} chunks`
+			);
 		} catch (error) {
-			console.error(`[SEMANTIC] Failed to generate chunk vectors for file ${fileId}:`, error);
+			console.error(
+				`[SEMANTIC] Failed to generate chunk vectors for file ${fileId}:`,
+				error
+			);
 		}
 	}
 
 	/**
 	 * Batch/Repair function: Find all files missing vectors and generate them.
+	 * @deprecated This function references the old file_list table. Use updateSearchVectors() in ai-service-enhanced.ts for chapter chunks instead.
 	 */
 	static async batchUpdateSemanticVectors() {
 		console.log("[SEMANTIC] Starting batch update for missing vectors...");

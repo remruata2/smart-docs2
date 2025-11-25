@@ -1,7 +1,8 @@
 "use client";
 
-import { useState, useRef, useEffect } from "react";
+import { useState, useRef, useEffect, Suspense } from "react";
 import Link from "next/link";
+import { useSearchParams } from "next/navigation";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
@@ -33,7 +34,7 @@ interface ChatSource {
 	title: string;
 }
 
-export default function DashboardChatPage() {
+function DashboardChatPageContent() {
 	const [messages, setMessages] = useState<ChatMessage[]>([]);
 	const [inputMessage, setInputMessage] = useState("");
 	const [isLoading, setIsLoading] = useState(false);
@@ -63,9 +64,29 @@ export default function DashboardChatPage() {
 	const [expandedSources, setExpandedSources] = useState<
 		Record<string, boolean>
 	>({});
-	const [categories, setCategories] = useState<string[]>([]);
-	const [categoriesLoading, setCategoriesLoading] = useState<boolean>(false);
-	const [selectedCategory, setSelectedCategory] = useState<string>("");
+	// Subject and Chapter filters
+	const [subjects, setSubjects] = useState<Array<{ id: number; name: string }>>(
+		[]
+	);
+	const [subjectsLoading, setSubjectsLoading] = useState<boolean>(false);
+	const [selectedSubjectId, setSelectedSubjectId] = useState<number | null>(
+		null
+	);
+	const [selectedSubjectName, setSelectedSubjectName] = useState<string>("");
+
+	const [chapters, setChapters] = useState<
+		Array<{ id: string; title: string; chapter_number: number | null }>
+	>([]);
+	const [chaptersLoading, setChaptersLoading] = useState<boolean>(false);
+	const [selectedChapterId, setSelectedChapterId] = useState<string | null>(
+		null
+	);
+	const [selectedChapterTitle, setSelectedChapterTitle] = useState<string>("");
+
+	// Get filters from URL
+	const searchParams = useSearchParams();
+	const urlSubjectId = searchParams.get("subjectId");
+	const urlChapterId = searchParams.get("chapterId");
 
 	// Load available models for current provider
 	useEffect(() => {
@@ -121,28 +142,75 @@ export default function DashboardChatPage() {
 		};
 	}, [model]);
 
-	// Load available categories
+	// Load available subjects
 	useEffect(() => {
-		async function loadCategories() {
+		async function loadSubjects() {
 			try {
-				setCategoriesLoading(true);
-				const res = await fetch("/api/dashboard/categories");
-				if (!res.ok) throw new Error("Failed to load categories");
+				setSubjectsLoading(true);
+				const res = await fetch("/api/dashboard/subjects");
+				if (!res.ok) throw new Error("Failed to load subjects");
 				const data = await res.json();
-				setCategories(data.categories || []);
-				// Reset selected category if it's not in the new list
-				if (selectedCategory && !data.categories?.includes(selectedCategory)) {
-					setSelectedCategory("");
-				}
+				setSubjects(data.subjects || []);
 			} catch (e) {
-				console.error("[DashboardChat] Failed to fetch categories", e);
-				setCategories([]);
+				console.error("[DashboardChat] Failed to fetch subjects", e);
+				setSubjects([]);
 			} finally {
-				setCategoriesLoading(false);
+				setSubjectsLoading(false);
 			}
 		}
-		loadCategories();
+		loadSubjects();
 	}, []);
+
+	// Load chapters when subject is selected
+	useEffect(() => {
+		if (!selectedSubjectId) {
+			setChapters([]);
+			setSelectedChapterId(null);
+			setSelectedChapterTitle("");
+			return;
+		}
+
+		async function loadChapters() {
+			try {
+				setChaptersLoading(true);
+				const res = await fetch(
+					`/api/dashboard/chapters?subjectId=${selectedSubjectId}`
+				);
+				if (!res.ok) throw new Error("Failed to load chapters");
+				const data = await res.json();
+				setChapters(data.chapters || []);
+
+				// If URL has chapterId, preselect it
+				if (urlChapterId && data.chapters) {
+					const chapter = data.chapters.find((c: any) => c.id === urlChapterId);
+					if (chapter) {
+						setSelectedChapterId(chapter.id);
+						setSelectedChapterTitle(chapter.title);
+					}
+				}
+			} catch (e) {
+				console.error("[DashboardChat] Failed to fetch chapters", e);
+				setChapters([]);
+			} finally {
+				setChaptersLoading(false);
+			}
+		}
+		loadChapters();
+	}, [selectedSubjectId, urlChapterId]);
+
+	// Preselect subject/chapter from URL params on mount
+	useEffect(() => {
+		if (urlSubjectId && subjects.length > 0) {
+			const subjectIdNum = parseInt(urlSubjectId, 10);
+			if (!isNaN(subjectIdNum)) {
+				const subject = subjects.find((s) => s.id === subjectIdNum);
+				if (subject) {
+					setSelectedSubjectId(subjectIdNum);
+					setSelectedSubjectName(subject.name);
+				}
+			}
+		}
+	}, [urlSubjectId, subjects]);
 
 	const scrollAreaRef = useRef<HTMLDivElement>(null);
 	const inputRef = useRef<HTMLInputElement>(null);
@@ -293,13 +361,9 @@ export default function DashboardChatPage() {
 					sources: msg.sources || [],
 					tokenCount: msg.tokenCount,
 					chartData: msg.metadata?.chartData || null, // Extract chartData from metadata
-					// For assistant messages, always show filters (default to "All" if not saved)
+					// For assistant messages, always show filters
 					filters:
-						msg.role === "assistant"
-							? msg.metadata?.filters || {
-									category: "All Categories",
-							  }
-							: undefined,
+						msg.role === "assistant" ? msg.metadata?.filters || {} : undefined,
 				})
 			);
 
@@ -370,10 +434,21 @@ export default function DashboardChatPage() {
 		// Create a placeholder assistant message for streaming with thinking indicator
 		const assistantMessageId = `assistant_${Date.now()}`;
 
-		// Always include filters (show "All Categories" if not selected)
-		const activeFilters: { category: string } = {
-			category: selectedCategory || "All Categories",
-		};
+		// Always include filters
+		const activeFilters: {
+			subjectId?: number;
+			chapterId?: number;
+			subjectName?: string;
+			chapterTitle?: string;
+		} = {};
+		if (selectedSubjectId) {
+			activeFilters.subjectId = selectedSubjectId;
+			activeFilters.subjectName = selectedSubjectName;
+		}
+		if (selectedChapterId) {
+			activeFilters.chapterId = parseInt(selectedChapterId, 10);
+			activeFilters.chapterTitle = selectedChapterTitle;
+		}
 
 		const assistantMessage: ChatMessage = {
 			id: assistantMessageId,
@@ -396,7 +471,10 @@ export default function DashboardChatPage() {
 					conversationHistory: messages,
 					provider: "gemini",
 					model,
-					category: selectedCategory || undefined,
+					subjectId: selectedSubjectId || undefined,
+					chapterId: selectedChapterId
+						? parseInt(selectedChapterId, 10)
+						: undefined,
 					stream: true, // Enable streaming
 				}),
 			});
@@ -610,9 +688,20 @@ export default function DashboardChatPage() {
 
 								// === AUTO-SAVE: Save assistant message ===
 								if (conversationId) {
-									const saveFilters: { category: string } = {
-										category: selectedCategory || "All Categories",
-									};
+									const saveFilters: {
+										subjectId?: number;
+										chapterId?: number;
+										subjectName?: string;
+										chapterTitle?: string;
+									} = {};
+									if (selectedSubjectId) {
+										saveFilters.subjectId = selectedSubjectId;
+										saveFilters.subjectName = selectedSubjectName;
+									}
+									if (selectedChapterId) {
+										saveFilters.chapterId = parseInt(selectedChapterId, 10);
+										saveFilters.chapterTitle = selectedChapterTitle;
+									}
 
 									// Use the tracked chartData
 									const finalChartData =
@@ -857,15 +946,22 @@ export default function DashboardChatPage() {
 											{/* Filters Badge (Assistant Only) */}
 											{msg.role === "assistant" && msg.filters && (
 												<div className="flex flex-wrap gap-2 mb-2">
-													{msg.filters.category &&
-														msg.filters.category !== "All Categories" && (
-															<Badge
-																variant="outline"
-																className="text-[10px] h-5 px-2 bg-purple-50 text-purple-700 border-purple-200"
-															>
-																Category: {msg.filters.category}
-															</Badge>
-														)}
+													{(msg.filters as any).subjectName && (
+														<Badge
+															variant="outline"
+															className="text-[10px] h-5 px-2 bg-purple-50 text-purple-700 border-purple-200"
+														>
+															Subject: {(msg.filters as any).subjectName}
+														</Badge>
+													)}
+													{(msg.filters as any).chapterTitle && (
+														<Badge
+															variant="outline"
+															className="text-[10px] h-5 px-2 bg-blue-50 text-blue-700 border-blue-200"
+														>
+															Chapter: {(msg.filters as any).chapterTitle}
+														</Badge>
+													)}
 												</div>
 											)}
 
@@ -1111,17 +1207,62 @@ export default function DashboardChatPage() {
 							<div className="flex flex-wrap items-center gap-2">
 								<select
 									className="text-xs border rounded-md px-2 py-1 bg-gray-50 dark:bg-gray-800 focus:ring-1 focus:ring-primary outline-none"
-									value={selectedCategory}
-									onChange={(e) => setSelectedCategory(e.target.value)}
-									disabled={isLoading || categoriesLoading}
+									value={selectedSubjectId || ""}
+									onChange={(e) => {
+										const subjectId = e.target.value
+											? parseInt(e.target.value, 10)
+											: null;
+										setSelectedSubjectId(subjectId);
+										if (subjectId) {
+											const subject = subjects.find((s) => s.id === subjectId);
+											setSelectedSubjectName(subject?.name || "");
+										} else {
+											setSelectedSubjectName("");
+										}
+										// Clear chapter when subject changes
+										setSelectedChapterId(null);
+										setSelectedChapterTitle("");
+									}}
+									disabled={isLoading || subjectsLoading}
 								>
-									<option value="">All Categories</option>
-									{categories.map((c) => (
-										<option key={c} value={c}>
-											{c}
+									<option value="">All Subjects</option>
+									{subjects.map((s) => (
+										<option key={s.id} value={s.id}>
+											{s.name}
 										</option>
 									))}
 								</select>
+
+								{selectedSubjectId && (
+									<>
+										<div className="h-4 w-px bg-gray-200 dark:bg-gray-700 mx-1" />
+										<select
+											className="text-xs border rounded-md px-2 py-1 bg-gray-50 dark:bg-gray-800 focus:ring-1 focus:ring-primary outline-none"
+											value={selectedChapterId || ""}
+											onChange={(e) => {
+												const chapterId = e.target.value || null;
+												setSelectedChapterId(chapterId);
+												if (chapterId) {
+													const chapter = chapters.find(
+														(c) => c.id === chapterId
+													);
+													setSelectedChapterTitle(chapter?.title || "");
+												} else {
+													setSelectedChapterTitle("");
+												}
+											}}
+											disabled={isLoading || chaptersLoading}
+										>
+											<option value="">All Chapters</option>
+											{chapters.map((c) => (
+												<option key={c.id} value={c.id}>
+													{c.chapter_number ? `Ch. ${c.chapter_number}: ` : ""}
+													{c.title}
+												</option>
+											))}
+										</select>
+									</>
+								)}
 
 								<div className="h-4 w-px bg-gray-200 dark:bg-gray-700 mx-1" />
 
@@ -1183,5 +1324,13 @@ export default function DashboardChatPage() {
 				</div>
 			</div>
 		</div>
+	);
+}
+
+export default function DashboardChatPage() {
+	return (
+		<Suspense fallback={<div className="container mx-auto px-4 py-8">Loading...</div>}>
+			<DashboardChatPageContent />
+		</Suspense>
 	);
 }

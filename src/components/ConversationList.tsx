@@ -237,9 +237,8 @@ export default function ConversationList({
 			<div className={`px-2 py-2 ${isCollapsed ? "text-center" : ""}`}>
 				<Button
 					onClick={handleNewConversation}
-					className={`w-full bg-white text-gray-900 hover:bg-gray-200 ${
-						isCollapsed ? "px-2" : ""
-					}`}
+					className={`w-full bg-white/20 text-white hover:bg-white/30 border border-white/10 ${isCollapsed ? "px-2" : ""
+						}`}
 					variant="default"
 					size={isCollapsed ? "icon" : "default"}
 					title={isCollapsed ? "New Chat" : ""}
@@ -256,13 +255,13 @@ export default function ConversationList({
 					{/* Search */}
 					<div className="px-2 pb-2">
 						<div className="relative">
-							<Search className="absolute left-2 top-1/2 transform -translate-y-1/2 h-3 w-3 text-gray-400" />
+							<Search className="absolute left-2 top-1/2 transform -translate-y-1/2 h-3 w-3 text-white/50" />
 							<Input
 								type="text"
 								placeholder="Search..."
 								value={searchQuery}
 								onChange={(e) => setSearchQuery(e.target.value)}
-								className="pl-7 h-8 text-xs bg-white border border-gray-300 text-gray-900 placeholder:text-gray-500 focus-visible:ring-gray-400 focus-visible:ring-1"
+								className="pl-7 h-8 text-xs bg-white/10 border border-white/10 text-white placeholder:text-white/50 focus-visible:ring-white/30 focus-visible:ring-1"
 							/>
 						</div>
 					</div>
@@ -271,23 +270,23 @@ export default function ConversationList({
 					<div className="flex-1 overflow-y-auto px-2 custom-scrollbar">
 						{isLoading ? (
 							<div className="flex items-center justify-center h-20">
-								<Loader2 className="h-4 w-4 animate-spin text-gray-500" />
+								<Loader2 className="h-4 w-4 animate-spin text-white/50" />
 							</div>
 						) : groupedConversations.length === 0 ? (
-							<div className="p-4 text-center text-gray-500 text-md">
+							<div className="p-4 text-center text-white/50 text-md">
 								No conversations yet.
 							</div>
 						) : (
 							groupedConversations.map((group) => (
 								<div key={group.label} className="mb-3">
-									<div className="px-2 py-1 text-[10px] font-semibold text-gray-500 uppercase tracking-wider">
+									<div className="px-2 py-1 text-[10px] font-semibold text-white/60 uppercase tracking-wider">
 										{group.label}
 									</div>
 									<div className="space-y-0.5">
 										{group.conversations.map((conv) => (
 											<div
 												key={conv.id}
-												className="group relative rounded-md transition-colors hover:bg-gray-200"
+												className="group relative rounded-md transition-colors hover:bg-white/10"
 											>
 												{editingId === conv.id ? (
 													<div className="p-1">
@@ -306,7 +305,7 @@ export default function ConversationList({
 																}
 															}}
 															autoFocus
-															className="h-6 text-sm bg-white border border-gray-300 text-gray-900"
+															className="h-6 text-sm bg-white text-gray-900"
 														/>
 													</div>
 												) : (
@@ -317,10 +316,10 @@ export default function ConversationList({
 														>
 															<div className="flex items-center gap-2">
 																{conv.isPinned && (
-																	<Pin className="h-3 w-3 text-gray-600 flex-shrink-0" />
+																	<Pin className="h-3 w-3 text-white/70 flex-shrink-0" />
 																)}
 																<div className="flex-1 min-w-0">
-																	<div className="text-sm font-medium text-gray-900 truncate group-hover:text-gray-900">
+																	<div className="text-sm font-medium text-white truncate group-hover:text-white">
 																		{conv.title}
 																	</div>
 																</div>
@@ -334,7 +333,7 @@ export default function ConversationList({
 																	<Button
 																		variant="ghost"
 																		size="icon"
-																		className="h-5 w-5 text-gray-500 hover:text-gray-900 hover:bg-gray-200"
+																		className="h-5 w-5 text-white/50 hover:text-white hover:bg-white/20"
 																	>
 																		<MoreVertical className="h-3 w-3" />
 																	</Button>
@@ -394,7 +393,7 @@ export default function ConversationList({
 						<button
 							key={conv.id}
 							onClick={() => handleSelectConversation(conv.id)}
-							className="w-8 h-8 rounded-md flex items-center justify-center transition-colors hover:bg-gray-200 text-gray-500 hover:text-gray-900"
+							className="w-8 h-8 rounded-md flex items-center justify-center transition-colors hover:bg-white/20 text-white/70 hover:text-white"
 							title={conv.title}
 						>
 							<MessageSquare className="h-4 w-4" />
@@ -405,11 +404,11 @@ export default function ConversationList({
 
 			{/* Clear All Conversations Button */}
 			{!isCollapsed && conversations.length > 0 && (
-				<div className="p-2 border-t border-gray-200">
+				<div className="p-2 border-t border-white/10">
 					<Button
 						variant="ghost"
 						size="sm"
-						className="w-full text-xs text-red-500 hover:text-red-600 hover:bg-red-100 justify-start px-2"
+						className="w-full text-xs text-red-300 hover:text-red-200 hover:bg-red-500/20 justify-start px-2"
 						onClick={() => setClearAllDialogOpen(true)}
 					>
 						<Trash2 className="h-3 w-3 mr-2" />

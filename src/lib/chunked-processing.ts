@@ -159,8 +159,8 @@ function prepareContextForChunk(records: SearchResult[]): string {
 	// Add record index for quick reference
 	context += "RECORD INDEX:\n";
 	records.forEach((record, index) => {
-		context += `[${index + 1}] Title: ${record.title} | Category: ${
-			record.category || "Uncategorized"
+		context += `[${index + 1}] Title: ${record.title} | Subject: ${
+			record.subject || "Uncategorized"
 		} | Date: ${
 			record.entry_date_real?.toLocaleDateString() || "Unknown date"
 		}\n`;
@@ -173,7 +173,7 @@ function prepareContextForChunk(records: SearchResult[]): string {
 
 		context += `\n[RECORD ${index + 1}]`;
 		context += `\nTitle: ${record.title}`;
-		context += `\nCategory: ${record.category || "Uncategorized"}`;
+		context += `\nSubject: ${record.subject || "Uncategorized"}`;
 		context += `\nDate: ${
 			record.entry_date_real?.toLocaleDateString() || "Unknown date"
 		}`;

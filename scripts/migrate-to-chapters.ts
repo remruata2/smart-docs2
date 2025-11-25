@@ -28,9 +28,22 @@ async function main() {
         let subject = await prisma.subject.findFirst({
             where: {
                 name: subjectName,
-                board_id: defaultBoardId
             }
         });
+
+        // If found, check if it matches the board (if needed, or just use it)
+        if (subject && subject.board_id !== defaultBoardId) {
+            // If existing subject is for a different board, we might want to create a new one or just use it.
+            // For simplicity in migration, let's try to find one that matches or create new.
+            const matchingSubject = await prisma.subject.findFirst({
+                where: {
+                    name: subjectName,
+                    board_id: defaultBoardId
+                }
+            });
+            if (matchingSubject) subject = matchingSubject;
+            else subject = null;
+        }
 
         if (!subject) {
             subject = await prisma.subject.create({

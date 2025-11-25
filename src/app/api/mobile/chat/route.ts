@@ -1,7 +1,7 @@
 import { NextRequest, NextResponse } from "next/server";
 import { supabaseAdmin } from "@/lib/supabase";
-import { processChatMessageEnhancedStream } from "@/lib/ai-service-enhanced";
-import { sanitizeAIInput, validateConversationHistory } from "@/lib/input-sanitizer";
+import { processChatMessageEnhancedStream, type ChatMessage } from "@/lib/ai-service-enhanced";
+import { sanitizeAIInput, validateConversationHistory, type ConversationMessage } from "@/lib/input-sanitizer";
 
 export async function POST(request: NextRequest) {
     try {
@@ -11,6 +11,9 @@ export async function POST(request: NextRequest) {
             return NextResponse.json({ error: "Missing Bearer token" }, { status: 401 });
         }
         const token = authHeader.split(" ")[1];
+        if (!supabaseAdmin) {
+            return NextResponse.json({ error: "Supabase Admin not initialized" }, { status: 500 });
+        }
         const { data: { user }, error: authError } = await supabaseAdmin.auth.getUser(token);
 
         if (authError || !user) {
@@ -30,7 +33,7 @@ export async function POST(request: NextRequest) {
         const sanitizedMessage = sanitizationResult.sanitized;
 
         // 4. Validate History
-        let validHistory = [];
+        let validHistory: any[] = [];
         if (conversationHistory) {
             const historyValidation = validateConversationHistory(conversationHistory, 50, 1000);
             if (historyValidation.valid && historyValidation.sanitized) {

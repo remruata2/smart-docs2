@@ -1,6 +1,6 @@
 'use client';
 
-import { useState, useTransition } from "react";
+import { useState, useTransition, useEffect } from "react";
 import { useRouter } from "next/navigation";
 import { toast } from "sonner";
 
@@ -13,6 +13,22 @@ export default function ChapterListClient({ chapters, onDelete }: ChapterListCli
     const [selectedIds, setSelectedIds] = useState<Set<string>>(new Set());
     const [isPending, startTransition] = useTransition();
     const router = useRouter();
+
+    // Check if any chapters are still processing
+    const hasProcessingChapters = chapters.some(
+        ch => ch.processing_status === 'PENDING' || ch.processing_status === 'PROCESSING'
+    );
+
+    // Auto-refresh when chapters are processing
+    useEffect(() => {
+        if (!hasProcessingChapters) return;
+
+        const interval = setInterval(() => {
+            router.refresh();
+        }, 5000); // Poll every 5 seconds
+
+        return () => clearInterval(interval);
+    }, [hasProcessingChapters, router]);
 
     const toggleSelect = (id: string) => {
         const newSelected = new Set(selectedIds);
@@ -54,8 +70,33 @@ export default function ChapterListClient({ chapters, onDelete }: ChapterListCli
         });
     };
 
+    function getStatusBadge(status: string) {
+        switch (status) {
+            case 'PENDING':
+                return <span className="px-2 inline-flex text-xs leading-5 font-semibold rounded-full bg-yellow-100 text-yellow-800">🟡 Pending</span>;
+            case 'PROCESSING':
+                return <span className="px-2 inline-flex text-xs leading-5 font-semibold rounded-full bg-blue-100 text-blue-800 animate-pulse">🔵 Processing</span>;
+            case 'COMPLETED':
+                return <span className="px-2 inline-flex text-xs leading-5 font-semibold rounded-full bg-green-100 text-green-800">🟢 Ready</span>;
+            case 'FAILED':
+                return <span className="px-2 inline-flex text-xs leading-5 font-semibold rounded-full bg-red-100 text-red-800">🔴 Failed</span>;
+            default:
+                return null;
+        }
+    }
+
     return (
         <div>
+            {/* Processing Notice */}
+            {hasProcessingChapters && (
+                <div className="mb-4 bg-blue-50 border border-blue-200 rounded-lg p-4 flex items-center gap-3">
+                    <div className="animate-spin h-5 w-5 border-2 border-blue-600 border-t-transparent rounded-full"></div>
+                    <span className="text-sm text-blue-900">
+                        {chapters.filter(ch => ch.processing_status === 'PROCESSING').length} chapter(s) processing... Auto-refreshing every 5 seconds
+                    </span>
+                </div>
+            )}
+
             {/* Bulk Actions Bar */}
             {selectedIds.size > 0 && (
                 <div className="mb-4 bg-indigo-50 border border-indigo-200 rounded-lg p-4 flex items-center justify-between">
@@ -108,10 +149,11 @@ export default function ChapterListClient({ chapters, onDelete }: ChapterListCli
                                     onClick={() => router.push(`/admin/chapters/${chapter.id}`)}
                                 >
                                     <div className="flex items-center justify-between">
-                                        <div className="flex items-center gap-2">
+                                        <div className="flex items-center gap-2 flex-wrap">
                                             <span className="text-sm font-medium text-indigo-600">
                                                 {chapter.title}
                                             </span>
+                                            {getStatusBadge(chapter.processing_status)}
                                             {chapter.is_global && (
                                                 <span className="px-2 inline-flex text-xs leading-5 font-semibold rounded-full bg-blue-100 text-blue-800">
                                                     Global
@@ -139,6 +181,11 @@ export default function ChapterListClient({ chapters, onDelete }: ChapterListCli
                                             <p>Pages: {chapter._count.pages}</p>
                                         </div>
                                     </div>
+                                    {chapter.processing_status === 'FAILED' && chapter.error_message && (
+                                        <div className="mt-2 text-xs text-red-600 bg-red-50 p-2 rounded">
+                                            Error: {chapter.error_message}
+                                        </div>
+                                    )}
                                 </div>
                             </div>
                         </li>

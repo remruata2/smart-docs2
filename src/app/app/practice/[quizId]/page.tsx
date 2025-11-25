@@ -4,15 +4,16 @@ import { authOptions } from "@/lib/auth-options";
 import { prisma } from "@/lib/prisma";
 import { QuizInterface } from "@/components/practice/QuizInterface";
 
-export default async function QuizPage({ params }: { params: { quizId: string } }) {
+export default async function QuizPage({ params }: { params: Promise<{ quizId: string }> }) {
     const session = await getServerSession(authOptions);
     if (!session?.user?.id) {
-        redirect("/auth/signin");
+        redirect("/login");
     }
     const userId = parseInt(session.user.id as string);
+    const { quizId } = await params;
 
     const quiz = await prisma.quiz.findUnique({
-        where: { id: params.quizId },
+        where: { id: quizId },
         include: {
             questions: {
                 select: {
@@ -37,7 +38,7 @@ export default async function QuizPage({ params }: { params: { quizId: string } 
     }
 
     if (quiz.status === "COMPLETED") {
-        redirect(`/app/practice/${params.quizId}/result`);
+        redirect(`/app/practice/${quizId}/result`);
     }
 
     // Transform for client component

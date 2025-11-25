@@ -108,6 +108,7 @@ model user {
    profile        Profile?
    quizzes        Quiz[]
    points         UserPoints[]
+   badges         UserBadge[]
 
    @@index([email], map: "idx_user_email")
 }
@@ -321,6 +322,7 @@ model Program {
   institution Institution? @relation(fields: [institution_id], references: [id])
   subjects    Subject[]
   profiles    Profile[]
+  exams       Exam[]
 
   @@unique([board_id, institution_id, name])
   @@index([board_id, level])
@@ -363,27 +365,41 @@ model Subject {
   @@map("subjects")
 }
 
+enum ChapterStatus {
+  PENDING
+  PROCESSING
+  COMPLETED
+  FAILED
+
+  @@map("chapter_status")
+}
+
 model Chapter {
-  id                BigInt    @id @default(autoincrement())
+  id                BigInt         @id @default(autoincrement())
   subject_id        Int
-  title             String    // 'Chapter 6: Life Processes'
+  title             String         // 'Chapter 6: Life Processes'
   chapter_number    Int?
-  content_json      Json      // LlamaParse output
-  version_id        String    @default(cuid()) // For sync
-  accessible_boards String[]  // For cross-board content (e.g., NCERT used by multiple boards)
-  is_global         Boolean   @default(false) // true = accessible to all boards
-  is_active         Boolean   @default(true)
-  created_at        DateTime  @default(now())
-  updated_at        DateTime  @updatedAt
+  content_json      Json           // LlamaParse output
+  version_id        String         @default(cuid()) // For sync
+  accessible_boards String[]       // For cross-board content (e.g., NCERT used by multiple boards)
+  is_global         Boolean        @default(false) // true = accessible to all boards
+  is_active         Boolean        @default(true)
+  processing_status ChapterStatus  @default(PENDING)
+  error_message     String?        @db.Text
+  processed_at      DateTime?
+  created_at        DateTime       @default(now())
+  updated_at        DateTime       @updatedAt
   parsed_at         DateTime?
 
   subject     Subject             @relation(fields: [subject_id], references: [id])
   chunks      ChapterChunk[]
   pages       ChapterPage[]
   quizzes     Quiz[]
+  study_materials StudyMaterial?
 
   @@index([subject_id, chapter_number])
   @@index([accessible_boards], type: Gin) // For RLS
+  @@index([processing_status])
   @@map("chapters")
 }
 
@@ -503,6 +519,19 @@ enum QuizStatus {
   ABANDONED
 }
 
+/// System-wide settings for quiz configuration
+model SystemSetting {
+  id    Int    @id @default(autoincrement())
+  key   String @unique @db.VarChar(255)
+  value String @db.Text
+  type  String @db.VarChar(50) // 'number', 'string', 'boolean', 'json'
+  
+  created_at DateTime @default(now()) @db.Timestamptz(6)
+  updated_at DateTime @updatedAt @db.Timestamptz(6)
+  
+  @@map("system_settings")
+}
+
 model Quiz {
   id          String     @id @default(cuid())
   user_id     Int
@@ -573,4 +602,73 @@ model UserPoints {
 
   @@index([user_id])
   @@map("user_points")
+}
+
+model StudyMaterial {
+  id             BigInt   @id @default(autoincrement())
+  chapter_id     BigInt   @unique
+  
+  // AI-generated content as JSON
+  summary        Json?    // { brief: "", key_points: [], important_formulas: [] }
+  definitions    Json?    // [{ term: "", definition: "" }]
+  flashcards     Json?    // [{ front: "", back: "" }]
+  mind_map       String?  @db.Text // Mermaid.js syntax
+  
+  // YouTube integration  
+  video_queries  String[] // Search queries used
+  curated_videos Json?    // [{ title: "", videoId: "", duration: "", thumbnail: "" }]
+  
+  created_at     DateTime @default(now())
+  updated_at     DateTime @updatedAt
+  
+  chapter        Chapter  @relation(fields: [chapter_id], references: [id], onDelete: Cascade)
+  
+  @@index([chapter_id])
+  @@map("study_materials")
+}
+
+model Exam {
+  id          String   @id @default(cuid())
+  title       String
+  description String?
+  date        DateTime
+  program_id  Int?
+  is_active   Boolean  @default(true)
+  created_at  DateTime @default(now())
+  updated_at  DateTime @updatedAt
+
+  program     Program? @relation(fields: [program_id], references: [id])
+
+  @@index([program_id])
+  @@index([date])
+  @@map("exams")
+}
+
+model StreakBadge {
+  id          String   @id @default(cuid())
+  name        String
+  icon        String   // Emoji or icon name
+  min_streak  Int      @unique // 7, 14, 30 etc.
+  is_active   Boolean  @default(true)
+  created_at  DateTime @default(now())
+  updated_at  DateTime @updatedAt
+
+  user_badges UserBadge[]
+
+  @@map("streak_badges")
+}
+
+model UserBadge {
+  id          String   @id @default(cuid())
+  user_id     Int
+  badge_id    String
+  earned_at   DateTime @default(now())
+
+  user        user        @relation(fields: [user_id], references: [id], onDelete: Cascade)
+  badge       StreakBadge @relation(fields: [badge_id], references: [id], onDelete: Cascade)
+
+  @@unique([user_id, badge_id])
+  @@index([user_id])
+  @@index([badge_id])
+  @@map("user_badges")
 }

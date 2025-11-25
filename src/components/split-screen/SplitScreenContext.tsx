@@ -5,8 +5,8 @@ interface CitationData {
     boundingBox?: number[];
     pageNumber: number;
     layoutItems?: Array<{ text: string; bbox: number[] }>; // For fuzzy matching
-    chunkContent?: string; // Chunk content for matching
     title?: string; // File title/name
+    chapterId?: number; // Optional chapter ID for context
 }
 
 interface SplitScreenContextType {

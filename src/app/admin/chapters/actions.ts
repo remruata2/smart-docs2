@@ -38,15 +38,19 @@ export async function deleteChapters(chapterIds: string[]) {
 
         // 3. Delete images from Supabase Storage
         if (filePaths.length > 0) {
-            const { error: storageError } = await supabaseAdmin.storage
-                .from('chapter_pages')
-                .remove(filePaths);
-
-            if (storageError) {
-                console.error("Error deleting images from storage:", storageError);
-                // Continue with database deletion even if storage cleanup fails
+            if (!supabaseAdmin) {
+                console.error("Supabase Admin not initialized, skipping image deletion");
             } else {
-                console.log(`Deleted ${filePaths.length} images from Supabase Storage`);
+                const { error: storageError } = await supabaseAdmin.storage
+                    .from('chapter_pages')
+                    .remove(filePaths);
+
+                if (storageError) {
+                    console.error("Error deleting images from storage:", storageError);
+                    // Continue with database deletion even if storage cleanup fails
+                } else {
+                    console.log(`Deleted ${filePaths.length} images from Supabase Storage`);
+                }
             }
         }
 

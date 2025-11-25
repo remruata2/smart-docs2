@@ -4,7 +4,115 @@ import { getServerSession } from "next-auth";
 import { authOptions } from "@/lib/auth-options";
 import { prisma } from "@/lib/prisma";
 import { generateQuiz, gradeQuiz, QuizGenerationConfig } from "@/lib/ai-service-enhanced";
-import { QuestionType, QuizStatus } from "@prisma/client";
+import { QuestionType, QuizStatus } from "@/generated/prisma";
+import { quizCache, CacheKeys } from "@/lib/quiz-cache";
+
+/**
+ * Extract text context from content_json with intelligent parsing
+ */
+function extractTextFromContent(contentJson: any): string {
+    if (!contentJson) return "";
+
+    // Try common fields
+    if (typeof contentJson.text === "string") return contentJson.text;
+    if (typeof contentJson.markdown === "string") return contentJson.markdown;
+    if (typeof contentJson.content === "string") return contentJson.content;
+
+    // If it's an array of chunks/pages, concatenate
+    if (Array.isArray(contentJson)) {
+        return contentJson.map(chunk =>
+            chunk.text || chunk.markdown || chunk.content || ""
+        ).join("\n\n");
+    }
+
+    // If it has pages array
+    if (Array.isArray(contentJson.pages)) {
+        return contentJson.pages.map((page: any) =>
+            page.text || page.markdown || page.content || ""
+        ).join("\n\n");
+    }
+
+    // Last resort: stringify (but remove excessive whitespace)
+    return JSON.stringify(contentJson)
+        .replace(/\\n/g, "\n")
+        .replace(/\s+/g, " ")
+        .substring(0, 30000);
+}
+
+/**
+ * Get chapter context with caching
+ */
+async function getChapterContext(chapterId: number): Promise<{ title: string; context: string }> {
+    const cacheKey = CacheKeys.chapterContext(chapterId);
+    const cached = quizCache.get<{ title: string; context: string }>(cacheKey);
+
+    if (cached) {
+        console.log(`[QUIZ-CACHE] Hit for chapter ${chapterId}`);
+        return cached;
+    }
+
+    console.log(`[QUIZ-CACHE] Miss for chapter ${chapterId}, fetching from DB`);
+    const chapter = await prisma.chapter.findUnique({
+        where: { id: chapterId },
+        select: { title: true, content_json: true },
+    });
+
+    if (!chapter) throw new Error("Chapter not found");
+
+    const rawText = extractTextFromContent(chapter.content_json);
+    const context = rawText.substring(0, 25000); // Limit to 25K
+
+    const result = { title: chapter.title, context };
+
+    // Cache for 1 hour
+    quizCache.set(cacheKey, result, 60 * 60 * 1000);
+
+    return result;
+}
+
+/**
+ * Get subject-level context with random chapter sampling
+ */
+async function getSubjectContext(subjectId: number): Promise<string> {
+    const cacheKey = CacheKeys.subjectContext(subjectId);
+    const cached = quizCache.get<string>(cacheKey);
+
+    if (cached) {
+        console.log(`[QUIZ-CACHE] Hit for subject ${subjectId}`);
+        return cached;
+    }
+
+    console.log(`[QUIZ-CACHE] Miss for subject ${subjectId}, fetching from DB`);
+
+    // Get all chapter IDs, then randomly sample 3
+    const chapterIds = await prisma.chapter.findMany({
+        where: { subject_id: subjectId, is_active: true },
+        select: { id: true },
+    });
+
+    if (chapterIds.length === 0) {
+        throw new Error("No chapters found for subject");
+    }
+
+    // Random sampling
+    const sampleSize = Math.min(3, chapterIds.length);
+    const shuffled = [...chapterIds].sort(() => Math.random() - 0.5);
+    const selectedIds = shuffled.slice(0, sampleSize).map(c => c.id);
+
+    const chapters = await prisma.chapter.findMany({
+        where: { id: { in: selectedIds } },
+        select: { content_json: true },
+    });
+
+    const fullContext = chapters.map(c => extractTextFromContent(c.content_json)).join("\n\n");
+    const context = fullContext.substring(0, 25000);
+
+    // Cache for 30 minutes (less than chapter since it's random)
+    quizCache.set(cacheKey, context, 30 * 60 * 1000);
+
+    return context;
+}
+
 
 export async function generateQuizAction(
     subjectId: number,
@@ -20,9 +128,8 @@ export async function generateQuizAction(
     const userId = parseInt(session.user.id as string);
 
     try {
-        // 1. Fetch Context
+        // 1. Fetch Context (with caching)
         let context = "";
-        let subjectName = "";
         let topicName = "";
 
         const subject = await prisma.subject.findUnique({
@@ -30,39 +137,20 @@ export async function generateQuizAction(
             select: { name: true },
         });
         if (!subject) throw new Error("Subject not found");
-        subjectName = subject.name;
+        const subjectName = subject.name;
 
         if (chapterId) {
-            const chapter = await prisma.chapter.findUnique({
-                where: { id: chapterId },
-                select: { title: true, content_json: true },
-            });
-            if (!chapter) throw new Error("Chapter not found");
-            topicName = chapter.title;
-            // Extract text from content_json (assuming it's LlamaParse output)
-            // For simplicity, we'll just JSON stringify it if it's complex, or expect a 'text' field
-            // Adjust based on actual content_json structure. 
-            // LlamaParse usually gives markdown.
-            const content: any = chapter.content_json;
-            context = content.text || content.markdown || JSON.stringify(content);
+            const chapterData = await getChapterContext(chapterId);
+            topicName = chapterData.title;
+            context = chapterData.context;
         } else {
-            // Subject-level quiz: fetch summaries of all chapters? 
-            // Or just pick random chapters? For now, let's limit to chapter-level or 
-            // fetch first 5 chapters' content.
             topicName = "General Review";
-            const chapters = await prisma.chapter.findMany({
-                where: { subject_id: subjectId },
-                take: 3, // Limit context
-                select: { content_json: true },
-            });
-            context = chapters.map(c => {
-                const content: any = c.content_json;
-                return content.text || content.markdown || "";
-            }).join("\n\n");
+            context = await getSubjectContext(subjectId);
         }
 
-        if (!context) {
-            throw new Error("No content available to generate quiz");
+        // Early validation
+        if (!context || context.trim().length < 200) {
+            throw new Error("Insufficient content available for quiz generation. Please ensure the chapter has content.");
         }
 
         // 2. Generate Quiz via AI
@@ -138,7 +226,9 @@ export async function submitQuizAction(
 
         if (!quiz) throw new Error("Quiz not found");
         if (quiz.user_id !== userId) throw new Error("Unauthorized");
-        if (quiz.status === "COMPLETED") throw new Error("Quiz already completed");
+        if (quiz.status === "COMPLETED") {
+            return { success: true, score: quiz.score, totalPoints: quiz.total_points };
+        }
 
         let totalScore = 0;
         const updates = [];
@@ -235,6 +325,17 @@ export async function submitQuizAction(
                     metadata: { quiz_id: quizId, title: quiz.title },
                 },
             });
+
+            // Check for streak badges
+            // We need to calculate streak AFTER adding the new point (activity)
+            // But calculateStreak checks DB, so it should be fine.
+            // Wait, calculateStreak checks created_at. The point we just added has now().
+            // So it counts as today's activity.
+
+            // Import dynamically to avoid circular deps if any (though unlikely here)
+            const { calculateStreak, checkAndAwardBadges } = await import("@/lib/streak-service");
+            const currentStreak = await calculateStreak(userId);
+            await checkAndAwardBadges(userId, currentStreak);
         }
 
         return { success: true, score: totalScore, totalPoints: quiz.total_points };
@@ -347,5 +448,32 @@ export async function getUserStatsAction() {
     } catch (error) {
         console.error("Error fetching user stats:", error);
         throw new Error("Failed to fetch user stats");
+    }
+}
+
+export async function getQuizHistory() {
+    const session = await getServerSession(authOptions);
+    if (!session?.user?.id) {
+        return null;
+    }
+    const userId = parseInt(session.user.id as string);
+
+    try {
+        const quizzes = await prisma.quiz.findMany({
+            where: {
+                user_id: userId,
+                status: QuizStatus.COMPLETED,
+            },
+            include: {
+                subject: { select: { name: true } },
+                chapter: { select: { title: true } },
+            },
+            orderBy: { completed_at: 'desc' },
+        });
+
+        return quizzes;
+    } catch (error) {
+        console.error("Error fetching quiz history:", error);
+        throw new Error("Failed to fetch quiz history");
     }
 }
