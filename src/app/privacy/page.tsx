@@ -15,6 +15,8 @@ export default function PrivacyPolicy() {
                             width={120}
                             height={40}
                             className="h-10 w-auto"
+                            priority
+                            unoptimized
                         />
                     </Link>
                 </div>

@@ -87,6 +87,15 @@ const nextConfig: NextConfig = {
 	// Performance optimizations
 	poweredByHeader: false,
 	compress: true,
+	// Image optimization configuration
+	images: {
+		// Allow static images from public folder
+		unoptimized: false,
+		// Ensure static images are properly served
+		formats: ["image/avif", "image/webp"],
+		// Don't disable static images
+		disableStaticImages: false,
+	},
 	// Output file tracing - exclude heavy packages from tracing
 	outputFileTracingExcludes: {
 		"*": [

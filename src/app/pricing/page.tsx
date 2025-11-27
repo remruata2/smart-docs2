@@ -118,6 +118,8 @@ export default function PricingPage() {
 							width={120}
 							height={40}
 							className="h-10 w-auto"
+							priority
+							unoptimized
 						/>
 					</Link>
 					<nav className="flex items-center gap-4">
