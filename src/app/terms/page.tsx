@@ -2,6 +2,9 @@ import Link from "next/link";
 import { Footer } from "@/components/Footer";
 import Image from "next/image";
 
+// Force static generation
+export const dynamic = 'force-static';
+
 export default function TermsOfService() {
     return (
         <div className="min-h-screen bg-gray-50">

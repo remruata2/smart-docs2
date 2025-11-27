@@ -4,8 +4,8 @@
 	"private": true,
 	"scripts": {
 		"dev": "next dev -p 3003",
-		"build": "next build --no-lint",
-		"build:with-lint": "next build",
+		"build": "NODE_OPTIONS='--max-old-space-size=8192' next build --no-lint",
+		"build:with-lint": "NODE_OPTIONS='--max-old-space-size=8192' next build",
 		"start": "next start -p 3008",
 		"lint": "next lint",
 		"typecheck": "tsc --noEmit",
