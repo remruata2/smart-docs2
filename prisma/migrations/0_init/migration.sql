@@ -462,7 +462,7 @@ CREATE INDEX "chapter_chunk_boards_board_id_idx" ON "chapter_chunk_boards"("boar
 CREATE INDEX "chapter_chunks_chapter_id_chunk_index_idx" ON "chapter_chunks"("chapter_id" ASC, "chunk_index" ASC);
 
 -- CreateIndex
-CREATE INDEX "chapter_chunks_search_vector_idx" ON "chapter_chunks" USING GIN ("search_vector" tsvector_ops ASC);
+CREATE INDEX "chapter_chunks_search_vector_idx" ON "chapter_chunks" USING GIN ("search_vector" tsvector_ops);
 
 -- CreateIndex
 CREATE INDEX "chapter_chunks_semantic_vector_idx" ON "chapter_chunks"("semantic_vector" ASC);
@@ -498,7 +498,7 @@ CREATE INDEX "idx_document_pages_file_page" ON "document_pages"("file_id" ASC, "
 CREATE INDEX "idx_file_chunks_file" ON "file_chunks"("file_id" ASC);
 
 -- CreateIndex
-CREATE INDEX "idx_file_chunks_search_vector" ON "file_chunks" USING GIN ("search_vector" tsvector_ops ASC);
+CREATE INDEX "idx_file_chunks_search_vector" ON "file_chunks" USING GIN ("search_vector" tsvector_ops);
 
 -- CreateIndex
 CREATE INDEX "idx_file_chunks_vector" ON "file_chunks"("semantic_vector" ASC);
@@ -516,7 +516,7 @@ CREATE INDEX "idx_file_list_parsing_status" ON "file_list"("parsing_status" ASC)
 CREATE INDEX "idx_file_list_user" ON "file_list"("user_id" ASC);
 
 -- CreateIndex
-CREATE INDEX "idx_search_vector" ON "file_list" USING GIN ("search_vector" tsvector_ops ASC);
+CREATE INDEX "idx_search_vector" ON "file_list" USING GIN ("search_vector" tsvector_ops);
 
 -- CreateIndex
 CREATE INDEX "idx_semantic_vector" ON "file_list"("semantic_vector" ASC);
