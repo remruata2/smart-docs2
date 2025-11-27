@@ -37,7 +37,7 @@ describe("RoleGuard", () => {
     });
 
     render(
-      <RoleGuard requiredRole={UserRole.staff}>
+      <RoleGuard requiredRole={UserRole.institution}>
         <TestComponent />
       </RoleGuard>
     );
@@ -60,7 +60,7 @@ describe("RoleGuard", () => {
     });
 
     render(
-      <RoleGuard requiredRole={UserRole.staff}>
+      <RoleGuard requiredRole={UserRole.institution}>
         <TestComponent />
       </RoleGuard>
     );
@@ -76,7 +76,7 @@ describe("RoleGuard", () => {
           id: "1",
           name: "Test User",
           email: "test@example.com",
-          role: UserRole.staff,
+          role: UserRole.institution,
         },
         expires: "2025-01-01T00:00:00.000Z",
       },
@@ -85,7 +85,7 @@ describe("RoleGuard", () => {
     });
 
     render(
-      <RoleGuard requiredRole={UserRole.staff}>
+      <RoleGuard requiredRole={UserRole.institution}>
         <TestComponent />
       </RoleGuard>
     );
@@ -101,7 +101,7 @@ describe("RoleGuard", () => {
           id: "1",
           name: "Test User",
           email: "test@example.com",
-          role: UserRole.staff, // Lower role
+          role: UserRole.institution, // Lower role
         },
         expires: "2025-01-01T00:00:00.000Z",
       },

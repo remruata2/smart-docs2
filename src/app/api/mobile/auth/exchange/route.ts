@@ -1,6 +1,7 @@
 import { NextRequest, NextResponse } from "next/server";
 import { supabaseAdmin } from "@/lib/supabase";
 import { prisma } from "@/lib/prisma";
+import { UserRole } from "@/generated/prisma";
 
 export async function POST(request: NextRequest) {
     try {
@@ -36,7 +37,7 @@ export async function POST(request: NextRequest) {
                     data: {
                         email: supabaseUser.email,
                         username: supabaseUser.email.split("@")[0] + "_" + Math.floor(Math.random() * 10000), // Ensure uniqueness
-                        role: "user",
+                        role: UserRole.student,
                         is_active: true,
                         profile: {
                             create: {
@@ -67,6 +68,10 @@ export async function POST(request: NextRequest) {
         }
 
         // 3. Return User Data & Permissions
+        if (!dbUser) {
+            return NextResponse.json({ error: "Failed to retrieve user" }, { status: 500 });
+        }
+
         return NextResponse.json({
             success: true,
             user: {
