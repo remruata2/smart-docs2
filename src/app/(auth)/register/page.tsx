@@ -83,7 +83,7 @@ export default function RegisterPage() {
 							Create Account
 						</CardTitle>
 						<CardDescription className="text-center">
-							Sign up to start using Smart Docs
+							Sign up to start using Zirna
 						</CardDescription>
 					</CardHeader>
 

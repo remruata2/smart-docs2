@@ -93,19 +93,19 @@ function prepareContextForAI(records: SearchResult[]): string {
 
 	return `
 DATABASE CONTEXT:
- Found ${records.length} relevant records from the Smart Docs database:
+ Found ${records.length} relevant records from the Zirna database:
 
 ${context
-	.map(
-		(record, index) => `
+			.map(
+				(record, index) => `
 [RECORD ${index + 1}]
 Title: ${record.title}
 Category: ${record.category}
 Date: ${record.date}
 Content: ${record.content}
 ---`
-	)
-	.join("\n")}
+			)
+			.join("\n")}
 
 END OF DATABASE CONTEXT
 `;
@@ -121,7 +121,7 @@ export async function generateAIResponse(
 	try {
 		const model = genAI.getGenerativeModel({ model: "gemini-2.0-flash" });
 
-		const prompt = `You are an AI assistant for the Smart Docs database system. 
+		const prompt = `You are an AI assistant for the Zirna database system. 
 
 Your role is to:
 - Answer questions based ONLY on the provided database records
@@ -170,7 +170,7 @@ export async function processChatMessage(
 		if (records.length === 0) {
 			return {
 				response:
-					"I couldn't find any relevant records in the Smart Docs database for your query. Please try rephrasing your question or using different keywords.",
+					"I couldn't find any relevant records in the Zirna database for your query. Please try rephrasing your question or using different keywords.",
 				sources: [],
 				searchQuery: question,
 			};

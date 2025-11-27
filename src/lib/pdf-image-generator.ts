@@ -78,9 +78,16 @@ export async function generatePageImages(
 			}
 		});
 
-		child.on("error", (err) => {
-			console.error(`[PDF-IMG] Spawn error:`, err);
-			reject(err);
+		child.on("error", (err: any) => {
+			if (err.code === 'ENOENT') {
+				const errorMsg = `pdftocairo binary not found. Please install poppler-utils on the server.\n` +
+					`Run: sudo apt-get install -y poppler-utils (Debian/Ubuntu) or sudo yum install poppler-utils (RHEL/CentOS)`;
+				console.error(`[PDF-IMG] ${errorMsg}`);
+				reject(new Error(errorMsg));
+			} else {
+				console.error(`[PDF-IMG] Spawn error:`, err);
+				reject(err);
+			}
 		});
 	});
 }

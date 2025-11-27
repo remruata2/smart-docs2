@@ -8,8 +8,8 @@ I’ve created [start-task.bat](cci:7://file:///Users/remruata/projects/cid-ai/s
 
 Option A — CLI (no escaping headaches)
 ```cmd
-schtasks /Create /TN "Smart-Docs" /SC ONLOGON /RL LIMITED /RU "%USERNAME%" /TR "F:\cid-ai\start-task.bat"
-schtasks /Run /TN "Smart-Docs"
+schtasks /Create /TN "Zirna" /SC ONLOGON /RL LIMITED /RU "%USERNAME%" /TR "F:\cid-ai\start-task.bat"
+schtasks /Run /TN "Zirna"
 ```
 
 Option B — GUI

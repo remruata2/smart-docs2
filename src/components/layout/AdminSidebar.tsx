@@ -24,7 +24,7 @@ export default function AdminSidebar({ setSidebarOpen }: AdminSidebarProps) {
 		<div className="flex flex-col h-screen sticky top-0 w-full bg-slate-900 shadow-xl overflow-y-auto">
 			{/* Title */}
 			<div className="flex-shrink-0 px-4 py-4 border-b border-slate-700">
-				<h1 className="text-lg font-semibold text-white">Smart Docs</h1>
+				<h1 className="text-lg font-semibold text-white">Zirna</h1>
 			</div>
 			{/* User info */}
 			<div className="flex-shrink-0 flex items-center px-4 py-4 border-b border-slate-700">

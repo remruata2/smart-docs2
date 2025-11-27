@@ -4,64 +4,117 @@ async function seedSubscriptionPlans() {
 	console.log("🌱 Seeding subscription plans...");
 
 	try {
-		// Free Tier Plan
+		// Free Tier Plan (Basic)
 		const freePlan = await db.subscriptionPlan.upsert({
 			where: { name: "free" },
-			update: {},
+			update: {
+				display_name: "Basic",
+				description: "Essential tools for your exam preparation journey",
+				features: [
+					"Daily Quiz Generation (3/day)",
+					"Competitive Battle Mode (3 matches/day)",
+					"AI Tutor Assistance (1 session/day, 10 responses)",
+					"AI-Powered Chapter Summaries",
+					"Smart Flashcards",
+					"Curated Video Learning Resources",
+				],
+				limits: {
+					files: 10, // Keeping existing file limit
+					chats: 20, // Keeping existing chat limit
+					exports: 5, // Keeping existing export limit
+					quiz_generation: 3,
+					battle_match: 3,
+					ai_tutor_session: 1,
+				},
+			},
 			create: {
 				name: "free",
-				display_name: "Free",
-				description: "Perfect for trying out Smart Docs",
+				display_name: "Basic",
+				description: "Essential tools for your exam preparation journey",
 				price_monthly: 0,
 				price_yearly: 0,
 				features: [
-					"10 file uploads per month",
-					"20 chat messages per day",
-					"5 document exports per month",
-					"Basic AI models",
-					"Watermarked exports",
+					"Daily Quiz Generation (3/day)",
+					"Competitive Battle Mode (3 matches/day)",
+					"AI Tutor Assistance (1 session/day, 10 responses)",
+					"AI-Powered Chapter Summaries",
+					"Smart Flashcards",
+					"Curated Video Learning Resources",
 				],
 				limits: {
 					files: 10,
 					chats: 20,
 					exports: 5,
+					quiz_generation: 3,
+					battle_match: 3,
+					ai_tutor_session: 1,
 				},
 				is_active: true,
 				is_default: true,
 			},
 		});
 
-		console.log("✅ Free plan created/updated");
+		console.log("✅ Basic (Free) plan created/updated");
 
-		// Premium Tier Plan
+		// Premium Tier Plan (Pro)
 		const premiumPlan = await db.subscriptionPlan.upsert({
 			where: { name: "premium" },
-			update: {},
-			create: {
-				name: "premium",
-				display_name: "Premium",
-				description: "Unlimited access to all features",
-				price_monthly: 29.0,
-				price_yearly: 299.0,
+			update: {
+				display_name: "Pro",
+				description: "Unlock your full potential with unlimited access",
+				price_monthly: 299.0, // Rs. 299
+				price_yearly: 2990.0, // 10 months for year
+				razorpay_plan_id_monthly: "plan_monthly_placeholder", // Replace with real ID
+				razorpay_plan_id_yearly: "plan_yearly_placeholder", // Replace with real ID
 				features: [
-					"Unlimited file uploads",
-					"Unlimited chat messages",
-					"Unlimited exports",
-					"Access to advanced AI models",
-					"Priority processing",
-					"API access",
-					"White-label options",
-					"No watermarks",
+					"Unlimited Quiz Generation",
+					"Unlimited Battle Mode Matches",
+					"Unlimited AI Tutor Access",
+					"AI-Powered Chapter Summaries",
+					"Smart Flashcards",
+					"Curated Video Learning Resources",
+					"Priority Support",
 				],
 				limits: {
-					files: -1, // -1 means unlimited
+					files: -1,
 					chats: -1,
 					exports: -1,
+					quiz_generation: -1,
+					battle_match: -1,
+					ai_tutor_session: -1,
+				},
+			},
+			create: {
+				name: "premium",
+				display_name: "Pro",
+				description: "Unlock your full potential with unlimited access",
+				price_monthly: 299.0,
+				price_yearly: 2990.0,
+				razorpay_plan_id_monthly: "plan_monthly_placeholder",
+				razorpay_plan_id_yearly: "plan_yearly_placeholder",
+				features: [
+					"Unlimited Quiz Generation",
+					"Unlimited Battle Mode Matches",
+					"Unlimited AI Tutor Access",
+					"AI-Powered Chapter Summaries",
+					"Smart Flashcards",
+					"Curated Video Learning Resources",
+					"Priority Support",
+				],
+				limits: {
+					files: -1,
+					chats: -1,
+					exports: -1,
+					quiz_generation: -1,
+					battle_match: -1,
+					ai_tutor_session: -1,
 				},
 				is_active: true,
 				is_default: false,
 			},
 		});
+
+		console.log("✅ Pro (Premium) plan created/updated");
 
 		console.log("✅ Premium plan created/updated");
 

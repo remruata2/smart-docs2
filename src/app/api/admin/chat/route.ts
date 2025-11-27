@@ -342,7 +342,7 @@ export async function GET(request: NextRequest) {
 
 		return NextResponse.json({
 			success: true,
-			message: "Smart Docs Chat API is available",
+			message: "Zirna Chat API is available",
 			user: session.user.email,
 			timestamp: new Date().toISOString(),
 		});

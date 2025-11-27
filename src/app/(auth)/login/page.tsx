@@ -86,7 +86,7 @@ export default function LoginPage() {
 					<div className="p-2 bg-white/20 backdrop-blur-lg rounded-xl">
 						<GraduationCap className="w-8 h-8" />
 					</div>
-					<h1 className="text-2xl font-bold">Bharat Tutor</h1>
+					<h1 className="text-2xl font-bold">Zirna</h1>
 				</div>
 				<p className="text-center text-white/90 text-sm">
 					Your AI-powered exam prep companion
@@ -109,7 +109,7 @@ export default function LoginPage() {
 							<div className="p-3 bg-white/20 backdrop-blur-lg rounded-2xl">
 								<GraduationCap className="w-10 h-10" />
 							</div>
-							<h1 className="text-4xl font-bold">Bharat Tutor</h1>
+							<h1 className="text-4xl font-bold">Zirna</h1>
 						</div>
 
 						<p className="text-xl text-white/90 mb-8 leading-relaxed">

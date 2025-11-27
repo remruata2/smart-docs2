@@ -206,8 +206,8 @@ model SubscriptionPlan {
   description             String?
   price_monthly           Decimal            @db.Decimal(10, 2)
   price_yearly            Decimal?           @db.Decimal(10, 2)
-  stripe_price_id_monthly String?            @db.VarChar(255)
-  stripe_price_id_yearly  String?            @db.VarChar(255)
+  razorpay_plan_id_monthly String?           @db.VarChar(255)
+  razorpay_plan_id_yearly  String?           @db.VarChar(255)
   features                Json?
   limits                  Json
   is_active               Boolean            @default(true)
@@ -225,8 +225,9 @@ model UserSubscription {
   id                     Int                @id @default(autoincrement())
   user_id                Int                @unique
   plan_id                Int
-  stripe_subscription_id String?            @unique @db.VarChar(255)
-  stripe_customer_id     String?            @db.VarChar(255)
+  razorpay_subscription_id String?          @unique @db.VarChar(255)
+  razorpay_customer_id     String?          @db.VarChar(255)
+  razorpay_order_id        String?          @db.VarChar(255)
   status                 SubscriptionStatus @default(active)
   billing_cycle          BillingCycle       @default(monthly)
   current_period_start   DateTime           @db.Timestamptz(6)
@@ -239,7 +240,7 @@ model UserSubscription {
   user                   user               @relation(fields: [user_id], references: [id], onDelete: Cascade)
 
   @@index([status, current_period_end], map: "idx_user_subscriptions_status")
-  @@index([stripe_subscription_id], map: "idx_user_subscriptions_stripe")
+  @@index([razorpay_subscription_id], map: "idx_user_subscriptions_razorpay")
   @@map("user_subscriptions")
 }
 
@@ -502,6 +503,9 @@ enum UsageType {
   chat_message
   document_export
   ai_processing
+  quiz_generation
+  battle_match
+  ai_tutor_session
 
   @@map("usage_type")
 }

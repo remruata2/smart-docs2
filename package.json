@@ -1,5 +1,5 @@
 {
-	"name": "smart-docs",
+	"name": "zirna",
 	"version": "0.1.0",
 	"private": true,
 	"scripts": {
@@ -101,6 +101,7 @@
 		"openai": "^6.6.0",
 		"pdf-parse": "^2.4.5",
 		"pdf-poppler": "^0.2.3",
+		"razorpay": "^2.9.6",
 		"react-hook-form": "^7.57.0",
 		"react-icons": "^5.5.0",
 		"react-is": "^19.2.0",

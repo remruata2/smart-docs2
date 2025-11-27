@@ -69,7 +69,7 @@ export default function UserSidebar({ setSidebarOpen }: UserSidebarProps) {
 				{!displayCollapsed ? (
 					<h1 className="text-xl font-bold text-white tracking-tight flex items-center gap-2">
 						<BrainCircuit className="w-6 h-6" />
-						Bharat Tutor
+						Zirna
 					</h1>
 				) : (
 					<div className="w-full flex justify-center">

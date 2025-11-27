@@ -1,8 +1,8 @@
-# Bharat-Tutor: Multi-Tenant Education Platform Transformation
+# Zirna: Multi-Tenant Education Platform Transformation
 
 ## Project Overview
 
-Transform the existing Next.js "smart-docs" application into a scalable, multi-tenant education platform called **Bharat-Tutor** (with international variants like Africa-Tutor). The platform will support:
+Transform the existing Next.js "smart-docs" application into a scalable, multi-tenant education platform called **Zirna** (with international variants like Africa-Tutor). The platform will support:
 
 - **Multiple education systems**: K-12 schools (CBSE, MBSE, state boards), Higher Education (colleges, universities), Competitive Exams (UPSC, IIT-JEE, Banking), Professional Courses (Medical, Engineering, Law).
 - **Flexible hierarchy**: Board → Institution (School/College/University/Coaching Center) → Program (Class 10, B.Tech IT, UPSC CSE) → Subject → Chapter.
@@ -537,7 +537,7 @@ Board: Medical Council of India (id: 'MCI', type: 'professional')
 
 ### Phase 7: Repository Setup (1 day)
 
-1. New repo: `bharat-tutor-platform`.
+1. New repo: `zirna-platform`.
 
 2. Copy codebase; update `package.json`/`README`.
 

@@ -2,6 +2,7 @@
 
 import Link from "next/link";
 import { Button } from "@/components/ui/button";
+import Image from "next/image";
 import {
 	Card,
 	CardContent,
@@ -20,6 +21,7 @@ import {
 	ArrowRight,
 } from "lucide-react";
 import { useEffect, useRef, useState } from "react";
+import { Footer } from "@/components/Footer";
 
 export default function Home() {
 	const [isVisible, setIsVisible] = useState<Record<string, boolean>>({});
@@ -158,9 +160,15 @@ export default function Home() {
 			{/* Header */}
 			<header className="border-b bg-white/80 backdrop-blur-sm sticky top-0 z-50 transition-all duration-300">
 				<div className="container mx-auto px-4 py-4 flex items-center justify-between">
-					<div className="text-2xl font-bold text-gray-900 animate-fade-in">
-						Bharat Tutor
-					</div>
+					<Link href="/" className="animate-fade-in">
+						<Image
+							src="/zirnalogosmall.png"
+							alt="Zirna"
+							width={120}
+							height={40}
+							className="h-10 w-auto"
+						/>
+					</Link>
 					<nav className="flex items-center gap-4">
 						<Link
 							href="/pricing"
@@ -241,7 +249,7 @@ export default function Home() {
 						we provide comprehensive tools to help you succeed in your exams.
 					</p>
 				</div>
-				<div className="grid md:grid-cols-2 lg:grid-cols-4 gap-6">
+				<div className="grid md:grid-cols-2 lg:grid-cols-3 gap-6">
 					{[
 						{
 							id: "ai-quizzes",
@@ -259,6 +267,36 @@ export default function Home() {
 							],
 						},
 						{
+							id: "battle-mode",
+							icon: Target,
+							iconColor: "text-red-600",
+							bgColor: "bg-red-100",
+							borderColor: "border-red-100 hover:border-red-300",
+							title: "Quiz Battle Mode",
+							description:
+								"Challenge your friends or random opponents in real-time quiz battles. Compete head-to-head and climb the leaderboard while learning.",
+							features: [
+								"Real-time competitive quizzes",
+								"Challenge friends or random matches",
+								"Earn points and achievements",
+							],
+						},
+						{
+							id: "ai-tutor",
+							icon: GraduationCap,
+							iconColor: "text-blue-600",
+							bgColor: "bg-blue-100",
+							borderColor: "border-blue-100 hover:border-blue-300",
+							title: "AI Learning Tutor",
+							description:
+								"Get personalized help from your AI tutor that breaks down complex topics into simple, easy-to-understand explanations tailored to your learning pace.",
+							features: [
+								"Step-by-step chapter guidance",
+								"Simplified explanations",
+								"24/7 personalized assistance",
+							],
+						},
+						{
 							id: "study-materials",
 							icon: BookOpen,
 							iconColor: "text-green-600",
@@ -266,11 +304,11 @@ export default function Home() {
 							borderColor: "border-green-100 hover:border-green-300",
 							title: "Smart Study Materials",
 							description:
-								"Access organized content by board, institution, and program. All your textbooks and study materials in one place with AI chat support.",
+								"Access organized content by board, institution, and program. All your textbooks and study materials in one place with AI-powered summaries.",
 							features: [
 								"Multi-board support (CBSE, MBSE, etc.)",
 								"Chapter-wise organization",
-								"AI-powered study assistance",
+								"AI-generated summaries & flashcards",
 							],
 						},
 						{
@@ -533,11 +571,7 @@ export default function Home() {
 			</section>
 
 			{/* Footer */}
-			<footer className="border-t py-8 mt-16">
-				<div className="container mx-auto px-4 text-center text-gray-600">
-					<p>&copy; 2025 Bharat Tutor. All rights reserved.</p>
-				</div>
-			</footer>
+			<Footer />
 		</div>
 	);
 }
