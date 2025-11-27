@@ -1,5 +1,9 @@
 -- CreateEnum
-CREATE TYPE "message_role" AS ENUM ('user', 'assistant');
+DO $$ BEGIN
+    CREATE TYPE "message_role" AS ENUM ('user', 'assistant');
+EXCEPTION
+    WHEN duplicate_object THEN null;
+END $$;
 
 -- CreateTable
 CREATE TABLE "conversations" (

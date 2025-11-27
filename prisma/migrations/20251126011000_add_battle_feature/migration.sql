@@ -1,5 +1,9 @@
 -- CreateEnum
-CREATE TYPE "BattleStatus" AS ENUM ('WAITING', 'STARTING', 'IN_PROGRESS', 'COMPLETED', 'ABANDONED', 'EXPIRED');
+DO $$ BEGIN
+    CREATE TYPE "BattleStatus" AS ENUM ('WAITING', 'STARTING', 'IN_PROGRESS', 'COMPLETED', 'ABANDONED', 'EXPIRED');
+EXCEPTION
+    WHEN duplicate_object THEN null;
+END $$;
 
 -- CreateTable
 CREATE TABLE "battles" (

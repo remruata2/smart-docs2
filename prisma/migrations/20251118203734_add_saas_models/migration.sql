@@ -1,11 +1,23 @@
 -- CreateEnum
-CREATE TYPE "subscription_status" AS ENUM ('active', 'canceled', 'past_due', 'trialing', 'incomplete', 'incomplete_expired');
+DO $$ BEGIN
+    CREATE TYPE "subscription_status" AS ENUM ('active', 'canceled', 'past_due', 'trialing', 'incomplete', 'incomplete_expired');
+EXCEPTION
+    WHEN duplicate_object THEN null;
+END $$;
 
 -- CreateEnum
-CREATE TYPE "billing_cycle" AS ENUM ('monthly', 'yearly');
+DO $$ BEGIN
+    CREATE TYPE "billing_cycle" AS ENUM ('monthly', 'yearly');
+EXCEPTION
+    WHEN duplicate_object THEN null;
+END $$;
 
 -- CreateEnum
-CREATE TYPE "usage_type" AS ENUM ('file_upload', 'chat_message', 'document_export', 'ai_processing');
+DO $$ BEGIN
+    CREATE TYPE "usage_type" AS ENUM ('file_upload', 'chat_message', 'document_export', 'ai_processing');
+EXCEPTION
+    WHEN duplicate_object THEN null;
+END $$;
 
 -- AlterEnum
 ALTER TYPE "user_role" ADD VALUE 'user';
