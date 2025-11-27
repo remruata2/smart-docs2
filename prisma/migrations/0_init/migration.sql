@@ -1,3 +1,6 @@
+-- CreateExtension
+CREATE EXTENSION IF NOT EXISTS vector;
+
 -- CreateEnum
 CREATE TYPE "Provider" AS ENUM ('gemini', 'openai', 'anthropic', 'llamaparse', 'openrouter');
 

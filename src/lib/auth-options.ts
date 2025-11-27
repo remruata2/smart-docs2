@@ -118,7 +118,7 @@ export const authOptions: NextAuthOptions = {
 								username: uniqueUsername,
 								email: user.email!,
 								password_hash: null, // OAuth users don't have passwords
-								role: UserRole.user,
+								role: UserRole.student,
 								is_active: true,
 								last_login: new Date(),
 							},
