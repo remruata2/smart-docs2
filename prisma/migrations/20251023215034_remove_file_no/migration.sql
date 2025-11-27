@@ -5,7 +5,7 @@
 
 */
 -- DropIndex
-DROP INDEX "idx_file_list_file_no";
+DROP INDEX IF EXISTS "idx_file_list_file_no";
 
 -- AlterTable
-ALTER TABLE "file_list" DROP COLUMN "file_no";
+ALTER TABLE "file_list" DROP COLUMN IF EXISTS "file_no";
