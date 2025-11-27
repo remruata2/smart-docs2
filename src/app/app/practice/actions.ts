@@ -8,38 +8,6 @@ import { QuestionType, QuizStatus } from "@/generated/prisma";
 import { quizCache, CacheKeys } from "@/lib/quiz-cache";
 
 /**
- * Extract text context from content_json with intelligent parsing
- */
-function extractTextFromContent(contentJson: any): string {
-    if (!contentJson) return "";
-
-    // Try common fields
-    if (typeof contentJson.text === "string") return contentJson.text;
-    if (typeof contentJson.markdown === "string") return contentJson.markdown;
-    if (typeof contentJson.content === "string") return contentJson.content;
-
-    // If it's an array of chunks/pages, concatenate
-    if (Array.isArray(contentJson)) {
-        return contentJson.map(chunk =>
-            chunk.text || chunk.markdown || chunk.content || ""
-        ).join("\n\n");
-    }
-
-    // If it has pages array
-    if (Array.isArray(contentJson.pages)) {
-        return contentJson.pages.map((page: any) =>
-            page.text || page.markdown || page.content || ""
-        ).join("\n\n");
-    }
-
-    // Last resort: stringify (but remove excessive whitespace)
-    return JSON.stringify(contentJson)
-        .replace(/\\n/g, "\n")
-        .replace(/\s+/g, " ")
-        .substring(0, 30000);
-}
-
-/**
  * Get chapter context with caching
  */
 async function getChapterContext(chapterId: number): Promise<{ title: string; context: string }> {
@@ -52,15 +20,28 @@ async function getChapterContext(chapterId: number): Promise<{ title: string; co
     }
 
     console.log(`[QUIZ-CACHE] Miss for chapter ${chapterId}, fetching from DB`);
+
+    // Fetch chapter metadata
     const chapter = await prisma.chapter.findUnique({
-        where: { id: chapterId },
-        select: { title: true, content_json: true },
+        where: { id: BigInt(chapterId) },
+        select: { title: true },
     });
 
     if (!chapter) throw new Error("Chapter not found");
 
-    const rawText = extractTextFromContent(chapter.content_json);
-    const context = rawText.substring(0, 25000); // Limit to 25K
+    // Fetch all chunks for this chapter (this is where the actual content is!)
+    const chunks = await prisma.chapterChunk.findMany({
+        where: { chapter_id: BigInt(chapterId) },
+        select: { content: true, chunk_index: true },
+        orderBy: { chunk_index: 'asc' },
+    });
+
+    console.log(`[QUIZ-CACHE] Found ${chunks.length} chunks for chapter ${chapterId}`);
+
+    // Concatenate all chunk content
+    const context = chunks.map(chunk => chunk.content).join("\n\n");
+
+    console.log(`[QUIZ-CACHE] Total context length: ${context.length} characters`);
 
     const result = { title: chapter.title, context };
 
@@ -99,13 +80,21 @@ async function getSubjectContext(subjectId: number): Promise<string> {
     const shuffled = [...chapterIds].sort(() => Math.random() - 0.5);
     const selectedIds = shuffled.slice(0, sampleSize).map(c => c.id);
 
-    const chapters = await prisma.chapter.findMany({
-        where: { id: { in: selectedIds } },
-        select: { content_json: true },
+    console.log(`[QUIZ-CACHE] Sampling ${sampleSize} chapters for subject context`);
+
+    // Fetch chunks from selected chapters
+    const chunks = await prisma.chapterChunk.findMany({
+        where: { chapter_id: { in: selectedIds } },
+        select: { content: true, chunk_index: true, chapter_id: true },
+        orderBy: [
+            { chapter_id: 'asc' },
+            { chunk_index: 'asc' }
+        ],
     });
 
-    const fullContext = chapters.map(c => extractTextFromContent(c.content_json)).join("\n\n");
-    const context = fullContext.substring(0, 25000);
+    console.log(`[QUIZ-CACHE] Found ${chunks.length} total chunks from ${sampleSize} chapters`);
+
+    const context = chunks.map(c => c.content).join("\n\n");
 
     // Cache for 30 minutes (less than chapter since it's random)
     quizCache.set(cacheKey, context, 30 * 60 * 1000);

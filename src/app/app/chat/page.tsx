@@ -1,7 +1,7 @@
 "use client";
 
 import { useState, useRef, useEffect } from "react";
-import { useSearchParams } from "next/navigation";
+import { useSearchParams, useRouter } from "next/navigation";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Badge } from "@/components/ui/badge";
@@ -21,12 +21,18 @@ import { ChatMessage } from "@/lib/ai-service-enhanced";
 import ReactMarkdown from "react-markdown";
 import remarkGfm from "remark-gfm";
 import remarkBreaks from "remark-breaks";
+import remarkMath from "remark-math";
+import rehypeKatex from "rehype-katex";
+import "katex/dist/katex.min.css";
 import { SmartChart } from "@/components/dashboard/SmartChart";
+import { ResponseTranslator } from "@/components/chat/ResponseTranslator";
+import { translateContent } from "./actions";
 import {
 	SplitScreenProvider,
 	useSplitScreen,
 } from "@/components/split-screen/SplitScreenContext";
 import { SplitScreenLayout } from "@/components/split-screen/SplitScreenLayout";
+import { GraduationCap } from "lucide-react";
 
 
 
@@ -85,6 +91,7 @@ function ChatPageContent() {
 
 	// Get conversation ID and filters from URL
 	const searchParams = useSearchParams();
+	const router = useRouter();
 	const urlConversationId = searchParams.get("id");
 	const urlSubjectId = searchParams.get("subjectId");
 	const urlChapterId = searchParams.get("chapterId");
@@ -192,8 +199,23 @@ function ChatPageContent() {
 	const inputRef = useRef<HTMLInputElement>(null);
 
 	// Auto-scroll to bottom when new messages arrive
+	// Auto-scroll to bottom when new messages arrive
 	useEffect(() => {
-		messagesEndRef.current?.scrollIntoView({ behavior: "smooth" });
+		const scrollContainer = messagesEndRef.current?.parentElement;
+		if (!scrollContainer) return;
+
+		// Check if user is near bottom (within 100px)
+		const isNearBottom =
+			scrollContainer.scrollHeight -
+			scrollContainer.scrollTop -
+			scrollContainer.clientHeight <
+			100;
+
+		// Always scroll if it's a new message (length changed) or if we're already near bottom
+		// Use 'auto' (instant) behavior to prevent bouncing during streaming
+		if (isNearBottom) {
+			messagesEndRef.current?.scrollIntoView({ behavior: "auto" });
+		}
 	}, [messages]);
 
 	// Focus input on mount
@@ -240,7 +262,11 @@ function ChatPageContent() {
 			const response = await fetch("/api/dashboard/conversations", {
 				method: "POST",
 				headers: { "Content-Type": "application/json" },
-				body: JSON.stringify({ title }),
+				body: JSON.stringify({
+					title,
+					subjectId: selectedSubjectId,
+					chapterId: selectedChapterId
+				}),
 			});
 
 			if (!response.ok) throw new Error("Failed to create conversation");
@@ -301,6 +327,20 @@ function ChatPageContent() {
 			setCurrentConversationId(conversation.id);
 			setConversationTitle(conversation.title);
 
+			// Set context from conversation if available
+			if (conversation.subjectId) {
+				setSelectedSubjectId(conversation.subjectId);
+				// We'll need to find the name from the subjects list
+				const subj = subjects.find(s => s.id === conversation.subjectId);
+				if (subj) setSelectedSubjectName(subj.name);
+			}
+
+			if (conversation.chapterId) {
+				setSelectedChapterId(conversation.chapterId);
+				// We'll need to fetch chapters or find title if already loaded
+				// Ideally we should fetch the chapter details if not in list
+			}
+
 			// Load messages
 			const loadedMessages: ChatMessage[] = conversation.messages.map(
 				(msg: any) => ({
@@ -320,6 +360,36 @@ function ChatPageContent() {
 			setMessages(loadedMessages);
 			setError(null);
 
+			// Restore filters from the last message that has them
+			const lastMessageWithFilters = [...loadedMessages]
+				.reverse()
+				.find((msg) => msg.filters?.subjectId || msg.filters?.chapterId);
+
+			if (lastMessageWithFilters?.filters) {
+				const { subjectId, chapterId } = lastMessageWithFilters.filters;
+
+				if (subjectId) {
+					setSelectedSubjectId(subjectId);
+					// Find subject name from subjects list
+					const subject = subjects.find(s => s.id === subjectId);
+					if (subject) setSelectedSubjectName(subject.name);
+				}
+
+				if (chapterId) {
+					setSelectedChapterId(chapterId.toString());
+					// Find chapter title from chapters list
+					const chapter = chapters.find(c => c.id === chapterId.toString());
+					if (chapter) setSelectedChapterTitle(chapter.title);
+				}
+
+				// Update URL to reflect restored filters
+				const params = new URLSearchParams();
+				params.set("id", conversation.id.toString());
+				if (subjectId) params.set("subjectId", subjectId.toString());
+				if (chapterId) params.set("chapterId", chapterId.toString());
+				router.push(`?${params.toString()}`);
+			}
+
 			toast.success(`Loaded: ${conversation.title}`);
 		} catch (error) {
 			console.error("Error loading conversation:", error);
@@ -335,13 +405,18 @@ function ChatPageContent() {
 		setError(null);
 		setLastResponseMeta(null);
 		setInputMessage("");
+
+		// Clear URL params
+		router.push("/app/chat");
+
 		toast.success("Started new conversation");
 	};
 
 	// === END CONVERSATION MANAGEMENT ===
 
-	const handleSendMessage = async () => {
-		if (!inputMessage.trim() || isLoading) return;
+	const handleSendMessage = async (content?: string) => {
+		const messageToSend = typeof content === "string" ? content : inputMessage;
+		if (!messageToSend.trim() || isLoading) return;
 
 		// Validation: Ensure chapter is selected
 		if (!selectedChapterId) {
@@ -352,7 +427,7 @@ function ChatPageContent() {
 		const userMessage: ChatMessage = {
 			id: `user_${Date.now()}`,
 			role: "user",
-			content: inputMessage.trim(),
+			content: messageToSend.trim(),
 			timestamp: new Date(),
 		};
 
@@ -617,6 +692,26 @@ function ChatPageContent() {
 				}
 			}
 
+			// Parse suggested responses from the final content
+			const { cleanedContent, suggestedResponses } = parseSuggestedResponses(accumulatedContent);
+			accumulatedContent = cleanedContent;
+
+			console.log('[CHAT] Parsed suggested responses:', suggestedResponses);
+
+			// Update the message one last time with cleaned content and suggested responses
+			setMessages((prev) =>
+				prev.map((msg) => {
+					if (msg.id === assistantMessageId) {
+						return {
+							...msg,
+							content: cleanedContent,
+							suggestedResponses: suggestedResponses,
+						};
+					}
+					return msg;
+				})
+			);
+
 			// If no content was received, show error
 			if (!accumulatedContent) {
 				throw new Error("No response received from server");
@@ -722,7 +817,7 @@ function ChatPageContent() {
 	const { openCitation } = useSplitScreen();
 
 	return (
-		<div className="flex h-screen overflow-hidden">
+		<div className="flex h-full overflow-hidden">
 			<SplitScreenLayout>
 				{/* Main Chat Area */}
 				<div className="flex-1 flex flex-col overflow-hidden bg-gray-50/50 dark:bg-gray-900/50 h-full">
@@ -823,7 +918,8 @@ function ChatPageContent() {
 													{msg.role === "assistant" ? (
 														<div className="prose prose-sm dark:prose-invert max-w-none">
 															<ReactMarkdown
-																remarkPlugins={[remarkGfm, remarkBreaks]}
+																remarkPlugins={[remarkMath, remarkGfm, remarkBreaks]}
+																rehypePlugins={[rehypeKatex]}
 																components={{
 																	code({
 																		node,
@@ -916,7 +1012,10 @@ function ChatPageContent() {
 																	},
 																}}
 															>
-																{msg.content}
+																{msg.content.replace(
+																	/```json\s*({[\s\S]*"related_questions"[\s\S]*})\s*```/g,
+																	""
+																)}
 															</ReactMarkdown>
 
 															{/* Render Chart if chartData is present */}
@@ -927,10 +1026,48 @@ function ChatPageContent() {
 																	/>
 																</div>
 															)}
+
+															<ResponseTranslator
+																originalText={msg.originalContent || msg.content}
+																translatedText={msg.originalContent ? msg.content : undefined}
+																onTranslationComplete={(translatedText) => {
+																	setMessages((prev) =>
+																		prev.map((m) => {
+																			if (m.id === msg.id) {
+																				return {
+																					...m,
+																					content: translatedText,
+																					originalContent: m.originalContent || m.content,
+																				};
+																			}
+																			return m;
+																		})
+																	);
+																}}
+																onRevert={() => {
+																	if (msg.originalContent) {
+																		setMessages((prev) =>
+																			prev.map((m) => {
+																				if (m.id === msg.id) {
+																					return {
+																						...m,
+																						content: m.originalContent!,
+																						originalContent: undefined,
+																					};
+																				}
+																				return m;
+																			})
+																		);
+																	}
+																}}
+															/>
 														</div>
 													) : (
 														<p className="whitespace-pre-wrap text-sm">
-															{msg.content}
+															{msg.content.replace(
+																/```json\s*({[\s\S]*"related_questions"[\s\S]*})\s*```/,
+																""
+															)}
 														</p>
 													)}
 												</div>
@@ -966,7 +1103,62 @@ function ChatPageContent() {
 															)}
 														</div>
 													)}
+													{/* Suggested Questions */}
+													{(() => {
+														const jsonMatch = msg.content.match(
+															/```json\s*({[\s\S]*"related_questions"[\s\S]*})\s*```/
+														);
+														if (jsonMatch) {
+															try {
+																const data = JSON.parse(jsonMatch[1]);
+																if (
+																	data.related_questions &&
+																	Array.isArray(data.related_questions)
+																) {
+																	return (
+																		<div className="mt-3 flex flex-wrap gap-2">
+																			{data.related_questions.map(
+																				(q: string, i: number) => (
+																					<button
+																						key={i}
+																						onClick={() => {
+																							setInputMessage(q);
+																							// Optional: Auto-send
+																							// handleSendMessage();
+																						}}
+																						className="text-xs bg-primary/10 text-primary hover:bg-primary/20 px-3 py-1.5 rounded-full transition-colors text-left"
+																					>
+																						{q}
+																					</button>
+																				)
+																			)}
+																		</div>
+																	);
+																}
+															} catch (e) {
+																// Ignore parsing errors
+															}
+														}
+														return null;
+													})()}
 												</div>
+
+												{/* Suggested Responses (Tutor Mode) */}
+												{msg.suggestedResponses && msg.suggestedResponses.length > 0 && (
+													<div className="flex flex-wrap gap-2 mt-3 animate-in fade-in slide-in-from-top-2 duration-300">
+														{msg.suggestedResponses.map((response, i) => (
+															<Button
+																key={i}
+																variant="outline"
+																size="sm"
+																onClick={() => handleSendMessage(response)}
+																className="bg-primary/5 hover:bg-primary/10 border-primary/20 text-primary rounded-full"
+															>
+																{response}
+															</Button>
+														))}
+													</div>
+												)}
 
 												{/* Sources Section */}
 												{msg.sources && msg.sources.length > 0 && (
@@ -1061,9 +1253,15 @@ function ChatPageContent() {
 							<div className="max-w-4xl mx-auto space-y-4">
 								{/* Filters */}
 								<div className="flex flex-wrap items-center gap-3">
+									{currentConversationId && (
+										<div className="w-full text-xs text-amber-600 bg-amber-50 px-2 py-1 rounded border border-amber-200 mb-1 flex items-center gap-1">
+											<span>🔒 Context locked to this conversation. Start a new chat to change.</span>
+										</div>
+									)}
 									<select
-										className="h-9 text-sm border rounded-md px-3 bg-white dark:bg-gray-800 focus:ring-2 focus:ring-primary/20 outline-none"
+										className="h-9 text-sm border rounded-md px-3 bg-white dark:bg-gray-800 focus:ring-2 focus:ring-primary/20 outline-none disabled:opacity-50 disabled:cursor-not-allowed"
 										value={selectedSubjectId || ""}
+
 										onChange={(e) => {
 											const val = e.target.value;
 											if (val) {
@@ -1071,10 +1269,16 @@ function ChatPageContent() {
 												setSelectedSubjectId(id);
 												const subj = subjects.find((s) => s.id === id);
 												if (subj) setSelectedSubjectName(subj.name);
+
+												// Update URL
+												const params = new URLSearchParams(searchParams.toString());
+												params.set("subjectId", val);
+												params.delete("chapterId"); // Reset chapter when subject changes
+												router.push(`?${params.toString()}`);
 											}
 											// No "All Subjects" option allowed
 										}}
-										disabled={subjectsLoading}
+										disabled={subjectsLoading || !!currentConversationId}
 									>
 										{subjects.map((s) => (
 											<option key={s.id} value={s.id}>
@@ -1092,10 +1296,14 @@ function ChatPageContent() {
 												setSelectedChapterId(val);
 												const chap = chapters.find((c) => c.id === val);
 												if (chap) setSelectedChapterTitle(chap.title);
+
+												// Update URL
+												const params = new URLSearchParams(searchParams.toString());
+												params.set("chapterId", val);
+												router.push(`?${params.toString()}`);
 											}
-											// No "All Chapters" option allowed
 										}}
-										disabled={chaptersLoading || !selectedSubjectId}
+										disabled={chaptersLoading || !selectedSubjectId || !!currentConversationId}
 									>
 										{chapters.length === 0 ? (
 											<option value="" disabled>
@@ -1104,9 +1312,7 @@ function ChatPageContent() {
 										) : (
 											chapters.map((c) => (
 												<option key={c.id} value={c.id}>
-													{c.chapter_number
-														? `${c.chapter_number}. `
-														: ""}
+													{c.chapter_number ? `${c.chapter_number}. ` : ""}
 													{c.title}
 												</option>
 											))
@@ -1135,7 +1341,7 @@ function ChatPageContent() {
 										/>
 									</div>
 									<Button
-										onClick={handleSendMessage}
+										onClick={() => handleSendMessage()}
 										disabled={
 											isLoading || !inputMessage.trim() || !selectedChapterId
 										}
@@ -1174,4 +1380,66 @@ function ChatPageContent() {
 			</SplitScreenLayout>
 		</div>
 	);
+}
+
+function parseSuggestedResponses(content: string): { cleanedContent: string; suggestedResponses: string[] } {
+	let suggestedResponses: string[] = [];
+	let cleanedContent = content;
+
+	// Try multiple regex patterns to match the JSON block
+	const patterns = [
+		/```json\s*(\{[\s\S]*?"suggested_responses"[\s\S]*?\})\s*```/,  // Standard: ```json
+		/```\s*(\{[\s\S]*?"suggested_responses"[\s\S]*?\})\s*```/,      // No language: ```
+		/``json\s*(\{[\s\S]*?"suggested_responses"[\s\S]*?\})\s*``/,    // Malformed: ``json
+		/\{[\s\S]*?"suggested_responses"[\s\S]*?\}/                      // Raw JSON (no backticks)
+	];
+
+	let jsonMatch: RegExpMatchArray | null = null;
+	let matchedPattern = -1;
+
+	for (let i = 0; i < patterns.length; i++) {
+		jsonMatch = content.match(patterns[i]);
+		if (jsonMatch) {
+			matchedPattern = i;
+			break;
+		}
+	}
+
+	if (jsonMatch) {
+		// Always remove the matched block from content (whether we can parse it or not)
+		cleanedContent = content.replace(jsonMatch[0], "").trim();
+
+		try {
+			// For the raw JSON pattern (no backticks), use full match, otherwise use capture group
+			let jsonString = matchedPattern === 3 ? jsonMatch[0] : jsonMatch[1];
+			jsonString = jsonString.trim();
+
+			// Find complete JSON object
+			let braceCount = 0;
+			let endIndex = -1;
+			for (let i = 0; i < jsonString.length; i++) {
+				if (jsonString[i] === '{') braceCount++;
+				if (jsonString[i] === '}') {
+					braceCount--;
+					if (braceCount === 0) {
+						endIndex = i + 1;
+						break;
+					}
+				}
+			}
+
+			if (endIndex > 0) {
+				jsonString = jsonString.substring(0, endIndex);
+			}
+
+			const json = JSON.parse(jsonString);
+			if (json.suggested_responses && Array.isArray(json.suggested_responses)) {
+				suggestedResponses = json.suggested_responses;
+			}
+		} catch (e) {
+			console.error("[PARSE] Failed to parse suggested_responses, but removed from display:", e);
+		}
+	}
+
+	return { cleanedContent, suggestedResponses };
 }

@@ -62,6 +62,8 @@ export async function GET(request: NextRequest) {
                 message_count: true,
                 is_pinned: true,
                 is_archived: true,
+                // subject_id: true,
+                // chapter_id: true,
                 messages: {
                     take: 1,
                     orderBy: {
@@ -95,6 +97,8 @@ export async function GET(request: NextRequest) {
             messageCount: conv.message_count,
             isPinned: conv.is_pinned,
             isArchived: conv.is_archived,
+            // subjectId: conv.subject_id,
+            // chapterId: conv.chapter_id?.toString(),
             lastMessage:
                 conv.messages[0]?.role === "assistant"
                     ? conv.messages[0].content.substring(0, 100) + "..."
@@ -133,18 +137,20 @@ export async function POST(request: NextRequest) {
 
         const userId = parseInt((session.user as any).id, 10);
         const body = await request.json();
-        const { title } = body;
+        const { title, subjectId, chapterId } = body;
 
         // Create conversation
         const conversation = await prisma.conversation.create({
             data: {
                 user_id: userId,
                 title: title || "New Conversation",
+                // subject_id: subjectId ? parseInt(subjectId) : undefined,
+                // chapter_id: chapterId ? BigInt(chapterId) : undefined,
             },
         });
 
         console.log(
-            `[CONVERSATIONS API] Created conversation ${conversation.id} for user ${userId}`
+            `[CONVERSATIONS API] Created conversation ${conversation.id} for user ${userId} (Subject: ${subjectId}, Chapter: ${chapterId})`
         );
 
         return NextResponse.json({
@@ -157,6 +163,8 @@ export async function POST(request: NextRequest) {
                 messageCount: 0,
                 isPinned: false,
                 isArchived: false,
+                // subjectId: conversation.subject_id,
+                // chapterId: conversation.chapter_id?.toString(),
             },
         });
     } catch (error) {

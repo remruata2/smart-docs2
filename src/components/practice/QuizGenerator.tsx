@@ -8,7 +8,7 @@ import { Label } from "@/components/ui/label";
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
 import { Slider } from "@/components/ui/slider";
 import { toast } from "sonner";
-import { Loader2, BrainCircuit, ChevronRight, ChevronLeft, CheckCircle } from "lucide-react";
+import { Loader2, BrainCircuit, ChevronRight, ChevronLeft, CheckCircle, Swords } from "lucide-react";
 import { generateQuizAction } from "@/app/app/practice/actions";
 import { getSubjectsForUserProgram } from "@/app/app/subjects/actions";
 import { getChaptersForSubject } from "@/app/app/chapters/actions";
@@ -292,6 +292,15 @@ export function QuizGenerator() {
                         <CardTitle className="text-2xl">Generate Practice Quiz</CardTitle>
                         <CardDescription>Step {currentStep} of 4 - {steps[currentStep - 1].description}</CardDescription>
                     </div>
+                    <Button
+                        variant="outline"
+                        size="sm"
+                        className="gap-2 border-purple-500 text-purple-600 hover:bg-purple-50"
+                        onClick={() => router.push("/app/practice/battle")}
+                    >
+                        <Swords className="w-4 h-4" />
+                        Battle Mode
+                    </Button>
                 </div>
 
                 {/* Progress Indicator */}

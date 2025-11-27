@@ -84,6 +84,12 @@ class QuizCache {
 // Singleton instance
 export const quizCache = new QuizCache();
 
+// Clear cache on server start for fresh data
+if (typeof window === 'undefined') {
+    console.log("[QUIZ-CACHE] Clearing cache on server start");
+    quizCache.clear();
+}
+
 // Periodic cleanup (every 10 minutes)
 if (typeof window === 'undefined') { // Server-side only
     setInterval(() => {

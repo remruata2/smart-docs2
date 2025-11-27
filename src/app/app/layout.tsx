@@ -42,9 +42,7 @@ export default function DashboardLayout({
 
             {/* Static sidebar for desktop */}
             <div className="hidden lg:flex lg:flex-shrink-0">
-                <div className="flex flex-col w-64">
-                    <UserSidebar />
-                </div>
+                <UserSidebar />
             </div>
 
             {/* Main content area */}

@@ -109,6 +109,9 @@ model user {
    quizzes        Quiz[]
    points         UserPoints[]
    badges         UserBadge[]
+   learning_sessions LearningSession[]
+   created_battles Battle[]
+   battle_participations BattleParticipant[]
 
    @@index([email], map: "idx_user_email")
 }
@@ -124,11 +127,17 @@ model Conversation {
   message_count   Int                   @default(0)
   is_pinned       Boolean               @default(false)
   is_archived     Boolean               @default(false)
+  subject_id      Int?
+  chapter_id      BigInt?
   messages        ConversationMessage[]
   user            user                  @relation(fields: [user_id], references: [id], onDelete: Cascade)
+  subject         Subject?              @relation(fields: [subject_id], references: [id])
+  chapter         Chapter?              @relation(fields: [chapter_id], references: [id])
 
   @@index([user_id, updated_at(sort: Desc)], map: "idx_conversations_user_updated")
   @@index([user_id, is_pinned, updated_at(sort: Desc)], map: "idx_conversations_user_pinned")
+  @@index([subject_id])
+  @@index([chapter_id])
   @@map("conversations")
 }
 
@@ -359,6 +368,7 @@ model Subject {
   term       String?   // e.g. "Semester 1", "Year 2", or null for annual
   chapters Chapter[]
   quizzes    Quiz[]
+  conversations Conversation[]
 
   @@unique([program_id, name])
   @@index([program_id])
@@ -394,8 +404,10 @@ model Chapter {
   subject     Subject             @relation(fields: [subject_id], references: [id])
   chunks      ChapterChunk[]
   pages       ChapterPage[]
-  quizzes     Quiz[]
-  study_materials StudyMaterial?
+   quizzes     Quiz[]
+   study_materials StudyMaterial?
+   learning_sessions LearningSession[]
+   conversations Conversation[]
 
   @@index([subject_id, chapter_number])
   @@index([accessible_boards], type: Gin) // For RLS
@@ -553,6 +565,7 @@ model Quiz {
   chapter     Chapter?   @relation(fields: [chapter_id], references: [id])
   
   questions   QuizQuestion[]
+   battles     Battle[]
 
   @@index([user_id])
   @@index([subject_id])
@@ -671,4 +684,77 @@ model UserBadge {
   @@index([user_id])
   @@index([badge_id])
   @@map("user_badges")
+}
+
+model LearningSession {
+  id            String   @id @default(cuid())
+  user_id       Int
+  chapter_id    BigInt
+  status        String   @default("active") // active, completed, paused
+  current_topic String?  // e.g., "Balancing Chemical Equations"
+  progress      Int      @default(0) // 0-100%
+  created_at    DateTime @default(now())
+  updated_at    DateTime @updatedAt
+
+  user    user    @relation(fields: [user_id], references: [id])
+  chapter Chapter @relation(fields: [chapter_id], references: [id])
+
+  @@index([user_id, chapter_id])
+  @@map("learning_sessions")
+}
+
+// --- P2P Battle Models ---
+
+enum BattleStatus {
+  WAITING     // Waiting for opponent
+  STARTING    // Countdown
+  IN_PROGRESS // Battle is live
+  COMPLETED   // Battle finished
+  ABANDONED   // Someone left or timed out
+  EXPIRED     // Created but never joined
+}
+
+model Battle {
+  id          String       @id @default(cuid())
+  quiz_id     String
+  code        String       @unique @db.VarChar(10) // 6-digit join code
+  status      BattleStatus @default(WAITING)
+  
+  created_by  Int
+  created_at  DateTime     @default(now())
+  started_at  DateTime?
+  ended_at    DateTime?
+  
+  // Settings snapshot
+  settings    Json?        // { timePerQuestion: 15, ... }
+
+  quiz        Quiz         @relation(fields: [quiz_id], references: [id])
+  creator     user         @relation(fields: [created_by], references: [id])
+  
+  participants BattleParticipant[]
+
+  @@index([code])
+  @@index([status])
+  @@index([created_by])
+  @@map("battles")
+}
+
+model BattleParticipant {
+  id          String   @id @default(cuid())
+  battle_id   String
+  user_id     Int
+  
+  score       Int      @default(0)
+  current_q_index Int  @default(0) // Which question they are on
+  finished    Boolean  @default(false)
+  joined_at   DateTime @default(now())
+  
+  // Realtime state
+  last_active DateTime @default(now())
+
+  battle      Battle   @relation(fields: [battle_id], references: [id], onDelete: Cascade)
+  user        user     @relation(fields: [user_id], references: [id], onDelete: Cascade)
+
+  @@unique([battle_id, user_id])
+  @@map("battle_participants")
 }

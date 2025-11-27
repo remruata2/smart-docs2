@@ -171,9 +171,13 @@ export default function ConversationSidebar({
 
 			toast.success("Conversation deleted");
 			if (currentConversationId === id) {
-				onNewConversation(); // Start new conversation if current was deleted
+				// If we deleted the current conversation, start a new one
+				// This will trigger the parent's onNewConversation which now handles the redirect
+				onNewConversation();
+			} else {
+				// Only reload if we didn't trigger a new conversation (which would reload anyway)
+				loadConversations();
 			}
-			loadConversations();
 		} catch (error) {
 			console.error("Error deleting conversation:", error);
 			toast.error("Failed to delete conversation");
