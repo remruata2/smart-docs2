@@ -474,7 +474,7 @@ CREATE INDEX "chapter_chunks_subject_id_idx" ON "chapter_chunks"("subject_id" AS
 CREATE INDEX "chapter_pages_chapter_id_page_number_idx" ON "chapter_pages"("chapter_id" ASC, "page_number" ASC);
 
 -- CreateIndex
-CREATE INDEX "chapters_accessible_boards_idx" ON "chapters" USING GIN ("accessible_boards" array_ops ASC);
+CREATE INDEX "chapters_accessible_boards_idx" ON "chapters" USING GIN ("accessible_boards" array_ops);
 
 -- CreateIndex
 CREATE INDEX "chapters_processing_status_idx" ON "chapters"("processing_status" ASC);
