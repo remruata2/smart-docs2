@@ -5,11 +5,20 @@
 
 */
 -- AlterTable
-ALTER TABLE "user" ADD COLUMN     "email" VARCHAR(255),
-ALTER COLUMN "role" SET DEFAULT 'user';
+DO $$ 
+BEGIN
+    IF NOT EXISTS (
+        SELECT 1 FROM information_schema.columns 
+        WHERE table_name = 'user' AND column_name = 'email'
+    ) THEN
+        ALTER TABLE "user" ADD COLUMN "email" VARCHAR(255);
+    END IF;
+END $$;
+
+ALTER TABLE "user" ALTER COLUMN "role" SET DEFAULT 'user';
 
 -- CreateIndex
-CREATE UNIQUE INDEX "user_email_key" ON "user"("email");
+CREATE UNIQUE INDEX IF NOT EXISTS "user_email_key" ON "user"("email");
 
 -- CreateIndex
-CREATE INDEX "idx_user_email" ON "user"("email");
+CREATE INDEX IF NOT EXISTS "idx_user_email" ON "user"("email");
