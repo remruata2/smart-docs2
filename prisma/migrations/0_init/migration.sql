@@ -354,8 +354,8 @@ CREATE TABLE "subscription_plans" (
     "description" TEXT,
     "price_monthly" DECIMAL(10,2) NOT NULL,
     "price_yearly" DECIMAL(10,2),
-    "stripe_price_id_monthly" VARCHAR(255),
-    "stripe_price_id_yearly" VARCHAR(255),
+    "razorpay_plan_id_monthly" VARCHAR(255),
+    "razorpay_plan_id_yearly" VARCHAR(255),
     "features" JSONB,
     "limits" JSONB NOT NULL,
     "is_active" BOOLEAN NOT NULL DEFAULT true,
@@ -423,8 +423,9 @@ CREATE TABLE "user_subscriptions" (
     "id" SERIAL NOT NULL,
     "user_id" INTEGER NOT NULL,
     "plan_id" INTEGER NOT NULL,
-    "stripe_subscription_id" VARCHAR(255),
-    "stripe_customer_id" VARCHAR(255),
+    "razorpay_subscription_id" VARCHAR(255),
+    "razorpay_customer_id" VARCHAR(255),
+    "razorpay_order_id" VARCHAR(255),
     "status" "subscription_status" NOT NULL DEFAULT 'active',
     "billing_cycle" "billing_cycle" NOT NULL DEFAULT 'monthly',
     "current_period_start" TIMESTAMPTZ(6) NOT NULL,
@@ -594,10 +595,10 @@ CREATE INDEX "user_points_user_id_idx" ON "user_points"("user_id" ASC);
 CREATE INDEX "idx_user_subscriptions_status" ON "user_subscriptions"("status" ASC, "current_period_end" ASC);
 
 -- CreateIndex
-CREATE INDEX "idx_user_subscriptions_stripe" ON "user_subscriptions"("stripe_subscription_id" ASC);
+CREATE INDEX "idx_user_subscriptions_razorpay" ON "user_subscriptions"("razorpay_subscription_id" ASC);
 
 -- CreateIndex
-CREATE UNIQUE INDEX "user_subscriptions_stripe_subscription_id_key" ON "user_subscriptions"("stripe_subscription_id" ASC);
+CREATE UNIQUE INDEX "user_subscriptions_razorpay_subscription_id_key" ON "user_subscriptions"("razorpay_subscription_id" ASC);
 
 -- CreateIndex
 CREATE UNIQUE INDEX "user_subscriptions_user_id_key" ON "user_subscriptions"("user_id" ASC);
