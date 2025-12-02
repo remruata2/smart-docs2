@@ -162,7 +162,7 @@ export default function OnboardingPage() {
                             <GraduationCap className="h-8 w-8 text-primary" />
                         </div>
                         <div>
-                            <CardTitle className="text-2xl">Welcome to Bharat-Tutor</CardTitle>
+                            <CardTitle className="text-2xl">Welcome to Zirna</CardTitle>
                             <CardDescription>Let's set up your learning profile</CardDescription>
                         </div>
                     </div>
