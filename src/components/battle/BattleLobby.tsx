@@ -55,14 +55,15 @@ export function BattleLobby() {
 
         setLoading(true);
         try {
-            // 1. Generate a new quiz for the battle
-            toast.info("Generating battle quiz...");
+            // 1. Fetch quiz from question bank (no AI generation for battles)
+            toast.info("Preparing battle...");
             const quiz = await generateQuizAction(
                 parseInt(selectedSubject),
                 parseInt(selectedChapter),
                 "medium", // Default difficulty
                 5,        // Default 5 questions for quick battle
-                ["MCQ"]   // Default MCQ for battle
+                ["MCQ"],  // Default MCQ for battle
+                false     // Disable AI fallback - use only stored questions
             );
 
             // 2. Create the battle with the generated quiz
@@ -79,7 +80,12 @@ export function BattleLobby() {
             router.push(`/app/practice/battle/${data.battle.id}`);
         } catch (error: any) {
             console.error(error);
-            toast.error(error.message || "Failed to create battle");
+            // Provide user-friendly error messages
+            if (error.message?.includes("Not enough questions")) {
+                toast.error("Not enough questions available for this chapter. Please select a different chapter or contact admin.");
+            } else {
+                toast.error(error.message || "Failed to create battle");
+            }
         } finally {
             setLoading(false);
         }

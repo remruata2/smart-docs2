@@ -10,9 +10,12 @@ import { quizCache, CacheKeys } from "@/lib/quiz-cache";
 /**
  * Get chapter context with caching
  */
-async function getChapterContext(chapterId: number): Promise<{ title: string; context: string }> {
+/**
+ * Get chapter context with caching
+ */
+async function getChapterContext(chapterId: number): Promise<{ title: string; context: string; board?: string; level?: string }> {
     const cacheKey = CacheKeys.chapterContext(chapterId);
-    const cached = quizCache.get<{ title: string; context: string }>(cacheKey);
+    const cached = quizCache.get<{ title: string; context: string; board?: string; level?: string }>(cacheKey);
 
     if (cached) {
         console.log(`[QUIZ-CACHE] Hit for chapter ${chapterId}`);
@@ -21,10 +24,24 @@ async function getChapterContext(chapterId: number): Promise<{ title: string; co
 
     console.log(`[QUIZ-CACHE] Miss for chapter ${chapterId}, fetching from DB`);
 
-    // Fetch chapter metadata
+    // Fetch chapter metadata with relations
     const chapter = await prisma.chapter.findUnique({
         where: { id: BigInt(chapterId) },
-        select: { title: true },
+        select: {
+            title: true,
+            subject: {
+                select: {
+                    program: {
+                        select: {
+                            name: true,
+                            board: {
+                                select: { id: true }
+                            }
+                        }
+                    }
+                }
+            }
+        },
     });
 
     if (!chapter) throw new Error("Chapter not found");
@@ -43,7 +60,12 @@ async function getChapterContext(chapterId: number): Promise<{ title: string; co
 
     console.log(`[QUIZ-CACHE] Total context length: ${context.length} characters`);
 
-    const result = { title: chapter.title, context };
+    const result = {
+        title: chapter.title,
+        context,
+        board: chapter.subject?.program?.board?.id,
+        level: chapter.subject?.program?.name
+    };
 
     // Cache for 1 hour
     quizCache.set(cacheKey, result, 60 * 60 * 1000);
@@ -54,9 +76,12 @@ async function getChapterContext(chapterId: number): Promise<{ title: string; co
 /**
  * Get subject-level context with random chapter sampling
  */
-async function getSubjectContext(subjectId: number): Promise<string> {
+/**
+ * Get subject-level context with random chapter sampling
+ */
+async function getSubjectContext(subjectId: number): Promise<{ context: string; board?: string; level?: string }> {
     const cacheKey = CacheKeys.subjectContext(subjectId);
-    const cached = quizCache.get<string>(cacheKey);
+    const cached = quizCache.get<{ context: string; board?: string; level?: string }>(cacheKey);
 
     if (cached) {
         console.log(`[QUIZ-CACHE] Hit for subject ${subjectId}`);
@@ -64,6 +89,19 @@ async function getSubjectContext(subjectId: number): Promise<string> {
     }
 
     console.log(`[QUIZ-CACHE] Miss for subject ${subjectId}, fetching from DB`);
+
+    // Fetch Subject Metadata
+    const subject = await prisma.subject.findUnique({
+        where: { id: subjectId },
+        select: {
+            program: {
+                select: {
+                    name: true,
+                    board: { select: { id: true } }
+                }
+            }
+        }
+    });
 
     // Get all chapter IDs, then randomly sample 3
     const chapterIds = await prisma.chapter.findMany({
@@ -96,19 +134,26 @@ async function getSubjectContext(subjectId: number): Promise<string> {
 
     const context = chunks.map(c => c.content).join("\n\n");
 
-    // Cache for 30 minutes (less than chapter since it's random)
-    quizCache.set(cacheKey, context, 30 * 60 * 1000);
+    const result = {
+        context,
+        board: subject?.program?.board?.id,
+        level: subject?.program?.name
+    };
 
-    return context;
+    // Cache for 30 minutes (less than chapter since it's random)
+    quizCache.set(cacheKey, result, 30 * 60 * 1000);
+
+    return result;
 }
 
 
 export async function generateQuizAction(
     subjectId: number,
     chapterId: number | null,
-    difficulty: "easy" | "medium" | "hard",
+    difficulty: "easy" | "medium" | "hard" | "exam",
     questionCount: number,
-    questionTypes: QuestionType[]
+    questionTypes: QuestionType[],
+    useAiFallback: boolean = true // New parameter, defaults to true for backward compatibility
 ) {
     const session = await getServerSession(authOptions);
     if (!session?.user?.id) {
@@ -117,42 +162,165 @@ export async function generateQuizAction(
     const userId = parseInt(session.user.id as string);
 
     try {
-        // 1. Fetch Context (with caching)
-        let context = "";
-        let topicName = "";
+        let quizTitle = "";
+        let quizDescription = "";
+        let finalQuestions: any[] = [];
 
-        const subject = await prisma.subject.findUnique({
-            where: { id: subjectId },
-            select: { name: true },
-        });
-        if (!subject) throw new Error("Subject not found");
-        const subjectName = subject.name;
-
+        // STRATEGY 1: Question Bank (Priority)
         if (chapterId) {
-            const chapterData = await getChapterContext(chapterId);
-            topicName = chapterData.title;
-            context = chapterData.context;
-        } else {
-            topicName = "General Review";
-            context = await getSubjectContext(subjectId);
+            const bigChapterId = BigInt(chapterId);
+
+            // Build query filter
+            const whereClause: any = {
+                chapter_id: bigChapterId,
+                is_active: true,
+            };
+
+            // If difficulty is "exam", ONLY fetch exam questions and ignore types
+            if (difficulty === "exam") {
+                whereClause.difficulty = "exam";
+                // We intentionally ignore questionTypes for exam mode to get all available past paper questions
+            } else {
+                // Normal mode: filter by selected types and difficulty + exam questions
+                whereClause.question_type = { in: questionTypes };
+                // Include both selected difficulty AND exam questions (as they are high quality)
+                whereClause.difficulty = { in: [difficulty, "exam"] };
+            }
+
+            let availableQuestions = await prisma.question.findMany({
+                where: whereClause,
+                select: { id: true }
+            });
+
+            // For Exam Mode, we strictly require questions from the bank
+            if (difficulty === "exam") {
+                if (availableQuestions.length === 0) {
+                    throw new Error("No exam questions found for this chapter. Please upload past papers first.");
+                }
+                // Use all found questions (up to limit)
+                console.log(`[QUIZ-GEN] Found ${availableQuestions.length} exam questions.`);
+            }
+
+            // FALLBACK STRATEGY: If strict mode (no AI) and not enough questions, try ANY difficulty
+            // This block is only relevant for non-exam difficulties if useAiFallback is false
+            if (difficulty !== "exam" && availableQuestions.length < questionCount && !useAiFallback) {
+                console.log(`[QUIZ-GEN] Not enough ${difficulty} questions. Trying ALL difficulties from bank...`);
+                const allDifficultyQuestions = await prisma.question.findMany({
+                    where: {
+                        chapter_id: bigChapterId,
+                        question_type: { in: questionTypes },
+                        is_active: true
+                    },
+                    select: { id: true }
+                });
+                // Add unique ones
+                const existingIds = new Set(availableQuestions.map(q => q.id));
+                for (const q of allDifficultyQuestions) {
+                    if (!existingIds.has(q.id)) {
+                        availableQuestions.push(q);
+                        existingIds.add(q.id);
+                    }
+                }
+            }
+
+            if (availableQuestions.length >= questionCount || (difficulty === "exam" && availableQuestions.length > 0)) {
+                console.log(`[QUIZ-GEN] Found ${availableQuestions.length} questions in bank for chapter ${chapterId}. Using Bank.`);
+
+                // Randomly select IDs
+                const shuffled = availableQuestions.sort(() => 0.5 - Math.random());
+                const selectedIds = shuffled.slice(0, questionCount).map(q => q.id);
+
+                // Fetch full question details
+                const questions = await prisma.question.findMany({
+                    where: { id: { in: selectedIds } }
+                });
+
+                finalQuestions = questions.map(q => ({
+                    question_text: q.question_text,
+                    question_type: q.question_type,
+                    options: q.options ? (q.options as any) : undefined,
+                    correct_answer: q.correct_answer,
+                    points: q.points,
+                    explanation: q.explanation || "Correct answer",
+                }));
+
+                const chapter = await prisma.chapter.findUnique({
+                    where: { id: bigChapterId },
+                    select: { title: true }
+                });
+
+                quizTitle = `${chapter?.title || 'Chapter'} Quiz`;
+                quizDescription = `A ${difficulty} difficulty quiz on ${chapter?.title}`;
+            } else {
+                console.log(`[QUIZ-GEN] Not enough questions in bank (${availableQuestions.length}/${questionCount}).`);
+
+                if (!useAiFallback) {
+                    throw new Error(`Not enough questions in the Question Bank for this chapter. Found ${availableQuestions.length}, needed ${questionCount}. Please contact admin.`);
+                }
+
+                console.log(`[QUIZ-GEN] Falling back to AI.`);
+            }
         }
 
-        // Early validation
-        if (!context || context.trim().length < 200) {
-            throw new Error("Insufficient content available for quiz generation. Please ensure the chapter has content.");
+        // STRATEGY 2: AI Generation (Fallback or Subject-level)
+        if (finalQuestions.length === 0) {
+            if (!useAiFallback) {
+                throw new Error("AI generation is disabled for this request (Battle Mode). Please select a chapter with existing questions.");
+            }
+
+            // 1. Fetch Context (with caching)
+            let context = "";
+            let topicName = "";
+            let boardName = "";
+            let levelName = "";
+
+            const subject = await prisma.subject.findUnique({
+                where: { id: subjectId },
+                select: { name: true },
+            });
+            if (!subject) throw new Error("Subject not found");
+            const subjectName = subject.name;
+
+            if (chapterId) {
+                const chapterData = await getChapterContext(chapterId);
+                topicName = chapterData.title;
+                context = chapterData.context;
+                boardName = chapterData.board || "";
+                levelName = chapterData.level || "";
+            } else {
+                topicName = "General Review";
+                const subjectData = await getSubjectContext(subjectId);
+                context = subjectData.context;
+                boardName = subjectData.board || "";
+                levelName = subjectData.level || "";
+            }
+
+            // Early validation
+            if (!context || context.trim().length < 200) {
+                throw new Error("Insufficient content available for quiz generation. Please ensure the chapter has content.");
+            }
+
+            // 2. Generate Quiz via AI
+            const config: QuizGenerationConfig = {
+                subject: subjectName,
+                topic: topicName,
+                difficulty: difficulty as any, // Cast to any since AI service might not strictly type "exam" yet
+                questionCount,
+                questionTypes: questionTypes as any, // Cast to match AI service types
+                context,
+            };
+
+            const aiQuiz = await generateQuiz(config, {
+                board: boardName,
+                level: levelName
+            });
+            finalQuestions = aiQuiz.questions;
+            quizTitle = aiQuiz.title;
+            quizDescription = aiQuiz.description;
+
+            // OPTIONAL: We could save these to the Question Bank here for future use!
+            // But for now, we'll keep the existing behavior for AI generation.
         }
-
-        // 2. Generate Quiz via AI
-        const config: QuizGenerationConfig = {
-            subject: subjectName,
-            topic: topicName,
-            difficulty,
-            questionCount,
-            questionTypes: questionTypes as any, // Cast to match AI service types
-            context,
-        };
-
-        const aiQuiz = await generateQuiz(config);
 
         // 3. Save to DB
         const quiz = await prisma.quiz.create({
@@ -160,11 +328,11 @@ export async function generateQuizAction(
                 user_id: userId,
                 subject_id: subjectId,
                 chapter_id: chapterId ? BigInt(chapterId) : null,
-                title: aiQuiz.title,
-                description: aiQuiz.description,
-                total_points: aiQuiz.questions.reduce((sum, q) => sum + q.points, 0),
+                title: quizTitle,
+                description: quizDescription,
+                total_points: finalQuestions.reduce((sum, q) => sum + q.points, 0),
                 questions: {
-                    create: aiQuiz.questions.map(q => ({
+                    create: finalQuestions.map(q => ({
                         question_text: q.question_text,
                         question_type: q.question_type as QuestionType,
                         options: q.options ? q.options : undefined,
@@ -191,9 +359,9 @@ export async function generateQuizAction(
             })),
         };
 
-    } catch (error) {
+    } catch (error: any) {
         console.error("Error in generateQuizAction:", error);
-        throw new Error("Failed to generate quiz");
+        throw new Error(error.message || "Failed to generate quiz");
     }
 }
 
@@ -242,9 +410,23 @@ export async function submitQuizAction(
                 continue; // Skip immediate update
             } else {
                 // Auto-grade objective questions
-                // Simple equality check for now. For arrays (multi-select), need better logic.
-                // Assuming single select MCQ/TF/FITB for MVP.
-                if (JSON.stringify(userAnswer) === JSON.stringify(question.correct_answer)) {
+                // Handle various answer formats: string vs array vs mixed
+
+                const correctAnswer = question.correct_answer;
+                const userAnswerNormalized = userAnswer;
+                const correctAnswerNormalized = correctAnswer;
+
+                // Normalize to arrays for comparison
+                const userArray = Array.isArray(userAnswerNormalized) ? userAnswerNormalized : [userAnswerNormalized];
+                const correctArray = Array.isArray(correctAnswerNormalized) ? correctAnswerNormalized : [correctAnswerNormalized];
+
+                // Compare as sets (order-independent, handles both single and multi-select)
+                const correctSet = new Set(correctArray.map((a: any) => String(a).trim()));
+                const userSet = new Set(userArray.map((a: any) => String(a).trim()));
+
+                // Check if sets are equal (works for single-select AND multi-select)
+                if (correctSet.size === userSet.size &&
+                    [...correctSet].every(item => userSet.has(item))) {
                     isCorrect = true;
                     pointsAwarded = question.points;
                 }

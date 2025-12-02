@@ -53,6 +53,70 @@ export function BattleArena({ battle: initialBattle, currentUser, supabaseConfig
     const [starting, setStarting] = useState(false);
     const [countdown, setCountdown] = useState(3);
 
+    // Helper functions (defined early to avoid hoisting issues)
+    const handleJoinRematch = async (code: string) => {
+        try {
+            const res = await fetch("/api/battle/join", {
+                method: "POST",
+                headers: { "Content-Type": "application/json" },
+                body: JSON.stringify({ code })
+            });
+
+            if (!res.ok) {
+                const data = await res.json();
+                toast.error(data.error || "Failed to join rematch");
+                return;
+            }
+
+            const data = await res.json();
+            router.push(`/app/practice/battle/${data.battle.id}`);
+        } catch (error) {
+            console.error("Error joining rematch:", error);
+            toast.error("Failed to join rematch");
+        }
+    };
+
+    const fetchBattleData = async () => {
+        const currentBattle = battleRef.current;
+        const currentMyParticipant = currentBattle.participants.find((p: any) => p.user_id === currentUser.id);
+
+        try {
+            const res = await fetch(`/api/battle/${currentBattle.id}`);
+            if (res.ok) {
+                const data = await res.json();
+                if (data.battle) {
+                    // Prevent reverting status from IN_PROGRESS to WAITING due to race condition
+                    if (currentBattle.status === 'IN_PROGRESS' && data.battle.status === 'WAITING') {
+                        data.battle.status = 'IN_PROGRESS';
+                    }
+
+                    // Prevent reverting finished status if we know we are finished
+                    // This fixes the persistent polling issue where stale server data restarts the interval
+                    if (currentMyParticipant?.finished) {
+                        const serverMyPart = data.battle.participants.find((p: any) => p.user_id === currentUser.id);
+                        if (serverMyPart) {
+                            serverMyPart.finished = true;
+                            // Ensure score doesn't revert either
+                            serverMyPart.score = Math.max(serverMyPart.score, currentMyParticipant.score);
+                            serverMyPart.current_q_index = Math.max(serverMyPart.current_q_index, currentMyParticipant.current_q_index);
+                        }
+                    }
+
+                    setBattle(data.battle);
+
+                    // Also update waiting status if changed
+                    if (data.battle.status === 'IN_PROGRESS') setWaiting(false);
+                    if (data.battle.status === 'COMPLETED') {
+                        toast.success("Battle Completed!");
+                        // Redirect to results or show summary
+                    }
+                }
+            }
+        } catch (e) {
+            console.error("Failed to fetch battle data:", e);
+        }
+    };
+
     // Check for completion moved to bottom to avoid hook errors
 
     // Realtime subscription
@@ -114,47 +178,6 @@ export function BattleArena({ battle: initialBattle, currentUser, supabaseConfig
 
     // Removed polling - now relying entirely on Supabase Realtime broadcasts
 
-    const fetchBattleData = async () => {
-        const currentBattle = battleRef.current;
-        const currentMyParticipant = currentBattle.participants.find((p: any) => p.user_id === currentUser.id);
-
-        try {
-            const res = await fetch(`/api/battle/${currentBattle.id}`);
-            if (res.ok) {
-                const data = await res.json();
-                if (data.battle) {
-                    // Prevent reverting status from IN_PROGRESS to WAITING due to race condition
-                    if (currentBattle.status === 'IN_PROGRESS' && data.battle.status === 'WAITING') {
-                        data.battle.status = 'IN_PROGRESS';
-                    }
-
-                    // Prevent reverting finished status if we know we are finished
-                    // This fixes the persistent polling issue where stale server data restarts the interval
-                    if (currentMyParticipant?.finished) {
-                        const serverMyPart = data.battle.participants.find((p: any) => p.user_id === currentUser.id);
-                        if (serverMyPart) {
-                            serverMyPart.finished = true;
-                            // Ensure score doesn't revert either
-                            serverMyPart.score = Math.max(serverMyPart.score, currentMyParticipant.score);
-                            serverMyPart.current_q_index = Math.max(serverMyPart.current_q_index, currentMyParticipant.current_q_index);
-                        }
-                    }
-
-                    setBattle(data.battle);
-
-                    // Also update waiting status if changed
-                    if (data.battle.status === 'IN_PROGRESS') setWaiting(false);
-                    if (data.battle.status === 'COMPLETED') {
-                        toast.success("Battle Completed!");
-                        // Redirect to results or show summary
-                    }
-                }
-            }
-        } catch (e) {
-            console.error("Failed to fetch battle data:", e);
-        }
-    };
-
     // Timer logic
     useEffect(() => {
         if (waiting || starting || battle.status === "COMPLETED" || myParticipant?.finished) return;
@@ -196,28 +219,6 @@ export function BattleArena({ battle: initialBattle, currentUser, supabaseConfig
     if (myParticipant?.finished || battle.status === "COMPLETED") {
         return <BattleResult battle={battle} currentUser={currentUser} />;
     }
-
-    const handleJoinRematch = async (code: string) => {
-        try {
-            const res = await fetch("/api/battle/join", {
-                method: "POST",
-                headers: { "Content-Type": "application/json" },
-                body: JSON.stringify({ code })
-            });
-
-            if (!res.ok) {
-                const data = await res.json();
-                toast.error(data.error || "Failed to join rematch");
-                return;
-            }
-
-            const data = await res.json();
-            router.push(`/app/practice/battle/${data.battle.id}`);
-        } catch (error) {
-            console.error("Error joining rematch:", error);
-            toast.error("Failed to join rematch");
-        }
-    };
 
     const handleStart = async () => {
         try {

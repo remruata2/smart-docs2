@@ -1,6 +1,6 @@
 "use client";
 
-import { useState, useEffect } from "react";
+import { useState, useEffect, useRef, useCallback } from "react";
 import { useRouter } from "next/navigation";
 import { Button } from "@/components/ui/button";
 import { RadioGroup, RadioGroupItem } from "@/components/ui/radio-group";
@@ -9,12 +9,15 @@ import { Input } from "@/components/ui/input";
 import { Textarea } from "@/components/ui/textarea";
 import { Progress } from "@/components/ui/progress";
 import { toast } from "sonner";
-import { Loader2, ChevronRight, ChevronLeft, CheckCircle2, Menu, X } from "lucide-react";
+import { Loader2, ChevronRight, CheckCircle2 } from "lucide-react";
 import { submitQuizAction } from "@/app/app/practice/actions";
 import { QuestionTimer } from "./QuestionTimer";
 import { QuestionCard } from "./QuestionCard";
-import { QuizNavigation } from "./QuizNavigation";
-import { Sheet, SheetContent, SheetTrigger } from "@/components/ui/sheet";
+import ReactMarkdown from "react-markdown";
+import remarkGfm from "remark-gfm";
+import remarkBreaks from "remark-breaks";
+import "katex/dist/katex.min.css";
+import { Checkbox } from "@/components/ui/checkbox";
 
 interface Question {
     id: string;
@@ -46,7 +49,7 @@ export function QuizInterface({ quiz }: { quiz: Quiz }) {
     const [submitting, setSubmitting] = useState(false);
     const [timerLimits, setTimerLimits] = useState<TimerLimits | null>(null);
     const [timerKey, setTimerKey] = useState(0); // Force timer reset
-    const [showNavigation, setShowNavigation] = useState(false);
+    const [shuffledOptions, setShuffledOptions] = useState<Record<string, string[]>>({});
 
     const currentQuestion = quiz.questions[currentQuestionIndex];
     const totalQuestions = quiz.questions.length;
@@ -54,6 +57,27 @@ export function QuizInterface({ quiz }: { quiz: Quiz }) {
     const answeredQuestions = new Set(
         quiz.questions.map((q, idx) => answers[q.id] !== undefined ? idx : -1).filter(idx => idx !== -1)
     );
+
+    // Shuffle array utility (Fisher-Yates algorithm)
+    const shuffleArray = <T,>(array: T[]): T[] => {
+        const shuffled = [...array];
+        for (let i = shuffled.length - 1; i > 0; i--) {
+            const j = Math.floor(Math.random() * (i + 1));
+            [shuffled[i], shuffled[j]] = [shuffled[j], shuffled[i]];
+        }
+        return shuffled;
+    };
+
+    // Initialize shuffled options for all MCQ/TRUE_FALSE questions on mount
+    useEffect(() => {
+        const shuffled: Record<string, string[]> = {};
+        quiz.questions.forEach(q => {
+            if ((q.question_type === "MCQ" || q.question_type === "TRUE_FALSE") && Array.isArray(q.options)) {
+                shuffled[q.id] = shuffleArray(q.options);
+            }
+        });
+        setShuffledOptions(shuffled);
+    }, [quiz.questions]);
 
     // Fetch timer limits on mount
     useEffect(() => {
@@ -79,16 +103,82 @@ export function QuizInterface({ quiz }: { quiz: Quiz }) {
         fetchTimerLimits();
     }, []);
 
+    const [timeRemaining, setTimeRemaining] = useState(30);
+    const expiredTimerKeyRef = useRef<number | null>(null);
+
+    const currentTimeLimit = timerLimits ? timerLimits[currentQuestion.question_type] : 30;
+
     // Reset timer when question changes
     useEffect(() => {
         setTimerKey(prev => prev + 1);
-    }, [currentQuestionIndex]);
+        setTimeRemaining(currentTimeLimit);
+    }, [currentQuestionIndex, currentTimeLimit]);
+
+    // Countdown logic
+    useEffect(() => {
+        if (submitting) return;
+
+        const interval = setInterval(() => {
+            setTimeRemaining(prev => {
+                if (prev <= 0) {
+                    clearInterval(interval);
+                    return 0;
+                }
+                return prev - 1;
+            });
+        }, 1000);
+
+        return () => clearInterval(interval);
+    }, [submitting, currentQuestionIndex]); // Restart interval on question change
+
+    const playBeep = () => {
+        try {
+            const audioContext = new (window.AudioContext || (window as any).webkitAudioContext)();
+            const oscillator = audioContext.createOscillator();
+            const gainNode = audioContext.createGain();
+
+            oscillator.connect(gainNode);
+            gainNode.connect(audioContext.destination);
+
+            oscillator.frequency.value = 800;
+            oscillator.type = 'sine';
+
+            gainNode.gain.setValueAtTime(0.3, audioContext.currentTime);
+            gainNode.gain.exponentialRampToValueAtTime(0.01, audioContext.currentTime + 0.1);
+
+            oscillator.start(audioContext.currentTime);
+            oscillator.stop(audioContext.currentTime + 0.1);
+        } catch (error) {
+            console.warn('Audio playback failed:', error);
+        }
+    };
+
+    const vibrateDevice = (pattern: number | number[] = 200) => {
+        if ('vibrate' in navigator) {
+            navigator.vibrate(pattern);
+        }
+    };
+
 
     const handleAnswerChange = (value: any) => {
         setAnswers(prev => ({
             ...prev,
             [currentQuestion.id]: value
         }));
+    };
+
+    // Handler for multi-select checkboxes
+    const handleCheckboxToggle = (option: string) => {
+        const currentAnswers = answers[currentQuestion.id] || [];
+        const answerArray = Array.isArray(currentAnswers) ? currentAnswers : [];
+
+        if (answerArray.includes(option)) {
+            // Remove if already selected
+            handleAnswerChange(answerArray.filter((a: string) => a !== option));
+        } else {
+            // Add if not selected
+            handleAnswerChange([...answerArray, option]);
+        }
     };
 
     const handleNext = () => {
@@ -100,18 +190,38 @@ export function QuizInterface({ quiz }: { quiz: Quiz }) {
         });
     };
 
-    const handlePrevious = () => {
-        setCurrentQuestionIndex(prev => {
-            if (prev > 0) {
-                return prev - 1;
+    const toastShownRef = useRef(false);
+
+    const handleSubmit = async (autoSubmit = false) => {
+        if (submitting || toastShownRef.current) return;
+
+        const answeredCount = Object.keys(answers).length;
+
+        if (!autoSubmit && answeredCount < totalQuestions) {
+            if (!confirm(`You have answered ${answeredCount} of ${totalQuestions} questions. Are you sure you want to submit?`)) {
+                return;
             }
-            return prev;
-        });
+        }
+
+        setSubmitting(true);
+        try {
+            const result = await submitQuizAction(quiz.id, answers);
+            if (!toastShownRef.current) {
+                toast.success(`Quiz submitted! Score: ${result.score}/${result.totalPoints}`);
+                toastShownRef.current = true;
+            }
+            router.push(`/app/practice/${quiz.id}/result`);
+        } catch (error) {
+            console.error(error);
+            if (!toastShownRef.current) {
+                toast.error("Failed to submit quiz. Please try again.");
+            }
+            setSubmitting(false);
+        }
     };
 
-    const handleTimeExpired = () => {
+    const handleTimeExpired = useCallback(() => {
         // Auto-submit current answer (even if empty) and move to next
-        toast.warning("Time's up! Moving to next question...");
 
         // If answer is empty, set it to empty string/null
         if (currentQuestion && answers[currentQuestion.id] === undefined) {
@@ -129,33 +239,28 @@ export function QuizInterface({ quiz }: { quiz: Quiz }) {
                 handleSubmit(true); // Auto-submit quiz
             }
         }, 500);
-    };
+    }, [currentQuestion, answers, currentQuestionIndex, totalQuestions, handleNext, handleSubmit]);
 
-    const handleNavigate = (index: number) => {
-        setCurrentQuestionIndex(index);
-        setShowNavigation(false); // Close mobile sheet
-    };
+    // Alert and Expiration logic
+    useEffect(() => {
+        if (submitting) return;
 
-    const handleSubmit = async (autoSubmit = false) => {
-        const answeredCount = Object.keys(answers).length;
-
-        if (!autoSubmit && answeredCount < totalQuestions) {
-            if (!confirm(`You have answered ${answeredCount} of ${totalQuestions} questions. Are you sure you want to submit?`)) {
-                return;
+        if (timeRemaining === 10) {
+            playBeep();
+        } else if (timeRemaining <= 5 && timeRemaining > 0) {
+            playBeep();
+            if (timeRemaining === 5) vibrateDevice();
+        } else if (timeRemaining === 0) {
+            // Only trigger if we haven't already expired for this specific timer instance
+            if (expiredTimerKeyRef.current !== timerKey) {
+                toast.warning("Time's up! Moving to next question...");
+                playBeep();
+                vibrateDevice([100, 50, 100]);
+                handleTimeExpired();
+                expiredTimerKeyRef.current = timerKey;
             }
         }
-
-        setSubmitting(true);
-        try {
-            const result = await submitQuizAction(quiz.id, answers);
-            toast.success(`Quiz submitted! Score: ${result.score}/${result.totalPoints}`);
-            router.push(`/app/practice/${quiz.id}/result`);
-        } catch (error) {
-            console.error(error);
-            toast.error("Failed to submit quiz. Please try again.");
-            setSubmitting(false);
-        }
-    };
+    }, [timeRemaining, submitting, handleTimeExpired, timerKey]);
 
     // Guard against undefined question (e.g. during transitions or race conditions)
     if (!currentQuestion) {
@@ -173,23 +278,67 @@ export function QuizInterface({ quiz }: { quiz: Quiz }) {
         switch (q.question_type) {
             case "MCQ":
             case "TRUE_FALSE":
-                const options = Array.isArray(q.options) ? q.options : [];
-                return (
-                    <RadioGroup value={answer} onValueChange={handleAnswerChange} className="space-y-3">
-                        {options.map((opt: string, idx: number) => (
-                            <div
-                                key={idx}
-                                onClick={() => handleAnswerChange(opt)}
-                                className="flex items-center space-x-3 border-2 p-4 rounded-xl hover:bg-accent/50 hover:border-primary/50 cursor-pointer transition-all duration-200 group"
-                            >
-                                <RadioGroupItem value={opt} id={`opt-${idx}`} className="h-5 w-5" />
-                                <Label htmlFor={`opt-${idx}`} className="flex-1 cursor-pointer text-base font-medium group-hover:text-primary transition-colors">
-                                    {opt}
-                                </Label>
-                            </div>
-                        ))}
-                    </RadioGroup>
-                );
+                // Use shuffled options if available, otherwise fall back to original
+                const options = shuffledOptions[q.id] || (Array.isArray(q.options) ? q.options : []);
+
+                // Detect if multi-select: check question text for keywords like "select all", "choose all", "correct options are", etc.
+                const questionTextLower = q.question_text.toLowerCase();
+                const isMultiSelect = questionTextLower.includes("select all") ||
+                    questionTextLower.includes("choose all") ||
+                    questionTextLower.includes("correct options are") ||
+                    questionTextLower.includes("correct reason(s)") ||
+                    questionTextLower.includes("which of the following are") ||
+                    (questionTextLower.includes("(i)") && questionTextLower.includes("(ii)")); // Detect (i), (ii), (iii) pattern
+
+                if (isMultiSelect) {
+                    // Render checkboxes for multi-select
+                    const selectedAnswers = answer || [];
+                    const answerArray = Array.isArray(selectedAnswers) ? selectedAnswers : [];
+
+                    return (
+                        <div className="space-y-3">
+                            <p className="text-sm text-muted-foreground font-medium">Select all that apply</p>
+                            {options.map((opt: string, idx: number) => {
+                                const isChecked = answerArray.includes(opt);
+                                return (
+                                    <div
+                                        key={idx}
+                                        onClick={() => handleCheckboxToggle(opt)}
+                                        className="flex items-center space-x-3 border-2 p-4 rounded-xl hover:bg-accent/50 hover:border-primary/50 cursor-pointer transition-all duration-200 group"
+                                    >
+                                        <Checkbox
+                                            checked={isChecked}
+                                            onCheckedChange={() => handleCheckboxToggle(opt)}
+                                            id={`opt-${idx}`}
+                                            className="h-5 w-5"
+                                        />
+                                        <Label htmlFor={`opt-${idx}`} className="flex-1 cursor-pointer text-base font-medium group-hover:text-primary transition-colors">
+                                            {opt}
+                                        </Label>
+                                    </div>
+                                );
+                            })}
+                        </div>
+                    );
+                } else {
+                    // Render radio buttons for single-select
+                    return (
+                        <RadioGroup value={answer} onValueChange={handleAnswerChange} className="space-y-3">
+                            {options.map((opt: string, idx: number) => (
+                                <div
+                                    key={idx}
+                                    onClick={() => handleAnswerChange(opt)}
+                                    className="flex items-center space-x-3 border-2 p-4 rounded-xl hover:bg-accent/50 hover:border-primary/50 cursor-pointer transition-all duration-200 group"
+                                >
+                                    <RadioGroupItem value={opt} id={`opt-${idx}`} className="h-5 w-5" />
+                                    <Label htmlFor={`opt-${idx}`} className="flex-1 cursor-pointer text-base font-medium group-hover:text-primary transition-colors">
+                                        {opt}
+                                    </Label>
+                                </div>
+                            ))}
+                        </RadioGroup>
+                    );
+                }
 
             case "FILL_IN_BLANK":
                 return (
@@ -224,8 +373,6 @@ export function QuizInterface({ quiz }: { quiz: Quiz }) {
         }
     };
 
-    const currentTimeLimit = timerLimits ? timerLimits[currentQuestion.question_type] : 30;
-
     return (
         <div className="min-h-screen bg-gradient-to-br from-background via-background to-muted/20">
             {/* Header */}
@@ -243,30 +390,11 @@ export function QuizInterface({ quiz }: { quiz: Quiz }) {
                         {timerLimits && (
                             <div className="hidden md:block">
                                 <QuestionTimer
-                                    key={timerKey}
                                     timeLimit={currentTimeLimit}
-                                    onTimeExpired={handleTimeExpired}
-                                    isPaused={submitting}
+                                    timeRemaining={timeRemaining}
                                 />
                             </div>
                         )}
-
-                        {/* Mobile Navigation Toggle */}
-                        <Sheet open={showNavigation} onOpenChange={setShowNavigation}>
-                            <SheetTrigger asChild className="md:hidden">
-                                <Button variant="outline" size="sm">
-                                    <Menu className="h-4 w-4" />
-                                </Button>
-                            </SheetTrigger>
-                            <SheetContent side="right" className="w-80">
-                                <QuizNavigation
-                                    totalQuestions={totalQuestions}
-                                    currentQuestionIndex={currentQuestionIndex}
-                                    answeredQuestions={answeredQuestions}
-                                    onNavigate={handleNavigate}
-                                />
-                            </SheetContent>
-                        </Sheet>
                     </div>
                     <Progress value={progress} className="h-1.5 mt-3" />
                 </div>
@@ -281,10 +409,8 @@ export function QuizInterface({ quiz }: { quiz: Quiz }) {
                         {timerLimits && (
                             <div className="md:hidden flex justify-center">
                                 <QuestionTimer
-                                    key={timerKey}
                                     timeLimit={currentTimeLimit}
-                                    onTimeExpired={handleTimeExpired}
-                                    isPaused={submitting}
+                                    timeRemaining={timeRemaining}
                                 />
                             </div>
                         )}
@@ -298,26 +424,30 @@ export function QuizInterface({ quiz }: { quiz: Quiz }) {
                             className="animate-in fade-in-50 slide-in-from-bottom-4 duration-500"
                         >
                             <div className="space-y-6">
-                                <p className="text-lg md:text-xl font-medium leading-relaxed">
-                                    {currentQuestion.question_text}
-                                </p>
+                                <div className="prose prose-slate dark:prose-invert max-w-none">
+                                    <ReactMarkdown
+                                        remarkPlugins={[remarkGfm, remarkBreaks]}
+                                        components={{
+                                            table: ({ node, ...props }) => (
+                                                <table className="min-w-full border-collapse border border-slate-300 dark:border-slate-600" {...props} />
+                                            ),
+                                            th: ({ node, ...props }) => (
+                                                <th className="border border-slate-300 dark:border-slate-600 bg-slate-100 dark:bg-slate-800 px-4 py-2 text-left font-semibold" {...props} />
+                                            ),
+                                            td: ({ node, ...props }) => (
+                                                <td className="border border-slate-300 dark:border-slate-600 px-4 py-2" {...props} />
+                                            ),
+                                        }}
+                                    >
+                                        {currentQuestion.question_text}
+                                    </ReactMarkdown>
+                                </div>
                                 {renderQuestionInput()}
                             </div>
                         </QuestionCard>
 
                         {/* Navigation Buttons */}
-                        <div className="flex justify-between items-center gap-4 pt-4">
-                            <Button
-                                variant="outline"
-                                size="lg"
-                                onClick={handlePrevious}
-                                disabled={currentQuestionIndex === 0 || submitting}
-                                className="min-w-[120px]"
-                            >
-                                <ChevronLeft className="mr-2 h-5 w-5" />
-                                Previous
-                            </Button>
-
+                        <div className="flex justify-end items-center gap-4 pt-4">
                             {currentQuestionIndex === totalQuestions - 1 ? (
                                 <Button
                                     size="lg"
@@ -348,18 +478,6 @@ export function QuizInterface({ quiz }: { quiz: Quiz }) {
                                     <ChevronRight className="ml-2 h-5 w-5" />
                                 </Button>
                             )}
-                        </div>
-                    </div>
-
-                    {/* Navigation Panel - Desktop Only */}
-                    <div className="hidden lg:block">
-                        <div className="sticky top-24">
-                            <QuizNavigation
-                                totalQuestions={totalQuestions}
-                                currentQuestionIndex={currentQuestionIndex}
-                                answeredQuestions={answeredQuestions}
-                                onNavigate={handleNavigate}
-                            />
                         </div>
                     </div>
                 </div>

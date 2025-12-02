@@ -64,16 +64,26 @@ export default async function ChapterViewPage({
 
             <div className="bg-white shadow sm:rounded-lg">
                 <div className="px-4 py-5 sm:px-6 border-b border-gray-200">
-                    <h1 className="text-2xl font-bold text-gray-900">{chapter.title}</h1>
-                    <div className="mt-2 flex items-center gap-2">
-                        <span className={`px-2 py-1 text-xs font-semibold rounded-full ${chapter.is_active ? 'bg-green-100 text-green-800' : 'bg-red-100 text-red-800'}`}>
-                            {chapter.is_active ? 'Active' : 'Inactive'}
-                        </span>
-                        {chapter.is_global && (
-                            <span className="px-2 py-1 text-xs font-semibold rounded-full bg-blue-100 text-blue-800">
-                                Global
-                            </span>
-                        )}
+                    <div className="flex justify-between items-start">
+                        <div>
+                            <h1 className="text-2xl font-bold text-gray-900">{chapter.title}</h1>
+                            <div className="mt-2 flex items-center gap-2">
+                                <span className={`px-2 py-1 text-xs font-semibold rounded-full ${chapter.is_active ? 'bg-green-100 text-green-800' : 'bg-red-100 text-red-800'}`}>
+                                    {chapter.is_active ? 'Active' : 'Inactive'}
+                                </span>
+                                {chapter.is_global && (
+                                    <span className="px-2 py-1 text-xs font-semibold rounded-full bg-blue-100 text-blue-800">
+                                        Global
+                                    </span>
+                                )}
+                            </div>
+                        </div>
+                        <Link
+                            href={`/admin/chapters/${id}/questions`}
+                            className="bg-indigo-600 text-white px-4 py-2 rounded-md hover:bg-indigo-700 text-sm font-medium"
+                        >
+                            📝 Manage Questions
+                        </Link>
                     </div>
                 </div>
 

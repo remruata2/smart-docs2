@@ -24,6 +24,8 @@ export async function batchCreateChaptersAsync(formData: FormData) {
 		const fullPages = JSON.parse(formData.get("fullPages") as string);
 		const file = formData.get("file") as File;
 		const accessibleBoards = formData.getAll("accessibleBoards") as string[];
+		const questionConfigStr = formData.get("questionConfig") as string;
+		const questionConfig = questionConfigStr ? JSON.parse(questionConfigStr) : undefined;
 
 		if (!file || !subjectId || !chapters || chapters.length === 0) {
 			return { success: false, error: "Missing required fields" };
@@ -88,6 +90,7 @@ export async function batchCreateChaptersAsync(formData: FormData) {
 				fileName: file.name,
 				startPage: detectedChapter.startPage,
 				endPage: detectedChapter.endPage,
+				questionConfig,
 			});
 		}
 
@@ -134,6 +137,8 @@ export async function ingestChapterAsync(formData: FormData) {
 		const subjectId = formData.get("subjectId") as string;
 		const chapterNumber = formData.get("chapterNumber") as string;
 		const accessibleBoards = formData.getAll("accessibleBoards") as string[];
+		const questionConfigStr = formData.get("questionConfig") as string;
+		const questionConfig = questionConfigStr ? JSON.parse(questionConfigStr) : undefined;
 
 		if (!file || !title || !subjectId) {
 			return { success: false, error: "Missing required fields" };
@@ -189,6 +194,7 @@ export async function ingestChapterAsync(formData: FormData) {
 					pdfBuffer,
 					fileName: file.name,
 					// No start/end page means process whole document
+					questionConfig,
 				});
 			} catch (error) {
 				console.error(`Failed to process chapter ${chapter.id}:`, error);

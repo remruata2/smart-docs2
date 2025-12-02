@@ -22,8 +22,8 @@ export function QuizGenerator() {
 
     const [selectedSubject, setSelectedSubject] = useState<string>("");
     const [selectedChapter, setSelectedChapter] = useState<string>("");
-    const [difficulty, setDifficulty] = useState<"easy" | "medium" | "hard">("medium");
-    const [questionCount, setQuestionCount] = useState([5]);
+    const [difficulty, setDifficulty] = useState<"easy" | "medium" | "hard" | "exam">("medium");
+    const [questionCount, setQuestionCount] = useState([10]);
     const [questionTypes, setQuestionTypes] = useState<string[]>(["MCQ"]);
 
     useEffect(() => {
@@ -96,7 +96,7 @@ export function QuizGenerator() {
     };
 
     const canProceedStep1 = selectedSubject && selectedChapter;
-    const canProceedStep3 = questionTypes.length > 0;
+    const canProceedStep3 = difficulty === "exam" || questionTypes.length > 0;
 
     const steps = [
         { number: 1, title: "Select Topic", description: "Choose subject & chapter" },
@@ -188,6 +188,16 @@ export function QuizGenerator() {
                                     <span className="mr-2 text-xl">🔥</span>
                                     Hard
                                 </Button>
+                                <Button
+                                    type="button"
+                                    variant={difficulty === "exam" ? "default" : "outline"}
+                                    onClick={() => setDifficulty("exam")}
+                                    className={`h-16 text-base font-semibold ${difficulty === "exam" ? "bg-purple-600 hover:bg-purple-700" : ""
+                                        }`}
+                                >
+                                    <span className="mr-2 text-xl">📝</span>
+                                    Exam Questions (Past Papers)
+                                </Button>
                             </div>
                         </div>
 
@@ -215,6 +225,24 @@ export function QuizGenerator() {
                 );
 
             case 3:
+                if (difficulty === "exam") {
+                    return (
+                        <div className="flex flex-col items-center justify-center py-12 space-y-4 text-center bg-purple-50 rounded-lg border-2 border-purple-100">
+                            <div className="w-16 h-16 bg-purple-100 text-purple-600 rounded-full flex items-center justify-center">
+                                <span className="text-3xl">📝</span>
+                            </div>
+                            <h3 className="text-xl font-bold text-purple-900">Exam Mode Active</h3>
+                            <p className="text-purple-700 max-w-md">
+                                In Exam Mode, we use real questions from past papers.
+                                Question types are determined by the available exam questions.
+                            </p>
+                            <div className="text-sm text-purple-600 font-medium">
+                                All available question types will be included.
+                            </div>
+                        </div>
+                    );
+                }
+
                 return (
                     <div className="space-y-4">
                         <Label className="text-lg font-semibold">✏️ Question Types</Label>

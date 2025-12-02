@@ -52,7 +52,7 @@ export default function Home() {
 	}, []);
 
 	return (
-		<div className="min-h-screen bg-gradient-to-b from-gray-50 to-white">
+		<div className="min-h-screen bg-gradient-to-b from-gray-50 to-white overflow-x-hidden">
 			<style jsx>{`
 				@keyframes fadeInUp {
 					from {
@@ -166,28 +166,32 @@ export default function Home() {
 							alt="Zirna"
 							width={120}
 							height={40}
-							className="h-10 w-auto"
+							className="h-8 md:h-10 w-auto"
 							priority
 							unoptimized
 						/>
 					</Link>
-					<nav className="flex items-center gap-4">
+					<nav className="flex items-center gap-2 md:gap-4">
 						<Link
 							href="/pricing"
-							className="text-gray-600 hover:text-gray-900 transition-colors duration-200"
+							className="text-gray-600 hover:text-gray-900 transition-colors duration-200 text-sm md:text-base hidden sm:block"
 						>
 							Pricing
 						</Link>
 						<Link href="/login">
 							<Button
 								variant="outline"
-								className="transition-all duration-200 hover:scale-105"
+								size="sm"
+								className="transition-all duration-200 hover:scale-105 md:h-10 md:px-4 md:py-2"
 							>
 								Sign In
 							</Button>
 						</Link>
 						<Link href="/register">
-							<Button className="transition-all duration-200 hover:scale-105 hover:shadow-lg">
+							<Button
+								size="sm"
+								className="transition-all duration-200 hover:scale-105 hover:shadow-lg md:h-10 md:px-4 md:py-2"
+							>
 								Get Started
 							</Button>
 						</Link>
@@ -196,35 +200,35 @@ export default function Home() {
 			</header>
 
 			{/* Hero Section */}
-			<section className="container mx-auto px-4 py-20 text-center">
+			<section className="container mx-auto px-4 py-12 md:py-20 text-center">
 				<div className="animate-fade-in-up">
-					<h1 className="text-5xl md:text-6xl font-bold text-gray-900 mb-6">
+					<h1 className="text-3xl sm:text-4xl md:text-6xl font-bold text-gray-900 mb-4 md:mb-6">
 						Your AI-Powered Companion for
 						<br />
 						<span className="gradient-text animate-float">
 							Exam Excellence
 						</span>
 					</h1>
-					<p className="text-xl text-gray-600 mb-8 max-w-3xl mx-auto animate-fade-in-up animate-delay-200">
+					<p className="text-lg md:text-xl text-gray-600 mb-6 md:mb-8 max-w-3xl mx-auto animate-fade-in-up animate-delay-200 px-2">
 						Master your exams with AI-generated quizzes, smart study materials,
 						and gamified learning. Built for students across boards, institutions,
 						and competitive exams who need results.
 					</p>
-					<div className="flex gap-4 justify-center animate-fade-in-up animate-delay-300">
-						<Link href="/register">
+					<div className="flex flex-col sm:flex-row gap-3 sm:gap-4 justify-center animate-fade-in-up animate-delay-300 px-4 sm:px-0">
+						<Link href="/register" className="w-full sm:w-auto">
 							<Button
 								size="lg"
-								className="text-lg px-8 bg-gradient-to-r from-indigo-600 to-purple-600 hover:from-indigo-700 hover:to-purple-700 transition-all duration-200 hover:scale-105 hover:shadow-xl group"
+								className="w-full sm:w-auto text-base md:text-lg px-6 md:px-8 bg-gradient-to-r from-indigo-600 to-purple-600 hover:from-indigo-700 hover:to-purple-700 transition-all duration-200 hover:scale-105 hover:shadow-xl group"
 							>
 								Start Learning Free
 								<ArrowRight className="ml-2 h-4 w-4 transition-transform duration-200 group-hover:translate-x-1" />
 							</Button>
 						</Link>
-						<Link href="/pricing">
+						<Link href="/pricing" className="w-full sm:w-auto">
 							<Button
 								size="lg"
 								variant="outline"
-								className="text-lg px-8 transition-all duration-200 hover:scale-105 hover:shadow-lg"
+								className="w-full sm:w-auto text-base md:text-lg px-6 md:px-8 transition-all duration-200 hover:scale-105 hover:shadow-lg"
 							>
 								View Pricing
 							</Button>

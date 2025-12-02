@@ -12,6 +12,7 @@ import { ChartSchema } from "@/lib/chart-schema";
 import { generateObject } from "ai";
 import { createGoogleGenerativeAI } from "@ai-sdk/google";
 import { z } from "zod";
+import { QuestionType } from "@/generated/prisma";
 
 // Developer logging toggle - set to true to see query logs in console
 const DEV_LOGGING = true;
@@ -368,7 +369,7 @@ export async function analyzeQueryForSearch(
 		);
 		// Fallback to .env or hardcoded default if no models are available
 		if (attemptModels.length === 0) {
-			const fallbackModel = process.env.GEMINI_DEFAULT_MODEL || "gemini-2.5-flash";
+			const fallbackModel = process.env.GEMINI_DEFAULT_MODEL || "gemini-2.0-flash";
 			attemptModels.push(fallbackModel);
 		}
 
@@ -1365,7 +1366,7 @@ export async function generateAIResponse(
 	);
 	// Fallback to .env or hardcoded default if no models are available
 	if (attemptModels.length === 0) {
-		const fallbackModel = process.env.GEMINI_DEFAULT_MODEL || "gemini-2.5-flash";
+		const fallbackModel = process.env.GEMINI_DEFAULT_MODEL || "gemini-2.0-flash";
 		attemptModels.push(fallbackModel);
 	}
 
@@ -1489,7 +1490,7 @@ Answer:`;
 			console.log("[AI-GEN] Generating structured chart configuration...");
 			// Use priority: opts.model → admin config → .env → fallback
 			const dbModels = await getActiveModelNames("gemini");
-			const fallbackModel = process.env.GEMINI_DEFAULT_MODEL || "gemini-2.5-flash";
+			const fallbackModel = process.env.GEMINI_DEFAULT_MODEL || "gemini-2.0-flash";
 			const modelName = opts.model || dbModels[0] || fallbackModel;
 
 			const { apiKey } = await getProviderApiKey({ provider: "gemini" });
@@ -1679,7 +1680,7 @@ export async function* generateAIResponseStream(
 	);
 	// Fallback to .env or hardcoded default if no models are available
 	if (attemptModels.length === 0) {
-		const fallbackModel = process.env.GEMINI_DEFAULT_MODEL || "gemini-2.5-flash";
+		const fallbackModel = process.env.GEMINI_DEFAULT_MODEL || "gemini-2.0-flash";
 		attemptModels.push(fallbackModel);
 	}
 
@@ -1910,7 +1911,7 @@ Answer:`;
 
 			// Use priority: opts.model → admin config → .env → fallback
 			const dbModels = await getActiveModelNames("gemini");
-			const fallbackModel = process.env.GEMINI_DEFAULT_MODEL || "gemini-2.5-flash";
+			const fallbackModel = process.env.GEMINI_DEFAULT_MODEL || "gemini-2.0-flash";
 			const streamingModelName = opts.model || dbModels[0] || fallbackModel;
 			const streamingModel = client.getGenerativeModel({
 				model: streamingModelName as string,
@@ -3569,9 +3570,161 @@ const QuizSchema = z.object({
 	questions: z.array(QuizQuestionSchema),
 });
 
+// Schema for Batch Question Generation
+const BatchQuestionSchema = z.object({
+	questions: z.array(z.object({
+		question_text: z.string().describe("The question text"),
+		question_type: z.enum(["MCQ", "TRUE_FALSE", "FILL_IN_BLANK", "SHORT_ANSWER", "LONG_ANSWER"]),
+		difficulty: z.enum(["easy", "medium", "hard"]),
+		options: z.array(z.string()).optional().describe("Options for MCQ (4 options) or TRUE_FALSE (2 options)"),
+		correct_answer: z.any().describe("The correct answer. For MCQ/TF/FIB: string. For Short/Long: model answer string."),
+		explanation: z.string().describe("Detailed explanation of why the answer is correct"),
+		points: z.number().describe("Points value: Easy=1, Medium=3, Hard=5")
+	}))
+});
+
+export interface BatchQuestionConfig {
+	context: string;
+	chapterTitle: string;
+	config: {
+		easy: { [key in QuestionType]?: number };
+		medium: { [key in QuestionType]?: number };
+		hard: { [key in QuestionType]?: number };
+	};
+}
+
+/**
+ * Generate a batch of questions based on specific counts per difficulty/type
+ * Used for pre-generating the Question Bank
+ */
+export async function generateBatchQuestions(input: BatchQuestionConfig) {
+	const { context, chapterTitle, config } = input;
+
+	// Construct a detailed request list
+	let requestList: string[] = [];
+	let totalQuestions = 0;
+
+	(['easy', 'medium', 'hard'] as const).forEach(diff => {
+		Object.entries(config[diff]).forEach(([type, count]) => {
+			if (count && count > 0) {
+				requestList.push(`${count} ${diff.toUpperCase()} ${type} questions`);
+				totalQuestions += count;
+			}
+		});
+	});
+
+	if (totalQuestions === 0) return [];
+
+	const prompt = `You are an expert educational content creator.
+Your task is to generate exactly ${totalQuestions} questions for the chapter section: "${chapterTitle}".
+
+=== SOURCE MATERIAL ===
+${context}
+=== END SOURCE MATERIAL ===
+
+REQUIREMENTS:
+Generate the following mix of questions based STRICTLY on the source material above:
+${requestList.map(r => `• ${r}`).join('\n')}
+
+RULES:
+1. Questions must be high-quality, clear, and unambiguous.
+2. COVERAGE: Ensure questions cover different parts of the text, not just the first paragraph.
+3. DIFFICULTY:
+   - EASY: Recall facts, definitions, simple concepts.
+   - MEDIUM: Apply concepts, compare/contrast, explain "why".
+   - HARD: Analyze, synthesize, evaluate, complex scenarios.
+4. TYPES:
+   - MCQ: Provide 4 distinct options. One correct.
+   - TRUE_FALSE: Provide "True" and "False" as options.
+   - FILL_IN_BLANK: The answer should be a specific word or short phrase from the text.
+   - SHORT_ANSWER: Model answer should be 1-3 sentences.
+   - LONG_ANSWER: Model answer should be a detailed paragraph.
+5. EXPLANATION: Provide a helpful explanation for the correct answer.
+6. SELF-CONTAINED QUESTIONS:
+   - DO NOT reference external materials like "the provided algorithm", "the given diagram", "the figure", "the table", "Case 1/2/3", "the image", "the flowchart", etc.
+   - Questions must be fully self-contained and understandable without any visual aids or external references.
+   - Include all necessary context within the question itself.
+7. PHRASING:
+   - AVOID: "According to the text, ..." or "The text states that ..."
+   - PREFER: Direct questions (e.g., "What is the time complexity of...?") OR "According to the chapter, ..." if needed.
+   - Questions should sound natural and professional, as if from an exam paper.
+8. NO META-QUESTIONS: Do not ask "What does the text say about...", just ask the question directly.
+
+Output a JSON object with a "questions" array.`;
+
+	try {
+		// Get API key and initialize provider
+		// We use a dummy keyId here or allow the system to pick a default
+		const { apiKey } = await getProviderApiKey({ provider: "gemini" });
+		const keyToUse = apiKey || process.env.GEMINI_API_KEY;
+
+		if (!keyToUse) {
+			throw new Error("No Gemini API key found");
+		}
+
+		const google = createGoogleGenerativeAI({ apiKey: keyToUse });
+
+		// Model selection strategy
+		const modelsToTry: string[] = [];
+		const dbModels = await getActiveModelNames("gemini");
+		modelsToTry.push(...dbModels);
+		const fallbackModel = process.env.GEMINI_DEFAULT_MODEL || "gemini-2.0-flash";
+		modelsToTry.push(fallbackModel);
+		const uniqueModels = [...new Set(modelsToTry)];
+
+		for (const modelName of uniqueModels) {
+			try {
+				console.log(`[AI-BATCH] Attempting to generate questions with model: ${modelName}`);
+
+				const result = await generateObject({
+					model: google(modelName),
+					schema: BatchQuestionSchema,
+					prompt: prompt,
+					mode: 'json',
+				});
+
+				// Normalize points based on question type (AI sometimes ignores this)
+				const normalizedQuestions = result.object.questions.map(q => {
+					let correctPoints = 1; // default
+					switch (q.question_type) {
+						case "MCQ":
+						case "TRUE_FALSE":
+						case "FILL_IN_BLANK":
+							correctPoints = 1;
+							break;
+						case "SHORT_ANSWER":
+							correctPoints = 3;
+							break;
+						case "LONG_ANSWER":
+							correctPoints = 5;
+							break;
+					}
+
+					if (q.points !== correctPoints) {
+						console.log(`[AI-BATCH] Correcting points for ${q.question_type}: ${q.points} → ${correctPoints}`);
+					}
+
+					return { ...q, points: correctPoints };
+				});
+
+				return normalizedQuestions;
+			} catch (error: any) {
+				console.warn(`[AI-BATCH] Failed with model ${modelName}: ${error.message}`);
+				// Continue to next model
+			}
+		}
+
+		throw new Error("All models failed to generate questions");
+
+	} catch (error) {
+		console.error("[AI-SERVICE] Batch question generation failed:", error);
+		return [];
+	}
+}
+
 export async function generateQuiz(
 	config: QuizGenerationConfig,
-	opts: { model?: string; keyId?: number } = {}
+	opts: { model?: string; keyId?: number; board?: string; level?: string } = {}
 ) {
 	try {
 		const { client, keyId } = await getGeminiClient({
@@ -3600,8 +3753,15 @@ export async function generateQuiz(
 				(idx < config.questionCount % config.questionTypes.length ? 1 : 0);
 			return `${count}x ${type}`;
 		}).join(", ");
+		const boardContext = opts.board ? `You are an expert ${opts.board} question setter.` : "";
+		const levelContext = opts.level ? `The target audience is ${opts.level} students.` : "";
 
-		const prompt = `You are creating a ${config.difficulty}-level educational quiz for students studying "${config.subject}: ${config.topic}".
+		const prompt = `${boardContext} ${levelContext}
+You are creating a ${config.difficulty}-level educational quiz for students studying "${config.subject}: ${config.topic}".
+
+**Subject**: ${config.subject}
+**Chapter**: ${config.topic}
+**Difficulty**: ${config.difficulty}
 
 === EDUCATIONAL MATERIAL ===
 The following is the study material from the textbook chapter on this topic. Use this to create meaningful questions that test students' understanding of the concepts, facts, and knowledge they should learn from this chapter.
@@ -3615,28 +3775,43 @@ QUIZ REQUIREMENTS:
 • Types: ONLY ${config.questionTypes.join(", ")}
 • ALL questions must test understanding of concepts and knowledge from the educational material above
 • MCQ: 4 options, correct_answer = exact option text, 1 point
+  ${config.difficulty === "hard" ? "• **HARD DIFFICULTY MCQs**: For hard difficulty, include 20-30% multi-select MCQs where multiple options are correct. Format: correct_answer = array of exact option texts (e.g., [\"A. option1\", \"B. option2\"]). Question text MUST include keywords like \"correct reason(s)\", \"correct options are\", or use pattern (i), (ii), (iii), (iv) to indicate multi-select." : ""}
 • TRUE_FALSE: 2 options ("True", "False"), correct_answer = exact text, 1 point  
 • FILL_IN_BLANK: correct_answer = missing word/phrase, 1 point
-• SHORT_ANSWER: correct_answer = 2-3 sentence model answer, 3 points
+• SHORT_ANSWER: correct_answer = 2-3 sentence model answer, 2 points
 • LONG_ANSWER: correct_answer = 5+ sentence detailed answer, 5 points
 
 CRITICAL RULES - QUESTIONS MUST:
 ✓ Test actual subject knowledge and concepts
-✓ Be clear and self-contained
+✓ Be completely self-contained and understandable without any visual aids
 ✓ Be answerable using the knowledge from the educational material
 ✓ Focus on "what", "why", and "how" of the subject matter
+✓ Include all necessary context within the question itself
 
 STRICTLY PROHIBITED - DO NOT CREATE:
-✗ Questions about the document structure (e.g., "what number appears in the content")
+✗ Questions referencing unavailable materials: "the provided algorithm", "the given diagram", "the figure", "the table", "Case 1/2/3", "the image", "the flowchart", "the graph"
+✗ Questions about document structure (e.g., "what number appears in the content")
 ✗ Questions referencing "Activity X.X", "Figure X.X", "Table X.X", or "Box X.X" numbers
-✗ Questions about "the provided text", "the content above", "the material shown"
+✗ Questions using phrases like "According to the text", "The text states", "the provided text", "the content above", "the material shown"
 ✗ Questions about formatting, layout, or visual presentation
 ✗ Questions that reference section numbers, page numbers, or document organization
 ✗ Meta-questions about the text itself rather than the subject matter
 
+PHRASING GUIDELINES:
+✓ GOOD: Direct questions (e.g., "What is the time complexity of binary search?")
+✓ ACCEPTABLE: "According to the chapter, what is..."
+✗ AVOID: "According to the text, what is..."
+✗ AVOID: "The text states that..."
+
 EXAMPLES:
+❌ BAD: "In the provided 'Remove' algorithm, which case is executed when...?"
+✅ GOOD: "In a linked list removal operation, what happens when the list contains only one node that matches the value to be removed?"
+
 ❌ BAD: "Which of the following numbers is shown in the provided content?"
 ✅ GOOD: "What is the boiling point of water in Celsius?"
+
+❌ BAD: "According to the text, which data structure is used for BFS?"
+✅ GOOD: "Which data structure is traditionally used in the implementation of breadth-first traversal?"
 
 ❌ BAD: "According to Figure 2.1, what process is shown?"
 ✅ GOOD: "What is the process by which water vapor turns into liquid water?"
@@ -3644,7 +3819,7 @@ EXAMPLES:
 ❌ BAD: "In Activity 1.3, what was demonstrated?"
 ✅ GOOD: "What happens when you mix an acid with a base?"
 
-Remember: You are testing students' knowledge of ${config.subject}, not their ability to read the textbook layout!`;
+Remember: You are testing students' knowledge of ${config.subject}, not their ability to read the textbook layout! Questions should be professional exam-style questions that stand alone without any external references.`;
 
 
 
@@ -3658,7 +3833,7 @@ Remember: You are testing students' knowledge of ${config.subject}, not their ab
 		modelsToTry.push(...dbModels);
 
 		// Add .env fallback
-		const fallbackModel = process.env.GEMINI_DEFAULT_MODEL || "gemini-2.5-flash";
+		const fallbackModel = process.env.GEMINI_DEFAULT_MODEL || "gemini-2.0-flash";
 		modelsToTry.push(fallbackModel);
 
 		// Remove duplicates
@@ -3684,6 +3859,30 @@ Remember: You are testing students' knowledge of ${config.subject}, not their ab
 				]) as typeof resultPromise extends Promise<infer T> ? T : never;
 
 				console.log(`[AI-QUIZ] Successfully generated quiz with ${result.object.questions.length} questions`);
+
+				// Normalize points based on question type (AI sometimes ignores this)
+				result.object.questions = result.object.questions.map(q => {
+					let correctPoints = 1; // default
+					switch (q.question_type) {
+						case "MCQ":
+						case "TRUE_FALSE":
+						case "FILL_IN_BLANK":
+							correctPoints = 1;
+							break;
+						case "SHORT_ANSWER":
+							correctPoints = 2;
+							break;
+						case "LONG_ANSWER":
+							correctPoints = 5;
+							break;
+					}
+
+					if (q.points !== correctPoints) {
+						console.log(`[AI-QUIZ] Correcting points for ${q.question_type}: ${q.points} → ${correctPoints}`);
+					}
+
+					return { ...q, points: correctPoints };
+				});
 
 				if (keyId) await recordKeyUsage(keyId, true);
 				return result.object;
@@ -3746,7 +3945,7 @@ export async function gradeQuiz(
 
 		// Use priority: 1) opts.model, 2) admin-configured models, 3) .env fallback
 		const dbModels = await getActiveModelNames("gemini");
-		const fallbackModel = process.env.GEMINI_DEFAULT_MODEL || "gemini-2.5-flash";
+		const fallbackModel = process.env.GEMINI_DEFAULT_MODEL || "gemini-2.0-flash";
 		const modelName = opts.model || dbModels[0] || fallbackModel;
 		const { apiKey } = await getProviderApiKey({
 			provider: "gemini",
@@ -3836,7 +4035,7 @@ export async function generateStudyMaterials(
 
 		// Use priority: 1) opts.model, 2) admin-configured models, 3) .env fallback
 		const dbModels = await getActiveModelNames("gemini");
-		const fallbackModel = process.env.GEMINI_DEFAULT_MODEL || "gemini-2.5-flash";
+		const fallbackModel = process.env.GEMINI_DEFAULT_MODEL || "gemini-2.0-flash	";
 		const modelName = opts.model || dbModels[0] || fallbackModel;
 
 		// Get API key for generateObject
@@ -3893,5 +4092,229 @@ Make the materials student-friendly, clear, and focused on exam preparation.`;
 	} catch (error) {
 		console.error("Error generating study materials:", error);
 		throw new Error("Failed to generate study materials");
+	}
+}
+
+// ==========================================
+// QUESTION BANK UPLOAD HELPERS
+// ==========================================
+
+const ExtractedQuestionSchema = z.object({
+	question_text: z.string().describe("The full text of the question"),
+	question_type: z.enum(["MCQ", "SHORT_ANSWER", "LONG_ANSWER", "TRUE_FALSE", "FILL_IN_THE_BLANK"]).describe("The type of question inferred from format"),
+	points: z.number().optional().describe("Marks allocated to this question if specified"),
+	options: z.array(z.string()).optional().describe("For MCQs, the list of options"),
+	question_number: z.string().optional().describe("The question number as it appears in the paper (e.g. '1', '2(a)')"),
+});
+
+const ExtractedPaperSchema = z.object({
+	questions: z.array(ExtractedQuestionSchema).describe("List of all extracted questions")
+});
+
+const AnswerGenerationSchema = z.object({
+	correct_answer: z.string().describe("The correct answer to the question"),
+	explanation: z.string().describe("Detailed explanation of why this is the correct answer"),
+});
+
+/**
+ * Extracts structured questions from a parsed exam paper markdown
+ */
+export async function extractQuestionsFromPaper(pdfMarkdown: string) {
+	try {
+		console.log(`[AI-EXTRACT] Extracting questions from paper (${pdfMarkdown.length} chars)...`);
+
+		// Initialize Google Provider
+		const { apiKey } = await getProviderApiKey({ provider: "gemini" });
+		const keyToUse = apiKey || process.env.GEMINI_API_KEY;
+		if (!keyToUse) throw new Error("No Gemini API key found");
+		const google = createGoogleGenerativeAI({ apiKey: keyToUse });
+
+		const prompt = `
+You are an expert exam paper parser. Your task is to extract questions from the provided exam paper content.
+
+INPUT CONTENT:
+${pdfMarkdown.slice(0, 30000)} // Limit context to avoid token limits
+
+INSTRUCTIONS:
+1. Identify all questions in the text.
+2. CRITICAL: The paper may contain both English and Hindi text. IGNORE all Hindi text/translations. Extract ONLY the English version of the questions.
+3. For each question, determine its type (MCQ, SHORT_ANSWER, LONG_ANSWER, etc.).
+4. Extract the points/marks if mentioned (e.g. "[1 Mark]", "(3)").
+5. For MCQs, extract all options into an array (English only).
+   - **CRITICAL**: Remove ONLY the outermost option label (e.g., "A.", "B.", "(a)", "(b)", "1.", "2.").
+   - **PRESERVE** internal numbering or references like "(i)", "(ii)", "1.", "2." if they are part of the answer content.
+   - Example: If text is "A. (i) and (ii)", store "(i) and (ii)".
+   - Example: If text is "(b) Statement 1 is correct", store "Statement 1 is correct".
+6. Preserve the exact question text.
+7. HANDLING DIAGRAMS:
+   - If a question refers to a diagram (e.g., "In the given circuit"), look for any text description provided in the input.
+   - If the diagram is described in text (e.g., "Circuit with 1 ohm and 2 ohm resistors"), include that description in the question text.
+   - If the question is purely visual and impossible to solve without seeing the image, SKIP IT.
+8. Ignore instructions like "All questions are compulsory" or section headers unless relevant.
+
+OUTPUT FORMAT:
+Return a JSON object with a "questions" array containing the extracted data.
+`;
+
+		const result = await generateObject({
+			model: google("gemini-2.5-pro"), // Use Pro for better reasoning on complex layouts
+			schema: ExtractedPaperSchema,
+			prompt: prompt,
+		});
+
+		console.log(`[AI-EXTRACT] Successfully extracted ${result.object.questions.length} questions.`);
+		return result.object.questions;
+
+	} catch (error) {
+		console.error("[AI-EXTRACT] Error extracting questions:", error);
+		throw error;
+	}
+}
+
+/**
+ * Generates an answer for a question using chapter context
+ */
+export async function generateAnswerForQuestion(question: string, context: string, marks: number = 1) {
+	try {
+		// Initialize Google Provider
+		const { apiKey } = await getProviderApiKey({ provider: "gemini" });
+		const keyToUse = apiKey || process.env.GEMINI_API_KEY;
+		if (!keyToUse) throw new Error("No Gemini API key found");
+		const google = createGoogleGenerativeAI({ apiKey: keyToUse });
+
+		const prompt = `
+You are an expert subject tutor. Your task is to answer an exam question based strictly on the provided textbook content.
+
+QUESTION:
+${question}
+
+MARKS: ${marks} (Answer length and detail should be appropriate for these marks)
+
+TEXTBOOK CONTENT:
+${context.slice(0, 20000)}
+
+INSTRUCTIONS:
+1. Read the question and the textbook content carefully.
+2. **CRITICAL FOR MCQs**:
+   - Select the correct option(s) from the provided choices.
+   - The "correct_answer" field must contain the **EXACT TEXT** of the correct option(s).
+   - If multiple options are correct (e.g., "Both A and B"), state that clearly using the option text.
+3. Generate the CORRECT ANSWER based on the textbook.
+4. Provide a detailed EXPLANATION referencing the textbook concepts.
+5. If the answer cannot be found in the context, use your general knowledge but mention that it wasn't in the provided text.
+
+OUTPUT FORMAT:
+Return a JSON object with "correct_answer" and "explanation".
+`;
+
+		const result = await generateObject({
+			model: google("gemini-2.0-flash"), // Flash is sufficient for answering
+			schema: AnswerGenerationSchema,
+			prompt: prompt,
+		});
+
+		return result.object;
+
+	} catch (error) {
+		console.error("[AI-SOLVE] Error generating answer:", error);
+		// Return a fallback structure instead of throwing, to allow partial success
+		return {
+			correct_answer: "Could not generate answer.",
+			explanation: "AI failed to generate an answer for this question."
+		};
+	}
+}
+
+const BatchAnswerSchema = z.object({
+	answers: z.array(z.object({
+		question_number: z.string().optional(),
+		question_text_snippet: z.string().describe("First few words of question to identify it"),
+		correct_answer: z.union([z.string(), z.array(z.string())]),
+		explanation: z.string()
+	}))
+});
+
+/**
+ * Generates answers for a BATCH of questions using chapter context
+ * Much more efficient than one-by-one
+ */
+/**
+ * Generates answers for a BATCH of questions using chapter context
+ * Much more efficient than one-by-one
+ */
+export async function generateAnswersForBatch(
+	questions: any[],
+	context: string,
+	metadata: { board?: string, level?: string, subject?: string, chapter?: string } = {}
+) {
+	try {
+		// Initialize Google Provider
+		const { apiKey } = await getProviderApiKey({ provider: "gemini" });
+		const keyToUse = apiKey || process.env.GEMINI_API_KEY;
+		if (!keyToUse) throw new Error("No Gemini API key found");
+		const google = createGoogleGenerativeAI({ apiKey: keyToUse });
+
+		console.log(`[AI-SOLVE] Generating answers for batch of ${questions.length} questions...`);
+
+		const questionsText = questions.map((q, i) =>
+			`Q${i + 1} [${q.points || 1} Marks] (${q.question_type}): ${q.question_text}`
+		).join("\n\n");
+
+		const boardContext = metadata.board ? `You are an expert ${metadata.board} question setter.` : "You are an expert subject tutor.";
+		const levelContext = metadata.level ? `The current level is ${metadata.level}.` : "";
+		const subjectChapter = metadata.subject && metadata.chapter
+			? `**Subject**: ${metadata.subject}\n**Chapter**: ${metadata.chapter}\n`
+			: "";
+
+		const prompt = `
+${boardContext} ${levelContext}
+Your task is to answer exam questions accurately.
+
+${subjectChapter}
+QUESTIONS:
+${questionsText}
+
+TEXTBOOK CONTENT:
+${context}
+
+INSTRUCTIONS:
+1. For EACH question, generate the CORRECT ANSWER and EXPLANATION.
+2. **CRITICAL FOR MCQs - FOLLOW EXACTLY**: 
+   - You MUST select from the options provided in the question.
+   - The "correct_answer" field MUST be the **CLEAN TEXT** of the correct option.
+   - **STRICT RULE**: Do NOT include the *outer* option label (A, B, C, D).
+   - **PRESERVE** content like "(i) and (ii)" if it is part of the option text.
+   - Example: If option is "(i) and (ii)", answer MUST be "(i) and (ii)".
+   - Example: If option is "A. (i) and (ii)", answer MUST be "(i) and (ii)" (Strip 'A.', keep '(i)...').
+   - **NEVER** create an answer that is not in the options list (after stripping outer prefixes).
+   - **NEVER** return just the letter (e.g., "B").
+   - **NEVER** hallucinate an answer (e.g., do not write "Grass → Hawk" if it is not an option).
+   - If multiple options are correct, list all correct option texts separated by " and ".
+3. **SOURCE PRIORITY**:
+   - First, check the provided TEXTBOOK CONTENT.
+   - If the answer is NOT in the textbook, **YOU MUST USE YOUR GENERAL KNOWLEDGE**.
+   - **NEVER** return "Cannot be determined" or "Not found in text" for standard academic questions. Always provide the correct academic answer.
+4. **LEVEL**: Keep answers at a ${metadata.level || "High School / CBSE"} level.
+
+STRICTLY PROHIBITED IN EXPLANATIONS:
+- Do not refer to "the provided text", "the context", "the above material", "Activity X.X", "Figure X.X", "Table X.X", "Reaction X.X", "Law X.X" or similar references.
+- Do not say "According to the text" or "As mentioned in the chapter".
+- Explanations must be self-contained and based on general subject knowledge + context facts, without meta-references.
+
+OUTPUT FORMAT:
+Return a JSON object with an "answers" array.
+`;
+
+		const result = await generateObject({
+			model: google("gemini-2.0-flash"), // Flash is great for large context
+			schema: BatchAnswerSchema,
+			prompt: prompt,
+		});
+
+		return result.object.answers;
+
+	} catch (error) {
+		console.error("[AI-SOLVE] Error generating batch answers:", error);
+		throw error;
 	}
 }

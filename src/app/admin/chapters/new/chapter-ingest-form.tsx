@@ -6,6 +6,7 @@ import { ingestChapterAsync } from "../actions-async";
 import { useRouter } from "next/navigation";
 import { toast } from "sonner";
 import { TextbookSplitter, DetectedChapter, LlamaParsePageResult } from "@/lib/textbook-splitter";
+import { QuestionBankConfig, QuestionBankConfigState } from "./question-bank-config";
 
 interface Board {
     id: string;
@@ -63,6 +64,9 @@ export default function ChapterIngestForm({
     const [fullPages, setFullPages] = useState<LlamaParsePageResult[]>([]);
     const [textbookSubjectId, setTextbookSubjectId] = useState<string>("");
     const [textbookBoards, setTextbookBoards] = useState<string[]>([]);
+
+    // Question Bank Config
+    const [questionConfig, setQuestionConfig] = useState<QuestionBankConfigState | null>(null);
 
     // Filter subjects based on selected program
     const filteredSubjects = selectedProgram
@@ -183,6 +187,10 @@ export default function ChapterIngestForm({
                     });
                 }
 
+                if (questionConfig) {
+                    formData.append("questionConfig", JSON.stringify(questionConfig));
+                }
+
                 // Use async action
                 const result = await ingestChapterAsync(formData);
 
@@ -257,6 +265,10 @@ export default function ChapterIngestForm({
 
             if (textbookFile) {
                 formData.append("file", textbookFile);
+            }
+
+            if (questionConfig) {
+                formData.append("questionConfig", JSON.stringify(questionConfig));
             }
 
             // Use async action - creates chapters immediately with PENDING status
@@ -481,6 +493,8 @@ export default function ChapterIngestForm({
                         </div>
                     )}
 
+                    <QuestionBankConfig onChange={setQuestionConfig} />
+
                     <div className="flex justify-end gap-3">
                         <button
                             type="button"
@@ -660,6 +674,8 @@ export default function ChapterIngestForm({
                                     applies to all chapters in this textbook.
                                 </p>
                             </div>
+
+                            <QuestionBankConfig onChange={setQuestionConfig} />
 
                             <div className="flex justify-end gap-3">
                                 <button

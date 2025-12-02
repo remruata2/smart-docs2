@@ -409,6 +409,7 @@ model Chapter {
    study_materials StudyMaterial?
    learning_sessions LearningSession[]
    conversations Conversation[]
+   questions     Question[]
 
   @@index([subject_id, chapter_number])
   @@index([accessible_boards], type: Gin) // For RLS
@@ -604,6 +605,34 @@ model QuizQuestion {
 
   @@index([quiz_id])
   @@map("quiz_questions")
+}
+
+/// Question Bank Model - Stores pre-generated questions for chapters
+model Question {
+  id             String       @id @default(cuid())
+  chapter_id     BigInt
+  question_text  String       @db.Text
+  question_type  QuestionType
+  difficulty     String       // 'easy', 'medium', 'hard'
+  
+  // For MCQ/TF: JSON array of options e.g. ["Option A", "Option B"]
+  options        Json?
+  
+  // The correct answer
+  correct_answer Json
+  
+  // AI-generated explanation
+  explanation    String?      @db.Text
+  
+  points         Int          @default(1)
+  is_active      Boolean      @default(true)
+  created_at     DateTime     @default(now())
+  updated_at     DateTime     @updatedAt
+
+  chapter        Chapter      @relation(fields: [chapter_id], references: [id], onDelete: Cascade)
+
+  @@index([chapter_id, difficulty, question_type])
+  @@map("questions")
 }
 
 model UserPoints {

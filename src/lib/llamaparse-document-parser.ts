@@ -47,11 +47,17 @@ export class LlamaParseDocumentParser {
 				? "FAST (Text-Only)"
 				: "PREMIUM (OCR+Layout)";
 			console.log(`[LlamaParse] Parsing file: ${filePath}`);
-			console.log(`[LlamaParse] Mode: ${mode} | Key: ${apiKey ? "DB" : "ENV"}`);
+			console.log(`[LlamaParse] Mode: ${mode} | Key Source: ${apiKey ? "DB" : "ENV"}`);
+
+			if (keyToUse) {
+				console.log(`[LlamaParse-DEBUG] Key loaded. Length: ${keyToUse.length}, Prefix: ${keyToUse.substring(0, 4)}...`);
+			} else {
+				console.error(`[LlamaParse-DEBUG] NO KEY LOADED!`);
+			}
 
 			// Use loadJson method from llama-cloud-services
 			const reader = new LlamaParseReader({
-				apiKey: keyToUse,
+				apiKey: keyToUse.trim(), // Ensure no whitespace
 				language: (options.language || "en") as any,
 				parsingInstruction: options.parsingInstruction,
 				premiumMode: !options.fastMode,
@@ -68,16 +74,16 @@ export class LlamaParseDocumentParser {
 					break; // Success
 				} catch (err: any) {
 					console.warn(`[LlamaParse] Attempt ${i + 1} failed:`, err.message);
-					
+
 					// Check for LlamaParse API credit limit error
 					const errorDetail = err.detail || err.message || "";
-					if (errorDetail.includes("exceeded the maximum number of credits") || 
-					    errorDetail.includes("credits for your plan")) {
+					if (errorDetail.includes("exceeded the maximum number of credits") ||
+						errorDetail.includes("credits for your plan")) {
 						const creditError = new Error("LlamaParse API credit limit exceeded. Please upgrade your LlamaParse plan or wait for credits to reset.");
 						(creditError as any).isCreditLimit = true;
 						throw creditError;
 					}
-					
+
 					if (i === maxRetries - 1) throw err; // Throw on last attempt
 					// Wait before retry (1s, 2s, 4s)
 					await new Promise(resolve => setTimeout(resolve, 1000 * Math.pow(2, i)));

@@ -4,6 +4,7 @@
  */
 
 import { prisma } from "@/lib/prisma";
+import { revalidatePath } from "next/cache";
 import { LlamaParseDocumentParser } from "./llamaparse-document-parser";
 import { SemanticVectorService } from "./semantic-vector";
 import { writeFile, unlink } from "fs/promises";
@@ -12,6 +13,7 @@ import { tmpdir } from "os";
 import { generatePageImages, uploadPageImages } from "./pdf-image-generator";
 import { generateStudyMaterials, StudyMaterialsConfig } from "./ai-service-enhanced";
 import { searchYouTubeVideos } from "./youtube-service";
+import { generateQuestionBank, FullQuestionBankConfig } from "./question-bank-service";
 
 export interface ChapterProcessingJob {
 	chapterId: string;
@@ -19,6 +21,7 @@ export interface ChapterProcessingJob {
 	fileName: string;
 	startPage?: number;
 	endPage?: number;
+	questionConfig?: FullQuestionBankConfig;
 }
 
 /**
@@ -405,7 +408,19 @@ export async function processChapterBackground(job: ChapterProcessingJob) {
 		// 9. Clean up temporary files
 		await unlink(tempFilePath);
 
-		// 12. Update status to COMPLETED
+		// 12. Generate study materials (wait for completion)
+		console.log(`[BG-PROCESSOR] Generating study materials...`);
+		await generateStudyMaterialsBackground(chapterId, chapterInfo);
+		console.log(`[BG-PROCESSOR] Study materials generated for chapter ${chapterId}`);
+
+		// 13. Generate Question Bank if config provided (wait for completion)
+		if (job.questionConfig) {
+			console.log(`[BG-PROCESSOR] Generating Question Bank...`);
+			await generateQuestionBank(chapterId, job.questionConfig);
+			console.log(`[BG-PROCESSOR] Question Bank generated for chapter ${chapterId}`);
+		}
+
+		// 14. Update status to COMPLETED (only after all processing is done)
 		await prisma.chapter.update({
 			where: { id: bigChapterId },
 			data: {
@@ -415,14 +430,14 @@ export async function processChapterBackground(job: ChapterProcessingJob) {
 			},
 		});
 
+		try {
+			revalidatePath("/admin/chapters");
+		} catch (e) {
+			// Ignore revalidation errors in background process
+			console.warn("[BG-PROCESSOR] Failed to revalidate path:", e);
+		}
+
 		console.log(`[BG-PROCESSOR] Chapter ${chapterId} completed successfully`);
-
-		// 13. Generate study materials in background (non-blocking)
-		console.log(`[BG-PROCESSOR] Triggering study materials generation...`);
-		generateStudyMaterialsBackground(chapterId, chapterInfo)
-			.then(() => console.log(`[BG-PROCESSOR] Study materials generated for chapter ${chapterId}`))
-			.catch((err: any) => console.error(`[BG-PROCESSOR] Failed to generate study materials:`, err));
-
 	} catch (error: any) {
 		console.error(
 			`[BG-PROCESSOR] Error processing chapter ${chapterId}:`,
@@ -437,6 +452,12 @@ export async function processChapterBackground(job: ChapterProcessingJob) {
 				error_message: error.message || "Unknown error during processing",
 			},
 		});
+
+		try {
+			revalidatePath("/admin/chapters");
+		} catch (e) {
+			console.warn("[BG-PROCESSOR] Failed to revalidate path on error:", e);
+		}
 
 		throw error;
 	}
