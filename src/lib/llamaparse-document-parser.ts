@@ -91,6 +91,7 @@ export class LlamaParseDocumentParser {
 			}
 
 			if (!jsonObjs || jsonObjs.length === 0) {
+				console.error("[LlamaParse-DEBUG] jsonObjs is empty or undefined:", JSON.stringify(jsonObjs));
 				throw new Error("LlamaParse returned no documents.");
 			}
 

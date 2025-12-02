@@ -430,13 +430,8 @@ export async function processChapterBackground(job: ChapterProcessingJob) {
 			},
 		});
 
-		try {
-			revalidatePath("/admin/chapters");
-		} catch (e) {
-			// Ignore revalidation errors in background process
-			console.warn("[BG-PROCESSOR] Failed to revalidate path:", e);
-		}
-
+		// revalidatePath is not supported in background jobs
+		// The admin list will need to be refreshed manually or via polling
 		console.log(`[BG-PROCESSOR] Chapter ${chapterId} completed successfully`);
 	} catch (error: any) {
 		console.error(
@@ -453,11 +448,7 @@ export async function processChapterBackground(job: ChapterProcessingJob) {
 			},
 		});
 
-		try {
-			revalidatePath("/admin/chapters");
-		} catch (e) {
-			console.warn("[BG-PROCESSOR] Failed to revalidate path on error:", e);
-		}
+		// revalidatePath is not supported in background jobs
 
 		throw error;
 	}
