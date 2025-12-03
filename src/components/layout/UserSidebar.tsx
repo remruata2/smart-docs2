@@ -206,8 +206,15 @@ export default function UserSidebar({ setSidebarOpen }: UserSidebarProps) {
 							align="end"
 							className="w-40 bg-white border border-gray-200 text-gray-800"
 						>
-							<DropdownMenuItem className="text-sm hover:bg-gray-100">
-								Account Settings
+							<DropdownMenuItem asChild>
+								<Link href="/app/profile" className="w-full cursor-pointer text-sm hover:bg-gray-100">
+									Account Settings
+								</Link>
+							</DropdownMenuItem>
+							<DropdownMenuItem asChild>
+								<Link href="/app/usage" className="w-full cursor-pointer text-sm hover:bg-gray-100">
+									Usage & Limits
+								</Link>
 							</DropdownMenuItem>
 							<DropdownMenuItem
 								onClick={() => signOut({ callbackUrl: "/login" })}

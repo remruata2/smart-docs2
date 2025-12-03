@@ -19,9 +19,9 @@ async function seedSubscriptionPlans() {
 					"Curated Video Learning Resources",
 				],
 				limits: {
-					files: 10, // Keeping existing file limit
-					chats: 20, // Keeping existing chat limit
-					exports: 5, // Keeping existing export limit
+					file_uploads: 0, // No file uploads for free plan
+					chat_messages: 20,
+					exports: 0, // No exports for free plan
 					quiz_generation: 3,
 					battle_match: 3,
 					ai_tutor_session: 1,
@@ -37,14 +37,14 @@ async function seedSubscriptionPlans() {
 					"Daily Quiz Generation (3/day)",
 					"Competitive Battle Mode (3 matches/day)",
 					"AI Tutor Assistance (1 session/day, 10 responses)",
-					"AI-Powered Chapter Summaries",
-					"Smart Flashcards",
-					"Curated Video Learning Resources",
+					"AI-Powered Chapter Summaries (Unlimited)",
+					"Smart Flashcards (Unlimited)",
+					"Curated Video Learning Resources (Unlimited)",
 				],
 				limits: {
-					files: 10,
-					chats: 20,
-					exports: 5,
+					file_uploads: 0,
+					chat_messages: 20,
+					exports: 0,
 					quiz_generation: 3,
 					battle_match: 3,
 					ai_tutor_session: 1,
@@ -90,8 +90,8 @@ async function seedSubscriptionPlans() {
 				description: "Unlock your full potential with unlimited access",
 				price_monthly: 299.0,
 				price_yearly: 2990.0,
-				razorpay_plan_id_monthly: "plan_monthly_placeholder",
-				razorpay_plan_id_yearly: "plan_yearly_placeholder",
+				razorpay_plan_id_monthly: "plan_RmgcNaSPJXKclu",
+				razorpay_plan_id_yearly: "plan_RmgcOCyCK0zrWY",
 				features: [
 					"Unlimited Quiz Generation",
 					"Unlimited Battle Mode Matches",
