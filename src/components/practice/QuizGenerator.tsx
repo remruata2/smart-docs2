@@ -119,9 +119,9 @@ export function QuizGenerator() {
                 return (
                     <div className="space-y-6">
                         <div className="space-y-3">
-                            <Label className="text-lg font-semibold">📚 Subject</Label>
+                            <Label className="text-base md:text-lg font-semibold">📚 Subject</Label>
                             <Select value={selectedSubject} onValueChange={setSelectedSubject}>
-                                <SelectTrigger className="h-14 text-base border-2">
+                                <SelectTrigger className="h-10 md:h-14 text-sm md:text-base border-2">
                                     <SelectValue placeholder="Select a subject" />
                                 </SelectTrigger>
                                 <SelectContent>
@@ -135,9 +135,9 @@ export function QuizGenerator() {
                         </div>
 
                         <div className="space-y-3">
-                            <Label className="text-lg font-semibold">⚡ Chapter</Label>
+                            <Label className="text-base md:text-lg font-semibold">⚡ Chapter</Label>
                             <Select value={selectedChapter} onValueChange={setSelectedChapter} disabled={!selectedSubject}>
-                                <SelectTrigger className="h-14 text-base border-2">
+                                <SelectTrigger className="h-10 md:h-14 text-sm md:text-base border-2">
                                     <SelectValue placeholder="Select a chapter" />
                                 </SelectTrigger>
                                 <SelectContent>
@@ -154,15 +154,15 @@ export function QuizGenerator() {
 
             case 2:
                 return (
-                    <div className="space-y-8">
-                        <div className="space-y-4">
+                    <div className="space-y-6">
+                        <div className="space-y-3">
                             <Label className="text-lg font-semibold">🎯 Difficulty Level</Label>
-                            <div className="flex flex-col gap-3">
+                            <div className="grid grid-cols-2 gap-3">
                                 <Button
                                     type="button"
                                     variant={difficulty === "easy" ? "default" : "outline"}
                                     onClick={() => setDifficulty("easy")}
-                                    className={`h-16 text-base font-semibold ${difficulty === "easy" ? "bg-green-600 hover:bg-green-700" : ""
+                                    className={`h-12 md:h-16 text-sm md:text-base font-semibold ${difficulty === "easy" ? "bg-green-600 hover:bg-green-700" : ""
                                         }`}
                                 >
                                     <span className="mr-2 text-xl">😊</span>
@@ -172,7 +172,7 @@ export function QuizGenerator() {
                                     type="button"
                                     variant={difficulty === "medium" ? "default" : "outline"}
                                     onClick={() => setDifficulty("medium")}
-                                    className={`h-16 text-base font-semibold ${difficulty === "medium" ? "bg-orange-500 hover:bg-orange-600" : ""
+                                    className={`h-12 md:h-16 text-sm md:text-base font-semibold ${difficulty === "medium" ? "bg-orange-500 hover:bg-orange-600" : ""
                                         }`}
                                 >
                                     <span className="mr-2 text-xl">🤔</span>
@@ -182,7 +182,7 @@ export function QuizGenerator() {
                                     type="button"
                                     variant={difficulty === "hard" ? "default" : "outline"}
                                     onClick={() => setDifficulty("hard")}
-                                    className={`h-16 text-base font-semibold ${difficulty === "hard" ? "bg-red-600 hover:bg-red-700" : ""
+                                    className={`h-12 md:h-16 text-sm md:text-base font-semibold ${difficulty === "hard" ? "bg-red-600 hover:bg-red-700" : ""
                                         }`}
                                 >
                                     <span className="mr-2 text-xl">🔥</span>
@@ -192,19 +192,19 @@ export function QuizGenerator() {
                                     type="button"
                                     variant={difficulty === "exam" ? "default" : "outline"}
                                     onClick={() => setDifficulty("exam")}
-                                    className={`h-16 text-base font-semibold ${difficulty === "exam" ? "bg-purple-600 hover:bg-purple-700" : ""
+                                    className={`h-12 md:h-16 text-sm md:text-base font-semibold ${difficulty === "exam" ? "bg-purple-600 hover:bg-purple-700" : ""
                                         }`}
                                 >
                                     <span className="mr-2 text-xl">📝</span>
-                                    Exam Questions (Past Papers)
+                                    Exam
                                 </Button>
                             </div>
                         </div>
 
                         <div className="space-y-4">
                             <div className="flex justify-between items-center">
-                                <Label className="text-lg font-semibold">📊 Number of Questions</Label>
-                                <div className="px-4 py-2 bg-primary text-primary-foreground rounded-full font-bold text-xl">
+                                <Label className="text-base md:text-lg font-semibold">📊 Number of Questions</Label>
+                                <div className="px-4 py-2 bg-primary text-primary-foreground rounded-full font-bold text-lg md:text-xl">
                                     {questionCount[0]}
                                 </div>
                             </div>
@@ -245,8 +245,8 @@ export function QuizGenerator() {
 
                 return (
                     <div className="space-y-4">
-                        <Label className="text-lg font-semibold">✏️ Question Types</Label>
-                        <p className="text-sm text-muted-foreground mb-4">Select at least one question type</p>
+                        <Label className="text-base md:text-lg font-semibold">✏️ Question Types</Label>
+                        <p className="text-xs md:text-sm text-muted-foreground mb-4">Select at least one question type</p>
                         <div className="grid grid-cols-2 gap-3">
                             {questionTypeOptions.map(type => (
                                 <Button
@@ -254,7 +254,7 @@ export function QuizGenerator() {
                                     type="button"
                                     variant={questionTypes.includes(type.id) ? "default" : "outline"}
                                     onClick={() => toggleQuestionType(type.id)}
-                                    className={`h-20 flex flex-col items-center justify-center gap-2 text-base ${questionTypes.includes(type.id) ? "bg-green-600 hover:bg-green-700" : ""
+                                    className={`h-16 md:h-20 flex flex-col items-center justify-center gap-1 md:gap-2 text-sm md:text-base ${questionTypes.includes(type.id) ? "bg-green-600 hover:bg-green-700" : ""
                                         }`}
                                 >
                                     <span className="text-3xl">{type.icon}</span>
@@ -270,34 +270,34 @@ export function QuizGenerator() {
                 const selectedChapterName = chapters.find(c => c.id.toString() === selectedChapter)?.title;
 
                 return (
-                    <div className="space-y-6">
-                        <div className="text-center mb-6">
-                            <h3 className="text-2xl font-bold mb-2">🎉 Ready to Start!</h3>
-                            <p className="text-muted-foreground">Review your quiz settings below</p>
+                    <div className="space-y-4">
+                        <div className="text-center mb-4">
+                            <h3 className="text-xl font-bold mb-1">🎉 Ready to Start!</h3>
+                            <p className="text-sm text-muted-foreground">Review your quiz settings below</p>
                         </div>
 
-                        <div className="space-y-4 bg-muted/30 rounded-lg p-6">
-                            <div className="flex justify-between items-center pb-3 border-b">
-                                <span className="text-sm font-medium text-muted-foreground">Subject</span>
-                                <span className="font-semibold">{selectedSubjectName}</span>
+                        <div className="space-y-3 bg-muted/30 rounded-lg p-4">
+                            <div className="flex justify-between items-center pb-2 border-b">
+                                <span className="text-xs font-medium text-muted-foreground">Subject</span>
+                                <span className="font-semibold text-sm">{selectedSubjectName}</span>
                             </div>
-                            <div className="flex justify-between items-center pb-3 border-b">
-                                <span className="text-sm font-medium text-muted-foreground">Chapter</span>
-                                <span className="font-semibold text-sm">{selectedChapterName}</span>
+                            <div className="flex justify-between items-center pb-2 border-b">
+                                <span className="text-xs font-medium text-muted-foreground">Chapter</span>
+                                <span className="font-semibold text-xs text-right max-w-[60%] truncate">{selectedChapterName}</span>
                             </div>
-                            <div className="flex justify-between items-center pb-3 border-b">
-                                <span className="text-sm font-medium text-muted-foreground">Difficulty</span>
-                                <span className="font-semibold capitalize">{difficulty}</span>
+                            <div className="flex justify-between items-center pb-2 border-b">
+                                <span className="text-xs font-medium text-muted-foreground">Difficulty</span>
+                                <span className="font-semibold text-sm capitalize">{difficulty}</span>
                             </div>
-                            <div className="flex justify-between items-center pb-3 border-b">
-                                <span className="text-sm font-medium text-muted-foreground">Questions</span>
-                                <span className="font-semibold">{questionCount[0]}</span>
+                            <div className="flex justify-between items-center pb-2 border-b">
+                                <span className="text-xs font-medium text-muted-foreground">Questions</span>
+                                <span className="font-semibold text-sm">{questionCount[0]}</span>
                             </div>
                             <div className="flex justify-between items-start">
-                                <span className="text-sm font-medium text-muted-foreground">Types</span>
+                                <span className="text-xs font-medium text-muted-foreground">Types</span>
                                 <div className="text-right">
                                     {questionTypes.map(type => (
-                                        <div key={type} className="font-medium text-sm">
+                                        <div key={type} className="font-medium text-xs">
                                             {questionTypeOptions.find(q => q.id === type)?.label}
                                         </div>
                                     ))}
@@ -310,108 +310,112 @@ export function QuizGenerator() {
     };
 
     return (
-        <Card className="w-full shadow-xl border-2">
-            <CardHeader className="pb-4">
-                <div className="flex items-center gap-3 mb-4">
-                    <div className="p-2 bg-primary rounded-lg text-primary-foreground">
-                        <BrainCircuit className="w-6 h-6" />
-                    </div>
-                    <div className="flex-1">
-                        <CardTitle className="text-2xl">Generate Practice Quiz</CardTitle>
-                        <CardDescription>Step {currentStep} of 4 - {steps[currentStep - 1].description}</CardDescription>
-                    </div>
-                    <Button
-                        variant="outline"
-                        size="sm"
-                        className="gap-2 border-purple-500 text-purple-600 hover:bg-purple-50"
-                        onClick={() => router.push("/app/practice/battle")}
-                    >
-                        <Swords className="w-4 h-4" />
-                        Battle Mode
-                    </Button>
+        <div className="w-full">
+            {currentStep === 1 && (
+                <div className="mb-4 md:mb-8 text-center">
+                    <h1 className="text-2xl md:text-4xl font-bold mb-2 md:mb-3 bg-gradient-to-r from-purple-600 via-pink-600 to-blue-600 bg-clip-text text-transparent">
+                        Practice & Exam Prep
+                    </h1>
+                    <p className="text-sm md:text-lg text-muted-foreground">
+                        Generate AI-powered quizzes to test your knowledge and earn points! 🎯
+                    </p>
                 </div>
-
-                {/* Progress Indicator */}
-                <div className="flex items-center justify-between mb-2">
-                    {steps.map((step, idx) => (
-                        <div key={step.number} className="flex items-center flex-1">
-                            <div className="flex flex-col items-center flex-1">
-                                <div
-                                    className={`w-10 h-10 rounded-full flex items-center justify-center font-bold text-sm transition-all ${currentStep > step.number
-                                        ? "bg-green-500 text-white"
-                                        : currentStep === step.number
-                                            ? "bg-primary text-primary-foreground ring-4 ring-primary/20"
-                                            : "bg-muted text-muted-foreground"
-                                        }`}
-                                >
-                                    {currentStep > step.number ? <CheckCircle className="w-5 h-5" /> : step.number}
-                                </div>
-                                <span className={`text-xs mt-1 hidden sm:block ${currentStep === step.number ? "font-semibold" : ""}`}>
-                                    {step.title}
-                                </span>
-                            </div>
-                            {idx < steps.length - 1 && (
-                                <div
-                                    className={`h-1 flex-1 mx-2 rounded transition-all ${currentStep > step.number ? "bg-green-500" : "bg-muted"
-                                        }`}
-                                />
-                            )}
+            )}
+            <Card className="w-full shadow-xl border-2">
+                <CardHeader className="pb-4">
+                    <div className="flex items-center gap-3 mb-4">
+                        <div className="p-2 bg-primary rounded-lg text-primary-foreground">
+                            <BrainCircuit className="w-6 h-6" />
                         </div>
-                    ))}
-                </div>
-            </CardHeader>
+                        <div className="flex-1">
+                            <CardTitle className="text-xl md:text-2xl">Generate Practice Quiz</CardTitle>
+                            <CardDescription className="text-xs md:text-sm">Step {currentStep} of 4 - {steps[currentStep - 1].description}</CardDescription>
+                        </div>
+                    </div>
 
-            <CardContent className="space-y-6 min-h-[320px]">
-                {renderStepContent()}
+                    {/* Progress Indicator */}
+                    <div className="flex items-center justify-between mb-2">
+                        {steps.map((step, idx) => (
+                            <div key={step.number} className="flex items-center flex-1">
+                                <div className="flex flex-col items-center flex-1">
+                                    <div
+                                        className={`w-8 h-8 md:w-10 md:h-10 rounded-full flex items-center justify-center font-bold text-xs md:text-sm transition-all ${currentStep > step.number
+                                            ? "bg-green-500 text-white"
+                                            : currentStep === step.number
+                                                ? "bg-primary text-primary-foreground ring-4 ring-primary/20"
+                                                : "bg-muted text-muted-foreground"
+                                            }`}
+                                    >
+                                        {currentStep > step.number ? <CheckCircle className="w-5 h-5" /> : step.number}
+                                    </div>
+                                    <span className={`text-xs mt-1 hidden sm:block ${currentStep === step.number ? "font-semibold" : ""}`}>
+                                        {step.title}
+                                    </span>
+                                </div>
+                                {idx < steps.length - 1 && (
+                                    <div
+                                        className={`h-1 flex-1 mx-2 rounded transition-all ${currentStep > step.number ? "bg-green-500" : "bg-muted"
+                                            }`}
+                                    />
+                                )}
+                            </div>
+                        ))}
+                    </div>
+                </CardHeader>
 
-                {/* Navigation Buttons */}
-                <div className="flex justify-between items-center gap-4 pt-6 border-t">
-                    <Button
-                        variant="outline"
-                        size="lg"
-                        onClick={() => setCurrentStep(prev => Math.max(1, prev - 1))}
-                        disabled={currentStep === 1 || loading}
-                        className="min-w-[100px]"
-                    >
-                        <ChevronLeft className="mr-2 h-5 w-5" />
-                        Back
-                    </Button>
+                <CardContent className="space-y-6 min-h-[320px]">
+                    {renderStepContent()}
 
-                    {currentStep < 4 ? (
+                    {/* Navigation Buttons */}
+                    <div className="flex justify-between items-center gap-4 pt-6 border-t">
                         <Button
+                            variant="outline"
                             size="lg"
-                            onClick={() => setCurrentStep(prev => prev + 1)}
-                            disabled={
-                                (currentStep === 1 && !canProceedStep1) ||
-                                (currentStep === 3 && !canProceedStep3)
-                            }
-                            className="min-w-[100px] bg-green-600 hover:bg-green-700"
+                            onClick={() => setCurrentStep(prev => Math.max(1, prev - 1))}
+                            disabled={currentStep === 1 || loading}
+                            className="min-w-[100px]"
                         >
-                            Next
-                            <ChevronRight className="ml-2 h-5 w-5" />
+                            <ChevronLeft className="mr-2 h-5 w-5" />
+                            Back
                         </Button>
-                    ) : (
-                        <Button
-                            size="lg"
-                            onClick={handleGenerate}
-                            disabled={loading}
-                            className="min-w-[140px] bg-green-600 hover:bg-green-700"
-                        >
-                            {loading ? (
-                                <>
-                                    <Loader2 className="mr-2 h-5 w-5 animate-spin" />
-                                    Generating...
-                                </>
-                            ) : (
-                                <>
-                                    Start Quiz
-                                    <ChevronRight className="ml-2 h-5 w-5" />
-                                </>
-                            )}
-                        </Button>
-                    )}
-                </div>
-            </CardContent>
-        </Card>
+
+                        {currentStep < 4 ? (
+                            <Button
+                                size="lg"
+                                onClick={() => setCurrentStep(prev => prev + 1)}
+                                disabled={
+                                    (currentStep === 1 && !canProceedStep1) ||
+                                    (currentStep === 3 && !canProceedStep3)
+                                }
+                                className="min-w-[100px] bg-green-600 hover:bg-green-700"
+                            >
+                                Next
+                                <ChevronRight className="ml-2 h-5 w-5" />
+                            </Button>
+                        ) : (
+                            <Button
+                                size="lg"
+                                onClick={handleGenerate}
+                                disabled={loading}
+                                className="min-w-[140px] bg-green-600 hover:bg-green-700"
+                            >
+                                {loading ? (
+                                    <>
+                                        <Loader2 className="mr-2 h-5 w-5 animate-spin" />
+                                        Generating...
+                                    </>
+                                ) : (
+                                    <>
+                                        Start Quiz
+                                        <ChevronRight className="ml-2 h-5 w-5" />
+                                    </>
+                                )}
+                            </Button>
+                        )}
+                    </div>
+                </CardContent>
+
+            </Card>
+        </div >
     );
 }

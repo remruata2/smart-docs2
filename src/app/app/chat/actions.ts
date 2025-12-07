@@ -7,9 +7,8 @@ export async function translateContent(text: string, targetLanguage: string) {
     try {
         const { client, keyId } = await getGeminiClient();
 
-        // Get active models or fallback
-        const dbModels = await getActiveModelNames("gemini");
-        const modelName = dbModels[0] || process.env.GEMINI_DEFAULT_MODEL || "gemini-2.5-flash";
+        const modelName = "gemini-2.5-flash";
+        console.log("Translation using model:", modelName);
 
         const model = client.getGenerativeModel({ model: modelName });
 

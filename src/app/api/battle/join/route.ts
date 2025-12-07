@@ -17,6 +17,7 @@ export async function POST(req: Request) {
 
         const body = await req.json();
         const { code } = joinBattleSchema.parse(body);
+        console.log(`[BATTLE JOIN] Attempting to join battle with code: "${code}" for user: ${session.user.id}`);
 
         const battle = await BattleService.joinBattle(parseInt(session.user.id), code);
 

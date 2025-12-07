@@ -95,6 +95,7 @@ export class BattleService {
             where: { code },
             include: { participants: true }
         });
+        console.log(`[BATTLE SERVICE] joinBattle lookup for code "${code}" returned:`, battle ? `Battle ID ${battle.id}` : "null");
 
         if (!battle) {
             throw new Error("Battle not found");

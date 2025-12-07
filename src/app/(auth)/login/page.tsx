@@ -23,6 +23,7 @@ export default function LoginPage() {
 	const [password, setPassword] = useState("");
 	const [error, setError] = useState("");
 	const [isLoading, setIsLoading] = useState(false);
+	const [isMounted, setIsMounted] = useState(false);
 	const router = useRouter();
 	const { data: session, status } = useSession();
 	const userRole = session?.user?.role;
@@ -30,12 +31,16 @@ export default function LoginPage() {
 	const isSessionAuthenticated = status === "authenticated";
 
 	useEffect(() => {
+		setIsMounted(true);
+	}, []);
+
+	useEffect(() => {
 		if (isSessionAuthenticated) {
 			const destination = userRole === "admin" ? "/admin" : "/app";
 			router.replace(destination);
 		}
 	}, [isSessionAuthenticated, router, userRole]);
-	const isFormDisabled = isLoading || isSessionLoading || isSessionAuthenticated;
+	const isFormDisabled = isLoading || isSessionLoading || isSessionAuthenticated || !isMounted;
 
 	const handleSubmit = async (e: React.FormEvent) => {
 		e.preventDefault();

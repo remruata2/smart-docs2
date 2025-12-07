@@ -19,7 +19,7 @@ interface QuestionCardProps {
     totalQuestions: number;
     points: number;
     children: ReactNode;
-    className?: string;
+    className?: string; // Optional class override
 }
 
 export function QuestionCard({
@@ -30,24 +30,6 @@ export function QuestionCard({
     children,
     className = ""
 }: QuestionCardProps) {
-
-    // Get gradient background based on question type
-    const getGradient = () => {
-        switch (questionType) {
-            case "MCQ":
-                return "bg-gradient-to-br from-blue-50 via-blue-100/50 to-white dark:from-blue-950/20 dark:via-blue-900/10 dark:to-background";
-            case "TRUE_FALSE":
-                return "bg-gradient-to-br from-green-50 via-emerald-100/50 to-white dark:from-green-950/20 dark:via-emerald-900/10 dark:to-background";
-            case "FILL_IN_BLANK":
-                return "bg-gradient-to-br from-purple-50 via-purple-100/50 to-white dark:from-purple-950/20 dark:via-purple-900/10 dark:to-background";
-            case "SHORT_ANSWER":
-                return "bg-gradient-to-br from-orange-50 via-orange-100/50 to-white dark:from-orange-950/20 dark:via-orange-900/10 dark:to-background";
-            case "LONG_ANSWER":
-                return "bg-gradient-to-br from-teal-50 via-teal-100/50 to-white dark:from-teal-950/20 dark:via-teal-900/10 dark:to-background";
-            default:
-                return "bg-gradient-to-br from-gray-50 to-white dark:from-gray-900 dark:to-background";
-        }
-    };
 
     // Get icon and label for question type
     const getTypeInfo = () => {
@@ -71,26 +53,30 @@ export function QuestionCard({
     const TypeIcon = typeInfo.icon;
 
     return (
-        <Card className={`${getGradient()} border-2 shadow-lg transition-all duration-300 hover:shadow-xl ${className}`}>
-            <CardHeader className="space-y-3">
-                <div className="flex items-start justify-between gap-4">
-                    <div className="flex items-center gap-2">
-                        <TypeIcon className={`h-5 w-5 ${typeInfo.color}`} />
-                        <Badge variant="secondary" className="font-medium">
-                            {typeInfo.label}
-                        </Badge>
+        <Card className={`border-2 border-border/60 shadow-xl ${className} bg-card/50 backdrop-blur-sm`}>
+            <CardHeader className="pb-4 md:pb-6 space-y-0 bg-muted/30 border-b border-border/40">
+                <div className="flex items-center justify-between">
+                    <div className="flex items-center gap-3">
+                        <div className={`p-2 rounded-lg bg-muted/50`}>
+                            <TypeIcon className={`h-5 w-5 md:h-6 md:w-6 ${typeInfo.color}`} />
+                        </div>
+                        <div>
+                            <Badge variant="secondary" className="font-semibold px-2.5 py-0.5 text-xs md:text-sm border-0">
+                                {typeInfo.label}
+                            </Badge>
+                        </div>
                     </div>
-                    <div className="flex flex-col items-end gap-1">
-                        <span className="text-xs text-muted-foreground font-medium">
-                            Question {questionNumber} of {totalQuestions}
+                    <div className="flex flex-col items-end">
+                        <span className="text-[10px] md:text-xs uppercase tracking-wider text-muted-foreground font-bold opacity-70">
+                            Points
                         </span>
-                        <Badge variant="outline" className="text-xs">
-                            {points} {points === 1 ? 'point' : 'points'}
-                        </Badge>
+                        <span className="text-sm md:text-lg font-bold tabular-nums leading-none">
+                            {points}
+                        </span>
                     </div>
                 </div>
             </CardHeader>
-            <CardContent className="space-y-4">
+            <CardContent className="pt-6 md:pt-8 p-6 md:p-8 space-y-6 md:space-y-8">
                 {children}
             </CardContent>
         </Card>

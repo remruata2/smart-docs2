@@ -1,7 +1,5 @@
-import { PrismaClient } from "../generated/prisma";
+import { db as prisma } from "./db";
 import { SemanticVectorService } from "./semantic-vector";
-
-const prisma = new PrismaClient();
 
 export interface HybridSearchResult {
 	id: string; // Chapter ID (BigInt as string)
@@ -38,11 +36,11 @@ export class HybridSearchService {
 	): Promise<{
 		results: HybridSearchResult[];
 		searchMethod:
-			| "hybrid"
-			| "semantic_fallback"
-			| "tsvector_only"
-			| "vector_only"
-			| "keyword_only";
+		| "hybrid"
+		| "semantic_fallback"
+		| "tsvector_only"
+		| "vector_only"
+		| "keyword_only";
 		stats: {
 			tsvectorResults: number;
 			semanticResults: number;
@@ -383,12 +381,12 @@ export class HybridSearchService {
 					keyword_rank: r.keyword_rank,
 					citation: r.page_number
 						? {
-								pageNumber: r.page_number,
-								imageUrl: r.image_url || "", // Use Supabase URL directly from chapter_pages
-								boundingBox: boundingBox || [0, 0, 1, 1],
-								chunkContent: r.content || "",
-								title: r.title,
-						  }
+							pageNumber: r.page_number,
+							imageUrl: r.image_url || "", // Use Supabase URL directly from chapter_pages
+							boundingBox: boundingBox || [0, 0, 1, 1],
+							chunkContent: r.content || "",
+							title: r.title,
+						}
 						: undefined,
 				};
 			});

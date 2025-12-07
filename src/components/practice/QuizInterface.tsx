@@ -297,24 +297,35 @@ export function QuizInterface({ quiz }: { quiz: Quiz }) {
 
                     return (
                         <div className="space-y-3">
-                            <p className="text-sm text-muted-foreground font-medium">Select all that apply</p>
+                            <p className="text-sm text-muted-foreground font-medium uppercase tracking-wider">Select all that apply</p>
                             {options.map((opt: string, idx: number) => {
                                 const isChecked = answerArray.includes(opt);
                                 return (
                                     <div
                                         key={idx}
                                         onClick={() => handleCheckboxToggle(opt)}
-                                        className="flex items-center space-x-3 border-2 p-4 rounded-xl hover:bg-accent/50 hover:border-primary/50 cursor-pointer transition-all duration-200 group"
+                                        className={`
+                                            relative flex items-center space-x-4 p-5 md:p-6 rounded-xl cursor-pointer transition-all duration-200 group
+                                            border-2 ${isChecked
+                                                ? 'border-primary bg-primary/10 shadow-lg scale-[1.01]'
+                                                : 'border-muted bg-card hover:border-primary/60 hover:bg-accent/60 hover:shadow-md'
+                                            }
+                                        `}
                                     >
                                         <Checkbox
                                             checked={isChecked}
                                             onCheckedChange={() => handleCheckboxToggle(opt)}
                                             id={`opt-${idx}`}
-                                            className="h-5 w-5"
+                                            className="h-6 w-6 mt-0.5 data-[state=checked]:bg-primary data-[state=checked]:text-primary-foreground border-2"
                                         />
-                                        <Label htmlFor={`opt-${idx}`} className="flex-1 cursor-pointer text-base font-medium group-hover:text-primary transition-colors">
+                                        <Label htmlFor={`opt-${idx}`} className="flex-1 cursor-pointer text-base md:text-lg font-medium leading-normal group-hover:text-primary transition-colors">
                                             {opt}
                                         </Label>
+                                        {isChecked && (
+                                            <div className="absolute right-4 md:right-6 text-primary animate-in zoom-in duration-200">
+                                                <CheckCircle2 className="h-6 w-6 md:h-7 md:w-7" />
+                                            </div>
+                                        )}
                                     </div>
                                 );
                             })}
@@ -324,18 +335,32 @@ export function QuizInterface({ quiz }: { quiz: Quiz }) {
                     // Render radio buttons for single-select
                     return (
                         <RadioGroup value={answer} onValueChange={handleAnswerChange} className="space-y-3">
-                            {options.map((opt: string, idx: number) => (
-                                <div
-                                    key={idx}
-                                    onClick={() => handleAnswerChange(opt)}
-                                    className="flex items-center space-x-3 border-2 p-4 rounded-xl hover:bg-accent/50 hover:border-primary/50 cursor-pointer transition-all duration-200 group"
-                                >
-                                    <RadioGroupItem value={opt} id={`opt-${idx}`} className="h-5 w-5" />
-                                    <Label htmlFor={`opt-${idx}`} className="flex-1 cursor-pointer text-base font-medium group-hover:text-primary transition-colors">
-                                        {opt}
-                                    </Label>
-                                </div>
-                            ))}
+                            {options.map((opt: string, idx: number) => {
+                                const isSelected = answer === opt;
+                                return (
+                                    <div
+                                        key={idx}
+                                        onClick={() => handleAnswerChange(opt)}
+                                        className={`
+                                            relative flex items-center space-x-4 p-5 md:p-6 rounded-xl cursor-pointer transition-all duration-200 group
+                                            border-2 ${isSelected
+                                                ? 'border-primary bg-primary/10 shadow-lg scale-[1.01]'
+                                                : 'border-muted bg-card hover:border-primary/60 hover:bg-accent/60 hover:shadow-md'
+                                            }
+                                        `}
+                                    >
+                                        <RadioGroupItem value={opt} id={`opt-${idx}`} className="h-6 w-6 mt-0.5 border-2" />
+                                        <Label htmlFor={`opt-${idx}`} className="flex-1 cursor-pointer text-base md:text-lg font-medium leading-normal group-hover:text-primary transition-colors">
+                                            {opt}
+                                        </Label>
+                                        {isSelected && (
+                                            <div className="absolute right-4 md:right-6 text-primary animate-in zoom-in duration-200">
+                                                <CheckCircle2 className="h-6 w-6 md:h-7 md:w-7" />
+                                            </div>
+                                        )}
+                                    </div>
+                                );
+                            })}
                         </RadioGroup>
                     );
                 }
@@ -374,21 +399,23 @@ export function QuizInterface({ quiz }: { quiz: Quiz }) {
     };
 
     return (
-        <div className="min-h-screen bg-gradient-to-br from-background via-background to-muted/20">
-            {/* Header */}
-            <div className="border-b bg-background/95 backdrop-blur supports-[backdrop-filter]:bg-background/60 sticky top-0 z-10">
-                <div className="container mx-auto py-4 px-4">
-                    <div className="flex justify-between items-center gap-4">
-                        <div className="flex-1 min-w-0">
-                            <h1 className="text-xl md:text-2xl font-bold truncate">{quiz.title}</h1>
-                            <p className="text-sm text-muted-foreground">
-                                Question {currentQuestionIndex + 1} of {totalQuestions}
-                            </p>
-                        </div>
+        <div className="flex h-screen bg-gray-50 dark:bg-gray-950 overflow-hidden">
+            {/* Main Content Area - Centered & Focused */}
+            <div className="flex-1 flex flex-col h-full relative max-w-5xl mx-auto w-full bg-background shadow-2xl shadow-black/5 border-x border-border/40">
 
-                        {/* Timer - Desktop */}
+                {/* Mobile Top Bar - Simplified */}
+                <div className="h-16 border-b bg-background/95 backdrop-blur supports-[backdrop-filter]:bg-background/60 flex items-center justify-between px-4 md:px-8 shrink-0 z-20">
+                    <div className="flex flex-col">
+                        <span className="text-[10px] md:text-xs text-muted-foreground font-bold uppercase tracking-widest">Question</span>
+                        <div className="flex items-baseline gap-1">
+                            <span className="text-xl md:text-2xl font-black leading-none tracking-tight">{currentQuestionIndex + 1}</span>
+                            <span className="text-muted-foreground/50 text-sm font-medium">/{totalQuestions}</span>
+                        </div>
+                    </div>
+
+                    <div className="flex items-center gap-4">
                         {timerLimits && (
-                            <div className="hidden md:block">
+                            <div className="scale-90 md:scale-100 origin-right">
                                 <QuestionTimer
                                     timeLimit={currentTimeLimit}
                                     timeRemaining={timeRemaining}
@@ -396,40 +423,33 @@ export function QuizInterface({ quiz }: { quiz: Quiz }) {
                             </div>
                         )}
                     </div>
-                    <Progress value={progress} className="h-1.5 mt-3" />
                 </div>
-            </div>
 
-            {/* Main Content */}
-            <div className="container mx-auto py-6 px-4">
-                <div className="grid grid-cols-1 lg:grid-cols-4 gap-6">
-                    {/* Question Area */}
-                    <div className="lg:col-span-3 space-y-4">
-                        {/* Timer - Mobile */}
-                        {timerLimits && (
-                            <div className="md:hidden flex justify-center">
-                                <QuestionTimer
-                                    timeLimit={currentTimeLimit}
-                                    timeRemaining={timeRemaining}
-                                />
-                            </div>
-                        )}
+                {/* Progress Line */}
+                <div className="w-full h-1 bg-muted">
+                    <div
+                        className="h-full bg-primary transition-all duration-500 ease-out"
+                        style={{ width: `${progress}%` }}
+                    />
+                </div>
 
-                        {/* Question Card */}
+                {/* Scrollable Question Area */}
+                <div className="flex-1 overflow-y-auto p-4 md:p-8 lg:p-12 pb-24 md:pb-32 scroll-smooth">
+                    <div className="max-w-3xl mx-auto w-full">
                         <QuestionCard
                             questionType={currentQuestion.question_type}
                             questionNumber={currentQuestionIndex + 1}
                             totalQuestions={totalQuestions}
                             points={currentQuestion.points}
-                            className="animate-in fade-in-50 slide-in-from-bottom-4 duration-500"
+                            className="animate-in fade-in-50 slide-in-from-bottom-4 duration-500 mb-6"
                         >
                             <div className="space-y-6">
-                                <div className="prose prose-slate dark:prose-invert max-w-none">
+                                <div className="prose prose-lg md:prose-xl dark:prose-invert max-w-none text-foreground leading-relaxed">
                                     <ReactMarkdown
                                         remarkPlugins={[remarkGfm, remarkBreaks]}
                                         components={{
                                             table: ({ node, ...props }) => (
-                                                <table className="min-w-full border-collapse border border-slate-300 dark:border-slate-600" {...props} />
+                                                <table className="min-w-full border-collapse border border-slate-300 dark:border-slate-600 my-4" {...props} />
                                             ),
                                             th: ({ node, ...props }) => (
                                                 <th className="border border-slate-300 dark:border-slate-600 bg-slate-100 dark:bg-slate-800 px-4 py-2 text-left font-semibold" {...props} />
@@ -445,43 +465,48 @@ export function QuizInterface({ quiz }: { quiz: Quiz }) {
                                 {renderQuestionInput()}
                             </div>
                         </QuestionCard>
+                    </div>
+                </div>
 
-                        {/* Navigation Buttons */}
-                        <div className="flex justify-end items-center gap-4 pt-4">
-                            {currentQuestionIndex === totalQuestions - 1 ? (
-                                <Button
-                                    size="lg"
-                                    onClick={() => handleSubmit(false)}
-                                    disabled={submitting}
-                                    className="min-w-[120px] bg-gradient-to-r from-green-600 to-emerald-600 hover:from-green-700 hover:to-emerald-700"
-                                >
-                                    {submitting ? (
-                                        <>
-                                            <Loader2 className="mr-2 h-5 w-5 animate-spin" />
-                                            Submitting...
-                                        </>
-                                    ) : (
-                                        <>
-                                            <CheckCircle2 className="mr-2 h-5 w-5" />
-                                            Submit Quiz
-                                        </>
-                                    )}
-                                </Button>
-                            ) : (
-                                <Button
-                                    size="lg"
-                                    onClick={handleNext}
-                                    disabled={submitting}
-                                    className="min-w-[120px]"
-                                >
-                                    Next
-                                    <ChevronRight className="ml-2 h-5 w-5" />
-                                </Button>
-                            )}
-                        </div>
+                {/* Bottom Bar - Navigation */}
+                <div className="absolute bottom-0 left-0 right-0 bg-background/95 backdrop-blur border-t p-4 md:p-6 pb-safe z-20">
+                    <div className="max-w-3xl mx-auto w-full flex justify-end">
+                        {/* Previous button removed for linear flow */}
+
+                        {currentQuestionIndex === totalQuestions - 1 ? (
+                            <Button
+                                size="lg"
+                                onClick={() => handleSubmit(false)}
+                                disabled={submitting}
+                                className="w-full md:w-auto md:min-w-[200px] h-12 md:h-14 text-base md:text-lg font-bold bg-primary hover:bg-primary/90 shadow-lg shadow-primary/20 transition-all hover:scale-[1.02] active:scale-[0.98]"
+                            >
+                                {submitting ? (
+                                    <>
+                                        <Loader2 className="mr-2 h-5 w-5 animate-spin" />
+                                        Submitting...
+                                    </>
+                                ) : (
+                                    <>
+                                        Submit Quiz
+                                        <CheckCircle2 className="ml-2 h-5 w-5 md:h-6 md:w-6" />
+                                    </>
+                                )}
+                            </Button>
+                        ) : (
+                            <Button
+                                size="lg"
+                                onClick={handleNext}
+                                disabled={submitting}
+                                className="w-full md:w-auto md:min-w-[200px] h-12 md:h-14 text-base md:text-lg font-bold shadow-lg shadow-black/5 transition-all hover:scale-[1.02] active:scale-[0.98]"
+                            >
+                                Next Question
+                                <ChevronRight className="ml-2 h-5 w-5 md:h-6 md:w-6" />
+                            </Button>
+                        )}
                     </div>
                 </div>
             </div>
         </div>
     );
 }
+

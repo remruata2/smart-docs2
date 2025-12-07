@@ -1,8 +1,6 @@
 // semantic-vector.ts
 import { pipeline } from "@xenova/transformers";
-import { PrismaClient } from "../generated/prisma";
-
-const prisma = new PrismaClient();
+import { db as prisma } from "./db";
 
 // Define the model we want to use.
 // 'Xenova/all-MiniLM-L6-v2' is standard for RAG: fast, small (23MB), and accurate.
@@ -80,9 +78,8 @@ export class SemanticVectorService {
 			// Combine fields.
 			// Tip: Put the most important keywords (Title/Category) FIRST
 			// because truncation happens at the end.
-			const textToEmbed = `Title: ${file.title}. Category: ${
-				file.category
-			}. Content: ${file.note || ""}`;
+			const textToEmbed = `Title: ${file.title}. Category: ${file.category
+				}. Content: ${file.note || ""}`;
 
 			console.log(
 				`[SEMANTIC] Generating vector for file ${fileId} (${textToEmbed.length} chars)...`

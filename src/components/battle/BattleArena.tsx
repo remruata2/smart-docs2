@@ -5,7 +5,7 @@ import { useRouter } from "next/navigation";
 import { Button } from "@/components/ui/button";
 import { Progress } from "@/components/ui/progress";
 import { toast } from "sonner";
-import { Loader2, Trophy, Clock, Users, Copy, Swords } from "lucide-react";
+import { Loader2, Trophy, Clock, Users, Copy, Swords, LogOut } from "lucide-react";
 import { QuestionCard } from "@/components/practice/QuestionCard";
 import { createClient } from "@supabase/supabase-js";
 
@@ -43,6 +43,7 @@ export function BattleArena({ battle: initialBattle, currentUser, supabaseConfig
 
     // Refs to track latest state for intervals/callbacks
     const battleRef = useRef(battle);
+    const isLeavingRef = useRef(false);
     useEffect(() => { battleRef.current = battle; }, [battle]);
 
     // Derived state
@@ -132,6 +133,21 @@ export function BattleArena({ battle: initialBattle, currentUser, supabaseConfig
             .on('broadcast', { event: 'BATTLE_UPDATE' }, (payload: any) => {
                 console.log('[BATTLE-REALTIME] ✅ Received BATTLE_UPDATE:', payload);
 
+                if (payload.payload?.type === 'BATTLE_CANCELLED') {
+                    toast.error("Battle was cancelled by the host");
+                    router.push('/app/practice/battle');
+                    return;
+                }
+
+                if (payload.payload?.type === 'PARTICIPANT_LEFT') {
+                    if (payload.payload.userId !== currentUser.id) {
+                        toast.info("Opponent left the lobby");
+                        // Refresh data to show waiting state again
+                        fetchBattleData();
+                    }
+                    return;
+                }
+
                 // Optimistic update for faster sync
                 if (payload.payload?.status === 'IN_PROGRESS') {
                     console.log('[BATTLE-REALTIME] Updating status to IN_PROGRESS');
@@ -215,6 +231,39 @@ export function BattleArena({ battle: initialBattle, currentUser, supabaseConfig
         }
     }, [battle.status]);
 
+    // Handle unmount / navigation away
+    useEffect(() => {
+        const handleUnload = () => {
+            if (isLeavingRef.current) return; // Already handled manually
+
+            const currentBattle = battleRef.current;
+            const myPart = currentBattle.participants.find((p: any) => p.user_id === currentUser.id);
+
+            // Only leave if battle is active AND I haven't finished
+            const isActive = currentBattle.status === 'WAITING' || currentBattle.status === 'IN_PROGRESS';
+            const isNotFinished = !myPart?.finished && currentBattle.status !== 'COMPLETED';
+
+            if (isActive && isNotFinished) {
+                // Use fetch with keepalive to ensure request sends during unload
+                fetch("/api/battle/leave", {
+                    method: "POST",
+                    headers: { "Content-Type": "application/json" },
+                    body: JSON.stringify({ battleId: currentBattle.id }),
+                    keepalive: true
+                });
+            }
+        };
+
+        // Handle tab close / refresh
+        window.addEventListener('beforeunload', handleUnload);
+
+        return () => {
+            window.removeEventListener('beforeunload', handleUnload);
+            // Do NOT call handleUnload() here during cleanup to prevent accidental leave in Strict Mode
+            // Users must explicitly click "Leave" or close the tab (handled by beforeunload)
+        };
+    }, [currentUser.id]);
+
     // Check for completion - AFTER all hooks to avoid "Rendered fewer hooks than expected" error
     if (myParticipant?.finished || battle.status === "COMPLETED") {
         return <BattleResult battle={battle} currentUser={currentUser} />;
@@ -247,6 +296,27 @@ export function BattleArena({ battle: initialBattle, currentUser, supabaseConfig
             }
         } catch (e: any) {
             toast.error(e.message || "Failed to start battle");
+        }
+    };
+
+    const handleLeave = async () => {
+        isLeavingRef.current = true; // Mark as intentionally leaving
+        try {
+            const res = await fetch("/api/battle/leave", {
+                method: "POST",
+                headers: { "Content-Type": "application/json" },
+                body: JSON.stringify({ battleId: battle.id })
+            });
+
+            if (res.ok) {
+                router.push('/app/practice/battle');
+                toast.success("Left lobby");
+            } else {
+                toast.error("Failed to leave lobby");
+            }
+        } catch (e) {
+            console.error("Error leaving lobby:", e);
+            toast.error("Failed to leave lobby");
         }
     };
 
@@ -379,73 +449,86 @@ export function BattleArena({ battle: initialBattle, currentUser, supabaseConfig
 
     if (waiting) {
         return (
-            <div className="min-h-screen flex flex-col items-center justify-center p-4 bg-slate-950 text-slate-100 font-sans selection:bg-purple-500/30 relative overflow-hidden">
+            <div className="min-h-screen flex flex-col items-center justify-start pt-20 md:justify-center md:pt-0 p-4 bg-slate-950 text-slate-100 font-sans selection:bg-purple-500/30 relative overflow-hidden">
                 {/* Background Effects */}
 
                 {/* Animated Grid Background */}
                 <div className="absolute inset-0 bg-[url('/grid.svg')] bg-center [mask-image:linear-gradient(180deg,white,rgba(255,255,255,0))] opacity-20 pointer-events-none" />
 
-                <div className="bg-slate-900/50 backdrop-blur-xl p-8 rounded-3xl max-w-md w-full text-center space-y-8 border border-slate-800 shadow-2xl relative z-10 animate-in fade-in zoom-in-95 duration-500">
-                    <div className="space-y-2">
-                        <h2 className="text-4xl font-black tracking-tight bg-gradient-to-r from-indigo-400 to-purple-400 bg-clip-text text-transparent">
+                <div className="bg-slate-900/50 backdrop-blur-xl p-4 md:p-8 rounded-3xl max-w-md w-full text-center space-y-4 md:space-y-8 border border-slate-800 shadow-2xl relative z-10 animate-in fade-in zoom-in-95 duration-500">
+                    <div className="space-y-1 md:space-y-2 relative">
+                        {/* Leave Button */}
+                        <div className="absolute left-0 top-0">
+                            <Button
+                                variant="ghost"
+                                size="icon"
+                                onClick={handleLeave}
+                                className="text-slate-400 hover:text-red-400 hover:bg-red-500/10"
+                                title="Leave Lobby"
+                            >
+                                <LogOut className="h-5 w-5" />
+                            </Button>
+                        </div>
+
+                        <h2 className="text-2xl md:text-4xl font-black tracking-tight bg-gradient-to-r from-indigo-400 to-purple-400 bg-clip-text text-transparent">
                             BATTLE LOBBY
                         </h2>
-                        <p className="text-slate-400">Waiting for players to join...</p>
+                        <p className="text-sm md:text-base text-slate-400">Waiting for players to join...</p>
                     </div>
 
-                    <div className="py-8 relative">
+                    <div className="py-4 md:py-8 relative">
                         <div className="absolute inset-0 bg-indigo-500/5 blur-3xl rounded-full" />
-                        <p className="text-xs font-bold text-indigo-400 uppercase tracking-widest mb-4">Join Code</p>
-                        <div className="flex items-center justify-center gap-4">
-                            <span className="text-6xl font-mono font-bold tracking-widest text-white drop-shadow-[0_0_15px_rgba(99,102,241,0.5)]">
+                        <p className="text-[10px] md:text-xs font-bold text-indigo-400 uppercase tracking-widest mb-2 md:mb-4">Join Code</p>
+                        <div className="flex items-center justify-center gap-3 md:gap-4">
+                            <span className="text-4xl md:text-6xl font-mono font-bold tracking-widest text-white drop-shadow-[0_0_15px_rgba(99,102,241,0.5)]">
                                 {battle.code}
                             </span>
                             <Button
                                 size="icon"
                                 variant="outline"
                                 onClick={copyCode}
-                                className="h-12 w-12 rounded-xl border-slate-700 bg-slate-800/50 hover:bg-slate-700 hover:text-white transition-all"
+                                className="h-10 w-10 md:h-12 md:w-12 rounded-xl border-slate-700 bg-slate-800/50 hover:bg-slate-700 hover:text-white transition-all"
                             >
-                                <Copy className="h-5 w-5" />
+                                <Copy className="h-4 w-4 md:h-5 md:w-5" />
                             </Button>
                         </div>
                     </div>
 
-                    <div className="space-y-4">
-                        <div className="flex items-center justify-between bg-slate-800/50 p-4 rounded-2xl border border-slate-700/50">
-                            <div className="flex items-center gap-4">
-                                <div className="h-12 w-12 rounded-full bg-gradient-to-br from-indigo-500 to-purple-600 flex items-center justify-center font-bold text-white shadow-lg">
+                    <div className="space-y-3 md:space-y-4">
+                        <div className="flex items-center justify-between bg-slate-800/50 p-3 md:p-4 rounded-2xl border border-slate-700/50">
+                            <div className="flex items-center gap-3 md:gap-4">
+                                <div className="h-10 w-10 md:h-12 md:w-12 rounded-full bg-gradient-to-br from-indigo-500 to-purple-600 flex items-center justify-center font-bold text-white shadow-lg text-sm md:text-base">
                                     {currentUser.username?.[0]?.toUpperCase()}
                                 </div>
                                 <div className="flex flex-col items-start">
-                                    <span className="font-bold text-white">{currentUser.username}</span>
-                                    <span className="text-xs text-indigo-300">You</span>
+                                    <span className="font-bold text-white text-sm md:text-base">{currentUser.username}</span>
+                                    <span className="text-[10px] md:text-xs text-indigo-300">You</span>
                                 </div>
                             </div>
-                            <span className="px-3 py-1 rounded-full bg-emerald-500/10 text-emerald-400 text-xs font-bold border border-emerald-500/20">
+                            <span className="px-2 py-0.5 md:px-3 md:py-1 rounded-full bg-emerald-500/10 text-emerald-400 text-[10px] md:text-xs font-bold border border-emerald-500/20">
                                 READY
                             </span>
                         </div>
 
                         {opponent ? (
-                            <div className="flex items-center justify-between bg-slate-800/50 p-4 rounded-2xl border border-slate-700/50 animate-in slide-in-from-bottom-4 fade-in duration-300">
-                                <div className="flex items-center gap-4">
-                                    <div className="h-12 w-12 rounded-full bg-gradient-to-br from-rose-500 to-orange-600 flex items-center justify-center font-bold text-white shadow-lg">
+                            <div className="flex items-center justify-between bg-slate-800/50 p-3 md:p-4 rounded-2xl border border-slate-700/50 animate-in slide-in-from-bottom-4 fade-in duration-300">
+                                <div className="flex items-center gap-3 md:gap-4">
+                                    <div className="h-10 w-10 md:h-12 md:w-12 rounded-full bg-gradient-to-br from-rose-500 to-orange-600 flex items-center justify-center font-bold text-white shadow-lg text-sm md:text-base">
                                         {opponent.user?.username?.[0]?.toUpperCase() || "?"}
                                     </div>
                                     <div className="flex flex-col items-start">
-                                        <span className="font-bold text-white">{opponent.user?.username || "Opponent"}</span>
-                                        <span className="text-xs text-rose-300">Challenger</span>
+                                        <span className="font-bold text-white text-sm md:text-base">{opponent.user?.username || "Opponent"}</span>
+                                        <span className="text-[10px] md:text-xs text-rose-300">Challenger</span>
                                     </div>
                                 </div>
-                                <span className="px-3 py-1 rounded-full bg-emerald-500/10 text-emerald-400 text-xs font-bold border border-emerald-500/20">
+                                <span className="px-2 py-0.5 md:px-3 md:py-1 rounded-full bg-emerald-500/10 text-emerald-400 text-[10px] md:text-xs font-bold border border-emerald-500/20">
                                     READY
                                 </span>
                             </div>
                         ) : (
-                            <div className="flex flex-col items-center justify-center p-8 border-2 border-dashed border-slate-800 rounded-2xl text-slate-500 gap-3 animate-pulse bg-slate-900/30">
-                                <Loader2 className="h-8 w-8 animate-spin text-indigo-500/50" />
-                                <span className="text-sm font-medium">Waiting for opponent...</span>
+                            <div className="flex flex-col items-center justify-center p-6 md:p-8 border-2 border-dashed border-slate-800 rounded-2xl text-slate-500 gap-2 md:gap-3 animate-pulse bg-slate-900/30">
+                                <Loader2 className="h-6 w-6 md:h-8 md:w-8 animate-spin text-indigo-500/50" />
+                                <span className="text-xs md:text-sm font-medium">Waiting for opponent...</span>
                             </div>
                         )}
                     </div>
@@ -483,57 +566,90 @@ export function BattleArena({ battle: initialBattle, currentUser, supabaseConfig
     if (!question) return <div>Battle Finished!</div>;
 
     return (
-        <div className="min-h-screen bg-slate-950 text-slate-100 p-4 font-sans selection:bg-purple-500/30">
+        <div className="min-h-screen bg-slate-950 text-slate-100 p-2 md:p-4 font-sans selection:bg-purple-500/30">
             {/* Background Effects */}
             <div className="fixed inset-0 bg-[radial-gradient(ellipse_at_top,_var(--tw-gradient-stops))] from-indigo-900/40 via-slate-950 to-slate-950 pointer-events-none" />
 
-            <div className="max-w-6xl mx-auto grid grid-cols-1 lg:grid-cols-12 gap-8 relative z-10 pt-8">
+            <div className="max-w-6xl mx-auto grid grid-cols-1 lg:grid-cols-12 gap-4 md:gap-8 relative z-10 pt-2 md:pt-8">
 
                 {/* Header / Timer Bar */}
-                <div className="lg:col-span-12 flex items-center justify-between bg-slate-900/50 backdrop-blur-md border border-slate-800 p-4 rounded-2xl shadow-xl">
-                    <div className="flex items-center gap-4">
-                        <div className="h-10 w-10 rounded-xl bg-indigo-500/20 flex items-center justify-center text-indigo-400">
-                            <Clock className="h-6 w-6" />
+                <div className="lg:col-span-12 flex items-center justify-between bg-slate-900/50 backdrop-blur-md border border-slate-800 p-3 md:p-4 rounded-2xl shadow-xl">
+                    <div className="flex items-center gap-3 md:gap-4">
+                        <div className="h-8 w-8 md:h-10 md:w-10 rounded-xl bg-indigo-500/20 flex items-center justify-center text-indigo-400">
+                            <Clock className="h-5 w-5 md:h-6 md:w-6" />
                         </div>
                         <div className="flex flex-col">
-                            <span className="text-xs text-slate-400 font-medium uppercase tracking-wider">Time Remaining</span>
-                            <span className={`text-2xl font-bold font-mono ${timeLeft <= 5 ? 'text-red-400 animate-pulse' : 'text-white'}`}>
+                            <span className="text-[10px] md:text-xs text-slate-400 font-medium uppercase tracking-wider">Time</span>
+                            <span className={`text-xl md:text-2xl font-bold font-mono ${timeLeft <= 5 ? 'text-red-400 animate-pulse' : 'text-white'}`}>
                                 {timeLeft}s
                             </span>
                         </div>
                     </div>
 
                     <div className="flex flex-col items-end">
-                        <span className="text-xs text-slate-400 font-medium uppercase tracking-wider">Round</span>
+                        <span className="text-[10px] md:text-xs text-slate-400 font-medium uppercase tracking-wider">Round</span>
                         <div className="flex items-center gap-1">
-                            <span className="text-2xl font-bold text-white">{currentQIndex + 1}</span>
-                            <span className="text-lg text-slate-500">/</span>
-                            <span className="text-lg text-slate-500">{battle.quiz.questions.length}</span>
+                            <span className="text-xl md:text-2xl font-bold text-white">{currentQIndex + 1}</span>
+                            <span className="text-base md:text-lg text-slate-500">/</span>
+                            <span className="text-base md:text-lg text-slate-500">{battle.quiz.questions.length}</span>
+                        </div>
+                    </div>
+                </div>
+
+                {/* Mobile Live Points Bar (Top) */}
+                <div className="lg:hidden flex items-center justify-between gap-2 bg-slate-900/50 backdrop-blur-md border border-slate-800 p-2 rounded-xl">
+                    {/* My Score Compact */}
+                    <div className="flex items-center gap-2 flex-1 bg-indigo-500/10 rounded-lg p-2 border border-indigo-500/20">
+                        <div className="h-6 w-6 rounded-full bg-indigo-500 flex items-center justify-center font-bold text-white text-[10px]">
+                            YOU
+                        </div>
+                        <div className="flex flex-col">
+                            <span className="text-xs font-bold text-white leading-none">{myParticipant?.score || 0}</span>
+                            <Progress
+                                value={((myParticipant?.current_q_index || 0) / battle.quiz.questions.length) * 100}
+                                className="h-1 w-12 bg-slate-800 mt-1"
+                                indicatorClassName="bg-indigo-500"
+                            />
+                        </div>
+                    </div>
+
+                    {/* Opponent Score Compact */}
+                    <div className="flex items-center gap-2 flex-1 justify-end bg-slate-800/30 rounded-lg p-2 border border-slate-700/50">
+                        <div className="flex flex-col items-end">
+                            <span className="text-xs font-bold text-slate-200 leading-none">{opponent?.score || 0}</span>
+                            <Progress
+                                value={((opponent?.current_q_index || 0) / battle.quiz.questions.length) * 100}
+                                className="h-1 w-12 bg-slate-800 mt-1"
+                                indicatorClassName="bg-rose-500"
+                            />
+                        </div>
+                        <div className="h-6 w-6 rounded-full bg-rose-500 flex items-center justify-center font-bold text-white text-[10px]">
+                            OPP
                         </div>
                     </div>
                 </div>
 
                 {/* Main Quiz Area */}
-                <div className="lg:col-span-8 space-y-6">
+                <div className="lg:col-span-8 space-y-4 md:space-y-6">
                     <QuestionCard
                         questionType={question.question_type}
                         questionNumber={currentQIndex + 1}
                         totalQuestions={battle.quiz.questions.length}
                         points={question.points}
-                        className="bg-slate-900/80 border-slate-800 shadow-2xl backdrop-blur-sm"
+                        className="bg-slate-900/80 border-slate-800 shadow-2xl backdrop-blur-sm dark" // Force dark mode
                     >
-                        <div className="space-y-8 py-2">
-                            <p className="text-2xl font-medium leading-relaxed text-slate-100">
+                        <div className="space-y-4 md:space-y-8 py-2">
+                            <p className="text-lg md:text-2xl font-medium leading-relaxed text-slate-100">
                                 {question.question_text}
                             </p>
 
-                            <div className="grid gap-4">
+                            <div className="grid gap-3 md:gap-4">
                                 {question.options?.map((opt: string, idx: number) => (
                                     <button
                                         key={idx}
                                         onClick={() => setSelectedAnswer(opt)}
                                         className={`
-                                            group relative w-full p-5 text-left rounded-xl border-2 transition-all duration-200
+                                            group relative w-full p-3 md:p-5 text-left rounded-xl border-2 transition-all duration-200
                                             hover:scale-[1.01] active:scale-[0.99]
                                             ${selectedAnswer === opt
                                                 ? "bg-indigo-600/20 border-indigo-500 shadow-[0_0_20px_rgba(99,102,241,0.3)]"
@@ -541,9 +657,9 @@ export function BattleArena({ battle: initialBattle, currentUser, supabaseConfig
                                             }
                                         `}
                                     >
-                                        <div className="flex items-center gap-4">
+                                        <div className="flex items-center gap-3 md:gap-4">
                                             <div className={`
-                                                h-8 w-8 rounded-lg flex items-center justify-center text-sm font-bold border transition-colors
+                                                h-6 w-6 md:h-8 md:w-8 rounded-lg flex items-center justify-center text-xs md:text-sm font-bold border transition-colors
                                                 ${selectedAnswer === opt
                                                     ? "bg-indigo-500 border-indigo-400 text-white"
                                                     : "bg-slate-700 border-slate-600 text-slate-400 group-hover:border-slate-500"
@@ -551,7 +667,7 @@ export function BattleArena({ battle: initialBattle, currentUser, supabaseConfig
                                             `}>
                                                 {String.fromCharCode(65 + idx)}
                                             </div>
-                                            <span className={`text-lg ${selectedAnswer === opt ? "text-white font-medium" : "text-slate-300"}`}>
+                                            <span className={`text-sm md:text-lg ${selectedAnswer === opt ? "text-white font-medium" : "text-slate-300"}`}>
                                                 {opt}
                                             </span>
                                         </div>
@@ -562,13 +678,13 @@ export function BattleArena({ battle: initialBattle, currentUser, supabaseConfig
                     </QuestionCard>
 
                     <Button
-                        className="w-full h-14 text-lg font-bold bg-gradient-to-r from-indigo-600 to-purple-600 hover:from-indigo-500 hover:to-purple-500 shadow-lg shadow-indigo-500/25 transition-all hover:scale-[1.02] active:scale-[0.98]"
+                        className="w-full h-12 md:h-14 text-base md:text-lg font-bold bg-gradient-to-r from-indigo-600 to-purple-600 hover:from-indigo-500 hover:to-purple-500 shadow-lg shadow-indigo-500/25 transition-all hover:scale-[1.02] active:scale-[0.98]"
                         onClick={() => handleAnswer(false)}
                         disabled={!selectedAnswer || submitting}
                     >
                         {submitting ? (
                             <>
-                                <Loader2 className="mr-2 h-5 w-5 animate-spin" />
+                                <Loader2 className="mr-2 h-4 w-4 md:h-5 md:w-5 animate-spin" />
                                 Locking in...
                             </>
                         ) : (
@@ -577,8 +693,8 @@ export function BattleArena({ battle: initialBattle, currentUser, supabaseConfig
                     </Button>
                 </div>
 
-                {/* Sidebar / Opponent Status */}
-                <div className="lg:col-span-4 space-y-6">
+                {/* Desktop Sidebar / Opponent Status */}
+                <div className="hidden lg:block lg:col-span-4 space-y-6">
                     <div className="bg-slate-900/50 backdrop-blur-md border border-slate-800 p-6 rounded-2xl shadow-xl space-y-6 sticky top-8">
                         <h3 className="font-bold text-lg flex items-center gap-2 text-white">
                             <Trophy className="h-5 w-5 text-yellow-500" />
