@@ -11,6 +11,8 @@ import { BadgeIcon } from "@/components/ui/badge-icon";
 import { RadarChartWrapper } from "@/components/dashboard/RadarChartWrapper";
 import { MobileStatCard } from "@/components/dashboard/MobileStatCard";
 
+export const dynamic = "force-dynamic";
+
 export default async function DashboardPage() {
     const data = await getDashboardData();
 

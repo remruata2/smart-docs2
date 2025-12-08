@@ -1,4 +1,3 @@
-import { getServerSession } from "next-auth";
 import { authOptions } from "@/lib/auth-options";
 import { redirect } from "next/navigation";
 import { getStudyMaterialsAction, generateStudyMaterialsAction } from "../actions";
@@ -9,13 +8,17 @@ import { ArrowLeft, Loader2, Sparkles } from "lucide-react";
 import Link from "next/link";
 import { prisma } from "@/lib/prisma";
 
+export const revalidate = 3600;
+export const dynamicParams = true;
+
+export async function generateStaticParams() {
+    return [];
+}
+
 export default async function StudyMaterialsPage({ params }: { params: Promise<{ chapterId: string }> }) {
     const { chapterId } = await params;
 
-    const session = await getServerSession(authOptions);
-    if (!session?.user?.id) {
-        redirect("/login");
-    }
+    // Session check removed to allow static generation (protected by middleware)
 
     // Get chapter info
     const chapter = await prisma.chapter.findUnique({
