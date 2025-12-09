@@ -175,7 +175,8 @@ export const authOptions: NextAuthOptions = {
 	},
 	session: {
 		strategy: "jwt",
-		maxAge: 30 * 24 * 60 * 60, // 30 days
+		maxAge: 7 * 24 * 60 * 60, // 7 days (reduced from 30 for security)
+		updateAge: 24 * 60 * 60, // Refresh token every 24 hours
 	},
 	debug: process.env.NODE_ENV !== "production" && process.env.NEXTAUTH_DEBUG === "true",
 	secret: process.env.NEXTAUTH_SECRET,

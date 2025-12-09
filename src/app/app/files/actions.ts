@@ -9,6 +9,11 @@ import fs from "fs/promises";
 import path from "path";
 import { existsSync, mkdirSync } from "fs";
 import { SemanticVectorService } from "../../../lib/semantic-vector";
+import {
+	validateFileType,
+	validateFileSize,
+	MAX_FILE_SIZE,
+} from "@/lib/file-validation";
 
 // Upload directory configuration
 const UPLOAD_DIR = path.join(process.cwd(), "public", "uploads", "documents");
@@ -130,8 +135,7 @@ export async function getFilesPaginated(
 			error instanceof Error ? error.stack : "No stack"
 		);
 		throw new Error(
-			`Failed to fetch files: ${
-				error instanceof Error ? error.message : String(error)
+			`Failed to fetch files: ${error instanceof Error ? error.message : String(error)
 			}`
 		);
 	}
@@ -380,6 +384,23 @@ export async function createFileAction(
 	if (file && file.size > 0) {
 		try {
 			const buffer = Buffer.from(await file.arrayBuffer());
+
+			// SECURITY: Validate file size
+			const sizeValidation = validateFileSize(buffer.length, MAX_FILE_SIZE);
+			if (!sizeValidation.valid) {
+				return { success: false, error: sizeValidation.error || "File too large" };
+			}
+
+			// SECURITY: Validate file type using magic bytes
+			const typeValidation = await validateFileType(
+				buffer,
+				"documents",
+				file.name
+			);
+			if (!typeValidation.valid) {
+				return { success: false, error: typeValidation.error || "Invalid file type" };
+			}
+
 			const sanitizedOriginalName = file.name.replace(/[^a-zA-Z0-9._-]/g, "_");
 
 			// Generate unique filename to prevent duplicates
@@ -613,6 +634,23 @@ export async function updateFileAction(
 			}
 
 			const buffer = Buffer.from(await file.arrayBuffer());
+
+			// SECURITY: Validate file size
+			const sizeValidation = validateFileSize(buffer.length, MAX_FILE_SIZE);
+			if (!sizeValidation.valid) {
+				return { success: false, error: sizeValidation.error || "File too large" };
+			}
+
+			// SECURITY: Validate file type using magic bytes
+			const typeValidation = await validateFileType(
+				buffer,
+				"documents",
+				file.name
+			);
+			if (!typeValidation.valid) {
+				return { success: false, error: typeValidation.error || "Invalid file type" };
+			}
+
 			const uniqueSuffix = Date.now() + "-" + Math.round(Math.random() * 1e9);
 			const sanitizedOriginalName = file.name.replace(/[^a-zA-Z0-9._-]/g, "_");
 			const filename = uniqueSuffix + "-" + sanitizedOriginalName;

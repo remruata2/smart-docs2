@@ -8,14 +8,20 @@ export async function middleware(req: NextRequest) {
 	const path = req.nextUrl.pathname;
 
 	// Define public routes that don't need auth
+	// NOTE: /api/seed is now protected at the route level with API key check
 	const publicRoutes = [
-		"/api/seed",
 		"/",
 		"/pricing",
 		"/register",
 		"/api/auth/register",
 		"/api/subscriptions/webhook",
 	];
+
+	// In development, allow /api/seed for easier testing
+	if (process.env.NODE_ENV !== "production") {
+		publicRoutes.push("/api/seed");
+	}
+
 	const isPublicRoute = publicRoutes.some(
 		(route) => path === route || path.startsWith(route)
 	);
@@ -52,11 +58,14 @@ export async function middleware(req: NextRequest) {
 		return NextResponse.redirect(new URL("/login", req.url));
 	}
 
-	// Admin routes protection
-	if ((isAppRoute || isAdminRoute) && token) {
-		if (isAdminRoute && token.role !== UserRole.admin) {
-			return NextResponse.redirect(new URL("/app", req.url));
-		}
+	// SECURITY FIX: Admin routes require authentication
+	if (isAdminRoute && !token) {
+		return NextResponse.redirect(new URL("/login", req.url));
+	}
+
+	// Admin routes protection - ensure user is admin
+	if (isAdminRoute && token && token.role !== UserRole.admin) {
+		return NextResponse.redirect(new URL("/app", req.url));
 	}
 
 	return NextResponse.next();

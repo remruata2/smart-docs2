@@ -4,9 +4,17 @@ import { authOptions } from "@/lib/auth-options";
 import { getSubscriptionPlan } from "@/services/subscription-service";
 import { createSubscription, createCustomer } from "@/lib/razorpay";
 import { db } from "@/lib/db";
+import { validateCsrf } from "@/lib/csrf-protection";
 
 export async function POST(request: NextRequest) {
     try {
+        // SECURITY: Validate CSRF
+        const csrfResult = validateCsrf(request);
+        if (!csrfResult.valid) {
+            console.warn(`[CHECKOUT] CSRF validation failed: ${csrfResult.error}`);
+            return NextResponse.json({ error: "Invalid request origin" }, { status: 403 });
+        }
+
         const session = await getServerSession(authOptions);
 
         if (!session?.user?.id) {
