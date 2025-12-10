@@ -1,6 +1,7 @@
 "use server";
 
 import { compareDocuments } from "@/lib/comparison-service";
+import { prisma } from "@/lib/prisma";
 
 export async function compareFilesAction(fileIdA: number, fileIdB: number) {
     try {
