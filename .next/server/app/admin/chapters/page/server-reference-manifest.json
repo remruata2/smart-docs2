@@ -1,0 +1,20 @@
+{
+  "node": {
+    "4059cf72191121cb0e35854c2ad3454d2772d74598": {
+      "workers": {
+        "app/admin/chapters/page": {
+          "moduleId": 448468,
+          "async": false,
+          "exportedName": "deleteChapters",
+          "filename": "src/app/admin/chapters/actions.ts"
+        }
+      },
+      "layer": {
+        "app/admin/chapters/page": "rsc"
+      },
+      "exportedName": "deleteChapters",
+      "filename": "src/app/admin/chapters/actions.ts"
+    }
+  },
+  "edge": {}
+}

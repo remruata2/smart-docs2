@@ -1,0 +1,50 @@
+{
+  "node": {
+    "4023dec66ae506e2956dbf21ecffe7a7e6221db615": {
+      "workers": {
+        "app/admin/exams/[id]/page": {
+          "moduleId": 795586,
+          "async": false,
+          "exportedName": "createExam",
+          "filename": "src/app/admin/exams/actions.ts"
+        }
+      },
+      "layer": {
+        "app/admin/exams/[id]/page": "rsc"
+      },
+      "exportedName": "createExam",
+      "filename": "src/app/admin/exams/actions.ts"
+    },
+    "405b5d9cbd8c3f7009f48f4cb5991be535beb1276b": {
+      "workers": {
+        "app/admin/exams/[id]/page": {
+          "moduleId": 795586,
+          "async": false,
+          "exportedName": "deleteExam",
+          "filename": "src/app/admin/exams/actions.ts"
+        }
+      },
+      "layer": {
+        "app/admin/exams/[id]/page": "rsc"
+      },
+      "exportedName": "deleteExam",
+      "filename": "src/app/admin/exams/actions.ts"
+    },
+    "60882c82b5af89ce7c977beb9a2004f3ced32a16dc": {
+      "workers": {
+        "app/admin/exams/[id]/page": {
+          "moduleId": 795586,
+          "async": false,
+          "exportedName": "updateExam",
+          "filename": "src/app/admin/exams/actions.ts"
+        }
+      },
+      "layer": {
+        "app/admin/exams/[id]/page": "rsc"
+      },
+      "exportedName": "updateExam",
+      "filename": "src/app/admin/exams/actions.ts"
+    }
+  },
+  "edge": {}
+}

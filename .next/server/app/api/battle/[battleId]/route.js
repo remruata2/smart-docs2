@@ -1,0 +1,11 @@
+var R=require("../../../../chunks/[turbopack]_runtime.js")("server/app/api/battle/[battleId]/route.js")
+R.c("server/chunks/[root-of-the-server]__89936a52._.js")
+R.c("server/chunks/node_modules_next_f2da0d3e._.js")
+R.c("server/chunks/node_modules_bcryptjs_index_42ebb250.js")
+R.c("server/chunks/[root-of-the-server]__924be513._.js")
+R.c("server/chunks/src_generated_prisma_5b046586._.js")
+R.c("server/chunks/_39ee10cc._.js")
+R.c("server/chunks/node_modules_next_dist_23bfe24c._.js")
+R.c("server/chunks/_next-internal_server_app_api_battle_[battleId]_route_actions_e1c83035.js")
+R.m(631185)
+module.exports=R.m(631185).exports

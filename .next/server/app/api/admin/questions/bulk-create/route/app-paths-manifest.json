@@ -1,0 +1,3 @@
+{
+  "/api/admin/questions/bulk-create/route": "app/api/admin/questions/bulk-create/route.js"
+}

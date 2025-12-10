@@ -1,0 +1,20 @@
+{
+  "node": {
+    "600ef7fe9124c6ac15b9cd02f970afcd29310d2e4b": {
+      "workers": {
+        "app/app/practice/[quizId]/page": {
+          "moduleId": 679725,
+          "async": true,
+          "exportedName": "submitQuizAction",
+          "filename": "src/app/app/practice/actions.ts"
+        }
+      },
+      "layer": {
+        "app/app/practice/[quizId]/page": "action-browser"
+      },
+      "exportedName": "submitQuizAction",
+      "filename": "src/app/app/practice/actions.ts"
+    }
+  },
+  "edge": {}
+}

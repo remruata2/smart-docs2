@@ -1,0 +1,80 @@
+{
+  "node": {
+    "0057a1df77156afe118963654aa92392f4f8709948": {
+      "workers": {
+        "app/app/practice/history/page": {
+          "moduleId": 865450,
+          "async": true,
+          "exportedName": "getQuizHistory",
+          "filename": "src/app/app/practice/actions.ts"
+        }
+      },
+      "layer": {
+        "app/app/practice/history/page": "rsc"
+      },
+      "exportedName": "getQuizHistory",
+      "filename": "src/app/app/practice/actions.ts"
+    },
+    "00e85743d2f680688f9389d762d8a19e394bbe6e25": {
+      "workers": {
+        "app/app/practice/history/page": {
+          "moduleId": 865450,
+          "async": true,
+          "exportedName": "getUserStatsAction",
+          "filename": "src/app/app/practice/actions.ts"
+        }
+      },
+      "layer": {
+        "app/app/practice/history/page": "rsc"
+      },
+      "exportedName": "getUserStatsAction",
+      "filename": "src/app/app/practice/actions.ts"
+    },
+    "40609e2848cfc38069b1f5e6d1e4701c0ca1ac2afb": {
+      "workers": {
+        "app/app/practice/history/page": {
+          "moduleId": 865450,
+          "async": true,
+          "exportedName": "getLeaderboardAction",
+          "filename": "src/app/app/practice/actions.ts"
+        }
+      },
+      "layer": {
+        "app/app/practice/history/page": "rsc"
+      },
+      "exportedName": "getLeaderboardAction",
+      "filename": "src/app/app/practice/actions.ts"
+    },
+    "600ef7fe9124c6ac15b9cd02f970afcd29310d2e4b": {
+      "workers": {
+        "app/app/practice/history/page": {
+          "moduleId": 865450,
+          "async": true,
+          "exportedName": "submitQuizAction",
+          "filename": "src/app/app/practice/actions.ts"
+        }
+      },
+      "layer": {
+        "app/app/practice/history/page": "rsc"
+      },
+      "exportedName": "submitQuizAction",
+      "filename": "src/app/app/practice/actions.ts"
+    },
+    "7e436d76fae84b2adc9acd9af9d6625a080aa95db8": {
+      "workers": {
+        "app/app/practice/history/page": {
+          "moduleId": 865450,
+          "async": true,
+          "exportedName": "generateQuizAction",
+          "filename": "src/app/app/practice/actions.ts"
+        }
+      },
+      "layer": {
+        "app/app/practice/history/page": "rsc"
+      },
+      "exportedName": "generateQuizAction",
+      "filename": "src/app/app/practice/actions.ts"
+    }
+  },
+  "edge": {}
+}

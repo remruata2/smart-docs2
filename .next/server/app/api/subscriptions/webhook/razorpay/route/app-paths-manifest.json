@@ -1,0 +1,3 @@
+{
+  "/api/subscriptions/webhook/razorpay/route": "app/api/subscriptions/webhook/razorpay/route.js"
+}

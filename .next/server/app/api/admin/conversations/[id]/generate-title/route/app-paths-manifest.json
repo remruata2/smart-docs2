@@ -1,0 +1,3 @@
+{
+  "/api/admin/conversations/[id]/generate-title/route": "app/api/admin/conversations/[id]/generate-title/route.js"
+}

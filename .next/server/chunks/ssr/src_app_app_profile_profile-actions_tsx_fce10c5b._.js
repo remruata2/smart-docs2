@@ -1,0 +1,3 @@
+module.exports=[218725,a=>{"use strict";var b=a.i(187924),c=a.i(875003),d=a.i(699570),e=a.i(220005);function f(){return(0,b.jsxs)(d.Button,{variant:"destructive",className:"w-full sm:w-auto gap-2",onClick:()=>(0,c.signOut)({callbackUrl:"/login"}),children:[(0,b.jsx)(e.LogOut,{className:"h-4 w-4"}),"Sign Out"]})}a.s(["default",()=>f])}];
+
+//# sourceMappingURL=src_app_app_profile_profile-actions_tsx_fce10c5b._.js.map

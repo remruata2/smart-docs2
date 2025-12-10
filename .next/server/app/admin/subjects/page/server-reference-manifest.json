@@ -1,0 +1,35 @@
+{
+  "node": {
+    "4036ae74671c144c1f1fc8ad293cfe56861e33fbaf": {
+      "workers": {
+        "app/admin/subjects/page": {
+          "moduleId": 673238,
+          "async": false,
+          "exportedName": "createSubject",
+          "filename": "src/app/actions/admin-extended.ts"
+        }
+      },
+      "layer": {
+        "app/admin/subjects/page": "action-browser"
+      },
+      "exportedName": "createSubject",
+      "filename": "src/app/actions/admin-extended.ts"
+    },
+    "60270951ac790cbf12e5a9a1ec82ad4c28b3a4ba25": {
+      "workers": {
+        "app/admin/subjects/page": {
+          "moduleId": 673238,
+          "async": false,
+          "exportedName": "updateSubjectStatus",
+          "filename": "src/app/actions/admin-extended.ts"
+        }
+      },
+      "layer": {
+        "app/admin/subjects/page": "action-browser"
+      },
+      "exportedName": "updateSubjectStatus",
+      "filename": "src/app/actions/admin-extended.ts"
+    }
+  },
+  "edge": {}
+}

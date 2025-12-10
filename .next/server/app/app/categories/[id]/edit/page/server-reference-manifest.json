@@ -1,0 +1,80 @@
+{
+  "node": {
+    "00a89c34df36cb71afd461c03b1c93ff3efbbd4f30": {
+      "workers": {
+        "app/app/categories/[id]/edit/page": {
+          "moduleId": 978907,
+          "async": false,
+          "exportedName": "getCategories",
+          "filename": "src/app/app/categories/actions.ts"
+        }
+      },
+      "layer": {
+        "app/app/categories/[id]/edit/page": "rsc"
+      },
+      "exportedName": "getCategories",
+      "filename": "src/app/app/categories/actions.ts"
+    },
+    "4021dad1ca5ca54785785215b7144eec1ab1fc5e19": {
+      "workers": {
+        "app/app/categories/[id]/edit/page": {
+          "moduleId": 978907,
+          "async": false,
+          "exportedName": "deleteCategoryAction",
+          "filename": "src/app/app/categories/actions.ts"
+        }
+      },
+      "layer": {
+        "app/app/categories/[id]/edit/page": "rsc"
+      },
+      "exportedName": "deleteCategoryAction",
+      "filename": "src/app/app/categories/actions.ts"
+    },
+    "4077b760b40cbdf46c5502789d10a65c737d28242c": {
+      "workers": {
+        "app/app/categories/[id]/edit/page": {
+          "moduleId": 978907,
+          "async": false,
+          "exportedName": "createCategoryAction",
+          "filename": "src/app/app/categories/actions.ts"
+        }
+      },
+      "layer": {
+        "app/app/categories/[id]/edit/page": "rsc"
+      },
+      "exportedName": "createCategoryAction",
+      "filename": "src/app/app/categories/actions.ts"
+    },
+    "40d96457898da1416d99e1405cfb6cfa7c623cd249": {
+      "workers": {
+        "app/app/categories/[id]/edit/page": {
+          "moduleId": 978907,
+          "async": false,
+          "exportedName": "getCategoryById",
+          "filename": "src/app/app/categories/actions.ts"
+        }
+      },
+      "layer": {
+        "app/app/categories/[id]/edit/page": "rsc"
+      },
+      "exportedName": "getCategoryById",
+      "filename": "src/app/app/categories/actions.ts"
+    },
+    "60fe7f321e10c730bb939cdf7f5c8cf4bc5121c585": {
+      "workers": {
+        "app/app/categories/[id]/edit/page": {
+          "moduleId": 978907,
+          "async": false,
+          "exportedName": "updateCategoryAction",
+          "filename": "src/app/app/categories/actions.ts"
+        }
+      },
+      "layer": {
+        "app/app/categories/[id]/edit/page": "rsc"
+      },
+      "exportedName": "updateCategoryAction",
+      "filename": "src/app/app/categories/actions.ts"
+    }
+  },
+  "edge": {}
+}

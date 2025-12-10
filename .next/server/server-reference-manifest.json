@@ -1,0 +1,1238 @@
+{
+  "node": {
+    "407d202c37b1d13fd96176153aa265927a6154e903": {
+      "workers": {
+        "app/admin/badges/new/page": {
+          "moduleId": 32894,
+          "async": false,
+          "exportedName": "createBadge",
+          "filename": "src/app/admin/badges/actions.ts"
+        },
+        "app/admin/badges/page": {
+          "moduleId": 808487,
+          "async": false,
+          "exportedName": "createBadge",
+          "filename": "src/app/admin/badges/actions.ts"
+        }
+      },
+      "layer": {
+        "app/admin/badges/new/page": "rsc",
+        "app/admin/badges/page": "rsc"
+      },
+      "filename": "src/app/admin/badges/actions.ts",
+      "exportedName": "createBadge"
+    },
+    "408273ac1d7322bf8146aa12d755526e227a41e259": {
+      "workers": {
+        "app/admin/badges/new/page": {
+          "moduleId": 32894,
+          "async": false,
+          "exportedName": "deleteBadge",
+          "filename": "src/app/admin/badges/actions.ts"
+        },
+        "app/admin/badges/page": {
+          "moduleId": 808487,
+          "async": false,
+          "exportedName": "deleteBadge",
+          "filename": "src/app/admin/badges/actions.ts"
+        }
+      },
+      "layer": {
+        "app/admin/badges/new/page": "rsc",
+        "app/admin/badges/page": "rsc"
+      },
+      "filename": "src/app/admin/badges/actions.ts",
+      "exportedName": "deleteBadge"
+    },
+    "40156b02c54632f3ae6c8d3b14a7134aabadc62498": {
+      "workers": {
+        "app/admin/boards/page": {
+          "moduleId": 230031,
+          "async": true,
+          "exportedName": "createBoard",
+          "filename": "src/app/actions/admin.ts"
+        }
+      },
+      "layer": {
+        "app/admin/boards/page": "action-browser"
+      },
+      "filename": "src/app/actions/admin.ts",
+      "exportedName": "createBoard"
+    },
+    "60bc3a43b5a72b3fea35d30ba3e677f6333ad2ad3b": {
+      "workers": {
+        "app/admin/boards/page": {
+          "moduleId": 230031,
+          "async": true,
+          "exportedName": "updateBoardStatus",
+          "filename": "src/app/actions/admin.ts"
+        }
+      },
+      "layer": {
+        "app/admin/boards/page": "action-browser"
+      },
+      "filename": "src/app/actions/admin.ts",
+      "exportedName": "updateBoardStatus"
+    },
+    "4059cf72191121cb0e35854c2ad3454d2772d74598": {
+      "workers": {
+        "app/admin/chapters/page": {
+          "moduleId": 448468,
+          "async": false,
+          "exportedName": "deleteChapters",
+          "filename": "src/app/admin/chapters/actions.ts"
+        }
+      },
+      "layer": {
+        "app/admin/chapters/page": "rsc"
+      },
+      "filename": "src/app/admin/chapters/actions.ts",
+      "exportedName": "deleteChapters"
+    },
+    "40df35e55a35727faf7f01e3106f9d789490e083e1": {
+      "workers": {
+        "app/admin/chapters/[id]/questions/page": {
+          "moduleId": 921129,
+          "async": false,
+          "exportedName": "deleteQuestion",
+          "filename": "src/app/admin/chapters/[id]/questions/actions.ts"
+        }
+      },
+      "layer": {
+        "app/admin/chapters/[id]/questions/page": "rsc"
+      },
+      "filename": "src/app/admin/chapters/[id]/questions/actions.ts",
+      "exportedName": "deleteQuestion"
+    },
+    "408bd96419fadc7e6ec02b953502587ffe9ad6d02d": {
+      "workers": {
+        "app/admin/chapters/[id]/questions/page": {
+          "moduleId": 921129,
+          "async": false,
+          "exportedName": "deleteMultipleQuestions",
+          "filename": "src/app/admin/chapters/[id]/questions/actions.ts"
+        }
+      },
+      "layer": {
+        "app/admin/chapters/[id]/questions/page": "rsc"
+      },
+      "filename": "src/app/admin/chapters/[id]/questions/actions.ts",
+      "exportedName": "deleteMultipleQuestions"
+    },
+    "6043362c97080fff0ef43fb418428f6cf50f3063fb": {
+      "workers": {
+        "app/admin/chapters/[id]/questions/page": {
+          "moduleId": 921129,
+          "async": false,
+          "exportedName": "createQuestion",
+          "filename": "src/app/admin/chapters/[id]/questions/actions.ts"
+        }
+      },
+      "layer": {
+        "app/admin/chapters/[id]/questions/page": "rsc"
+      },
+      "filename": "src/app/admin/chapters/[id]/questions/actions.ts",
+      "exportedName": "createQuestion"
+    },
+    "60f8107efab589a8495108848c0a7205001ec44599": {
+      "workers": {
+        "app/admin/chapters/[id]/questions/page": {
+          "moduleId": 921129,
+          "async": false,
+          "exportedName": "updateQuestion",
+          "filename": "src/app/admin/chapters/[id]/questions/actions.ts"
+        }
+      },
+      "layer": {
+        "app/admin/chapters/[id]/questions/page": "rsc"
+      },
+      "filename": "src/app/admin/chapters/[id]/questions/actions.ts",
+      "exportedName": "updateQuestion"
+    },
+    "403e700d69122051c972e7652e8f3775ebcd6cfb7f": {
+      "workers": {
+        "app/admin/chapters/[id]/questions/page": {
+          "moduleId": 921129,
+          "async": false,
+          "exportedName": "getQuestionStats",
+          "filename": "src/app/admin/chapters/[id]/questions/actions.ts"
+        }
+      },
+      "layer": {
+        "app/admin/chapters/[id]/questions/page": "rsc"
+      },
+      "filename": "src/app/admin/chapters/[id]/questions/actions.ts",
+      "exportedName": "getQuestionStats"
+    },
+    "60f08d6a36179081f871ef5ad90ec794270fee069d": {
+      "workers": {
+        "app/admin/chapters/[id]/questions/page": {
+          "moduleId": 921129,
+          "async": false,
+          "exportedName": "getQuestions",
+          "filename": "src/app/admin/chapters/[id]/questions/actions.ts"
+        }
+      },
+      "layer": {
+        "app/admin/chapters/[id]/questions/page": "rsc"
+      },
+      "filename": "src/app/admin/chapters/[id]/questions/actions.ts",
+      "exportedName": "getQuestions"
+    },
+    "4054eccc7d78f138ed33536b4ab6af09891ec8d3ce": {
+      "workers": {
+        "app/admin/chapters/new/page": {
+          "moduleId": 187143,
+          "async": true,
+          "exportedName": "ingestChapterAsync",
+          "filename": "src/app/admin/chapters/actions-async.ts"
+        }
+      },
+      "layer": {
+        "app/admin/chapters/new/page": "action-browser"
+      },
+      "filename": "src/app/admin/chapters/actions-async.ts",
+      "exportedName": "ingestChapterAsync"
+    },
+    "4008add61ba6e0f825c8aa3f65c3c51dc87e9799fa": {
+      "workers": {
+        "app/admin/chapters/new/page": {
+          "moduleId": 187143,
+          "async": true,
+          "exportedName": "batchCreateChaptersAsync",
+          "filename": "src/app/admin/chapters/actions-async.ts"
+        }
+      },
+      "layer": {
+        "app/admin/chapters/new/page": "action-browser"
+      },
+      "filename": "src/app/admin/chapters/actions-async.ts",
+      "exportedName": "batchCreateChaptersAsync"
+    },
+    "4023dec66ae506e2956dbf21ecffe7a7e6221db615": {
+      "workers": {
+        "app/admin/exams/[id]/page": {
+          "moduleId": 795586,
+          "async": false,
+          "exportedName": "createExam",
+          "filename": "src/app/admin/exams/actions.ts"
+        },
+        "app/admin/exams/new/page": {
+          "moduleId": 787048,
+          "async": false,
+          "exportedName": "createExam",
+          "filename": "src/app/admin/exams/actions.ts"
+        },
+        "app/admin/exams/page": {
+          "moduleId": 226926,
+          "async": false,
+          "exportedName": "createExam",
+          "filename": "src/app/admin/exams/actions.ts"
+        }
+      },
+      "layer": {
+        "app/admin/exams/[id]/page": "rsc",
+        "app/admin/exams/new/page": "rsc",
+        "app/admin/exams/page": "rsc"
+      },
+      "filename": "src/app/admin/exams/actions.ts",
+      "exportedName": "createExam"
+    },
+    "405b5d9cbd8c3f7009f48f4cb5991be535beb1276b": {
+      "workers": {
+        "app/admin/exams/[id]/page": {
+          "moduleId": 795586,
+          "async": false,
+          "exportedName": "deleteExam",
+          "filename": "src/app/admin/exams/actions.ts"
+        },
+        "app/admin/exams/new/page": {
+          "moduleId": 787048,
+          "async": false,
+          "exportedName": "deleteExam",
+          "filename": "src/app/admin/exams/actions.ts"
+        },
+        "app/admin/exams/page": {
+          "moduleId": 226926,
+          "async": false,
+          "exportedName": "deleteExam",
+          "filename": "src/app/admin/exams/actions.ts"
+        }
+      },
+      "layer": {
+        "app/admin/exams/[id]/page": "rsc",
+        "app/admin/exams/new/page": "rsc",
+        "app/admin/exams/page": "rsc"
+      },
+      "filename": "src/app/admin/exams/actions.ts",
+      "exportedName": "deleteExam"
+    },
+    "60882c82b5af89ce7c977beb9a2004f3ced32a16dc": {
+      "workers": {
+        "app/admin/exams/[id]/page": {
+          "moduleId": 795586,
+          "async": false,
+          "exportedName": "updateExam",
+          "filename": "src/app/admin/exams/actions.ts"
+        },
+        "app/admin/exams/new/page": {
+          "moduleId": 787048,
+          "async": false,
+          "exportedName": "updateExam",
+          "filename": "src/app/admin/exams/actions.ts"
+        },
+        "app/admin/exams/page": {
+          "moduleId": 226926,
+          "async": false,
+          "exportedName": "updateExam",
+          "filename": "src/app/admin/exams/actions.ts"
+        }
+      },
+      "layer": {
+        "app/admin/exams/[id]/page": "rsc",
+        "app/admin/exams/new/page": "rsc",
+        "app/admin/exams/page": "rsc"
+      },
+      "filename": "src/app/admin/exams/actions.ts",
+      "exportedName": "updateExam"
+    },
+    "403e25c404ba4e79c19ca285875430544f7f3007e9": {
+      "workers": {
+        "app/admin/institutions/page": {
+          "moduleId": 653493,
+          "async": false,
+          "exportedName": "createInstitution",
+          "filename": "src/app/actions/admin-extended.ts"
+        }
+      },
+      "layer": {
+        "app/admin/institutions/page": "action-browser"
+      },
+      "filename": "src/app/actions/admin-extended.ts",
+      "exportedName": "createInstitution"
+    },
+    "602cb35c73071a1e4080c12398c9011ead3611140b": {
+      "workers": {
+        "app/admin/institutions/page": {
+          "moduleId": 653493,
+          "async": false,
+          "exportedName": "updateInstitutionStatus",
+          "filename": "src/app/actions/admin-extended.ts"
+        }
+      },
+      "layer": {
+        "app/admin/institutions/page": "action-browser"
+      },
+      "filename": "src/app/actions/admin-extended.ts",
+      "exportedName": "updateInstitutionStatus"
+    },
+    "406ec6766ac7e38f196e7d2e8e24834202c8edc438": {
+      "workers": {
+        "app/admin/programs/page": {
+          "moduleId": 459592,
+          "async": false,
+          "exportedName": "createProgram",
+          "filename": "src/app/actions/admin-extended.ts"
+        }
+      },
+      "layer": {
+        "app/admin/programs/page": "action-browser"
+      },
+      "filename": "src/app/actions/admin-extended.ts",
+      "exportedName": "createProgram"
+    },
+    "60b51d934c9b21464d37daa94e3d54a8151fa2155b": {
+      "workers": {
+        "app/admin/programs/page": {
+          "moduleId": 459592,
+          "async": false,
+          "exportedName": "updateProgramStatus",
+          "filename": "src/app/actions/admin-extended.ts"
+        }
+      },
+      "layer": {
+        "app/admin/programs/page": "action-browser"
+      },
+      "filename": "src/app/actions/admin-extended.ts",
+      "exportedName": "updateProgramStatus"
+    },
+    "40bbba35c1e1d4c6a6a905d64d4e91262ae06805f2": {
+      "workers": {
+        "app/admin/settings/quiz-timers/page": {
+          "moduleId": 670534,
+          "async": false,
+          "exportedName": "updateQuizTimerSettings",
+          "filename": "src/app/admin/settings/quiz-timers/actions.ts"
+        }
+      },
+      "layer": {
+        "app/admin/settings/quiz-timers/page": "rsc"
+      },
+      "filename": "src/app/admin/settings/quiz-timers/actions.ts",
+      "exportedName": "updateQuizTimerSettings"
+    },
+    "00edb9910ad02f06322be40edfe7218096409e072a": {
+      "workers": {
+        "app/admin/settings/quiz-timers/page": {
+          "moduleId": 670534,
+          "async": false,
+          "exportedName": "resetQuizTimers",
+          "filename": "src/app/admin/settings/quiz-timers/actions.ts"
+        }
+      },
+      "layer": {
+        "app/admin/settings/quiz-timers/page": "rsc"
+      },
+      "filename": "src/app/admin/settings/quiz-timers/actions.ts",
+      "exportedName": "resetQuizTimers"
+    },
+    "00d3494b5fc4c81e62b8355f9a7babf1f84bd2738d": {
+      "workers": {
+        "app/admin/settings/quiz-timers/page": {
+          "moduleId": 670534,
+          "async": false,
+          "exportedName": "getQuizTimerSettings",
+          "filename": "src/app/admin/settings/quiz-timers/actions.ts"
+        }
+      },
+      "layer": {
+        "app/admin/settings/quiz-timers/page": "rsc"
+      },
+      "filename": "src/app/admin/settings/quiz-timers/actions.ts",
+      "exportedName": "getQuizTimerSettings"
+    },
+    "4036ae74671c144c1f1fc8ad293cfe56861e33fbaf": {
+      "workers": {
+        "app/admin/subjects/page": {
+          "moduleId": 673238,
+          "async": false,
+          "exportedName": "createSubject",
+          "filename": "src/app/actions/admin-extended.ts"
+        }
+      },
+      "layer": {
+        "app/admin/subjects/page": "action-browser"
+      },
+      "filename": "src/app/actions/admin-extended.ts",
+      "exportedName": "createSubject"
+    },
+    "60270951ac790cbf12e5a9a1ec82ad4c28b3a4ba25": {
+      "workers": {
+        "app/admin/subjects/page": {
+          "moduleId": 673238,
+          "async": false,
+          "exportedName": "updateSubjectStatus",
+          "filename": "src/app/actions/admin-extended.ts"
+        }
+      },
+      "layer": {
+        "app/admin/subjects/page": "action-browser"
+      },
+      "filename": "src/app/actions/admin-extended.ts",
+      "exportedName": "updateSubjectStatus"
+    },
+    "40160121bcf677d7225fbbe6a44760ec7ddcb4f327": {
+      "workers": {
+        "app/admin/users/page": {
+          "moduleId": 355122,
+          "async": false,
+          "exportedName": "deleteUserAction",
+          "filename": "src/app/admin/users/actions.ts"
+        }
+      },
+      "layer": {
+        "app/admin/users/page": "action-browser"
+      },
+      "filename": "src/app/admin/users/actions.ts",
+      "exportedName": "deleteUserAction"
+    },
+    "60b9effd6d50e5332c8594e05d04b0fd7a2da46152": {
+      "workers": {
+        "app/admin/users/[id]/edit/page": {
+          "moduleId": 85850,
+          "async": false,
+          "exportedName": "updateUserAction",
+          "filename": "src/app/admin/users/actions.ts"
+        }
+      },
+      "layer": {
+        "app/admin/users/[id]/edit/page": "action-browser"
+      },
+      "filename": "src/app/admin/users/actions.ts",
+      "exportedName": "updateUserAction"
+    },
+    "40cd9b0ea07fab0277fa7c598de4ebda31c654e9c6": {
+      "workers": {
+        "app/admin/users/new/page": {
+          "moduleId": 286875,
+          "async": false,
+          "exportedName": "createUserAction",
+          "filename": "src/app/admin/users/actions.ts"
+        }
+      },
+      "layer": {
+        "app/admin/users/new/page": "action-browser"
+      },
+      "filename": "src/app/admin/users/actions.ts",
+      "exportedName": "createUserAction"
+    },
+    "00a89c34df36cb71afd461c03b1c93ff3efbbd4f30": {
+      "workers": {
+        "app/app/categories/[id]/edit/page": {
+          "moduleId": 978907,
+          "async": false,
+          "exportedName": "getCategories",
+          "filename": "src/app/app/categories/actions.ts"
+        },
+        "app/app/categories/new/page": {
+          "moduleId": 317483,
+          "async": false,
+          "exportedName": "getCategories",
+          "filename": "src/app/app/categories/actions.ts"
+        },
+        "app/app/categories/page": {
+          "moduleId": 820625,
+          "async": false,
+          "exportedName": "getCategories",
+          "filename": "src/app/app/categories/actions.ts"
+        }
+      },
+      "layer": {
+        "app/app/categories/[id]/edit/page": "rsc",
+        "app/app/categories/new/page": "rsc",
+        "app/app/categories/page": "rsc"
+      },
+      "filename": "src/app/app/categories/actions.ts",
+      "exportedName": "getCategories"
+    },
+    "4021dad1ca5ca54785785215b7144eec1ab1fc5e19": {
+      "workers": {
+        "app/app/categories/[id]/edit/page": {
+          "moduleId": 978907,
+          "async": false,
+          "exportedName": "deleteCategoryAction",
+          "filename": "src/app/app/categories/actions.ts"
+        },
+        "app/app/categories/new/page": {
+          "moduleId": 317483,
+          "async": false,
+          "exportedName": "deleteCategoryAction",
+          "filename": "src/app/app/categories/actions.ts"
+        },
+        "app/app/categories/page": {
+          "moduleId": 820625,
+          "async": false,
+          "exportedName": "deleteCategoryAction",
+          "filename": "src/app/app/categories/actions.ts"
+        }
+      },
+      "layer": {
+        "app/app/categories/[id]/edit/page": "rsc",
+        "app/app/categories/new/page": "rsc",
+        "app/app/categories/page": "action-browser"
+      },
+      "filename": "src/app/app/categories/actions.ts",
+      "exportedName": "deleteCategoryAction"
+    },
+    "4077b760b40cbdf46c5502789d10a65c737d28242c": {
+      "workers": {
+        "app/app/categories/[id]/edit/page": {
+          "moduleId": 978907,
+          "async": false,
+          "exportedName": "createCategoryAction",
+          "filename": "src/app/app/categories/actions.ts"
+        },
+        "app/app/categories/new/page": {
+          "moduleId": 317483,
+          "async": false,
+          "exportedName": "createCategoryAction",
+          "filename": "src/app/app/categories/actions.ts"
+        },
+        "app/app/categories/page": {
+          "moduleId": 820625,
+          "async": false,
+          "exportedName": "createCategoryAction",
+          "filename": "src/app/app/categories/actions.ts"
+        }
+      },
+      "layer": {
+        "app/app/categories/[id]/edit/page": "rsc",
+        "app/app/categories/new/page": "rsc",
+        "app/app/categories/page": "rsc"
+      },
+      "filename": "src/app/app/categories/actions.ts",
+      "exportedName": "createCategoryAction"
+    },
+    "40d96457898da1416d99e1405cfb6cfa7c623cd249": {
+      "workers": {
+        "app/app/categories/[id]/edit/page": {
+          "moduleId": 978907,
+          "async": false,
+          "exportedName": "getCategoryById",
+          "filename": "src/app/app/categories/actions.ts"
+        },
+        "app/app/categories/new/page": {
+          "moduleId": 317483,
+          "async": false,
+          "exportedName": "getCategoryById",
+          "filename": "src/app/app/categories/actions.ts"
+        },
+        "app/app/categories/page": {
+          "moduleId": 820625,
+          "async": false,
+          "exportedName": "getCategoryById",
+          "filename": "src/app/app/categories/actions.ts"
+        }
+      },
+      "layer": {
+        "app/app/categories/[id]/edit/page": "rsc",
+        "app/app/categories/new/page": "rsc",
+        "app/app/categories/page": "rsc"
+      },
+      "filename": "src/app/app/categories/actions.ts",
+      "exportedName": "getCategoryById"
+    },
+    "60fe7f321e10c730bb939cdf7f5c8cf4bc5121c585": {
+      "workers": {
+        "app/app/categories/[id]/edit/page": {
+          "moduleId": 978907,
+          "async": false,
+          "exportedName": "updateCategoryAction",
+          "filename": "src/app/app/categories/actions.ts"
+        },
+        "app/app/categories/new/page": {
+          "moduleId": 317483,
+          "async": false,
+          "exportedName": "updateCategoryAction",
+          "filename": "src/app/app/categories/actions.ts"
+        },
+        "app/app/categories/page": {
+          "moduleId": 820625,
+          "async": false,
+          "exportedName": "updateCategoryAction",
+          "filename": "src/app/app/categories/actions.ts"
+        }
+      },
+      "layer": {
+        "app/app/categories/[id]/edit/page": "rsc",
+        "app/app/categories/new/page": "rsc",
+        "app/app/categories/page": "rsc"
+      },
+      "filename": "src/app/app/categories/actions.ts",
+      "exportedName": "updateCategoryAction"
+    },
+    "40777a4971dddae39d37a8460620f8507bc8c24490": {
+      "workers": {
+        "app/app/chapters/[id]/page": {
+          "moduleId": 121340,
+          "async": false,
+          "exportedName": "getChaptersForSubject",
+          "filename": "src/app/app/chapters/actions.ts"
+        },
+        "app/app/chapters/page": {
+          "moduleId": 647142,
+          "async": false,
+          "exportedName": "getChaptersForSubject",
+          "filename": "src/app/app/chapters/actions.ts"
+        },
+        "app/app/practice/battle/page": {
+          "moduleId": 136862,
+          "async": true,
+          "exportedName": "getChaptersForSubject",
+          "filename": "src/app/app/chapters/actions.ts"
+        },
+        "app/app/practice/page": {
+          "moduleId": 274206,
+          "async": true,
+          "exportedName": "getChaptersForSubject",
+          "filename": "src/app/app/chapters/actions.ts"
+        }
+      },
+      "layer": {
+        "app/app/chapters/[id]/page": "rsc",
+        "app/app/chapters/page": "rsc",
+        "app/app/practice/battle/page": "action-browser",
+        "app/app/practice/page": "action-browser"
+      },
+      "filename": "src/app/app/chapters/actions.ts",
+      "exportedName": "getChaptersForSubject"
+    },
+    "408441336097f2344b15c37979da229aa8f361a651": {
+      "workers": {
+        "app/app/chapters/[id]/page": {
+          "moduleId": 121340,
+          "async": false,
+          "exportedName": "getChapterById",
+          "filename": "src/app/app/chapters/actions.ts"
+        },
+        "app/app/chapters/page": {
+          "moduleId": 647142,
+          "async": false,
+          "exportedName": "getChapterById",
+          "filename": "src/app/app/chapters/actions.ts"
+        }
+      },
+      "layer": {
+        "app/app/chapters/[id]/page": "rsc",
+        "app/app/chapters/page": "rsc"
+      },
+      "filename": "src/app/app/chapters/actions.ts",
+      "exportedName": "getChapterById"
+    },
+    "60e307f7f9c59d5ca1983cfba981cddc5bab32e37b": {
+      "workers": {
+        "app/app/chat/page": {
+          "moduleId": 587463,
+          "async": false,
+          "exportedName": "translateContent",
+          "filename": "src/app/app/chat/actions.ts"
+        }
+      },
+      "layer": {
+        "app/app/chat/page": "action-browser"
+      },
+      "filename": "src/app/app/chat/actions.ts",
+      "exportedName": "translateContent"
+    },
+    "00259b48f22cd1d18f8317042aecf2620e217080b1": {
+      "workers": {
+        "app/app/dashboard/page": {
+          "moduleId": 771644,
+          "async": false,
+          "exportedName": "getDashboardData",
+          "filename": "src/app/app/dashboard/actions.ts"
+        }
+      },
+      "layer": {
+        "app/app/dashboard/page": "rsc"
+      },
+      "filename": "src/app/app/dashboard/actions.ts",
+      "exportedName": "getDashboardData"
+    },
+    "001ee4775408d012df34af58446b70b327f1542b72": {
+      "workers": {
+        "app/app/files/[id]/edit/page": {
+          "moduleId": 162890,
+          "async": true,
+          "exportedName": "getCategoryListItems",
+          "filename": "src/app/app/files/actions.ts"
+        },
+        "app/app/files/[id]/page": {
+          "moduleId": 352273,
+          "async": true,
+          "exportedName": "getCategoryListItems",
+          "filename": "src/app/app/files/actions.ts"
+        },
+        "app/app/files/new/page": {
+          "moduleId": 506977,
+          "async": true,
+          "exportedName": "getCategoryListItems",
+          "filename": "src/app/app/files/actions.ts"
+        },
+        "app/app/files/page": {
+          "moduleId": 931747,
+          "async": true,
+          "exportedName": "getCategoryListItems",
+          "filename": "src/app/app/files/actions.ts"
+        }
+      },
+      "layer": {
+        "app/app/files/[id]/edit/page": "rsc",
+        "app/app/files/[id]/page": "rsc",
+        "app/app/files/new/page": "rsc",
+        "app/app/files/page": "rsc"
+      },
+      "filename": "src/app/app/files/actions.ts",
+      "exportedName": "getCategoryListItems"
+    },
+    "00570227622e84abc249b84fe60ac8bfcd3325c716": {
+      "workers": {
+        "app/app/files/[id]/edit/page": {
+          "moduleId": 162890,
+          "async": true,
+          "exportedName": "getFilterOptions",
+          "filename": "src/app/app/files/actions.ts"
+        },
+        "app/app/files/[id]/page": {
+          "moduleId": 352273,
+          "async": true,
+          "exportedName": "getFilterOptions",
+          "filename": "src/app/app/files/actions.ts"
+        },
+        "app/app/files/new/page": {
+          "moduleId": 506977,
+          "async": true,
+          "exportedName": "getFilterOptions",
+          "filename": "src/app/app/files/actions.ts"
+        },
+        "app/app/files/page": {
+          "moduleId": 931747,
+          "async": true,
+          "exportedName": "getFilterOptions",
+          "filename": "src/app/app/files/actions.ts"
+        }
+      },
+      "layer": {
+        "app/app/files/[id]/edit/page": "rsc",
+        "app/app/files/[id]/page": "rsc",
+        "app/app/files/new/page": "rsc",
+        "app/app/files/page": "rsc"
+      },
+      "filename": "src/app/app/files/actions.ts",
+      "exportedName": "getFilterOptions"
+    },
+    "4056b319635b72e6579124176168dc0ffec5957469": {
+      "workers": {
+        "app/app/files/[id]/edit/page": {
+          "moduleId": 162890,
+          "async": true,
+          "exportedName": "createFileAction",
+          "filename": "src/app/app/files/actions.ts"
+        },
+        "app/app/files/[id]/page": {
+          "moduleId": 352273,
+          "async": true,
+          "exportedName": "createFileAction",
+          "filename": "src/app/app/files/actions.ts"
+        },
+        "app/app/files/new/page": {
+          "moduleId": 506977,
+          "async": true,
+          "exportedName": "createFileAction",
+          "filename": "src/app/app/files/actions.ts"
+        },
+        "app/app/files/page": {
+          "moduleId": 931747,
+          "async": true,
+          "exportedName": "createFileAction",
+          "filename": "src/app/app/files/actions.ts"
+        }
+      },
+      "layer": {
+        "app/app/files/[id]/edit/page": "rsc",
+        "app/app/files/[id]/page": "rsc",
+        "app/app/files/new/page": "rsc",
+        "app/app/files/page": "rsc"
+      },
+      "filename": "src/app/app/files/actions.ts",
+      "exportedName": "createFileAction"
+    },
+    "408adab7fe432dc379a3e3f2a49120b9c0c14c13c4": {
+      "workers": {
+        "app/app/files/[id]/edit/page": {
+          "moduleId": 162890,
+          "async": true,
+          "exportedName": "getFileById",
+          "filename": "src/app/app/files/actions.ts"
+        },
+        "app/app/files/[id]/page": {
+          "moduleId": 352273,
+          "async": true,
+          "exportedName": "getFileById",
+          "filename": "src/app/app/files/actions.ts"
+        },
+        "app/app/files/new/page": {
+          "moduleId": 506977,
+          "async": true,
+          "exportedName": "getFileById",
+          "filename": "src/app/app/files/actions.ts"
+        },
+        "app/app/files/page": {
+          "moduleId": 931747,
+          "async": true,
+          "exportedName": "getFileById",
+          "filename": "src/app/app/files/actions.ts"
+        }
+      },
+      "layer": {
+        "app/app/files/[id]/edit/page": "rsc",
+        "app/app/files/[id]/page": "rsc",
+        "app/app/files/new/page": "rsc",
+        "app/app/files/page": "rsc"
+      },
+      "filename": "src/app/app/files/actions.ts",
+      "exportedName": "getFileById"
+    },
+    "409d9c2b9f28b96fd8d5b94c813d761c9962714a32": {
+      "workers": {
+        "app/app/files/[id]/edit/page": {
+          "moduleId": 162890,
+          "async": true,
+          "exportedName": "retryFileParsingAction",
+          "filename": "src/app/app/files/actions.ts"
+        },
+        "app/app/files/[id]/page": {
+          "moduleId": 352273,
+          "async": true,
+          "exportedName": "retryFileParsingAction",
+          "filename": "src/app/app/files/actions.ts"
+        },
+        "app/app/files/new/page": {
+          "moduleId": 506977,
+          "async": true,
+          "exportedName": "retryFileParsingAction",
+          "filename": "src/app/app/files/actions.ts"
+        },
+        "app/app/files/page": {
+          "moduleId": 931747,
+          "async": true,
+          "exportedName": "retryFileParsingAction",
+          "filename": "src/app/app/files/actions.ts"
+        }
+      },
+      "layer": {
+        "app/app/files/[id]/edit/page": "rsc",
+        "app/app/files/[id]/page": "rsc",
+        "app/app/files/new/page": "rsc",
+        "app/app/files/page": "rsc"
+      },
+      "filename": "src/app/app/files/actions.ts",
+      "exportedName": "retryFileParsingAction"
+    },
+    "40a2f435e8b637bcef17415b0917d7c85c05555738": {
+      "workers": {
+        "app/app/files/[id]/edit/page": {
+          "moduleId": 162890,
+          "async": true,
+          "exportedName": "getFilesPaginated",
+          "filename": "src/app/app/files/actions.ts"
+        },
+        "app/app/files/[id]/page": {
+          "moduleId": 352273,
+          "async": true,
+          "exportedName": "getFilesPaginated",
+          "filename": "src/app/app/files/actions.ts"
+        },
+        "app/app/files/new/page": {
+          "moduleId": 506977,
+          "async": true,
+          "exportedName": "getFilesPaginated",
+          "filename": "src/app/app/files/actions.ts"
+        },
+        "app/app/files/page": {
+          "moduleId": 931747,
+          "async": true,
+          "exportedName": "getFilesPaginated",
+          "filename": "src/app/app/files/actions.ts"
+        }
+      },
+      "layer": {
+        "app/app/files/[id]/edit/page": "rsc",
+        "app/app/files/[id]/page": "rsc",
+        "app/app/files/new/page": "rsc",
+        "app/app/files/page": "rsc"
+      },
+      "filename": "src/app/app/files/actions.ts",
+      "exportedName": "getFilesPaginated"
+    },
+    "40b8244abf8819b75d96dd4dc517bdbc92733812cb": {
+      "workers": {
+        "app/app/files/[id]/edit/page": {
+          "moduleId": 162890,
+          "async": true,
+          "exportedName": "deleteFileAction",
+          "filename": "src/app/app/files/actions.ts"
+        },
+        "app/app/files/[id]/page": {
+          "moduleId": 352273,
+          "async": true,
+          "exportedName": "deleteFileAction",
+          "filename": "src/app/app/files/actions.ts"
+        },
+        "app/app/files/new/page": {
+          "moduleId": 506977,
+          "async": true,
+          "exportedName": "deleteFileAction",
+          "filename": "src/app/app/files/actions.ts"
+        },
+        "app/app/files/page": {
+          "moduleId": 931747,
+          "async": true,
+          "exportedName": "deleteFileAction",
+          "filename": "src/app/app/files/actions.ts"
+        }
+      },
+      "layer": {
+        "app/app/files/[id]/edit/page": "rsc",
+        "app/app/files/[id]/page": "rsc",
+        "app/app/files/new/page": "rsc",
+        "app/app/files/page": "action-browser"
+      },
+      "filename": "src/app/app/files/actions.ts",
+      "exportedName": "deleteFileAction"
+    },
+    "6084e702f4bf89558f52ec076dc20196ff3abc2cb8": {
+      "workers": {
+        "app/app/files/[id]/edit/page": {
+          "moduleId": 162890,
+          "async": true,
+          "exportedName": "updateFileAction",
+          "filename": "src/app/app/files/actions.ts"
+        },
+        "app/app/files/[id]/page": {
+          "moduleId": 352273,
+          "async": true,
+          "exportedName": "updateFileAction",
+          "filename": "src/app/app/files/actions.ts"
+        },
+        "app/app/files/new/page": {
+          "moduleId": 506977,
+          "async": true,
+          "exportedName": "updateFileAction",
+          "filename": "src/app/app/files/actions.ts"
+        },
+        "app/app/files/page": {
+          "moduleId": 931747,
+          "async": true,
+          "exportedName": "updateFileAction",
+          "filename": "src/app/app/files/actions.ts"
+        }
+      },
+      "layer": {
+        "app/app/files/[id]/edit/page": "rsc",
+        "app/app/files/[id]/page": "rsc",
+        "app/app/files/new/page": "rsc",
+        "app/app/files/page": "rsc"
+      },
+      "filename": "src/app/app/files/actions.ts",
+      "exportedName": "updateFileAction"
+    },
+    "0057a1df77156afe118963654aa92392f4f8709948": {
+      "workers": {
+        "app/app/leaderboard/page": {
+          "moduleId": 594877,
+          "async": true,
+          "exportedName": "getQuizHistory",
+          "filename": "src/app/app/practice/actions.ts"
+        },
+        "app/app/practice/history/page": {
+          "moduleId": 865450,
+          "async": true,
+          "exportedName": "getQuizHistory",
+          "filename": "src/app/app/practice/actions.ts"
+        }
+      },
+      "layer": {
+        "app/app/leaderboard/page": "rsc",
+        "app/app/practice/history/page": "rsc"
+      },
+      "filename": "src/app/app/practice/actions.ts",
+      "exportedName": "getQuizHistory"
+    },
+    "00e85743d2f680688f9389d762d8a19e394bbe6e25": {
+      "workers": {
+        "app/app/leaderboard/page": {
+          "moduleId": 594877,
+          "async": true,
+          "exportedName": "getUserStatsAction",
+          "filename": "src/app/app/practice/actions.ts"
+        },
+        "app/app/practice/history/page": {
+          "moduleId": 865450,
+          "async": true,
+          "exportedName": "getUserStatsAction",
+          "filename": "src/app/app/practice/actions.ts"
+        }
+      },
+      "layer": {
+        "app/app/leaderboard/page": "rsc",
+        "app/app/practice/history/page": "rsc"
+      },
+      "filename": "src/app/app/practice/actions.ts",
+      "exportedName": "getUserStatsAction"
+    },
+    "40609e2848cfc38069b1f5e6d1e4701c0ca1ac2afb": {
+      "workers": {
+        "app/app/leaderboard/page": {
+          "moduleId": 594877,
+          "async": true,
+          "exportedName": "getLeaderboardAction",
+          "filename": "src/app/app/practice/actions.ts"
+        },
+        "app/app/practice/history/page": {
+          "moduleId": 865450,
+          "async": true,
+          "exportedName": "getLeaderboardAction",
+          "filename": "src/app/app/practice/actions.ts"
+        }
+      },
+      "layer": {
+        "app/app/leaderboard/page": "rsc",
+        "app/app/practice/history/page": "rsc"
+      },
+      "filename": "src/app/app/practice/actions.ts",
+      "exportedName": "getLeaderboardAction"
+    },
+    "600ef7fe9124c6ac15b9cd02f970afcd29310d2e4b": {
+      "workers": {
+        "app/app/leaderboard/page": {
+          "moduleId": 594877,
+          "async": true,
+          "exportedName": "submitQuizAction",
+          "filename": "src/app/app/practice/actions.ts"
+        },
+        "app/app/practice/[quizId]/page": {
+          "moduleId": 679725,
+          "async": true,
+          "exportedName": "submitQuizAction",
+          "filename": "src/app/app/practice/actions.ts"
+        },
+        "app/app/practice/history/page": {
+          "moduleId": 865450,
+          "async": true,
+          "exportedName": "submitQuizAction",
+          "filename": "src/app/app/practice/actions.ts"
+        }
+      },
+      "layer": {
+        "app/app/leaderboard/page": "rsc",
+        "app/app/practice/[quizId]/page": "action-browser",
+        "app/app/practice/history/page": "rsc"
+      },
+      "filename": "src/app/app/practice/actions.ts",
+      "exportedName": "submitQuizAction"
+    },
+    "7e436d76fae84b2adc9acd9af9d6625a080aa95db8": {
+      "workers": {
+        "app/app/leaderboard/page": {
+          "moduleId": 594877,
+          "async": true,
+          "exportedName": "generateQuizAction",
+          "filename": "src/app/app/practice/actions.ts"
+        },
+        "app/app/practice/battle/page": {
+          "moduleId": 136862,
+          "async": true,
+          "exportedName": "generateQuizAction",
+          "filename": "src/app/app/practice/actions.ts"
+        },
+        "app/app/practice/history/page": {
+          "moduleId": 865450,
+          "async": true,
+          "exportedName": "generateQuizAction",
+          "filename": "src/app/app/practice/actions.ts"
+        },
+        "app/app/practice/page": {
+          "moduleId": 274206,
+          "async": true,
+          "exportedName": "generateQuizAction",
+          "filename": "src/app/app/practice/actions.ts"
+        }
+      },
+      "layer": {
+        "app/app/leaderboard/page": "rsc",
+        "app/app/practice/battle/page": "action-browser",
+        "app/app/practice/history/page": "rsc",
+        "app/app/practice/page": "action-browser"
+      },
+      "filename": "src/app/app/practice/actions.ts",
+      "exportedName": "generateQuizAction"
+    },
+    "600e23bca32f7d406078b248efae39af528e5a0eeb": {
+      "workers": {
+        "app/app/leaderboard/page": {
+          "moduleId": 594877,
+          "async": true,
+          "exportedName": "getLeaderboardData",
+          "filename": "src/app/app/leaderboard/actions.ts"
+        }
+      },
+      "layer": {
+        "app/app/leaderboard/page": "action-browser"
+      },
+      "filename": "src/app/app/leaderboard/actions.ts",
+      "exportedName": "getLeaderboardData"
+    },
+    "006ad6e8e003f89a027444fd113582beae825336b2": {
+      "workers": {
+        "app/app/practice/battle/page": {
+          "moduleId": 136862,
+          "async": true,
+          "exportedName": "getSubjectsForUserProgram",
+          "filename": "src/app/app/subjects/actions.ts"
+        },
+        "app/app/practice/page": {
+          "moduleId": 274206,
+          "async": true,
+          "exportedName": "getSubjectsForUserProgram",
+          "filename": "src/app/app/subjects/actions.ts"
+        },
+        "app/app/subjects/page": {
+          "moduleId": 144361,
+          "async": false,
+          "exportedName": "getSubjectsForUserProgram",
+          "filename": "src/app/app/subjects/actions.ts"
+        }
+      },
+      "layer": {
+        "app/app/practice/battle/page": "action-browser",
+        "app/app/practice/page": "action-browser",
+        "app/app/subjects/page": "rsc"
+      },
+      "filename": "src/app/app/subjects/actions.ts",
+      "exportedName": "getSubjectsForUserProgram"
+    },
+    "40a4bf1a17cc71009087e3940a390324b3951a0b26": {
+      "workers": {
+        "app/app/study/[chapterId]/page": {
+          "moduleId": 96132,
+          "async": true,
+          "exportedName": "generateStudyMaterialsAction",
+          "filename": "src/app/app/study/actions.ts"
+        }
+      },
+      "layer": {
+        "app/app/study/[chapterId]/page": "action-browser"
+      },
+      "filename": "src/app/app/study/actions.ts",
+      "exportedName": "generateStudyMaterialsAction"
+    },
+    "40ec51deecb624d483b46a2d9b48d74d7923fc9e2f": {
+      "workers": {
+        "app/app/study/[chapterId]/page": {
+          "moduleId": 96132,
+          "async": true,
+          "exportedName": "getStudyMaterialsAction",
+          "filename": "src/app/app/study/actions.ts"
+        }
+      },
+      "layer": {
+        "app/app/study/[chapterId]/page": "rsc"
+      },
+      "filename": "src/app/app/study/actions.ts",
+      "exportedName": "getStudyMaterialsAction"
+    },
+    "6051f027ab6bfcc16901beb78de439860ea89cf588": {
+      "workers": {
+        "app/compare/page": {
+          "moduleId": 461607,
+          "async": false,
+          "exportedName": "getPageLayout",
+          "filename": "src/app/actions/compare.ts"
+        }
+      },
+      "layer": {
+        "app/compare/page": "action-browser"
+      },
+      "filename": "src/app/actions/compare.ts",
+      "exportedName": "getPageLayout"
+    },
+    "606d920075f7e199818691f5938b6cf844e34393ac": {
+      "workers": {
+        "app/compare/page": {
+          "moduleId": 461607,
+          "async": false,
+          "exportedName": "compareFilesAction",
+          "filename": "src/app/actions/compare.ts"
+        }
+      },
+      "layer": {
+        "app/compare/page": "action-browser"
+      },
+      "filename": "src/app/actions/compare.ts",
+      "exportedName": "compareFilesAction"
+    }
+  },
+  "edge": {},
+  "encryptionKey": "xFQ2KPnv2jhKmXK1/klJRN5YVivjo/uSFrGEKJLJMCI="
+}

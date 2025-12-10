@@ -1,0 +1,50 @@
+{
+  "node": {
+    "40bbba35c1e1d4c6a6a905d64d4e91262ae06805f2": {
+      "workers": {
+        "app/admin/settings/quiz-timers/page": {
+          "moduleId": 670534,
+          "async": false,
+          "exportedName": "updateQuizTimerSettings",
+          "filename": "src/app/admin/settings/quiz-timers/actions.ts"
+        }
+      },
+      "layer": {
+        "app/admin/settings/quiz-timers/page": "rsc"
+      },
+      "exportedName": "updateQuizTimerSettings",
+      "filename": "src/app/admin/settings/quiz-timers/actions.ts"
+    },
+    "00edb9910ad02f06322be40edfe7218096409e072a": {
+      "workers": {
+        "app/admin/settings/quiz-timers/page": {
+          "moduleId": 670534,
+          "async": false,
+          "exportedName": "resetQuizTimers",
+          "filename": "src/app/admin/settings/quiz-timers/actions.ts"
+        }
+      },
+      "layer": {
+        "app/admin/settings/quiz-timers/page": "rsc"
+      },
+      "exportedName": "resetQuizTimers",
+      "filename": "src/app/admin/settings/quiz-timers/actions.ts"
+    },
+    "00d3494b5fc4c81e62b8355f9a7babf1f84bd2738d": {
+      "workers": {
+        "app/admin/settings/quiz-timers/page": {
+          "moduleId": 670534,
+          "async": false,
+          "exportedName": "getQuizTimerSettings",
+          "filename": "src/app/admin/settings/quiz-timers/actions.ts"
+        }
+      },
+      "layer": {
+        "app/admin/settings/quiz-timers/page": "rsc"
+      },
+      "exportedName": "getQuizTimerSettings",
+      "filename": "src/app/admin/settings/quiz-timers/actions.ts"
+    }
+  },
+  "edge": {}
+}

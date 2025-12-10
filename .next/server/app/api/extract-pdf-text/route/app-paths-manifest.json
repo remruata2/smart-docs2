@@ -1,0 +1,3 @@
+{
+  "/api/extract-pdf-text/route": "app/api/extract-pdf-text/route.js"
+}

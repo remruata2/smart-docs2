@@ -1,0 +1,35 @@
+{
+  "node": {
+    "407d202c37b1d13fd96176153aa265927a6154e903": {
+      "workers": {
+        "app/admin/badges/page": {
+          "moduleId": 808487,
+          "async": false,
+          "exportedName": "createBadge",
+          "filename": "src/app/admin/badges/actions.ts"
+        }
+      },
+      "layer": {
+        "app/admin/badges/page": "rsc"
+      },
+      "exportedName": "createBadge",
+      "filename": "src/app/admin/badges/actions.ts"
+    },
+    "408273ac1d7322bf8146aa12d755526e227a41e259": {
+      "workers": {
+        "app/admin/badges/page": {
+          "moduleId": 808487,
+          "async": false,
+          "exportedName": "deleteBadge",
+          "filename": "src/app/admin/badges/actions.ts"
+        }
+      },
+      "layer": {
+        "app/admin/badges/page": "rsc"
+      },
+      "exportedName": "deleteBadge",
+      "filename": "src/app/admin/badges/actions.ts"
+    }
+  },
+  "edge": {}
+}

@@ -1,0 +1,3 @@
+module.exports=[946448,e=>{"use strict";var r=e.i(522734),t=e.i(799433);async function o(e){try{let o=new t.default;o.append("file",r.default.createReadStream(e));let a=await fetch("http://localhost:8000/convert",{method:"POST",body:o,headers:o.getHeaders()});if(!a.ok)throw Error(`Conversion failed: ${a.statusText}`);return(await a.json()).markdown}catch(e){return console.error("Docling conversion error:",e),null}}e.s(["convertFileWithDocling",()=>o])}];
+
+//# sourceMappingURL=src_lib_docling-client_ts_c77801a1._.js.map

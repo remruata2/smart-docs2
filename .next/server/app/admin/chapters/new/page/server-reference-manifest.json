@@ -1,0 +1,35 @@
+{
+  "node": {
+    "4054eccc7d78f138ed33536b4ab6af09891ec8d3ce": {
+      "workers": {
+        "app/admin/chapters/new/page": {
+          "moduleId": 187143,
+          "async": true,
+          "exportedName": "ingestChapterAsync",
+          "filename": "src/app/admin/chapters/actions-async.ts"
+        }
+      },
+      "layer": {
+        "app/admin/chapters/new/page": "action-browser"
+      },
+      "exportedName": "ingestChapterAsync",
+      "filename": "src/app/admin/chapters/actions-async.ts"
+    },
+    "4008add61ba6e0f825c8aa3f65c3c51dc87e9799fa": {
+      "workers": {
+        "app/admin/chapters/new/page": {
+          "moduleId": 187143,
+          "async": true,
+          "exportedName": "batchCreateChaptersAsync",
+          "filename": "src/app/admin/chapters/actions-async.ts"
+        }
+      },
+      "layer": {
+        "app/admin/chapters/new/page": "action-browser"
+      },
+      "exportedName": "batchCreateChaptersAsync",
+      "filename": "src/app/admin/chapters/actions-async.ts"
+    }
+  },
+  "edge": {}
+}

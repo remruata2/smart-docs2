@@ -1,0 +1,35 @@
+{
+  "node": {
+    "40777a4971dddae39d37a8460620f8507bc8c24490": {
+      "workers": {
+        "app/app/chapters/page": {
+          "moduleId": 647142,
+          "async": false,
+          "exportedName": "getChaptersForSubject",
+          "filename": "src/app/app/chapters/actions.ts"
+        }
+      },
+      "layer": {
+        "app/app/chapters/page": "rsc"
+      },
+      "exportedName": "getChaptersForSubject",
+      "filename": "src/app/app/chapters/actions.ts"
+    },
+    "408441336097f2344b15c37979da229aa8f361a651": {
+      "workers": {
+        "app/app/chapters/page": {
+          "moduleId": 647142,
+          "async": false,
+          "exportedName": "getChapterById",
+          "filename": "src/app/app/chapters/actions.ts"
+        }
+      },
+      "layer": {
+        "app/app/chapters/page": "rsc"
+      },
+      "exportedName": "getChapterById",
+      "filename": "src/app/app/chapters/actions.ts"
+    }
+  },
+  "edge": {}
+}

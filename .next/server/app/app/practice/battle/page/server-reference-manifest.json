@@ -1,0 +1,50 @@
+{
+  "node": {
+    "006ad6e8e003f89a027444fd113582beae825336b2": {
+      "workers": {
+        "app/app/practice/battle/page": {
+          "moduleId": 136862,
+          "async": true,
+          "exportedName": "getSubjectsForUserProgram",
+          "filename": "src/app/app/subjects/actions.ts"
+        }
+      },
+      "layer": {
+        "app/app/practice/battle/page": "action-browser"
+      },
+      "exportedName": "getSubjectsForUserProgram",
+      "filename": "src/app/app/subjects/actions.ts"
+    },
+    "40777a4971dddae39d37a8460620f8507bc8c24490": {
+      "workers": {
+        "app/app/practice/battle/page": {
+          "moduleId": 136862,
+          "async": true,
+          "exportedName": "getChaptersForSubject",
+          "filename": "src/app/app/chapters/actions.ts"
+        }
+      },
+      "layer": {
+        "app/app/practice/battle/page": "action-browser"
+      },
+      "exportedName": "getChaptersForSubject",
+      "filename": "src/app/app/chapters/actions.ts"
+    },
+    "7e436d76fae84b2adc9acd9af9d6625a080aa95db8": {
+      "workers": {
+        "app/app/practice/battle/page": {
+          "moduleId": 136862,
+          "async": true,
+          "exportedName": "generateQuizAction",
+          "filename": "src/app/app/practice/actions.ts"
+        }
+      },
+      "layer": {
+        "app/app/practice/battle/page": "action-browser"
+      },
+      "exportedName": "generateQuizAction",
+      "filename": "src/app/app/practice/actions.ts"
+    }
+  },
+  "edge": {}
+}
