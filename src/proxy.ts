@@ -4,7 +4,7 @@ import { getToken } from "next-auth/jwt";
 import { UserRole } from "./generated/prisma";
 
 // First, handle public routes that don't need auth checks
-export async function middleware(req: NextRequest) {
+export async function proxy(req: NextRequest) {
 	const path = req.nextUrl.pathname;
 
 	// Define public routes that don't need auth
