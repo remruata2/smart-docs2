@@ -11,7 +11,7 @@ interface RoleGuardProps {
 	/** The content to render if the user is authorized */
 	children: React.ReactNode;
 	/** The minimum role required to access the content */
-	requiredRole: "admin" | "staff";
+	requiredRole: "admin" | "institution";
 	/** Whether to allow admin access (admins bypass role checks) */
 	allowAdmin?: boolean;
 	/** Where to redirect if the user is not authorized */
@@ -73,8 +73,8 @@ const RoleGuard = ({
 			// Check if user has the required role or is admin (if allowed)
 			const hasAccess =
 				(allowAdmin && userRole === "admin") ||
-				(requiredRole === "staff" &&
-					(userRole === "staff" || userRole === "admin")) ||
+				(requiredRole === "institution" &&
+					(userRole === "institution" || userRole === "admin")) ||
 				(requiredRole === "admin" && userRole === "admin");
 
 			if (!hasAccess) {

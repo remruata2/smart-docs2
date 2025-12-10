@@ -57,7 +57,7 @@ export async function POST(request: NextRequest) {
 				username: finalUsername,
 				email: validatedData.email.toLowerCase(),
 				password_hash,
-				role: UserRole.user,
+				role: UserRole.student,
 				is_active: true,
 			},
 		});

@@ -17,7 +17,7 @@ type AppUser = {
 
 declare module "next-auth" {
 	// eslint-disable-next-line @typescript-eslint/no-empty-object-type
-	interface User extends AppUser {}
+	interface User extends AppUser { }
 
 	interface Session {
 		user: AppUser;
@@ -26,7 +26,7 @@ declare module "next-auth" {
 
 declare module "next-auth/jwt" {
 	// eslint-disable-next-line @typescript-eslint/no-empty-object-type
-	interface JWT extends AppUser {}
+	interface JWT extends AppUser { }
 }
 
 export const authOptions: NextAuthOptions = {
@@ -83,6 +83,13 @@ export const authOptions: NextAuthOptions = {
 		GoogleProvider({
 			clientId: process.env.GOOGLE_CLIENT_ID!,
 			clientSecret: process.env.GOOGLE_CLIENT_SECRET!,
+			authorization: {
+				params: {
+					prompt: "select_account",
+					access_type: "offline",
+					response_type: "code",
+				},
+			},
 		}),
 	],
 	callbacks: {
@@ -111,7 +118,7 @@ export const authOptions: NextAuthOptions = {
 								username: uniqueUsername,
 								email: user.email!,
 								password_hash: null, // OAuth users don't have passwords
-								role: UserRole.user,
+								role: UserRole.student,
 								is_active: true,
 								last_login: new Date(),
 							},
@@ -168,7 +175,8 @@ export const authOptions: NextAuthOptions = {
 	},
 	session: {
 		strategy: "jwt",
-		maxAge: 30 * 24 * 60 * 60, // 30 days
+		maxAge: 7 * 24 * 60 * 60, // 7 days (reduced from 30 for security)
+		updateAge: 24 * 60 * 60, // Refresh token every 24 hours
 	},
 	debug: process.env.NODE_ENV !== "production" && process.env.NEXTAUTH_DEBUG === "true",
 	secret: process.env.NEXTAUTH_SECRET,

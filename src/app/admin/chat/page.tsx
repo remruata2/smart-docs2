@@ -88,9 +88,9 @@ export default function AdminChatPage() {
 					list.length > 0
 						? list
 						: [
-								{ name: "gemini-2.5-pro", label: "Gemini 2.5 Pro" },
-								{ name: "gemini-2.5-flash", label: "Gemini 2.5 Flash" },
-						  ];
+							{ name: "gemini-2.5-pro", label: "Gemini 2.5 Pro" },
+							{ name: "gemini-2.5-flash", label: "Gemini 2.5 Flash" },
+						];
 				setModels(finalModels);
 				// If current model not in list, set to first available
 				if (
@@ -291,8 +291,8 @@ export default function AdminChatPage() {
 					filters:
 						msg.role === "assistant"
 							? msg.metadata?.filters || {
-									category: "All Categories",
-							  }
+								category: "All Categories",
+							}
 							: undefined,
 				})
 			);
@@ -402,7 +402,7 @@ export default function AdminChatPage() {
 					if (response.status === 429) {
 						toast.error(
 							errorData.error ||
-								"You are making requests too quickly. Please wait and try again."
+							"You are making requests too quickly. Please wait and try again."
 						);
 						// Remove the placeholder message
 						setMessages((prev) =>
@@ -468,9 +468,9 @@ export default function AdminChatPage() {
 									prev.map((msg) =>
 										msg.id === assistantMessageId
 											? {
-													...msg,
-													content: data.progress || "Processing...",
-											  }
+												...msg,
+												content: data.progress || "Processing...",
+											}
 											: msg
 									)
 								);
@@ -971,7 +971,7 @@ export default function AdminChatPage() {
 			// Add title
 			doc.setFontSize(16);
 			doc.setFont("helvetica", "bold");
-			doc.text("Smart Docs Response", margin, currentY);
+			doc.text("Zirna Response", margin, currentY);
 			currentY += 15;
 
 			// Add timestamp
@@ -1102,7 +1102,7 @@ export default function AdminChatPage() {
 									<Bot className="h-12 w-12" />
 									<div className="text-center">
 										<p className="text-lg font-medium">
-											Welcome to Smart Docs Assistant
+											Welcome to Zirna Assistant
 										</p>
 										<p className="text-sm">
 											Ask me anything about the database records
@@ -1114,25 +1114,22 @@ export default function AdminChatPage() {
 									{messages.map((message) => (
 										<div
 											key={message.id}
-											className={`flex gap-3 ${
-												message.role === "user"
+											className={`flex gap-3 ${message.role === "user"
 													? "justify-end"
 													: "justify-start"
-											}`}
+												}`}
 										>
 											<div
-												className={`flex gap-3 max-w-[90%] ${
-													message.role === "user"
+												className={`flex gap-3 max-w-[90%] ${message.role === "user"
 														? "flex-row-reverse"
 														: "flex-row"
-												}`}
+													}`}
 											>
 												<div
-													className={`flex h-8 w-8 shrink-0 select-none items-center justify-center rounded-full ${
-														message.role === "user"
+													className={`flex h-8 w-8 shrink-0 select-none items-center justify-center rounded-full ${message.role === "user"
 															? "bg-blue-500 text-white"
 															: "bg-gray-200 text-gray-700"
-													}`}
+														}`}
 												>
 													{message.role === "user" ? (
 														<User className="h-4 w-4" />
@@ -1141,11 +1138,10 @@ export default function AdminChatPage() {
 													)}
 												</div>
 												<div
-													className={`rounded-lg px-4 py-2 break-words ${
-														message.role === "user"
+													className={`rounded-lg px-4 py-2 break-words ${message.role === "user"
 															? "bg-blue-500 text-white"
 															: "bg-gray-100 text-gray-900"
-													}`}
+														}`}
 												>
 													<div className="text-sm break-words prose prose-sm max-w-none">
 														{message.role === "assistant" ? (
@@ -1154,11 +1150,11 @@ export default function AdminChatPage() {
 																{message.content.includes(
 																	"Analyzing your question"
 																) ||
-																message.content.includes(
-																	"Generating response"
-																) ||
-																message.content.includes("Processing") ||
-																message.content.includes("Synthesizing") ? (
+																	message.content.includes(
+																		"Generating response"
+																	) ||
+																	message.content.includes("Processing") ||
+																	message.content.includes("Synthesizing") ? (
 																	<div className="flex items-center gap-2 text-gray-600">
 																		<Loader2 className="h-4 w-4 animate-spin" />
 																		<span>{message.content}</span>
@@ -1296,11 +1292,10 @@ export default function AdminChatPage() {
 														)}
 													</div>
 													<div
-														className={`text-xs mt-1 flex items-center gap-2 ${
-															message.role === "user"
+														className={`text-xs mt-1 flex items-center gap-2 ${message.role === "user"
 																? "text-blue-100"
 																: "text-gray-500"
-														}`}
+															}`}
 													>
 														<span>{formatTimestamp(message.timestamp)}</span>
 														{message.role === "assistant" &&
@@ -1339,9 +1334,9 @@ export default function AdminChatPage() {
 																{(expandedSources[message.id]
 																	? message.sources
 																	: message.sources.slice(
-																			0,
-																			INITIAL_SOURCES_SHOWN
-																	  )
+																		0,
+																		INITIAL_SOURCES_SHOWN
+																	)
 																).map((source, index) => (
 																	<Link
 																		key={`${source.id}-${index}`}
@@ -1367,22 +1362,21 @@ export default function AdminChatPage() {
 																{/* Show "Show more/less" button if there are more sources than the initial limit */}
 																{message.sources.length >
 																	INITIAL_SOURCES_SHOWN && (
-																	<Button
-																		variant="ghost"
-																		size="sm"
-																		onClick={() =>
-																			toggleSourceExpansion(message.id)
-																		}
-																		className="text-xs text-blue-600 hover:text-blue-800 py-1 h-auto"
-																	>
-																		{expandedSources[message.id]
-																			? `Show less`
-																			: `Show ${
-																					message.sources.length -
-																					INITIAL_SOURCES_SHOWN
-																			  } more...`}
-																	</Button>
-																)}
+																		<Button
+																			variant="ghost"
+																			size="sm"
+																			onClick={() =>
+																				toggleSourceExpansion(message.id)
+																			}
+																			className="text-xs text-blue-600 hover:text-blue-800 py-1 h-auto"
+																		>
+																			{expandedSources[message.id]
+																				? `Show less`
+																				: `Show ${message.sources.length -
+																				INITIAL_SOURCES_SHOWN
+																				} more...`}
+																		</Button>
+																	)}
 															</div>
 														</div>
 													)}
@@ -1401,7 +1395,7 @@ export default function AdminChatPage() {
 									value={inputMessage}
 									onChange={(e) => setInputMessage(e.target.value)}
 									onKeyPress={handleKeyPress}
-									placeholder="Ask about Smart Docs database records..."
+									placeholder="Ask about Zirna database records..."
 									disabled={isLoading}
 									className="flex-1"
 									maxLength={1000}

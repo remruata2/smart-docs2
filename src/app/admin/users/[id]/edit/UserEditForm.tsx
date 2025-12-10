@@ -34,10 +34,10 @@ export default function UserEditForm({ user }: UserEditFormProps) {
   useEffect(() => {
     // Re-initialize form if user prop changes (e.g., after a save and re-fetch)
     setFormData({
-        username: user.username,
-        password: '',
-        role: user.role,
-        is_active: user.is_active,
+      username: user.username,
+      password: '',
+      role: user.role,
+      is_active: user.is_active,
     });
   }, [user]);
 
@@ -143,7 +143,7 @@ export default function UserEditForm({ user }: UserEditFormProps) {
                     onChange={handleInputChange}
                     className="shadow-sm focus:ring-indigo-500 focus:border-indigo-500 block w-full text-base border-gray-300 rounded-md h-8 px-4"
                   >
-                    <option value={UserRole.staff}>Staff</option>
+                    <option value={UserRole.institution}>Institution</option>
                     <option value={UserRole.admin}>Admin</option>
                   </select>
                 </div>

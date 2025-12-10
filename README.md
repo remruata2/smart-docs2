@@ -1,4 +1,4 @@
-# Smart Docs - AI-Powered Document Management SaaS
+# Zirna - AI-Powered Document Management SaaS
 
 A modern Next.js SaaS application with AI-powered document processing, chat interface, subscription management, and role-based access control.
 
@@ -21,8 +21,8 @@ A modern Next.js SaaS application with AI-powered document processing, chat inte
 
 1. **Clone the repository**
    ```bash
-   git clone git@github.com:remruata2/smart-docs.git
-   cd smart-docs
+   git clone git@github.com:remruata2/zirna.git
+   cd zirna
    ```
 
 2. **Install dependencies**

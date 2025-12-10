@@ -1,42 +1,40 @@
 "use client";
 
 import { useState, useRef, useEffect } from "react";
-import Link from "next/link";
-import { useSearchParams } from "next/navigation";
+import { useSearchParams, useRouter } from "next/navigation";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
-import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Badge } from "@/components/ui/badge";
-import { Alert, AlertDescription } from "@/components/ui/alert";
 import {
 	Loader2,
 	Send,
 	Bot,
-	User,
 	FileText,
-	AlertCircle,
 	MessageSquare,
 	ExternalLink,
 	Copy,
 	Check,
-	FileDown,
 } from "lucide-react";
 // PDF generation removed - using text export instead
 import { toast } from "sonner";
 import { ChatMessage } from "@/lib/ai-service-enhanced";
 import ReactMarkdown from "react-markdown";
 import remarkGfm from "remark-gfm";
+import remarkBreaks from "remark-breaks";
+import remarkMath from "remark-math";
+import rehypeKatex from "rehype-katex";
+import "katex/dist/katex.min.css";
 import { SmartChart } from "@/components/dashboard/SmartChart";
+import { ResponseTranslator } from "@/components/chat/ResponseTranslator";
+import { translateContent } from "./actions";
 import {
 	SplitScreenProvider,
 	useSplitScreen,
 } from "@/components/split-screen/SplitScreenContext";
 import { SplitScreenLayout } from "@/components/split-screen/SplitScreenLayout";
+import { GraduationCap } from "lucide-react";
 
-interface ChatSource {
-	id: number;
-	title: string;
-}
+
 
 export default function DashboardChatPage() {
 	return (
@@ -60,12 +58,8 @@ function ChatPageContent() {
 		useState<string>("New Conversation");
 	const [sidebarRefreshTrigger, setSidebarRefreshTrigger] = useState(0);
 
-	const [model, setModel] = useState<string>("gemini-2.5-pro");
-	const [models, setModels] = useState<Array<{ name: string; label: string }>>([
-		{ name: "gemini-2.5-pro", label: "Gemini 2.5 Pro" },
-		{ name: "gemini-2.5-flash", label: "Gemini 2.5 Flash" },
-	]);
-	const [modelsLoading, setModelsLoading] = useState<boolean>(false);
+	// Model selection removed - using backend default
+
 	const [lastResponseMeta, setLastResponseMeta] = useState<{
 		queryType?: string;
 		searchQuery?: string;
@@ -76,13 +70,31 @@ function ChatPageContent() {
 	const [expandedSources, setExpandedSources] = useState<
 		Record<string, boolean>
 	>({});
-	const [categories, setCategories] = useState<string[]>([]);
-	const [categoriesLoading, setCategoriesLoading] = useState<boolean>(false);
-	const [selectedCategory, setSelectedCategory] = useState<string>("");
+	// Subject and Chapter filters
+	const [subjects, setSubjects] = useState<Array<{ id: number; name: string }>>(
+		[]
+	);
+	const [subjectsLoading, setSubjectsLoading] = useState<boolean>(false);
+	const [selectedSubjectId, setSelectedSubjectId] = useState<number | null>(
+		null
+	);
+	const [selectedSubjectName, setSelectedSubjectName] = useState<string>("");
 
-	// Get conversation ID from URL
+	const [chapters, setChapters] = useState<
+		Array<{ id: string; title: string; chapter_number: number | null }>
+	>([]);
+	const [chaptersLoading, setChaptersLoading] = useState<boolean>(false);
+	const [selectedChapterId, setSelectedChapterId] = useState<string | null>(
+		null
+	);
+	const [selectedChapterTitle, setSelectedChapterTitle] = useState<string>("");
+
+	// Get conversation ID and filters from URL
 	const searchParams = useSearchParams();
+	const router = useRouter();
 	const urlConversationId = searchParams.get("id");
+	const urlSubjectId = searchParams.get("subjectId");
+	const urlChapterId = searchParams.get("chapterId");
 
 	// Load conversation from URL on mount
 	useEffect(() => {
@@ -94,93 +106,116 @@ function ChatPageContent() {
 		}
 	}, [urlConversationId]);
 
-	// Load available models for current provider
+	// Load available subjects
 	useEffect(() => {
-		let cancelled = false;
-		async function loadModels() {
+		async function loadSubjects() {
 			try {
-				setModelsLoading(true);
-				const res = await fetch(`/api/dashboard/ai/models?provider=gemini`);
-				if (!res.ok) throw new Error("Failed to load models");
+				setSubjectsLoading(true);
+				const res = await fetch("/api/dashboard/subjects");
+				if (!res.ok) throw new Error("Failed to load subjects");
 				const data = await res.json();
-				if (cancelled) return;
-				const list: Array<{ name: string; label: string }> = Array.isArray(
-					data.models
-				)
-					? data.models
-					: [];
-				// Always have at least fallback models
-				const finalModels =
-					list.length > 0
-						? list
-						: [
-								{ name: "gemini-2.5-pro", label: "Gemini 2.5 Pro" },
-								{ name: "gemini-2.5-flash", label: "Gemini 2.5 Flash" },
-						  ];
-				setModels(finalModels);
-				// If current model not in list, set to first available
-				if (
-					finalModels.length > 0 &&
-					!finalModels.some((m) => m.name === model)
-				) {
-					setModel(finalModels[0].name);
+				const loadedSubjects = data.subjects || [];
+				setSubjects(loadedSubjects);
+
+				// Auto-select first subject if none selected and not loading from URL
+				if (loadedSubjects.length > 0 && !urlSubjectId && !selectedSubjectId) {
+					setSelectedSubjectId(loadedSubjects[0].id);
+					setSelectedSubjectName(loadedSubjects[0].name);
 				}
 			} catch (e) {
-				console.error("[DashboardChat] Failed to fetch models", e);
-				// Fallback to default models if API fails
-				if (!cancelled) {
-					const fallbackModels = [
-						{ name: "gemini-2.5-pro", label: "Gemini 2.5 Pro" },
-						{ name: "gemini-2.5-flash", label: "Gemini 2.5 Flash" },
-					];
-					setModels(fallbackModels);
-					if (!fallbackModels.some((m) => m.name === model)) {
-						setModel(fallbackModels[0].name);
+				console.error("[Chat] Failed to fetch subjects", e);
+				setSubjects([]);
+			} finally {
+				setSubjectsLoading(false);
+			}
+		}
+		loadSubjects();
+	}, []); // Run once on mount
+
+	// Load chapters when subject is selected
+	useEffect(() => {
+		if (!selectedSubjectId) {
+			setChapters([]);
+			setSelectedChapterId(null);
+			setSelectedChapterTitle("");
+			return;
+		}
+
+		async function loadChapters() {
+			try {
+				setChaptersLoading(true);
+				const res = await fetch(
+					`/api/dashboard/chapters?subjectId=${selectedSubjectId}`
+				);
+				if (!res.ok) throw new Error("Failed to load chapters");
+				const data = await res.json();
+				const loadedChapters = data.chapters || [];
+				setChapters(loadedChapters);
+
+				// If URL has chapterId, preselect it
+				if (urlChapterId && loadedChapters.length > 0) {
+					const chapter = loadedChapters.find((c: any) => c.id === urlChapterId);
+					if (chapter) {
+						setSelectedChapterId(chapter.id);
+						setSelectedChapterTitle(chapter.title);
+						return; // Exit early if URL chapter found
 					}
 				}
-			} finally {
-				if (!cancelled) setModelsLoading(false);
-			}
-		}
-		loadModels();
-		return () => {
-			cancelled = true;
-		};
-	}, [model]);
 
-	// Load available categories
-	useEffect(() => {
-		async function loadCategories() {
-			try {
-				setCategoriesLoading(true);
-				const res = await fetch("/api/dashboard/categories");
-				if (!res.ok) throw new Error("Failed to load categories");
-				const data = await res.json();
-				setCategories(data.categories || []);
-				// Reset selected category if it's not in the new list
-				if (selectedCategory && !data.categories?.includes(selectedCategory)) {
-					setSelectedCategory("");
+				// Auto-select first chapter if available
+				if (loadedChapters.length > 0) {
+					setSelectedChapterId(loadedChapters[0].id);
+					setSelectedChapterTitle(loadedChapters[0].title);
+				} else {
+					// Reset if no chapters found
+					setSelectedChapterId(null);
+					setSelectedChapterTitle("");
 				}
 			} catch (e) {
-				console.error("[DashboardChat] Failed to fetch categories", e);
-				setCategories([]);
+				console.error("[Chat] Failed to fetch chapters", e);
+				setChapters([]);
 			} finally {
-				setCategoriesLoading(false);
+				setChaptersLoading(false);
 			}
 		}
-		loadCategories();
-	}, []);
+		loadChapters();
+	}, [selectedSubjectId, urlChapterId]); // Re-run when subject changes
 
-	const scrollContainerRef = useRef<HTMLDivElement>(null);
+	// Preselect subject/chapter from URL params on mount
+	useEffect(() => {
+		if (urlSubjectId && subjects.length > 0) {
+			const subjectIdNum = parseInt(urlSubjectId, 10);
+			if (!isNaN(subjectIdNum)) {
+				const subject = subjects.find((s) => s.id === subjectIdNum);
+				if (subject) {
+					setSelectedSubjectId(subjectIdNum);
+					setSelectedSubjectName(subject.name);
+				}
+			}
+		}
+	}, [urlSubjectId, subjects]);
+
 	const messagesEndRef = useRef<HTMLDivElement>(null);
 	const inputRef = useRef<HTMLInputElement>(null);
 
-	// Initial number of sources to show
-	const INITIAL_SOURCES_SHOWN = 15;
-
+	// Auto-scroll to bottom when new messages arrive
 	// Auto-scroll to bottom when new messages arrive
 	useEffect(() => {
-		messagesEndRef.current?.scrollIntoView({ behavior: "smooth" });
+		const scrollContainer = messagesEndRef.current?.parentElement;
+		if (!scrollContainer) return;
+
+		// Check if user is near bottom (within 100px)
+		const isNearBottom =
+			scrollContainer.scrollHeight -
+			scrollContainer.scrollTop -
+			scrollContainer.clientHeight <
+			100;
+
+		// Always scroll if it's a new message (length changed) or if we're already near bottom
+		// Use 'auto' (instant) behavior to prevent bouncing during streaming
+		if (isNearBottom) {
+			messagesEndRef.current?.scrollIntoView({ behavior: "auto" });
+		}
 	}, [messages]);
 
 	// Focus input on mount
@@ -227,7 +262,11 @@ function ChatPageContent() {
 			const response = await fetch("/api/dashboard/conversations", {
 				method: "POST",
 				headers: { "Content-Type": "application/json" },
-				body: JSON.stringify({ title }),
+				body: JSON.stringify({
+					title,
+					subjectId: selectedSubjectId,
+					chapterId: selectedChapterId
+				}),
 			});
 
 			if (!response.ok) throw new Error("Failed to create conversation");
@@ -270,25 +309,7 @@ function ChatPageContent() {
 		}
 	};
 
-	// Generate AI title for conversation after first exchange
-	const _generateConversationTitle = async (conversationId: number) => {
-		try {
-			const response = await fetch(
-				`/api/dashboard/conversations/${conversationId}/generate-title`,
-				{
-					method: "POST",
-				}
-			);
 
-			if (!response.ok) throw new Error("Failed to generate title");
-
-			const data = await response.json();
-			setConversationTitle(data.title);
-		} catch (error) {
-			console.error("Error generating title:", error);
-			// Don't show error toast
-		}
-	};
 
 	// Load a conversation and its messages
 	const loadConversation = async (conversationId: number) => {
@@ -306,6 +327,20 @@ function ChatPageContent() {
 			setCurrentConversationId(conversation.id);
 			setConversationTitle(conversation.title);
 
+			// Set context from conversation if available
+			if (conversation.subjectId) {
+				setSelectedSubjectId(conversation.subjectId);
+				// We'll need to find the name from the subjects list
+				const subj = subjects.find(s => s.id === conversation.subjectId);
+				if (subj) setSelectedSubjectName(subj.name);
+			}
+
+			if (conversation.chapterId) {
+				setSelectedChapterId(conversation.chapterId);
+				// We'll need to fetch chapters or find title if already loaded
+				// Ideally we should fetch the chapter details if not in list
+			}
+
 			// Load messages
 			const loadedMessages: ChatMessage[] = conversation.messages.map(
 				(msg: any) => ({
@@ -316,18 +351,44 @@ function ChatPageContent() {
 					sources: msg.sources || [],
 					tokenCount: msg.tokenCount,
 					chartData: msg.metadata?.chartData || null, // Extract chartData from metadata
-					// For assistant messages, always show filters (default to "All" if not saved)
+					// For assistant messages, always show filters
 					filters:
-						msg.role === "assistant"
-							? msg.metadata?.filters || {
-									category: "All Categories",
-							  }
-							: undefined,
+						msg.role === "assistant" ? msg.metadata?.filters || {} : undefined,
 				})
 			);
 
 			setMessages(loadedMessages);
 			setError(null);
+
+			// Restore filters from the last message that has them
+			const lastMessageWithFilters = [...loadedMessages]
+				.reverse()
+				.find((msg) => msg.filters?.subjectId || msg.filters?.chapterId);
+
+			if (lastMessageWithFilters?.filters) {
+				const { subjectId, chapterId } = lastMessageWithFilters.filters;
+
+				if (subjectId) {
+					setSelectedSubjectId(subjectId);
+					// Find subject name from subjects list
+					const subject = subjects.find(s => s.id === subjectId);
+					if (subject) setSelectedSubjectName(subject.name);
+				}
+
+				if (chapterId) {
+					setSelectedChapterId(chapterId.toString());
+					// Find chapter title from chapters list
+					const chapter = chapters.find(c => c.id === chapterId.toString());
+					if (chapter) setSelectedChapterTitle(chapter.title);
+				}
+
+				// Update URL to reflect restored filters
+				const params = new URLSearchParams();
+				params.set("id", conversation.id.toString());
+				if (subjectId) params.set("subjectId", subjectId.toString());
+				if (chapterId) params.set("chapterId", chapterId.toString());
+				router.push(`?${params.toString()}`);
+			}
 
 			toast.success(`Loaded: ${conversation.title}`);
 		} catch (error) {
@@ -344,18 +405,29 @@ function ChatPageContent() {
 		setError(null);
 		setLastResponseMeta(null);
 		setInputMessage("");
+
+		// Clear URL params
+		router.push("/app/chat");
+
 		toast.success("Started new conversation");
 	};
 
 	// === END CONVERSATION MANAGEMENT ===
 
-	const handleSendMessage = async () => {
-		if (!inputMessage.trim() || isLoading) return;
+	const handleSendMessage = async (content?: string) => {
+		const messageToSend = typeof content === "string" ? content : inputMessage;
+		if (!messageToSend.trim() || isLoading) return;
+
+		// Validation: Ensure chapter is selected
+		if (!selectedChapterId) {
+			toast.error("Please select a chapter to start chatting.");
+			return;
+		}
 
 		const userMessage: ChatMessage = {
 			id: `user_${Date.now()}`,
 			role: "user",
-			content: inputMessage.trim(),
+			content: messageToSend.trim(),
 			timestamp: new Date(),
 		};
 
@@ -393,10 +465,21 @@ function ChatPageContent() {
 		// Create a placeholder assistant message for streaming with thinking indicator
 		const assistantMessageId = `assistant_${Date.now()}`;
 
-		// Always include filters (show "All Categories" if not selected)
-		const activeFilters: { category: string } = {
-			category: selectedCategory || "All Categories",
-		};
+		// Always include filters
+		const activeFilters: {
+			subjectId?: number;
+			chapterId?: number;
+			subjectName?: string;
+			chapterTitle?: string;
+		} = {};
+		if (selectedSubjectId) {
+			activeFilters.subjectId = selectedSubjectId;
+			activeFilters.subjectName = selectedSubjectName;
+		}
+		if (selectedChapterId) {
+			activeFilters.chapterId = parseInt(selectedChapterId, 10);
+			activeFilters.chapterTitle = selectedChapterTitle;
+		}
 
 		const assistantMessage: ChatMessage = {
 			id: assistantMessageId,
@@ -418,8 +501,11 @@ function ChatPageContent() {
 					message: userMessage.content,
 					conversationHistory: messages,
 					provider: "gemini",
-					model,
-					category: selectedCategory || undefined,
+					// Model selection removed - backend will use default
+					subjectId: selectedSubjectId || undefined,
+					chapterId: selectedChapterId
+						? parseInt(selectedChapterId, 10)
+						: undefined,
 					stream: true, // Enable streaming
 				}),
 			});
@@ -431,7 +517,7 @@ function ChatPageContent() {
 					if (response.status === 429) {
 						toast.error(
 							errorData.error ||
-								"You are making requests too quickly. Please wait and try again."
+							"You are making requests too quickly. Please wait and try again."
 						);
 						// Remove the placeholder message
 						setMessages((prev) =>
@@ -504,9 +590,9 @@ function ChatPageContent() {
 									prev.map((msg) =>
 										msg.id === assistantMessageId
 											? {
-													...msg,
-													content: data.progress || "Processing...",
-											  }
+												...msg,
+												content: data.progress || "Processing...",
+											}
 											: msg
 									)
 								);
@@ -612,6 +698,26 @@ function ChatPageContent() {
 				}
 			}
 
+			// Parse suggested responses from the final content
+			const { cleanedContent, suggestedResponses } = parseSuggestedResponses(accumulatedContent);
+			accumulatedContent = cleanedContent;
+
+			console.log('[CHAT] Parsed suggested responses:', suggestedResponses);
+
+			// Update the message one last time with cleaned content and suggested responses
+			setMessages((prev) =>
+				prev.map((msg) => {
+					if (msg.id === assistantMessageId) {
+						return {
+							...msg,
+							content: cleanedContent,
+							suggestedResponses: suggestedResponses,
+						};
+					}
+					return msg;
+				})
+			);
+
 			// If no content was received, show error
 			if (!accumulatedContent) {
 				throw new Error("No response received from server");
@@ -619,9 +725,20 @@ function ChatPageContent() {
 
 			// === AUTO-SAVE: Save assistant message ===
 			if (conversationId) {
-				const saveFilters: { category: string } = {
-					category: selectedCategory || "All Categories",
-				};
+				const saveFilters: {
+					subjectId?: number;
+					chapterId?: number;
+					subjectName?: string;
+					chapterTitle?: string;
+				} = {};
+				if (selectedSubjectId) {
+					saveFilters.subjectId = selectedSubjectId;
+					saveFilters.subjectName = selectedSubjectName;
+				}
+				if (selectedChapterId) {
+					saveFilters.chapterId = parseInt(selectedChapterId, 10);
+					saveFilters.chapterTitle = selectedChapterTitle;
+				}
 
 				await saveMessageToConversation(conversationId, {
 					role: "assistant",
@@ -667,11 +784,7 @@ function ChatPageContent() {
 		}
 	};
 
-	const clearChat = () => {
-		setMessages([]);
-		setError(null);
-		setExpandedSources({});
-	};
+
 
 	// Toggle source expansion for a specific message
 	const toggleSourceExpansion = (messageId: string) => {
@@ -710,7 +823,7 @@ function ChatPageContent() {
 	const { openCitation } = useSplitScreen();
 
 	return (
-		<div className="flex h-screen overflow-hidden">
+		<div className="flex h-full overflow-hidden">
 			<SplitScreenLayout>
 				{/* Main Chat Area */}
 				<div className="flex-1 flex flex-col overflow-hidden bg-gray-50/50 dark:bg-gray-900/50 h-full">
@@ -719,55 +832,50 @@ function ChatPageContent() {
 						<div className="border-b bg-white/80 dark:bg-gray-900/80 backdrop-blur-sm p-4 flex items-center justify-between sticky top-0 z-10">
 							<div className="flex items-center gap-3">
 								<div className="p-2 bg-primary/10 rounded-lg">
-									<Bot className="h-5 w-5 text-primary" />
+									<Bot className="w-5 h-5 text-primary" />
 								</div>
 								<div>
-									<h2 className="font-semibold text-gray-900 dark:text-gray-100">
+									<h1 className="text-lg font-semibold text-gray-900 dark:text-gray-100">
 										{conversationTitle}
-									</h2>
-									<div className="flex items-center gap-2 text-xs text-gray-500">
+									</h1>
+									<div className="flex items-center gap-2 text-xs text-muted-foreground">
 										<span className="flex items-center gap-1">
 											<div className="w-1.5 h-1.5 rounded-full bg-green-500 animate-pulse" />
 											Online
 										</span>
-										<span>•</span>
-										<span>{model}</span>
 									</div>
 								</div>
 							</div>
+
 							<div className="flex items-center gap-2">
 								<Button
-									variant="outline"
+									variant="ghost"
 									size="sm"
-									onClick={clearChat}
-									disabled={messages.length === 0 || isLoading}
-									className="hidden sm:flex"
+									onClick={startNewConversation}
+									className="text-muted-foreground hover:text-primary"
 								>
-									<MessageSquare className="h-4 w-4 mr-2" />
+									<MessageSquare className="w-4 h-4 mr-2" />
 									New Chat
 								</Button>
 							</div>
 						</div>
 
 						{/* Messages Area */}
-						<div
-							ref={scrollContainerRef}
-							className="flex-1 overflow-y-auto p-4 space-y-6 scroll-smooth min-h-0"
-						>
+						<div className="flex-1 overflow-y-auto p-4 space-y-6 scroll-smooth">
 							{messages.length === 0 ? (
-								<div className="h-full flex flex-col items-center justify-center text-center p-8 animate-in fade-in duration-500">
-									<div className="w-24 h-24 bg-primary/5 rounded-full flex items-center justify-center mb-6 ring-1 ring-primary/10">
-										<Bot className="h-12 w-12 text-primary/80" />
+								<div className="h-full flex flex-col items-center justify-center text-center p-8 animate-in fade-in zoom-in duration-500">
+									<div className="w-24 h-24 bg-primary/5 rounded-3xl flex items-center justify-center mb-6 shadow-inner">
+										<Bot className="w-12 h-12 text-primary/80" />
 									</div>
-									<h3 className="text-2xl font-bold text-gray-900 dark:text-gray-100 mb-2">
+									<h2 className="text-2xl font-bold text-gray-900 dark:text-gray-100 mb-3">
 										How can I help you today?
-									</h3>
-									<p className="text-gray-500 max-w-md mb-8">
+									</h2>
+									<p className="text-muted-foreground max-w-md mb-8 leading-relaxed">
 										I can analyze your documents, summarize information, and
 										answer questions about your files.
 									</p>
 
-									<div className="grid grid-cols-1 sm:grid-cols-2 gap-3 max-w-2xl w-full">
+									<div className="grid grid-cols-1 md:grid-cols-2 gap-4 max-w-2xl w-full">
 										{[
 											"Summarize the latest documents",
 											"Find information about...",
@@ -780,9 +888,9 @@ function ChatPageContent() {
 													setInputMessage(suggestion);
 													inputRef.current?.focus();
 												}}
-												className="p-4 text-left text-sm bg-white dark:bg-gray-800 border rounded-xl hover:border-primary/50 hover:shadow-sm transition-all duration-200 group"
+												className="p-4 text-sm text-left bg-white dark:bg-gray-800 border border-gray-200 dark:border-gray-700 rounded-xl hover:border-primary/50 hover:shadow-md transition-all duration-200 group"
 											>
-												<span className="text-gray-700 dark:text-gray-300 group-hover:text-primary transition-colors">
+												<span className="text-gray-600 dark:text-gray-300 group-hover:text-primary transition-colors">
 													{suggestion}
 												</span>
 											</button>
@@ -790,456 +898,487 @@ function ChatPageContent() {
 									</div>
 								</div>
 							) : (
-								<div className="space-y-6 pb-4">
+								<div className="space-y-6 max-w-4xl mx-auto pb-4">
 									{messages.map((msg) => (
 										<div
 											key={msg.id}
-											className={`flex gap-4 ${
-												msg.role === "assistant" ? "bg-transparent" : ""
-											} animate-in slide-in-from-bottom-2 duration-300`}
+											className={`flex gap-4 ${msg.role === "user" ? "justify-end" : "justify-start"
+												} animate-in fade-in slide-in-from-bottom-4 duration-500`}
 										>
+											{msg.role === "assistant" && (
+												<div className="w-8 h-8 rounded-full bg-primary/10 flex items-center justify-center flex-shrink-0 mt-1">
+													<Bot className="w-5 h-5 text-primary" />
+												</div>
+											)}
+
 											<div
-												className={`w-8 h-8 rounded-full flex items-center justify-center flex-shrink-0 mt-1 shadow-sm ${
-													msg.role === "assistant"
-														? "bg-primary text-primary-foreground ring-2 ring-primary/20"
-														: "bg-gray-200 dark:bg-gray-700 text-gray-600 dark:text-gray-300"
-												}`}
+												className={`flex flex-col max-w-[85%] ${msg.role === "user" ? "items-end" : "items-start"
+													}`}
 											>
-												{msg.role === "assistant" ? (
-													<Bot className="h-5 w-5" />
-												) : (
-													<User className="h-5 w-5" />
-												)}
-											</div>
-											<div className="flex-1 min-w-0 space-y-2">
-												<div className="flex items-center justify-between">
-													<span className="font-medium text-sm text-gray-900 dark:text-gray-100">
-														{msg.role === "assistant" ? "AI Assistant" : "You"}
+												<div
+													className={`rounded-2xl p-4 shadow-sm ${msg.role === "user"
+														? "bg-primary text-primary-foreground rounded-tr-none"
+														: "bg-white dark:bg-gray-800 border border-gray-100 dark:border-gray-700 rounded-tl-none"
+														}`}
+												>
+													{msg.role === "assistant" ? (
+														<div className="prose prose-sm dark:prose-invert max-w-none">
+															<ReactMarkdown
+																remarkPlugins={[remarkMath, remarkGfm, remarkBreaks]}
+																rehypePlugins={[rehypeKatex]}
+																components={{
+																	code({
+																		node,
+																		inline,
+																		className,
+																		children,
+																		...props
+																	}: any) {
+																		return !inline ? (
+																			<div className="relative group rounded-md overflow-hidden my-2">
+																				<div className="absolute right-2 top-2 opacity-0 group-hover:opacity-100 transition-opacity">
+																					<Button
+																						variant="ghost"
+																						size="icon"
+																						className="h-6 w-6 bg-gray-800/50 hover:bg-gray-800 text-white"
+																						onClick={() =>
+																							handleCopy(
+																								String(children),
+																								`code-${msg.id}`
+																							)
+																						}
+																					>
+																						{copiedMessageId ===
+																							`code-${msg.id}` ? (
+																							<Check className="h-3 w-3" />
+																						) : (
+																							<Copy className="h-3 w-3" />
+																						)}
+																					</Button>
+																				</div>
+																				<pre className="bg-gray-900 text-gray-100 p-3 rounded-md overflow-x-auto">
+																					<code {...props}>{children}</code>
+																				</pre>
+																			</div>
+																		) : (
+																			<code
+																				className="bg-gray-100 dark:bg-gray-800 px-1.5 py-0.5 rounded text-sm font-mono text-primary"
+																				{...props}
+																			>
+																				{children}
+																			</code>
+																		);
+																	},
+																	table({ children }) {
+																		return (
+																			<div className="overflow-x-auto my-4 border rounded-lg">
+																				<table className="min-w-full divide-y divide-gray-200 dark:divide-gray-700">
+																					{children}
+																				</table>
+																			</div>
+																		);
+																	},
+																	th({ children }) {
+																		return (
+																			<th className="px-4 py-3 bg-gray-50 dark:bg-gray-800 text-left text-xs font-medium text-gray-500 dark:text-gray-400 uppercase tracking-wider">
+																				{children}
+																			</th>
+																		);
+																	},
+																	td({ children }) {
+																		return (
+																			<td className="px-4 py-3 whitespace-nowrap text-sm border-t border-gray-100 dark:border-gray-700">
+																				{children}
+																			</td>
+																		);
+																	},
+																	p({ children }) {
+																		return <p className="mb-2 last:mb-0 leading-relaxed">{children}</p>;
+																	},
+																	ul({ children }) {
+																		return <ul className="list-disc pl-4 mb-2 space-y-1">{children}</ul>;
+																	},
+																	ol({ children }) {
+																		return <ol className="list-decimal pl-4 mb-2 space-y-1">{children}</ol>;
+																	},
+																	li({ children }) {
+																		return <li className="leading-relaxed">{children}</li>;
+																	},
+																	h1({ children }) {
+																		return <h1 className="text-xl font-bold mb-2 mt-4">{children}</h1>;
+																	},
+																	h2({ children }) {
+																		return <h2 className="text-lg font-bold mb-2 mt-3">{children}</h2>;
+																	},
+																	h3({ children }) {
+																		return <h3 className="text-base font-bold mb-1 mt-2">{children}</h3>;
+																	},
+																	blockquote({ children }) {
+																		return <blockquote className="border-l-4 border-primary/30 pl-4 italic my-2 text-muted-foreground">{children}</blockquote>;
+																	},
+																}}
+															>
+																{msg.content.replace(
+																	/```json\s*({[\s\S]*"related_questions"[\s\S]*})\s*```/g,
+																	""
+																)}
+															</ReactMarkdown>
+
+															{/* Render Chart if chartData is present */}
+															{msg.chartData && (
+																<div className="mt-4 w-full h-64 md:h-80 lg:h-96">
+																	<SmartChart
+																		config={msg.chartData}
+																	/>
+																</div>
+															)}
+
+															<ResponseTranslator
+																originalText={msg.originalContent || msg.content}
+																translatedText={msg.originalContent ? msg.content : undefined}
+																onTranslationComplete={(translatedText) => {
+																	setMessages((prev) =>
+																		prev.map((m) => {
+																			if (m.id === msg.id) {
+																				return {
+																					...m,
+																					content: translatedText,
+																					originalContent: m.originalContent || m.content,
+																				};
+																			}
+																			return m;
+																		})
+																	);
+																}}
+																onRevert={() => {
+																	if (msg.originalContent) {
+																		setMessages((prev) =>
+																			prev.map((m) => {
+																				if (m.id === msg.id) {
+																					return {
+																						...m,
+																						content: m.originalContent!,
+																						originalContent: undefined,
+																					};
+																				}
+																				return m;
+																			})
+																		);
+																	}
+																}}
+															/>
+														</div>
+													) : (
+														<p className="whitespace-pre-wrap text-sm">
+															{msg.content.replace(
+																/```json\s*({[\s\S]*"related_questions"[\s\S]*})\s*```/,
+																""
+															)}
+														</p>
+													)}
+												</div>
+
+												{/* Message Footer (Timestamp, Sources, Token Count) */}
+												<div className="flex items-center gap-2 mt-1 px-1">
+													<span className="text-[10px] text-muted-foreground">
+														{formatTimestamp(msg.timestamp)}
 													</span>
-													<div className="flex items-center gap-2">
-														<span className="text-xs text-gray-400">
-															{formatTimestamp(msg.timestamp)}
-														</span>
-														{msg.role === "assistant" && (
+
+													{msg.role === "assistant" && (
+														<div className="flex items-center gap-2">
 															<Button
 																variant="ghost"
 																size="icon"
-																className="h-6 w-6 text-gray-400 hover:text-gray-600"
-																onClick={() => handleCopy(msg.content, msg.id)}
+																className="h-6 w-6 text-muted-foreground hover:text-primary"
+																onClick={() =>
+																	handleCopy(msg.content, msg.id)
+																}
 															>
 																{copiedMessageId === msg.id ? (
-																	<Check className="h-3 w-3 text-green-500" />
+																	<Check className="h-3 w-3" />
 																) : (
 																	<Copy className="h-3 w-3" />
 																)}
 															</Button>
-														)}
-													</div>
+
+															{msg.tokenCount && (
+																<span className="text-[10px] text-muted-foreground bg-gray-100 dark:bg-gray-800 px-1.5 py-0.5 rounded-full">
+																	{msg.tokenCount.input + msg.tokenCount.output}{" "}
+																	tokens
+																</span>
+															)}
+														</div>
+													)}
+													{/* Suggested Questions */}
+													{(() => {
+														const jsonMatch = msg.content.match(
+															/```json\s*({[\s\S]*"related_questions"[\s\S]*})\s*```/
+														);
+														if (jsonMatch) {
+															try {
+																const data = JSON.parse(jsonMatch[1]);
+																if (
+																	data.related_questions &&
+																	Array.isArray(data.related_questions)
+																) {
+																	return (
+																		<div className="mt-3 flex flex-wrap gap-2">
+																			{data.related_questions.map(
+																				(q: string, i: number) => (
+																					<button
+																						key={i}
+																						onClick={() => {
+																							setInputMessage(q);
+																							// Optional: Auto-send
+																							// handleSendMessage();
+																						}}
+																						className="text-xs bg-primary/10 text-primary hover:bg-primary/20 px-3 py-1.5 rounded-full transition-colors text-left"
+																					>
+																						{q}
+																					</button>
+																				)
+																			)}
+																		</div>
+																	);
+																}
+															} catch (e) {
+																// Ignore parsing errors
+															}
+														}
+														return null;
+													})()}
 												</div>
 
-												{/* Filters Badge (Assistant Only) */}
-												{msg.role === "assistant" && msg.filters && (
-													<div className="flex flex-wrap gap-2 mb-2">
-														{msg.filters.category &&
-															msg.filters.category !== "All Categories" && (
-																<Badge
-																	variant="outline"
-																	className="text-[10px] h-5 px-2 bg-purple-50 text-purple-700 border-purple-200"
-																>
-																	Category: {msg.filters.category}
-																</Badge>
-															)}
+												{/* Suggested Responses (Tutor Mode) */}
+												{msg.suggestedResponses && msg.suggestedResponses.length > 0 && (
+													<div className="flex flex-wrap gap-2 mt-3 animate-in fade-in slide-in-from-top-2 duration-300">
+														{msg.suggestedResponses.map((response, i) => (
+															<Button
+																key={i}
+																variant="outline"
+																size="sm"
+																onClick={() => handleSendMessage(response)}
+																className="bg-primary/5 hover:bg-primary/10 border-primary/20 text-primary rounded-full"
+															>
+																{response}
+															</Button>
+														))}
 													</div>
 												)}
-
-												<div
-													className={`prose prose-sm max-w-none dark:prose-invert ${
-														msg.role === "user"
-															? "bg-white dark:bg-gray-800 p-4 rounded-2xl rounded-tl-none shadow-sm border border-gray-100 dark:border-gray-700"
-															: ""
-													}`}
-												>
-													{msg.role === "assistant" ? (
-														<>
-															{/* Show loading indicator for placeholder and progress messages */}
-															{msg.content.includes(
-																"Analyzing your question"
-															) ||
-															msg.content.includes("Generating response") ||
-															msg.content.includes("Processing") ||
-															msg.content.includes("Synthesizing") ? (
-																<div className="flex items-center gap-2 text-gray-600 dark:text-gray-400">
-																	<Loader2 className="h-4 w-4 animate-spin" />
-																	<span>{msg.content}</span>
-																</div>
-															) : (
-																<>
-																	<ReactMarkdown
-																		remarkPlugins={[remarkGfm]}
-																		components={{
-																			table: ({ node, ...props }) => (
-																				<div className="overflow-x-auto my-4 rounded-lg border">
-																					<table
-																						className="min-w-full divide-y divide-gray-200 dark:divide-gray-700"
-																						{...props}
-																					/>
-																				</div>
-																			),
-																			thead: ({ node, ...props }) => (
-																				<thead
-																					className="bg-gray-50 dark:bg-gray-800"
-																					{...props}
-																				/>
-																			),
-																			th: ({ node, ...props }) => (
-																				<th
-																					className="px-4 py-3 text-left text-xs font-medium text-gray-500 dark:text-gray-400 uppercase tracking-wider"
-																					{...props}
-																				/>
-																			),
-																			td: ({ node, ...props }) => (
-																				<td
-																					className="px-4 py-3 whitespace-nowrap text-sm text-gray-700 dark:text-gray-300 border-t border-gray-100 dark:border-gray-700"
-																					{...props}
-																				/>
-																			),
-																			a: ({ node, ...props }) => (
-																				<a
-																					className="text-primary hover:underline"
-																					target="_blank"
-																					rel="noopener noreferrer"
-																					{...props}
-																				/>
-																			),
-																			p: ({ node, ...props }) => (
-																				<p
-																					className="mb-2 last:mb-0"
-																					{...props}
-																				/>
-																			),
-																			ul: ({ node, ...props }) => (
-																				<ul
-																					className="list-disc pl-4 mb-2 space-y-1"
-																					{...props}
-																				/>
-																			),
-																			ol: ({ node, ...props }) => (
-																				<ol
-																					className="list-decimal pl-4 mb-2 space-y-1"
-																					{...props}
-																				/>
-																			),
-																			li: ({ node, ...props }) => (
-																				<li className="pl-1" {...props} />
-																			),
-																			blockquote: ({ node, ...props }) => (
-																				<blockquote
-																					className="border-l-4 border-primary/30 pl-4 italic text-gray-600 dark:text-gray-400 my-2"
-																					{...props}
-																				/>
-																			),
-																			code: ({ node, ...props }) => (
-																				<code
-																					className="bg-gray-100 dark:bg-gray-800 px-1.5 py-0.5 rounded text-sm font-mono text-pink-600 dark:text-pink-400"
-																					{...props}
-																				/>
-																			),
-																		}}
-																	>
-																		{msg.content}
-																	</ReactMarkdown>
-
-																	{/* Chart Section */}
-																	{msg.chartData && (
-																		<div className="mt-4">
-																			<SmartChart
-																				config={msg.chartData as any}
-																			/>
-																		</div>
-																	)}
-																</>
-															)}
-														</>
-													) : (
-														<ReactMarkdown
-															remarkPlugins={[remarkGfm]}
-															components={{
-																table: ({ node, ...props }) => (
-																	<div className="overflow-x-auto my-4 rounded-lg border">
-																		<table
-																			className="min-w-full divide-y divide-gray-200 dark:divide-gray-700"
-																			{...props}
-																		/>
-																	</div>
-																),
-																thead: ({ node, ...props }) => (
-																	<thead
-																		className="bg-gray-50 dark:bg-gray-800"
-																		{...props}
-																	/>
-																),
-																th: ({ node, ...props }) => (
-																	<th
-																		className="px-4 py-3 text-left text-xs font-medium text-gray-500 dark:text-gray-400 uppercase tracking-wider"
-																		{...props}
-																	/>
-																),
-																td: ({ node, ...props }) => (
-																	<td
-																		className="px-4 py-3 whitespace-nowrap text-sm text-gray-700 dark:text-gray-300 border-t border-gray-100 dark:border-gray-700"
-																		{...props}
-																	/>
-																),
-																a: ({ node, ...props }) => (
-																	<a
-																		className="text-primary hover:underline"
-																		target="_blank"
-																		rel="noopener noreferrer"
-																		{...props}
-																	/>
-																),
-																p: ({ node, ...props }) => (
-																	<p className="mb-2 last:mb-0" {...props} />
-																),
-																ul: ({ node, ...props }) => (
-																	<ul
-																		className="list-disc pl-4 mb-2 space-y-1"
-																		{...props}
-																	/>
-																),
-																ol: ({ node, ...props }) => (
-																	<ol
-																		className="list-decimal pl-4 mb-2 space-y-1"
-																		{...props}
-																	/>
-																),
-																li: ({ node, ...props }) => (
-																	<li className="pl-1" {...props} />
-																),
-																blockquote: ({ node, ...props }) => (
-																	<blockquote
-																		className="border-l-4 border-primary/30 pl-4 italic text-gray-600 dark:text-gray-400 my-2"
-																		{...props}
-																	/>
-																),
-																code: ({ node, ...props }) => (
-																	<code
-																		className="bg-gray-100 dark:bg-gray-800 px-1.5 py-0.5 rounded text-sm font-mono text-pink-600 dark:text-pink-400"
-																		{...props}
-																	/>
-																),
-															}}
-														>
-															{msg.content}
-														</ReactMarkdown>
-													)}
-												</div>
 
 												{/* Sources Section */}
 												{msg.sources && msg.sources.length > 0 && (
-													<div className="mt-3">
-														<Button
-															variant="ghost"
-															size="sm"
-															onClick={() => toggleSourceExpansion(msg.id)}
-															className="text-xs text-gray-500 hover:text-gray-900 flex items-center gap-1 h-6 px-2"
-														>
-															<FileText className="h-3 w-3" />
-															{msg.sources.length} Source
-															{msg.sources.length !== 1 ? "s" : ""} Used
-															{expandedSources[msg.id] ? (
-																<span className="text-[10px] ml-1">
-																	(Click to hide)
-																</span>
-															) : (
-																<span className="text-[10px] ml-1">
-																	(Click to view)
-																</span>
-															)}
-														</Button>
+													<div className="mt-2 w-full max-w-2xl animate-in fade-in slide-in-from-top-2 duration-300">
+														<div className="bg-white dark:bg-gray-800 rounded-xl border border-gray-200 dark:border-gray-700 overflow-hidden shadow-sm">
+															<button
+																onClick={() => toggleSourceExpansion(msg.id)}
+																className="w-full flex items-center justify-between p-3 bg-gray-50/50 dark:bg-gray-800/50 hover:bg-gray-100 dark:hover:bg-gray-700 transition-colors"
+															>
+																<div className="flex items-center gap-2 text-sm font-medium text-gray-700 dark:text-gray-200">
+																	<FileText className="w-4 h-4 text-primary" />
+																	<span>
+																		Sources ({msg.sources.length})
+																	</span>
+																</div>
+																<div className="text-xs text-muted-foreground">
+																	{expandedSources[msg.id]
+																		? "Hide"
+																		: "Show"}
+																</div>
+															</button>
 
-														{expandedSources[msg.id] && (
-															<div className="mt-2 flex flex-wrap gap-1.5 animate-in fade-in slide-in-from-top-1 duration-200">
-																{msg.sources
-																	.slice(
-																		0,
-																		expandedSources[msg.id]
-																			? undefined
-																			: INITIAL_SOURCES_SHOWN
-																	)
-																	.map((source: any, idx: number) => (
+															{expandedSources[msg.id] && (
+																<div className="p-3 grid gap-2 bg-white dark:bg-gray-800">
+																	{msg.sources.map((source: any) => (
 																		<div
-																			key={idx}
+																			key={source.id}
+																			className="group flex items-start gap-3 p-2 rounded-lg hover:bg-gray-50 dark:hover:bg-gray-700/50 transition-all border border-transparent hover:border-gray-100 dark:hover:border-gray-700 cursor-pointer"
 																			onClick={() => {
-																				// If source has citation data, open split-screen
-																				if (source.citation) {
-																					openCitation({
-																						pageNumber:
-																							source.citation.pageNumber,
-																						imageUrl: source.citation.imageUrl,
-																						boundingBox:
-																							source.citation.boundingBox,
-																						layoutItems: (
-																							source.citation as any
-																						).layoutItems,
-																						chunkContent: (
-																							source.citation as any
-																						).chunkContent,
-																						title:
-																							(source.citation as any).title ||
-																							source.title ||
-																							"Untitled Document",
-																					});
-																				} else {
-																					// Fallback: navigate to file page
-																					window.location.href = `/app/files/${source.id}`;
-																				}
+																				// Use citation data if available, otherwise fallback
+																				const citation = source.citation || {};
+																				openCitation({
+																					pageNumber:
+																						citation.pageNumber ||
+																						source.page_number ||
+																						1,
+																					imageUrl:
+																						citation.imageUrl ||
+																						source.image_url,
+																					boundingBox:
+																						citation.boundingBox ||
+																						source.bbox,
+																					chapterId:
+																						msg.filters?.chapterId, // Pass chapterId from message filters
+																				});
 																			}}
-																			className="group cursor-pointer"
 																		>
-																			<Badge
-																				variant="secondary"
-																				className="text-xs h-6 px-2 py-1 font-normal bg-gray-100 hover:bg-gray-200 dark:bg-gray-700 dark:hover:bg-gray-600 text-gray-700 dark:text-gray-300 transition-colors cursor-pointer max-w-xs flex items-center gap-1.5 border border-gray-200 dark:border-gray-600"
-																			>
-																				<FileText className="h-3 w-3 flex-shrink-0" />
-																				<span className="truncate max-w-[200px]">
-																					{truncateTitle(
-																						source.title || "Untitled Document",
-																						40
+																			<div className="mt-1 p-1.5 bg-primary/10 rounded-md group-hover:bg-primary/20 transition-colors">
+																				<FileText className="w-3.5 h-3.5 text-primary" />
+																			</div>
+																			<div className="flex-1 min-w-0">
+																				<div className="flex items-center justify-between gap-2">
+																					<p className="text-sm font-medium text-gray-900 dark:text-gray-100 truncate group-hover:text-primary transition-colors">
+																						{source.title}
+																					</p>
+																					{source.similarity && (
+																						<Badge
+																							variant="secondary"
+																							className="text-[10px] h-5 px-1.5"
+																						>
+																							{Math.round(
+																								source.similarity * 100
+																							)}
+																							% match
+																						</Badge>
 																					)}
-																				</span>
-																				{source.similarity && (
-																					<span className="text-[10px] text-green-600 dark:text-green-400 font-medium flex-shrink-0 ml-0.5">
-																						{(source.similarity * 100).toFixed(
-																							0
-																						)}
-																						%
-																					</span>
+																				</div>
+																				{source.citation?.pageNumber && (
+																					<p className="text-xs text-muted-foreground mt-0.5">
+																						Page {source.citation.pageNumber}
+																					</p>
 																				)}
-																				<ExternalLink className="h-3 w-3 opacity-0 group-hover:opacity-100 transition-opacity flex-shrink-0" />
-																			</Badge>
+																			</div>
+																			<ExternalLink className="w-3.5 h-3.5 text-gray-400 opacity-0 group-hover:opacity-100 transition-opacity" />
 																		</div>
 																	))}
-															</div>
-														)}
-													</div>
-												)}
-
-												{/* Token Usage Info (Optional) */}
-												{msg.tokenCount && (
-													<div className="mt-1 text-[10px] text-gray-400 flex gap-2 opacity-0 group-hover:opacity-100 transition-opacity">
-														<span>
-															Input: {msg.tokenCount.input || 0} tokens
-														</span>
-														<span>•</span>
-														<span>
-															Output: {msg.tokenCount.output || 0} tokens
-														</span>
+																</div>
+															)}
+														</div>
 													</div>
 												)}
 											</div>
 										</div>
 									))}
-
-									{/* Loading Indicator */}
-									{isLoading &&
-										messages[messages.length - 1]?.role === "user" && (
-											<div className="flex gap-4 animate-in fade-in duration-300">
-												<div className="w-8 h-8 rounded-full bg-primary/10 flex items-center justify-center flex-shrink-0 ring-1 ring-primary/20">
-													<Loader2 className="h-4 w-4 text-primary animate-spin" />
-												</div>
-												<div className="flex-1 space-y-2">
-													<div className="flex items-center gap-2">
-														<span className="font-medium text-sm text-gray-900 dark:text-gray-100">
-															AI Assistant
-														</span>
-														<span className="text-xs text-gray-400 animate-pulse">
-															Thinking...
-														</span>
-													</div>
-													<div className="h-4 w-24 bg-gray-200 dark:bg-gray-700 rounded animate-pulse" />
-												</div>
-											</div>
-										)}
 									<div ref={messagesEndRef} />
 								</div>
 							)}
 						</div>
-					</div>
 
-					{/* Input Area */}
-					<div className="p-4 bg-white dark:bg-gray-900 border-t shadow-lg z-20 flex-shrink-0">
-						<div className="max-w-4xl mx-auto space-y-3">
-							{/* Filters Row */}
-							<div className="flex flex-wrap items-center gap-2">
-								<select
-									className="text-xs border rounded-md px-2 py-1 bg-gray-50 dark:bg-gray-800 focus:ring-1 focus:ring-primary outline-none"
-									value={selectedCategory}
-									onChange={(e) => setSelectedCategory(e.target.value)}
-									disabled={isLoading || categoriesLoading}
-								>
-									<option value="">All Categories</option>
-									{categories.map((c) => (
-										<option key={c} value={c}>
-											{c}
-										</option>
-									))}
-								</select>
-
-								<div className="h-4 w-px bg-gray-200 dark:bg-gray-700 mx-1" />
-
-								<select
-									className="text-xs border rounded-md px-2 py-1 bg-gray-50 dark:bg-gray-800 focus:ring-1 focus:ring-primary outline-none"
-									value={model}
-									onChange={(e) => setModel(e.target.value)}
-									disabled={isLoading || modelsLoading}
-								>
-									{models.map((m) => (
-										<option key={m.name} value={m.name}>
-											{m.label}
-										</option>
-									))}
-								</select>
-							</div>
-
-							{/* Input Row */}
-							<div className="flex gap-2 relative">
-								<Input
-									ref={inputRef}
-									placeholder={
-										isLoading
-											? "Please wait for response..."
-											: "Ask a question about your documents..."
-									}
-									value={inputMessage}
-									onChange={(e) => setInputMessage(e.target.value)}
-									onKeyDown={handleKeyPress}
-									disabled={isLoading}
-									className="flex-1 pr-12 py-6 text-base shadow-sm focus-visible:ring-primary/50"
-								/>
-								<Button
-									onClick={handleSendMessage}
-									disabled={!inputMessage.trim() || isLoading}
-									className="absolute right-1.5 top-1.5 h-9 w-9 p-0 rounded-lg shadow-sm"
-									size="icon"
-								>
-									{isLoading ? (
-										<Loader2 className="h-4 w-4 animate-spin" />
-									) : (
-										<Send className="h-4 w-4" />
+						{/* Input Area */}
+						<div className="border-t bg-white dark:bg-gray-900 p-4">
+							<div className="max-w-4xl mx-auto space-y-4">
+								{/* Filters */}
+								<div className="flex flex-wrap items-center gap-3">
+									{currentConversationId && (
+										<div className="w-full text-xs text-amber-600 bg-amber-50 px-2 py-1 rounded border border-amber-200 mb-1 flex items-center gap-1">
+											<span>🔒 Context locked to this conversation. Start a new chat to change.</span>
+										</div>
 									)}
-								</Button>
-							</div>
-							<div className="flex justify-between items-center px-1">
-								<p className="text-[10px] text-gray-400">
-									AI can make mistakes. Please verify important information from
-									source documents.
-								</p>
-								{messages.length > 0 && (
-									<span className="text-[10px] text-gray-400">
-										{messages.length} message{messages.length !== 1 ? "s" : ""}
-									</span>
-								)}
+									<select
+										className="h-9 text-sm border rounded-md px-3 bg-white dark:bg-gray-800 focus:ring-2 focus:ring-primary/20 outline-none disabled:opacity-50 disabled:cursor-not-allowed"
+										value={selectedSubjectId || ""}
+
+										onChange={(e) => {
+											const val = e.target.value;
+											if (val) {
+												const id = parseInt(val);
+												setSelectedSubjectId(id);
+												const subj = subjects.find((s) => s.id === id);
+												if (subj) setSelectedSubjectName(subj.name);
+
+												// Update URL
+												const params = new URLSearchParams(searchParams.toString());
+												params.set("subjectId", val);
+												params.delete("chapterId"); // Reset chapter when subject changes
+												router.push(`?${params.toString()}`);
+											}
+											// No "All Subjects" option allowed
+										}}
+										disabled={subjectsLoading || !!currentConversationId}
+									>
+										{subjects.map((s) => (
+											<option key={s.id} value={s.id}>
+												{s.name}
+											</option>
+										))}
+									</select>
+
+									<select
+										className="h-9 text-sm border rounded-md px-3 bg-white dark:bg-gray-800 focus:ring-2 focus:ring-primary/20 outline-none max-w-[200px]"
+										value={selectedChapterId || ""}
+										onChange={(e) => {
+											const val = e.target.value;
+											if (val) {
+												setSelectedChapterId(val);
+												const chap = chapters.find((c) => c.id === val);
+												if (chap) setSelectedChapterTitle(chap.title);
+
+												// Update URL
+												const params = new URLSearchParams(searchParams.toString());
+												params.set("chapterId", val);
+												router.push(`?${params.toString()}`);
+											}
+										}}
+										disabled={chaptersLoading || !selectedSubjectId || !!currentConversationId}
+									>
+										{chapters.length === 0 ? (
+											<option value="" disabled>
+												No chapters found
+											</option>
+										) : (
+											chapters.map((c) => (
+												<option key={c.id} value={c.id}>
+													{c.chapter_number ? `${c.chapter_number}. ` : ""}
+													{c.title}
+												</option>
+											))
+										)}
+									</select>
+								</div>
+
+								{/* Input Box */}
+								<div className="relative flex items-end gap-2 bg-white dark:bg-gray-800 border rounded-xl shadow-sm focus-within:ring-2 focus-within:ring-primary/20 focus-within:border-primary transition-all p-2">
+									<div className="flex-1">
+										<Input
+											ref={inputRef}
+											value={inputMessage}
+											onChange={(e) => setInputMessage(e.target.value)}
+											onKeyDown={handleKeyPress}
+											placeholder={
+												selectedChapterId
+													? `Ask about ${truncateTitle(
+														selectedChapterTitle,
+														30
+													)}...`
+													: "Select a chapter to start chatting..."
+											}
+											className="border-0 focus-visible:ring-0 px-3 py-2 h-auto max-h-32 min-h-[44px] resize-none bg-transparent"
+											disabled={isLoading || !selectedChapterId}
+										/>
+									</div>
+									<Button
+										onClick={() => handleSendMessage()}
+										disabled={
+											isLoading || !inputMessage.trim() || !selectedChapterId
+										}
+										size="icon"
+										className={`h-10 w-10 rounded-lg transition-all duration-200 ${inputMessage.trim() && !isLoading && selectedChapterId
+											? "bg-primary hover:bg-primary/90 text-primary-foreground shadow-md hover:shadow-lg scale-100"
+											: "bg-gray-100 text-gray-400 scale-95"
+											}`}
+									>
+										{isLoading ? (
+											<Loader2 className="h-5 w-5 animate-spin" />
+										) : (
+											<Send className="h-5 w-5" />
+										)}
+									</Button>
+								</div>
+								<div className="flex justify-between items-center px-1">
+									<p className="text-xs text-muted-foreground">
+										AI can make mistakes. Please verify important information.
+									</p>
+									{lastResponseMeta && (
+										<Badge
+											variant="outline"
+											className="text-[10px] h-5 font-normal text-muted-foreground"
+										>
+											{lastResponseMeta.queryType === "analytical_query"
+												? "Deep Analysis"
+												: "Quick Search"}
+										</Badge>
+									)}
+								</div>
 							</div>
 						</div>
 					</div>
@@ -1247,4 +1386,66 @@ function ChatPageContent() {
 			</SplitScreenLayout>
 		</div>
 	);
+}
+
+function parseSuggestedResponses(content: string): { cleanedContent: string; suggestedResponses: string[] } {
+	let suggestedResponses: string[] = [];
+	let cleanedContent = content;
+
+	// Try multiple regex patterns to match the JSON block
+	const patterns = [
+		/```json\s*(\{[\s\S]*?"suggested_responses"[\s\S]*?\})\s*```/,  // Standard: ```json
+		/```\s*(\{[\s\S]*?"suggested_responses"[\s\S]*?\})\s*```/,      // No language: ```
+		/``json\s*(\{[\s\S]*?"suggested_responses"[\s\S]*?\})\s*``/,    // Malformed: ``json
+		/\{[\s\S]*?"suggested_responses"[\s\S]*?\}/                      // Raw JSON (no backticks)
+	];
+
+	let jsonMatch: RegExpMatchArray | null = null;
+	let matchedPattern = -1;
+
+	for (let i = 0; i < patterns.length; i++) {
+		jsonMatch = content.match(patterns[i]);
+		if (jsonMatch) {
+			matchedPattern = i;
+			break;
+		}
+	}
+
+	if (jsonMatch) {
+		// Always remove the matched block from content (whether we can parse it or not)
+		cleanedContent = content.replace(jsonMatch[0], "").trim();
+
+		try {
+			// For the raw JSON pattern (no backticks), use full match, otherwise use capture group
+			let jsonString = matchedPattern === 3 ? jsonMatch[0] : jsonMatch[1];
+			jsonString = jsonString.trim();
+
+			// Find complete JSON object
+			let braceCount = 0;
+			let endIndex = -1;
+			for (let i = 0; i < jsonString.length; i++) {
+				if (jsonString[i] === '{') braceCount++;
+				if (jsonString[i] === '}') {
+					braceCount--;
+					if (braceCount === 0) {
+						endIndex = i + 1;
+						break;
+					}
+				}
+			}
+
+			if (endIndex > 0) {
+				jsonString = jsonString.substring(0, endIndex);
+			}
+
+			const json = JSON.parse(jsonString);
+			if (json.suggested_responses && Array.isArray(json.suggested_responses)) {
+				suggestedResponses = json.suggested_responses;
+			}
+		} catch (e) {
+			console.error("[PARSE] Failed to parse suggested_responses, but removed from display:", e);
+		}
+	}
+
+	return { cleanedContent, suggestedResponses };
 }

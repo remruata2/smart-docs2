@@ -34,8 +34,8 @@ export async function trackUsage(
 				metadata: metadata
 					? { ...(existing.metadata as object), ...metadata }
 					: existing.metadata === null
-					? Prisma.JsonNull
-					: existing.metadata,
+						? Prisma.JsonNull
+						: existing.metadata,
 			},
 		});
 	} else {
@@ -97,6 +97,9 @@ export async function getAllCurrentUsage(userId: number) {
 		chat_message: 0,
 		document_export: 0,
 		ai_processing: 0,
+		quiz_generation: 0,
+		battle_match: 0,
+		ai_tutor_session: 0,
 	};
 
 	usageRecords.forEach((record) => {

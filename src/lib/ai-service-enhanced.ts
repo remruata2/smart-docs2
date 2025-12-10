@@ -11,6 +11,8 @@ import { processChunkedAnalyticalQuery } from "./chunked-processing";
 import { ChartSchema } from "@/lib/chart-schema";
 import { generateObject } from "ai";
 import { createGoogleGenerativeAI } from "@ai-sdk/google";
+import { z } from "zod";
+import { QuestionType } from "@/generated/prisma";
 
 // Developer logging toggle - set to true to see query logs in console
 const DEV_LOGGING = true;
@@ -25,7 +27,7 @@ const RELEVANCE_EXTRACTION_CONFIG = {
 };
 
 // AI API timeout configuration (in milliseconds)
-const AI_API_TIMEOUT = 120000; // 120 seconds
+const AI_API_TIMEOUT = 90000; // 90 seconds
 
 /**
  * RELEVANCE EXTRACTION FEATURE
@@ -111,6 +113,7 @@ export interface ChatMessage {
 	id: string;
 	role: "user" | "assistant";
 	content: string;
+	originalContent?: string; // For translation toggle
 	timestamp: Date;
 	sources?: Array<{
 		id: number;
@@ -128,6 +131,9 @@ export interface ChatMessage {
 		output: number;
 	};
 	filters?: {
+		boardId?: string;
+		subjectId?: number;
+		chapterId?: number;
 		category?: string;
 	};
 	chartData?: {
@@ -138,11 +144,12 @@ export interface ChatMessage {
 		seriesKeys: string[];
 		data: Array<Record<string, string | number>>;
 	};
+	suggestedResponses?: string[];
 }
 
 export interface SearchResult {
-	id: number;
-	category: string;
+	id: string | number;
+	subject?: string; // Subject name (mapped from search results)
 	title: string;
 	note: string | null;
 	entry_date_real: Date | null;
@@ -178,14 +185,14 @@ function quickClassifyQuery(query: string): {
 	semanticConcepts?: string; // Optional for backward compatibility
 	instructionalTerms: string;
 	queryType:
-		| "specific_search"
-		| "follow_up"
-		| "elaboration"
-		| "general"
-		| "recent_files"
-		| "analytical_query"
-		| "list_all"
-		| "visualization";
+	| "specific_search"
+	| "follow_up"
+	| "elaboration"
+	| "general"
+	| "recent_files"
+	| "analytical_query"
+	| "list_all"
+	| "visualization";
 	contextNeeded: boolean;
 	inputTokens: number;
 	outputTokens: number;
@@ -327,14 +334,14 @@ export async function analyzeQueryForSearch(
 	semanticConcepts?: string; // Optional for backward compatibility
 	instructionalTerms: string;
 	queryType:
-		| "specific_search"
-		| "follow_up"
-		| "elaboration"
-		| "general"
-		| "recent_files"
-		| "analytical_query"
-		| "list_all"
-		| "visualization";
+	| "specific_search"
+	| "follow_up"
+	| "elaboration"
+	| "general"
+	| "recent_files"
+	| "analytical_query"
+	| "list_all"
+	| "visualization";
 	contextNeeded: boolean;
 	inputTokens: number;
 	outputTokens: number;
@@ -360,14 +367,19 @@ export async function analyzeQueryForSearch(
 		const attemptModels = Array.from(
 			new Set([opts.model, ...dbModels].filter(Boolean))
 		);
+		// Fallback to .env or hardcoded default if no models are available
+		if (attemptModels.length === 0) {
+			const fallbackModel = process.env.GEMINI_DEFAULT_MODEL || "gemini-2.0-flash";
+			attemptModels.push(fallbackModel);
+		}
 
 		// Build conversation context
 		const recentHistory = conversationHistory.slice(-6); // Last 3 exchanges
 		const historyContext =
 			recentHistory.length > 0
 				? `\nRECENT CONVERSATION:\n${recentHistory
-						.map((msg) => `${msg.role.toUpperCase()}: ${msg.content}`)
-						.join("\n")}\n`
+					.map((msg) => `${msg.role.toUpperCase()}: ${msg.content}`)
+					.join("\n")}\n`
 				: "";
 
 		const prompt = `You are the Query Processor for a high-precision RAG system.
@@ -427,8 +439,7 @@ Respond ONLY with valid JSON.`;
 			try {
 				const model = client.getGenerativeModel({ model: modelName as string });
 				console.log(
-					`[AI] provider=gemini model=${modelName} keyId=${
-						keyId ?? "env-fallback"
+					`[AI] provider=gemini model=${modelName} keyId=${keyId ?? "env-fallback"
 					}`
 				);
 				// Count input tokens using provider-native method
@@ -472,8 +483,7 @@ Respond ONLY with valid JSON.`;
 				const errorMsg = e?.message || String(e);
 				if (errorMsg.includes("timed out")) {
 					console.warn(
-						`[AI] Query analysis timeout after ${
-							AI_API_TIMEOUT / 1000
+						`[AI] Query analysis timeout after ${AI_API_TIMEOUT / 1000
 						}s with model: ${modelName}`
 					);
 				} else {
@@ -550,42 +560,49 @@ Respond ONLY with valid JSON.`;
 }
 
 /**
- * Get recent files sorted by date
+ * Get recent chapters sorted by date
+ * Updated to use chapters table instead of file_list
  */
 export async function getRecentFiles(
 	limit: number = 10
 ): Promise<SearchResult[]> {
 	try {
-		console.log(`[RECENT FILES] Fetching ${limit} most recent files`);
+		console.log(`[RECENT CHAPTERS] Fetching ${limit} most recent chapters`);
 
-		const records = await prisma.fileList.findMany({
+		const chapters = await prisma.chapter.findMany({
 			select: {
 				id: true,
-				category: true,
 				title: true,
-				note: true,
-				entry_date_real: true,
-			},
-			where: {
-				entry_date_real: {
-					not: null,
+				created_at: true,
+				subject: {
+					select: {
+						name: true,
+					},
 				},
 			},
+			where: {
+				is_active: true,
+				processing_status: "COMPLETED",
+			},
 			orderBy: {
-				entry_date_real: "desc",
+				created_at: "desc",
 			},
 			take: limit,
 		});
 
-		console.log(`[RECENT FILES] Found ${records.length} recent files`);
+		console.log(`[RECENT CHAPTERS] Found ${chapters.length} recent chapters`);
 
-		return records.map((record) => ({
-			...record,
-			rank: 1.0, // All recent files have equal relevance
+		return chapters.map((chapter) => ({
+			id: chapter.id.toString(),
+			subject: chapter.subject.name,
+			title: chapter.title,
+			note: "", // Chapters don't have a note field, content is in chunks
+			entry_date_real: chapter.created_at,
+			rank: 1.0, // All recent chapters have equal relevance
 		}));
 	} catch (error) {
-		console.error("Recent files query error:", error);
-		throw new Error("Failed to fetch recent files");
+		console.error("Recent chapters query error:", error);
+		throw new Error("Failed to fetch recent chapters");
 	}
 }
 
@@ -677,7 +694,7 @@ function calculateRelevanceScore(
 	// 2. Query word matches in title and content (Keep this logic, it's good)
 	const titleLower = record.title.toLowerCase();
 	const noteLower = (record.note || "").toLowerCase();
-	const categoryLower = (record.category || "").toLowerCase();
+	const subjectLower = (record.subject || "").toLowerCase();
 
 	queryWords.forEach((word) => {
 		// Title matches get higher weight
@@ -688,8 +705,8 @@ function calculateRelevanceScore(
 		if (noteLower.includes(word)) {
 			score += 3;
 		}
-		// Category matches
-		if (categoryLower.includes(word)) {
+		// Subject matches
+		if (subjectLower.includes(word)) {
 			score += 2;
 		}
 	});
@@ -1084,9 +1101,8 @@ function extractKeyInformation(
 
 	// If no relevant sentences found, return a very short summary
 	if (relevantSentences.length === 0) {
-		return `[Summary] ${note.substring(0, 100)}${
-			note.length > 100 ? "..." : ""
-		}`;
+		return `[Summary] ${note.substring(0, 100)}${note.length > 100 ? "..." : ""
+			}`;
 	}
 
 	// Return relevant sentences
@@ -1184,11 +1200,11 @@ export function prepareContextForAI(
 		}
 	}
 
-	// Group records by category for smarter organization
-	const recordsByCategory = processedRecords.reduce((acc, record) => {
-		const category = record.category || "Uncategorized";
-		if (!acc[category]) acc[category] = [];
-		acc[category].push(record);
+	// Group records by subject for smarter organization
+	const recordsBySubject = processedRecords.reduce((acc, record) => {
+		const subject = record.subject || "Uncategorized";
+		if (!acc[subject]) acc[subject] = [];
+		acc[subject].push(record);
 		return acc;
 	}, {} as Record<string, SearchResult[]>);
 
@@ -1207,7 +1223,7 @@ export function prepareContextForAI(
 		return {
 			id: record.id,
 			title: record.title,
-			category: record.category || "Uncategorized",
+			subject: record.subject || "Uncategorized",
 			date: record.entry_date_real?.toLocaleDateString() || "Unknown date",
 			relevance: relevanceDisplay,
 		};
@@ -1224,15 +1240,14 @@ export function prepareContextForAI(
 				query.toLowerCase().includes("victim"))
 		) {
 			console.log(
-				`[CONTEXT-PREP] Record ${record.id} (${record.title}): content length=${
-					content.length
+				`[CONTEXT-PREP] Record ${record.id} (${record.title}): content length=${content.length
 				}, preview=${content.substring(0, 200)}...`
 			);
 		}
 
 		// Avoid duplicating metadata if it's already in the note
-		const categoryPattern = new RegExp(
-			`Category[^\\n]*${escapeRegExp(record.category)}`,
+		const subjectPattern = new RegExp(
+			`Subject[^\\n]*${escapeRegExp(record.subject || "")}`,
 			"i"
 		);
 		const titlePattern = new RegExp(
@@ -1251,7 +1266,7 @@ export function prepareContextForAI(
 		return {
 			id: record.id,
 			title: record.title,
-			category: record.category || "Uncategorized",
+			subject: record.subject || "Uncategorized",
 			date: record.entry_date_real?.toLocaleDateString() || "Unknown date",
 			content: content,
 			relevance: relevanceDisplay,
@@ -1263,36 +1278,36 @@ export function prepareContextForAI(
 DATABASE CONTEXT:
 
 === OVERVIEW ===
- Found ${processedRecords.length} relevant records from the Smart Docs database.
-The records span ${Object.keys(recordsByCategory).length} categories.
+ Found ${processedRecords.length
+		} relevant records from the educational content database.
+The records span ${Object.keys(recordsBySubject).length} subjects.
 Records are listed below ordered by relevance to your query.
 
   === RECORD INDEX ===
   ${recordIndex
-		.map(
-			(r, i) =>
-				`[${i + 1}] File: ${r.title} | Category: ${r.category} | Date: ${
-					r.date
-				} | Relevance: ${r.relevance}`
-		)
-		.join("\n")}
+			.map(
+				(r, i) =>
+					`[${i + 1}] Chapter: ${r.title} | Subject: ${r.subject} | Date: ${r.date
+					} | Relevance: ${r.relevance}`
+			)
+			.join("\n")}
 
 === FULL RECORD DETAILS ===
 ${detailedRecords
-	.map(
-		(record, index) => `
-**File: ${record.title}** (Relevance: ${record.relevance})
-Category: ${record.category}
+			.map(
+				(record, index) => `
+**Chapter: ${record.title}** (Relevance: ${record.relevance})
+Subject: ${record.subject}
 Date: ${record.date}
 Content: ${record.content}
 ---`
-	)
-	.join("\n")}
+			)
+			.join("\n")}
 
-=== CATEGORY SUMMARY ===
-${Object.entries(recordsByCategory)
-	.map(([category, records]) => `${category}: ${records.length} records`)
-	.join("\n")}
+=== SUBJECT SUMMARY ===
+${Object.entries(recordsBySubject)
+			.map(([subject, records]) => `${subject}: ${records.length} records`)
+			.join("\n")}
 
 END OF DATABASE CONTEXT
 `;
@@ -1349,14 +1364,19 @@ export async function generateAIResponse(
 	const attemptModels = Array.from(
 		new Set([opts.model, ...dbModels].filter(Boolean))
 	);
+	// Fallback to .env or hardcoded default if no models are available
+	if (attemptModels.length === 0) {
+		const fallbackModel = process.env.GEMINI_DEFAULT_MODEL || "gemini-2.0-flash";
+		attemptModels.push(fallbackModel);
+	}
 
 	// Build conversation context for follow-up questions
 	const recentHistory = conversationHistory.slice(-4); // Last 2 exchanges
 	const historyContext =
 		recentHistory.length > 0
 			? `\nCONVERSATION HISTORY:\n${recentHistory
-					.map((msg) => `${msg.role.toUpperCase()}: ${msg.content}`)
-					.join("\n")}\n`
+				.map((msg) => `${msg.role.toUpperCase()}: ${msg.content}`)
+				.join("\n")}\n`
 			: "";
 
 	// Adjust prompt based on query type
@@ -1364,46 +1384,52 @@ export async function generateAIResponse(
 	switch (queryType) {
 		case "analytical_query":
 			roleInstructions = `
-- **Goal:** Synthesize a high-level answer. Do not just list the files one by one.
+- **Goal:** Provide a clear, comprehensive explanation that helps students understand the topic.
 - **Structure:**
-  1. **Executive Summary:** A 2-sentence answer to the core question.
-  2. **Key Findings:** Group information by themes (e.g., "Timeline of Events", "Financial Impact", "Involved Parties").
-  3. **Data Table:** If numbers/dates are involved, create a Markdown table comparing them across records.
-  4. **Source Breakdown:** Briefly mention which records contributed to which finding.
+  1. **Simple Overview:** Start with a 2-3 sentence explanation in plain language that answers the core question.
+  2. **Main Concepts:** Break down the topic into key concepts, explaining each one simply with examples.
+  3. **Organized Information:** Group related information by themes (e.g., "Key Points", "How It Works", "Examples", "Important Details").
+  4. **Visual Aids:** If numbers/dates are involved, create a Markdown table to make comparisons easy to understand.
+  5. **Summary:** End with a brief recap that reinforces the main points.
+- **Remember:** Use analogies, real-world examples, and step-by-step explanations to make complex topics easy to grasp.
 `;
 			break;
 		case "follow_up":
 			roleInstructions = `
 - This is a follow-up question referring to previous conversation.
 - Use both the conversation history and database records to answer.
-- Connect the current question to previous context.
+- Connect the current question to what was discussed before, building on previous explanations.
+- If the student is asking for clarification, provide a simpler explanation or use a different analogy.
 `;
 			break;
 		case "elaboration":
 			roleInstructions = `
-- The user wants more detailed information about previous results.
-- Provide comprehensive details from the database records.
-- Expand on the information with additional context.
+- The student wants more detailed information or a deeper explanation.
+- Provide comprehensive details from the study materials, but keep explanations simple and clear.
+- Expand on the information with additional context, examples, and analogies.
+- Break down complex details into smaller, understandable pieces.
 `;
 			break;
 		case "recent_files":
 			roleInstructions = `
-- The user asked for recent/latest files.
-- Present the files in a clear, organized manner.
-- Include file numbers, titles, categories, and dates.
+- The student asked for recent/latest chapters or materials.
+- Present the information in a clear, organized manner.
+- Include chapter titles, subjects, and dates.
 - Mention they are sorted by most recent first.
 `;
 			break;
 		default: // specific_search and general
 			roleInstructions = `
-- Answer the user's specific question using the provided database records.
-- Be factual and cite relevant information by referencing file numbers.
-- Provide clear, organized information.
+- Answer the student's specific question using the provided study materials.
+- Explain concepts in simple terms with examples and analogies.
+- Be factual and cite relevant information by referencing chapter titles.
+- Provide clear, organized information that's easy to follow.
+- If explaining a concept, start with the basics and build up to more complex ideas.
 `;
 	}
 
-	const prompt = `You are the AI Analyst for the Smart Docs system.
-Your task is to answer the user's question using *only* the provided Database Context.
+	const prompt = `You are a friendly and patient AI tutor helping students learn from their educational materials.
+Your task is to explain concepts in simple, easy-to-understand terms using *only* the provided Database Context.
 
 === DATABASE CONTEXT ===
 ${context}
@@ -1415,32 +1441,46 @@ ${historyContext}
 "${question}"
 
 === SYSTEM INSTRUCTIONS ===
-1. **Strict Citations:** You MUST support every factual claim with a reference to the source file name/title.
-   - Format: Use the file title/name directly, or (Source: Title).
-   - Example: "The project was completed on July 4th (Source: Project Report 2024-001). The document indicates the budget was approved (Source: Budget Approval Memo)."
-   - Always use the exact file title as shown in the context, not record numbers or IDs.
+1. **Student-Friendly Explanations (MOST IMPORTANT):**
+   - Explain everything in simple, clear language that students can easily understand.
+   - Break down complex concepts into smaller, digestible parts.
+   - Use everyday analogies and examples to help students relate to the material.
+   - Avoid jargon unless necessary, and always explain technical terms when you use them.
+   - Use a conversational, encouraging tone - like a helpful teacher explaining to a student.
+   - If explaining a process, use step-by-step instructions with clear numbering or bullet points.
+   - Relate concepts to real-world examples that students can visualize.
 
-2. **Hybrid Synthesis:** The context contains both "Keyword Matches" (exact words) and "Semantic Matches" (related concepts).
-   - If the user asks for a specific file, prioritize records with that exact file title/name.
-   - If the user asks for a summary, synthesize information from multiple relevant records.
-   - Always cite files by their title/name, not by record numbers.
+2. **Strict Citations:** You MUST support every factual claim with a reference to the source chapter/title.
+   - Format: Use the chapter title/name directly, or (Source: Chapter Title).
+   - Example: "According to the chapter on Introduction (Source: Introduction), the concept works like this..."
+   - Always use the exact chapter title as shown in the context.
 
-3. **Formatting:**
-   - Use Markdown tables for structured data (dates, names, amounts).
-   - Use bullet points for lists.
-   - **Bold** key entities (Names, IDs, Dates).
+3. **Hybrid Synthesis:** The context contains both "Keyword Matches" (exact words) and "Semantic Matches" (related concepts).
+   - If the user asks about a specific topic, synthesize information from multiple relevant pages.
+   - Connect related concepts across different parts of the material.
+   - Always cite chapters by their title/name.
 
-4. **Data Visualization:**
+4. **Formatting:**
+   - Use Markdown tables for structured data (comparisons, lists, key points).
+   - Use bullet points for lists and step-by-step explanations.
+   - **Bold** key terms, important concepts, and definitions.
+   - Use numbered lists for processes or sequences.
+   - Break up long explanations into short paragraphs for easy reading.
+
+5. **Data Visualization:**
    - You have the capability to generate charts (bar, line, pie, area).
    - If the user asks to "visualize", "chart", "plot", or "graph" data, acknowledge the request.
    - The system will automatically detect this intent and generate the chart for you.
    - You do not need to generate ASCII charts; a real interactive chart will be rendered.
 
-5. **Honesty:**
-   - If the provided records do not contain the answer, state: "I cannot find information about [X] in the current retrieved documents."
+6. **Honesty:**
+   - If the provided records do not contain the answer, state: "I cannot find information about [X] in the current study materials."
    - Do not invent information.
+   - If you're not sure, say so and suggest what the student might look for.
 
 ${roleInstructions}
+
+Remember: Your goal is to help students understand, not just to provide information. Make learning easy and enjoyable!
 
 Answer:`;
 
@@ -1448,8 +1488,10 @@ Answer:`;
 	if (queryType === "visualization") {
 		try {
 			console.log("[AI-GEN] Generating structured chart configuration...");
-			// Use a model that supports structured output well
-			const modelName = opts.model || "gemini-2.5-flash";
+			// Use priority: opts.model → admin config → .env → fallback
+			const dbModels = await getActiveModelNames("gemini");
+			const fallbackModel = process.env.GEMINI_DEFAULT_MODEL || "gemini-2.0-flash";
+			const modelName = opts.model || dbModels[0] || fallbackModel;
 
 			const { apiKey } = await getProviderApiKey({ provider: "gemini" });
 			const keyToUse = apiKey || process.env.GEMINI_API_KEY;
@@ -1575,8 +1617,7 @@ Ensure the data is cleaned (remove currency symbols, handle missing values).
 			const errorMsg = error?.message || String(error);
 			if (errorMsg.includes("timed out")) {
 				console.warn(
-					`[AI-GEN] Response generation timeout after ${
-						AI_API_TIMEOUT / 1000
+					`[AI-GEN] Response generation timeout after ${AI_API_TIMEOUT / 1000
 					}s with model: ${modelName}`
 				);
 			} else {
@@ -1589,7 +1630,11 @@ Ensure the data is cleaned (remove currency symbols, handle missing values).
 	if (lastError?.message && lastError.message.includes("429")) {
 		throw new Error("RATE_LIMIT_EXCEEDED");
 	}
-	throw new Error("Failed to generate AI response.");
+	// Provide more context in error message
+	const errorDetails = lastError
+		? `: ${lastError.message || String(lastError)}`
+		: " (no models available or configured)";
+	throw new Error(`Failed to generate AI response${errorDetails}`);
 }
 
 /**
@@ -1633,14 +1678,19 @@ export async function* generateAIResponseStream(
 	const attemptModels = Array.from(
 		new Set([opts.model, ...dbModels].filter(Boolean))
 	);
+	// Fallback to .env or hardcoded default if no models are available
+	if (attemptModels.length === 0) {
+		const fallbackModel = process.env.GEMINI_DEFAULT_MODEL || "gemini-2.0-flash";
+		attemptModels.push(fallbackModel);
+	}
 
 	// Build conversation context for follow-up questions
 	const recentHistory = conversationHistory.slice(-4); // Last 2 exchanges
 	const historyContext =
 		recentHistory.length > 0
 			? `\nCONVERSATION HISTORY:\n${recentHistory
-					.map((msg) => `${msg.role.toUpperCase()}: ${msg.content}`)
-					.join("\n")}\n`
+				.map((msg) => `${msg.role.toUpperCase()}: ${msg.content}`)
+				.join("\n")}\n`
 			: "";
 
 	// Adjust prompt based on query type
@@ -1648,46 +1698,51 @@ export async function* generateAIResponseStream(
 	switch (queryType) {
 		case "analytical_query":
 			roleInstructions = `
-- **Goal:** Synthesize a high-level answer. Do not just list the files one by one.
-- **Structure:**
-  1. **Executive Summary:** A 2-sentence answer to the core question.
-  2. **Key Findings:** Group information by themes (e.g., "Timeline of Events", "Financial Impact", "Involved Parties").
-  3. **Data Table:** If numbers/dates are involved, create a Markdown table comparing them across records.
-  4. **Source Breakdown:** Briefly mention which records contributed to which finding.
+- **Goal:** Teach the student about this topic step-by-step, ensuring they understand the "why" and "how".
+- **Teaching Style:**
+  1. **Hook:** Start with a relatable analogy or simple definition to grab interest.
+  2. **Step-by-Step Breakdown:** Explain the concept in logical steps. Don't dump information; guide them through it.
+  3. **Check for Understanding:** After a major point, ask a rhetorical checking question (e.g., "See how that connects?").
+  4. **Visuals:** Use tables for comparisons.
+  5. **Recap:** Summarize the key takeaway.
+- **Formatting:** Use Markdown headers (###) and double newlines.
 `;
 			break;
 		case "follow_up":
 			roleInstructions = `
-- This is a follow-up question referring to previous conversation.
-- Use both the conversation history and database records to answer.
-- Connect the current question to previous context.
+- This is a follow-up question. Continue the "lesson" naturally.
+- Connect the new question to what we just discussed: "That's a great follow-up! It connects back to..."
+- If they are confused, try a different angle or analogy.
+- Keep the encouraging teacher tone.
 `;
 			break;
 		case "elaboration":
 			roleInstructions = `
-- The user wants more detailed information about previous results.
-- Provide comprehensive details from the database records.
-- Expand on the information with additional context.
+- The student wants to go deeper. This is a "teachable moment".
+- Provide comprehensive details but keep it structured.
+- Use "Let's zoom in on this part..." or "Here's the interesting detail..."
+- Ensure they don't get lost in the details by constantly relating back to the main concept.
 `;
 			break;
 		case "recent_files":
 			roleInstructions = `
-- The user asked for recent/latest files.
-- Present the files in a clear, organized manner.
-- Include file numbers, titles, categories, and dates.
+- The student asked for recent/latest chapters or materials.
+- Present the information in a clear, organized manner.
+- Include chapter titles, subjects, and dates.
 - Mention they are sorted by most recent first.
 `;
 			break;
 		default: // specific_search and general
 			roleInstructions = `
-- Answer the user's specific question using the provided database records.
-- Be factual and cite relevant information by referencing file numbers.
-- Provide clear, organized information.
+- Answer the student's specific question directly but gently.
+- Start with the direct answer, then explain *why* it is the answer.
+- Use examples from the text to illustrate.
+- End with an encouraging check-in: "Does that help clarify [Topic]?"
 `;
 	}
 
-	const prompt = `You are the AI Analyst for the Smart Docs system.
-Your task is to answer the user's question using *only* the provided Database Context.
+	const prompt = `You are a friendly, patient, and wise AI teacher. Your goal is not just to answer questions, but to *guide* the student to understanding.
+Your task is to explain concepts in simple, easy-to-understand terms using *only* the provided Database Context.
 
 === DATABASE CONTEXT ===
 ${context}
@@ -1699,26 +1754,131 @@ ${historyContext}
 "${question}"
 
 === SYSTEM INSTRUCTIONS ===
-1. **Strict Citations:** You MUST support every factual claim with a reference to the source file name/title.
-   - Format: Use the file title/name directly, or (Source: Title).
-   - Example: "The project was completed on July 4th (Source: Project Report 2024-001). The document indicates the budget was approved (Source: Budget Approval Memo)."
-   - Always use the exact file title as shown in the context, not record numbers or IDs.
+1. **Persona: The Friendly Teacher:**
+   - You are not just an AI; you are a patient, encouraging, and wise teacher.
+   - Your goal is to *guide* the student to understanding, not just give answers.
+   - Use phrases like "Great question!", "Let's break this down," or "Think of it this way..."
+   - Be supportive. If a topic is hard, acknowledge it: "This can be tricky, but we'll get it together."
 
-2. **Hybrid Synthesis:** The context contains both "Keyword Matches" (exact words) and "Semantic Matches" (related concepts).
-   - If the user asks for a specific file, prioritize records with that exact file title/name.
-   - If the user asks for a summary, synthesize information from multiple relevant records.
-   - Always cite files by their title/name, not by record numbers.
+2. **Interactive Teaching Strategy:**
+   - **Step-by-Step:** Never overwhelm the student. Break complex answers into numbered steps.
+   - **Check-ins:** Occasionally ask if they are following along or want to dive deeper into a specific part.
+   - **Analogies:** Always use real-world analogies to explain abstract concepts.
 
-3. **Formatting:**
-   - Use Markdown tables for structured data (dates, names, amounts).
-   - Use bullet points for lists.
-   - **Bold** key entities (Names, IDs, Dates).
+3. **Suggested Questions (OPTIONAL - for exploration):**
+   - If appropriate, you may provide 3 related follow-up questions in a JSON block to help students explore further.
+   - Format:
+   \`\`\`json
+   {
+     "related_questions": [
+       "Question 1?",
+       "Question 2?",
+       "Question 3?"
+     ]
+   }
+   \`\`\`
+   - Do not add any text after this JSON block.
 
-4. **Honesty:**
-   - If the provided records do not contain the answer, state: "I cannot find information about [X] in the current retrieved documents."
-   - Do not invent information.
+4. **Interactive Response Buttons (REQUIRED):**
+   - At the end of EVERY response, you MUST provide 2-3 short, clickable options for the student to reply with.
+   - These help guide the conversation and make learning interactive.
+   - Format:
+   \`\`\`json
+   {
+     "suggested_responses": [
+       "Tell me more",
+       "Give an example",
+       "What about...?"
+     ]
+   }
+   \`\`\`
+   - Keep them short (max 4-5 words).
+   - Make them natural responses that fit the context of your answer.
+   - Do not add any text after this JSON block.
+
+5. **Formatting Rules:**
+   - **NO TABLES:** Do not use Markdown tables. They do not render well on mobile devices. Use bulleted lists or clear text structures instead.
+   - Use **bold** for key terms.
+   - Use double newlines between paragraphs for better readability.
+
+=== TUTOR MODE INSTRUCTIONS (ACTIVE) ===
+You are currently conducting an interactive lesson.
+Current Status: The student has started a formal learning session.
+Your Goal: Guide the student step-by-step through the chapter.
+
+**CRITICAL: RESPONSE LENGTH & PACING**
+1. **KEEP IT SHORT:** Your responses must be bite-sized (max 150 words).
+2. **ONE CONCEPT ONLY:** Explain *only* one small concept at a time.
+3. **NO DUMPING:** Do NOT summarize the whole chapter. Do NOT list every detail.
+4. **WAIT FOR STUDENT:** After explaining one concept and asking a question, STOP. Wait for the answer.
+
+**Tutor Loop Strategy:**
+1. **TEACH**: Explain *one* concept at a time clearly and simply. Use analogies.
+2. **CHECK**: Immediately after explaining, ask a specific question to verify understanding.
+   - Do NOT ask "Do you understand?".
+   - Ask a conceptual question like "So, if X happens, what would happen to Y?" or a simple problem to solve.
+3. **EVALUATE**:
+   - If the student answers correctly: Praise them briefly, then move to the next concept.
+   - If incorrect: Explain *why* it was wrong, simplify the concept, and ask a *new* question to check again.
+   - Do NOT move on until the student demonstrates mastery.
+
+**INTERACTIVE BUTTONS (REQUIRED):**
+At the end of your response, you MUST provide 2-3 short, clickable options for the student to reply with.
+Format:
+\`\`\`json
+{
+  "suggested_responses": [
+    "Yes, dive deeper",
+    "No, explain more",
+    "Give me an example"
+  ]
+}
+\`\`\`
+- These should be natural responses to your question.
+- Keep them short (max 4-5 words).
+
+**Tone:** Encouraging, patient, and structured. You are a personal tutor, not just a search engine.
+
+2. **Strict Citations:** You MUST support every factual claim with a reference to the source chapter/title.
+   - Format: Use the chapter title/name directly, or (Source: Chapter Title).
+   - Example: "According to the chapter on Introduction (Source: Introduction), the concept works like this..."
+   - Always use the exact chapter title as shown in the context.
+   - **NEVER mention "Activity X.Y", "Figure X.Y","Exercise X.Y" or similar from the textbook.** Explain concepts directly without referencing textbook exercises.
+
+3. **Hybrid Synthesis:** The context contains both "Keyword Matches" (exact words) and "Semantic Matches" (related concepts).
+   - If the user asks about a specific topic, synthesize information from multiple relevant pages.
+   - Connect related concepts across different parts of the material.
+   - Always cite chapters by their title/name.
+
+4. **Formatting & Structure (CRITICAL):**
+   - **Use Double Newlines:** You MUST use double newlines (two blank lines) between paragraphs to ensure they render correctly.
+   - **Use Headers:** Use Markdown headers (###) to separate different sections of your answer.
+   - **Lists:** Use bullet points or numbered lists for steps, features, or key points.
+   - **Bold:** Use **bold** for key terms and important concepts.
+   - **Tables:** Use Markdown tables for comparisons or structured data.
+   - **Short Paragraphs:** Keep paragraphs short (2-3 sentences) for better readability.
+
+5. **Data Visualization:**
+   - You have the capability to generate charts (bar, line, pie, area).
+   - If the user asks to "visualize", "chart", "plot", or "graph" data, acknowledge the request.
+   - The system will automatically detect this intent and generate the chart for you.
+   - You do not need to generate ASCII charts; a real interactive chart will be rendered.
+
+6. **Knowledge Guidelines:**
+   - **Primary Source:** Base your answers on the provided chapter content.
+   - **Supplementary Knowledge Allowed:** You may use your general knowledge when:
+     * It helps explain or clarify concepts from the chapter
+     * The question is related to chapter topics and enhances understanding
+     * Providing examples or analogies that complement the chapter material
+   - **Strict Boundaries:** Do NOT answer if:
+     * The question is completely off-topic or unrelated to the chapter
+     * It's about a different subject matter not covered in this chapter
+   - **Be Transparent:** If you're adding information beyond the chapter, briefly acknowledge it: "The chapter covers [X], and to help understand this better..."
+   - **When Uncertain:** If the chapter doesn't cover something, say: "I cannot find information about [X] in this chapter."
 
 ${roleInstructions}
+
+Remember: Your goal is to help students understand, not just to provide information. Make learning easy and enjoyable!
 
 Answer:`;
 
@@ -1749,8 +1909,10 @@ Answer:`;
 				console.warn("[AI-GEN-STREAM] countTokens failed; using heuristic", e);
 			}
 
-			// Use a model that supports structured output well
-			const streamingModelName = opts.model || "gemini-1.5-pro";
+			// Use priority: opts.model → admin config → .env → fallback
+			const dbModels = await getActiveModelNames("gemini");
+			const fallbackModel = process.env.GEMINI_DEFAULT_MODEL || "gemini-2.0-flash";
+			const streamingModelName = opts.model || dbModels[0] || fallbackModel;
 			const streamingModel = client.getGenerativeModel({
 				model: streamingModelName as string,
 			});
@@ -1803,8 +1965,9 @@ export async function processChatMessageEnhanced(
 	_useEnhancedSearch: boolean = true,
 	opts: { provider?: "gemini"; model?: string; keyId?: number } = {},
 	filters?: {
-		category?: string;
-		userId?: number;
+		boardId?: string;
+		subjectId?: number;
+		chapterId?: number;
 	}
 ): Promise<{
 	response: string;
@@ -1821,13 +1984,13 @@ export async function processChatMessageEnhanced(
 	}>;
 	searchQuery: string;
 	searchMethod:
-		| "hybrid"
-		| "semantic_fallback"
-		| "tsvector_only"
-		| "vector_only"
-		| "keyword_only"
-		| "recent_files"
-		| "analytical_fallback";
+	| "hybrid"
+	| "semantic_fallback"
+	| "tsvector_only"
+	| "vector_only"
+	| "keyword_only"
+	| "recent_files"
+	| "analytical_fallback";
 	queryType: string;
 	analysisUsed: boolean;
 	tokenCount?: {
@@ -1947,7 +2110,9 @@ export async function processChatMessageEnhanced(
 
 		// For analytical queries with filters, get ALL records matching the filters
 		// instead of filtering by search terms (analytical queries need complete data)
-		const hasFilters = filters && (filters.category || filters.userId);
+		// For analytical queries with filters, get ALL records matching the filters
+		// instead of filtering by search terms (analytical queries need complete data)
+		const hasFilters = filters && (filters.boardId || filters.subjectId);
 		if (queryType === "analytical_query" && hasFilters) {
 			console.log(
 				`[CHAT ANALYSIS] Analytical query with filters - retrieving all records matching filters for complete analysis`
@@ -1955,9 +2120,18 @@ export async function processChatMessageEnhanced(
 			const hybridSearchResponse = await HybridSearchService.search(
 				"",
 				effectiveSearchLimit,
-				filters
+				{
+					boardId: filters?.boardId || "CBSE",
+					subjectId: filters?.subjectId,
+					chapterId: filters?.chapterId,
+				}
 			);
-			records = hybridSearchResponse.results;
+			records = hybridSearchResponse.results.map((r) => ({
+				...r,
+				subject: r.subject,
+				note: r.content,
+				entry_date_real: r.created_at,
+			}));
 			searchMethod = "analytical_fallback";
 			searchStats = hybridSearchResponse.stats;
 			console.log(
@@ -1967,9 +2141,18 @@ export async function processChatMessageEnhanced(
 			const hybridSearchResponse = await HybridSearchService.search(
 				queryForSearch,
 				effectiveSearchLimit,
-				filters
+				{
+					boardId: filters?.boardId || "CBSE",
+					subjectId: filters?.subjectId,
+					chapterId: filters?.chapterId,
+				}
 			);
-			records = hybridSearchResponse.results;
+			records = hybridSearchResponse.results.map((r) => ({
+				...r,
+				subject: r.subject,
+				note: r.content,
+				entry_date_real: r.created_at,
+			}));
 			// Map RRF search methods to expected types
 			const methodMap: Record<
 				string,
@@ -2005,9 +2188,18 @@ export async function processChatMessageEnhanced(
 		const allRecordsResponse = await HybridSearchService.search(
 			"",
 			effectiveLimit,
-			filters
+			{
+				boardId: filters?.boardId || "CBSE",
+				subjectId: filters?.subjectId,
+				chapterId: filters?.chapterId,
+			}
 		);
-		records = allRecordsResponse.results;
+		records = allRecordsResponse.results.map((r) => ({
+			...r,
+			category: r.subject,
+			note: r.content,
+			entry_date_real: r.created_at,
+		}));
 		searchMethod = "analytical_fallback";
 		searchStats = allRecordsResponse.stats;
 		console.log(
@@ -2092,26 +2284,388 @@ export async function processChatMessageEnhanced(
 		"about",
 		"information",
 		"data",
-		"the",
-		"and",
-		"source",
-		"based",
-		"according",
-		"provided",
-		"found",
 	]);
+
+	// Normalize function: remove extension, replace underscores/dashes with spaces
+	const normalize = (s: string) =>
+		s
+			.toLowerCase()
+			.replace(/\.[^/.]+$/, "") // Remove file extension
+			.replace(/[_-]/g, " ") // Replace underscores and dashes with spaces
+			.replace(/\s+/g, " ") // Normalize multiple spaces to single space
+			.trim();
 
 	/**
 	 * Score chunk by query intent - determines how well a chunk answers the question type
 	 */
+	function scoreChunkByQueryIntent(
+		chunkContent: string,
+		query: string,
+		queryType: string
+	): number {
+		if (!chunkContent) return 0;
 
-	const citedSources = extractAndRankSources(
-		records,
-		aiResponse.text,
-		queryForSearch,
-		queryType,
-		commonWords
-	);
+		const contentLower = chunkContent.toLowerCase();
+		const queryLower = query.toLowerCase();
+
+		// Extract question words
+		const questionWords = ["who", "what", "when", "where", "why", "how"];
+		const questionWord = questionWords.find((w) => queryLower.startsWith(w));
+
+		let intentScore = 0;
+
+		if (questionWord === "who") {
+			// Look for names, titles, people identifiers
+			const namePatterns =
+				/\b(mr|mrs|ms|miss|dr|prof|professor|sir|madam)\s+\w+/gi;
+			if (namePatterns.test(contentLower)) intentScore += 5;
+
+			// Look for age indicators (often associated with people)
+			if (/\b(age|years?\s*old|aged)\b/i.test(contentLower)) intentScore += 2;
+
+			// Look for person-related keywords
+			const personKeywords = [
+				"victim",
+				"accused",
+				"suspect",
+				"person",
+				"individual",
+				"man",
+				"woman",
+				"child",
+				"national",
+			];
+			personKeywords.forEach((keyword) => {
+				if (contentLower.includes(keyword)) intentScore += 1;
+			});
+		} else if (questionWord === "what") {
+			// Look for definitions, descriptions, events
+			const definitionPatterns = /\b(is|are|was|were|means?|refers?\s+to)\b/i;
+			if (definitionPatterns.test(contentLower)) intentScore += 3;
+
+			// Look for event descriptions
+			const eventKeywords = [
+				"happened",
+				"occurred",
+				"incident",
+				"event",
+				"case",
+				"reported",
+			];
+			eventKeywords.forEach((keyword) => {
+				if (contentLower.includes(keyword)) intentScore += 1;
+			});
+		} else if (questionWord === "when") {
+			// Look for dates, time references
+			const datePatterns =
+				/\b(\d{1,2}[\/\-]\d{1,2}[\/\-]\d{2,4}|\d{4}|\d{1,2}\s+(jan|feb|mar|apr|may|jun|jul|aug|sep|oct|nov|dec))/gi;
+			if (datePatterns.test(contentLower)) intentScore += 5;
+
+			// Look for time indicators
+			const timeKeywords = [
+				"at around",
+				"at approximately",
+				"on",
+				"date",
+				"time",
+				"am",
+				"pm",
+				"hours?",
+			];
+			timeKeywords.forEach((keyword) => {
+				if (contentLower.includes(keyword)) intentScore += 1;
+			});
+		} else if (questionWord === "where") {
+			// Look for locations, places
+			const locationKeywords = [
+				"location",
+				"place",
+				"district",
+				"area",
+				"region",
+				"border",
+				"near",
+				"at",
+				"in",
+				"found",
+			];
+			locationKeywords.forEach((keyword) => {
+				if (contentLower.includes(keyword)) intentScore += 1;
+			});
+
+			// Look for location patterns (capitalized words often indicate places)
+			const capitalizedWords = contentLower.match(/\b[A-Z][a-z]+\b/g);
+			if (capitalizedWords && capitalizedWords.length > 2) intentScore += 2;
+		} else if (questionWord === "why" || questionWord === "how") {
+			// Look for explanations, reasons, methods
+			const explanationKeywords = [
+				"because",
+				"due to",
+				"reason",
+				"caused",
+				"result",
+				"method",
+				"process",
+				"by",
+			];
+			explanationKeywords.forEach((keyword) => {
+				if (contentLower.includes(keyword)) intentScore += 1;
+			});
+		}
+
+		// Boost score if chunk content directly contains query keywords (excluding common words)
+		const queryWords = queryLower
+			.split(/\s+/)
+			.filter((w) => w.length > 3 && !commonWords.has(w));
+		const matchingQueryWords = queryWords.filter((word) =>
+			contentLower.includes(word)
+		);
+		if (matchingQueryWords.length > 0) {
+			intentScore += matchingQueryWords.length * 0.5;
+		}
+
+		return intentScore;
+	}
+
+	/**
+	 * Calculate combined relevance score for chunk selection during deduplication
+	 */
+	function calculateChunkRelevance(
+		source: any,
+		query: string,
+		queryType: string
+	): number {
+		// Get chunk content (stored as note in the record)
+		const chunkContent = source.chunkContent || source.note || "";
+
+		// Query intent score (0-10+)
+		const intentScore = scoreChunkByQueryIntent(chunkContent, query, queryType);
+
+		// Semantic similarity (0-1, converted to 0-10 scale)
+		const semanticScore =
+			(source.semanticSimilarity || source.similarity || 0) * 10;
+
+		// RRF score (0-1, converted to 0-5 scale)
+		const rrfScore = (source.rrfScore || 0) * 5;
+
+		// Combined score: intent (40%) + semantic (40%) + RRF (20%)
+		// This prioritizes chunks that answer the question over chunks with high keyword matches
+		const combinedScore =
+			intentScore * 0.4 + semanticScore * 0.4 + rrfScore * 0.2;
+
+		return combinedScore;
+	}
+
+	const citedSources = records
+		.map((record) => {
+			const response = aiResponse.text.toLowerCase();
+			const title = record.title.toLowerCase();
+			const normalizedResponse = normalize(aiResponse.text);
+			const normalizedTitle = normalize(record.title);
+			let score = 0;
+
+			// Strong signal: Exact title match (primary citation method)
+			if (response.includes(title)) {
+				score += 10;
+			}
+
+			// Strong signal: Normalized title match (handles cleaned up filenames)
+			if (normalizedResponse.includes(normalizedTitle)) {
+				score += 8; // High score for normalized match
+			}
+
+			// Strong signal: Title in citation format (Source: Title)
+			if (
+				response.includes(`(Source: ${record.title})`) ||
+				response.includes(`(source: ${record.title})`)
+			) {
+				score += 10;
+			}
+
+			// Medium signal: Normalized title in citation format
+			if (normalizedResponse.includes(`(source: ${normalizedTitle})`)) {
+				score += 8;
+			}
+
+			// Medium signal: Explicit ID mention (fallback for legacy)
+			if (
+				response.includes(`id: ${record.id}`) ||
+				response.includes(`record ${record.id}`) ||
+				response.includes(`[${record.id}]`)
+			) {
+				score += 5;
+			}
+
+			// Medium signal: Most title words present
+			const titleWords = title
+				.split(/\s+/)
+				.filter((word) => word.length > 3 && !commonWords.has(word));
+			const titleMatches = titleWords.filter((word) => response.includes(word));
+			if (titleMatches.length >= Math.min(titleWords.length * 0.6, 3)) {
+				score += 3;
+			}
+
+			// Weak signal: Unique keywords from content
+			if (record.note) {
+				const noteWords = record.note
+					.toLowerCase()
+					.split(/\s+/)
+					.filter(
+						(word) =>
+							word.length > 5 && // Longer words are more unique
+							!commonWords.has(word)
+					)
+					.slice(0, 15); // Check first 15 words
+
+				const noteMatches = noteWords.filter((word) => response.includes(word));
+				// Need at least 3 unique keywords to be confident
+				if (noteMatches.length >= 3) {
+					score += 2;
+				}
+			}
+
+			return {
+				id: record.id,
+				title: record.title,
+				relevance: record.rrf_score || record.combined_score || record.rank,
+				similarity: record.rrf_score
+					? record.rrf_score * 30
+					: record.semantic_similarity, // Convert RRF to similarity-like value for UI
+				citation: record.citation, // Pass through citation data from hybrid search
+				citationScore: score,
+				rrfScore: record.rrf_score || 0, // Store RRF score for filtering
+				chunkContent: record.note || "", // Store chunk content for query-intent matching
+				semanticSimilarity: record.semantic_similarity || 0, // Store semantic similarity
+			};
+		})
+		.filter((source) => {
+			// Apply stricter filtering:
+			// 1. Minimum citation score (must be explicitly mentioned or strongly matched)
+			// 2. Minimum RRF score threshold (filter out weak semantic matches)
+			const minCitationScore = 5; // Increased from 3 to 5
+			const minRrfScore = 0.01; // Minimum RRF score (approximately top 60 results)
+
+			return (
+				source.citationScore >= minCitationScore &&
+				source.rrfScore >= minRrfScore
+			);
+		})
+		// Deduplicate by file ID (keep the chunk that best answers the query)
+		.reduce((acc: any[], source) => {
+			const existing = acc.find((s) => s.id === source.id);
+			if (!existing) {
+				acc.push(source);
+			} else {
+				// NEW: Check if chunk content actually appears in AI response
+				// This ensures we cite the page that contains the actual answer
+				const aiResponseLower = aiResponse.text.toLowerCase();
+				const existingContent = (existing.chunkContent || "").toLowerCase();
+				const sourceContent = (source.chunkContent || "").toLowerCase();
+
+				// Extract key phrases from AI response (words/phrases that might be quoted)
+				const extractKeyPhrases = (text: string): string[] => {
+					// Extract quoted text, capitalized phrases, and significant words
+					const quoted = text.match(/"([^"]+)"/g) || [];
+					const capitalized =
+						text.match(/\b[A-Z][a-z]+(?:\s+[A-Z][a-z]+)*\b/g) || [];
+					// Extract bullet points or list items (often contain specific answers)
+					const bulletPoints = text.match(/[•\*\-]\s*([^\n]+)/g) || [];
+					// Extract text after colons (often contains specific answers)
+					const afterColons = text.match(/:\s*([^\n]+)/g) || [];
+					const significantWords = text
+						.toLowerCase()
+						.split(/\s+/)
+						.filter((w) => w.length > 3 && !commonWords.has(w))
+						.slice(0, 15);
+
+					return [
+						...quoted.map((q) => q.replace(/"/g, "").toLowerCase()),
+						...capitalized.map((c) => c.toLowerCase()),
+						...bulletPoints.map((b) =>
+							b
+								.replace(/[•\*\-]\s*/, "")
+								.toLowerCase()
+								.trim()
+						),
+						...afterColons.map((a) =>
+							a.replace(/:\s*/, "").toLowerCase().trim()
+						),
+						...significantWords,
+					].filter((phrase) => phrase.length > 2); // Filter out very short phrases
+				};
+
+				const keyPhrases = extractKeyPhrases(aiResponse.text);
+
+				// Count how many key phrases appear in each chunk
+				const existingMatches = keyPhrases.filter((phrase) =>
+					existingContent.includes(phrase)
+				).length;
+				const sourceMatches = keyPhrases.filter((phrase) =>
+					sourceContent.includes(phrase)
+				).length;
+
+				// Prefer chunk with more matching phrases from AI response
+				if (sourceMatches > existingMatches) {
+					const index = acc.indexOf(existing);
+					acc[index] = source;
+				} else if (sourceMatches === existingMatches && sourceMatches > 0) {
+					// If same number of matches, use relevance score as tiebreaker
+					const existingRelevance = calculateChunkRelevance(
+						existing,
+						queryForSearch,
+						queryType
+					);
+					const sourceRelevance = calculateChunkRelevance(
+						source,
+						queryForSearch,
+						queryType
+					);
+
+					if (sourceRelevance > existingRelevance) {
+						const index = acc.indexOf(existing);
+						acc[index] = source;
+					}
+				} else {
+					// Fallback to original logic if no content matches
+					const existingRelevance = calculateChunkRelevance(
+						existing,
+						queryForSearch,
+						queryType
+					);
+					const sourceRelevance = calculateChunkRelevance(
+						source,
+						queryForSearch,
+						queryType
+					);
+
+					if (sourceRelevance > existingRelevance) {
+						const index = acc.indexOf(existing);
+						acc[index] = source;
+					}
+				}
+			}
+			return acc;
+		}, [])
+		// Sort by combined score: citation score first, then RRF score
+		.sort((a, b) => {
+			// Primary sort: citation score (how explicitly mentioned)
+			if (b.citationScore !== a.citationScore) {
+				return b.citationScore - a.citationScore;
+			}
+			// Secondary sort: RRF score (relevance to query)
+			return b.rrfScore - a.rrfScore;
+		})
+		// Limit to top 10 most relevant sources
+		.slice(0, 10)
+		.map(
+			({
+				citationScore,
+				rrfScore,
+				chunkContent,
+				semanticSimilarity,
+				...rest
+			}) => rest
+		); // Remove internal scores from final output
 
 	console.log(
 		`[CITATION-DEBUG] Created ${citedSources.length} sources, sample:`,
@@ -2133,8 +2687,7 @@ export async function processChatMessageEnhanced(
 	console.log(`[TIMING-SUMMARY] - AI response generation: ${aiTime}ms`);
 	console.log(`[TIMING-SUMMARY] - Source extraction: ${sourceTime}ms`);
 	console.log(
-		`[TIMING-SUMMARY] - Total post-search time: ${
-			contextTime + aiTime + sourceTime
+		`[TIMING-SUMMARY] - Total post-search time: ${contextTime + aiTime + sourceTime
 		}ms`
 	);
 
@@ -2165,8 +2718,9 @@ export async function* processChatMessageEnhancedStream(
 	useEnhancedSearch: boolean = true,
 	opts: { provider?: "gemini"; model?: string; keyId?: number } = {},
 	filters?: {
-		category?: string;
-		userId?: number;
+		boardId?: string;
+		subjectId?: number;
+		chapterId?: number;
 	}
 ): AsyncGenerator<
 	{
@@ -2253,7 +2807,7 @@ export async function* processChatMessageEnhancedStream(
 	);
 
 	if (useEnhancedSearch) {
-		const hasFilters = filters && (filters.category || filters.userId);
+		const hasFilters = filters && (filters.boardId || filters.subjectId);
 		if (queryType === "analytical_query" && hasFilters) {
 			console.log(
 				`[CHAT ANALYSIS] Analytical query with filters - retrieving all records matching filters for complete analysis`
@@ -2261,9 +2815,18 @@ export async function* processChatMessageEnhancedStream(
 			const hybridSearchResponse = await HybridSearchService.search(
 				"",
 				effectiveSearchLimit,
-				filters
+				{
+					boardId: filters?.boardId || "CBSE",
+					subjectId: filters?.subjectId,
+					chapterId: filters?.chapterId,
+				}
 			);
-			records = hybridSearchResponse.results;
+			records = hybridSearchResponse.results.map((r) => ({
+				...r,
+				subject: r.subject,
+				note: r.content,
+				entry_date_real: r.created_at,
+			}));
 			searchMethod = "analytical_fallback";
 			searchStats = hybridSearchResponse.stats;
 			console.log(
@@ -2273,9 +2836,18 @@ export async function* processChatMessageEnhancedStream(
 			const hybridSearchResponse = await HybridSearchService.search(
 				queryForSearch,
 				effectiveSearchLimit,
-				filters
+				{
+					boardId: filters?.boardId || "CBSE",
+					subjectId: filters?.subjectId,
+					chapterId: filters?.chapterId,
+				}
 			);
-			records = hybridSearchResponse.results;
+			records = hybridSearchResponse.results.map((r) => ({
+				...r,
+				subject: r.subject,
+				note: r.content,
+				entry_date_real: r.created_at,
+			}));
 			// Map RRF search methods to expected types
 			const methodMap: Record<
 				string,
@@ -2311,9 +2883,18 @@ export async function* processChatMessageEnhancedStream(
 		const allRecordsResponse = await HybridSearchService.search(
 			"",
 			effectiveLimit,
-			filters
+			{
+				boardId: filters?.boardId || "CBSE",
+				subjectId: filters?.subjectId,
+				chapterId: filters?.chapterId,
+			}
 		);
-		records = allRecordsResponse.results;
+		records = allRecordsResponse.results.map((r) => ({
+			...r,
+			category: r.subject,
+			note: r.content,
+			entry_date_real: r.created_at,
+		}));
 		searchMethod = "analytical_fallback";
 		searchStats = allRecordsResponse.stats;
 		console.log(
@@ -2324,9 +2905,8 @@ export async function* processChatMessageEnhancedStream(
 	// Yield progress after search completes
 	yield {
 		type: "progress",
-		progress: `Found ${records.length} record${
-			records.length !== 1 ? "s" : ""
-		}. Preparing response...`,
+		progress: `Found ${records.length} record${records.length !== 1 ? "s" : ""
+			}. Preparing response...`,
 	};
 
 	// Yield metadata
@@ -2456,9 +3036,8 @@ export async function* processChatMessageEnhancedStream(
 		// Yield progress for context preparation
 		yield {
 			type: "progress",
-			progress: `Preparing context from ${records.length} record${
-				records.length !== 1 ? "s" : ""
-			}...`,
+			progress: `Preparing context from ${records.length} record${records.length !== 1 ? "s" : ""
+				}...`,
 		};
 
 		context = prepareContextForAI(records, queryForSearch, false);
@@ -2509,36 +3088,403 @@ export async function* processChatMessageEnhancedStream(
 		"file",
 		"record",
 		"document",
-		"date",
-		"time",
-		"place",
 		"report",
-		"against",
-		"under",
-		"about",
 		"information",
 		"data",
-		"the",
-		"and",
-		"source",
-		"based",
-		"according",
-		"provided",
+		"about",
 		"found",
+		"created",
+		"updated",
 	]);
 
-	// Use centralized evidence-based extraction
+	// Normalize function: remove extension, replace underscores/dashes with spaces
+	const normalize = (s: string) =>
+		s
+			.toLowerCase()
+			.replace(/\.[^/.]+$/, "") // Remove file extension
+			.replace(/[_-]/g, " ") // Replace underscores and dashes with spaces
+			.replace(/\s+/g, " ") // Normalize multiple spaces to single space
+			.trim();
 
-	const sortedSources = extractAndRankSources(
-		records,
-		fullResponseText,
-		queryForSearch,
-		queryType,
-		commonWords
-	);
+	/**
+	 * Score chunk by query intent - determines how well a chunk answers the question type
+	 * (Same function as in non-streaming version)
+	 */
+	function scoreChunkByQueryIntent(
+		chunkContent: string,
+		query: string,
+		queryType: string
+	): number {
+		if (!chunkContent) return 0;
+
+		const contentLower = chunkContent.toLowerCase();
+		const queryLower = query.toLowerCase();
+
+		// Extract question words
+		const questionWords = ["who", "what", "when", "where", "why", "how"];
+		const questionWord = questionWords.find((w) => queryLower.startsWith(w));
+
+		let intentScore = 0;
+
+		if (questionWord === "who") {
+			// Look for names, titles, people identifiers
+			const namePatterns =
+				/\b(mr|mrs|ms|miss|dr|prof|professor|sir|madam)\s+\w+/gi;
+			if (namePatterns.test(contentLower)) intentScore += 5;
+
+			// Look for age indicators (often associated with people)
+			if (/\b(age|years?\s*old|aged)\b/i.test(contentLower)) intentScore += 2;
+
+			// Look for person-related keywords
+			const personKeywords = [
+				"victim",
+				"accused",
+				"suspect",
+				"person",
+				"individual",
+				"man",
+				"woman",
+				"child",
+				"national",
+			];
+			personKeywords.forEach((keyword) => {
+				if (contentLower.includes(keyword)) intentScore += 1;
+			});
+		} else if (questionWord === "what") {
+			// Look for definitions, descriptions, events
+			const definitionPatterns = /\b(is|are|was|were|means?|refers?\s+to)\b/i;
+			if (definitionPatterns.test(contentLower)) intentScore += 3;
+
+			// Look for event descriptions
+			const eventKeywords = [
+				"happened",
+				"occurred",
+				"incident",
+				"event",
+				"case",
+				"reported",
+			];
+			eventKeywords.forEach((keyword) => {
+				if (contentLower.includes(keyword)) intentScore += 1;
+			});
+		} else if (questionWord === "when") {
+			// Look for dates, time references
+			const datePatterns =
+				/\b(\d{1,2}[\/\-]\d{1,2}[\/\-]\d{2,4}|\d{4}|\d{1,2}\s+(jan|feb|mar|apr|may|jun|jul|aug|sep|oct|nov|dec))/gi;
+			if (datePatterns.test(contentLower)) intentScore += 5;
+
+			// Look for time indicators
+			const timeKeywords = [
+				"at around",
+				"at approximately",
+				"on",
+				"date",
+				"time",
+				"am",
+				"pm",
+				"hours?",
+			];
+			timeKeywords.forEach((keyword) => {
+				if (contentLower.includes(keyword)) intentScore += 1;
+			});
+		} else if (questionWord === "where") {
+			// Look for locations, places
+			const locationKeywords = [
+				"location",
+				"place",
+				"district",
+				"area",
+				"region",
+				"border",
+				"near",
+				"at",
+				"in",
+				"found",
+			];
+			locationKeywords.forEach((keyword) => {
+				if (contentLower.includes(keyword)) intentScore += 1;
+			});
+
+			// Look for location patterns (capitalized words often indicate places)
+			const capitalizedWords = contentLower.match(/\b[A-Z][a-z]+\b/g);
+			if (capitalizedWords && capitalizedWords.length > 2) intentScore += 2;
+		} else if (questionWord === "why" || questionWord === "how") {
+			// Look for explanations, reasons, methods
+			const explanationKeywords = [
+				"because",
+				"due to",
+				"reason",
+				"caused",
+				"result",
+				"method",
+				"process",
+				"by",
+			];
+			explanationKeywords.forEach((keyword) => {
+				if (contentLower.includes(keyword)) intentScore += 1;
+			});
+		}
+
+		// Boost score if chunk content directly contains query keywords (excluding common words)
+		const queryWords = queryLower
+			.split(/\s+/)
+			.filter((w) => w.length > 3 && !commonWords.has(w));
+		const matchingQueryWords = queryWords.filter((word) =>
+			contentLower.includes(word)
+		);
+		if (matchingQueryWords.length > 0) {
+			intentScore += matchingQueryWords.length * 0.5;
+		}
+
+		return intentScore;
+	}
+
+	/**
+	 * Calculate combined relevance score for chunk selection during deduplication
+	 * (Same function as in non-streaming version)
+	 */
+	function calculateChunkRelevance(
+		source: any,
+		query: string,
+		queryType: string
+	): number {
+		// Get chunk content (stored as note in the record)
+		const chunkContent = source.chunkContent || source.note || "";
+
+		// Query intent score (0-10+)
+		const intentScore = scoreChunkByQueryIntent(chunkContent, query, queryType);
+
+		// Semantic similarity (0-1, converted to 0-10 scale)
+		const semanticScore =
+			(source.semanticSimilarity || source.similarity || 0) * 10;
+
+		// RRF score (0-1, converted to 0-5 scale)
+		const rrfScore = (source.rrfScore || 0) * 5;
+
+		// Combined score: intent (40%) + semantic (40%) + RRF (20%)
+		// This prioritizes chunks that answer the question over chunks with high keyword matches
+		const combinedScore =
+			intentScore * 0.4 + semanticScore * 0.4 + rrfScore * 0.2;
+
+		return combinedScore;
+	}
+
+	const citedSources: Array<{
+		id: string | number;
+		title: string;
+		relevance?: number;
+		similarity?: number;
+		citation?: any;
+		citationScore: number;
+		rrfScore: number;
+		chunkContent?: string;
+		semanticSimilarity?: number;
+	}> = [];
+	const responseLower = fullResponseText.toLowerCase();
+	const normalizedResponse = normalize(fullResponseText);
+
+	for (const record of records) {
+		let citationScore = 0;
+
+		// Check for exact title match (primary citation method)
+		const titleLower = record.title.toLowerCase();
+		if (responseLower.includes(titleLower)) {
+			citationScore += 10;
+		}
+
+		// Check for normalized title match (handles cleaned up filenames)
+		const normalizedTitle = normalize(record.title);
+		if (normalizedResponse.includes(normalizedTitle)) {
+			citationScore += 8; // High score for normalized match
+		}
+
+		// Check for title in citation format (Source: Title)
+		if (responseLower.includes(`(source: ${titleLower})`)) {
+			citationScore += 10;
+		}
+
+		// Check for normalized title in citation format
+		if (normalizedResponse.includes(`(source: ${normalizedTitle})`)) {
+			citationScore += 8;
+		}
+
+		// Medium signal: Explicit ID mention (fallback for legacy)
+		if (
+			responseLower.includes(`id: ${record.id}`) ||
+			responseLower.includes(`[${record.id}]`) ||
+			responseLower.includes(`record ${record.id}`)
+		) {
+			citationScore += 5;
+		}
+
+		// Check for most title words present
+		const titleWords = titleLower
+			.split(/\s+/)
+			.filter((word) => word.length > 3 && !commonWords.has(word));
+		const titleMatches = titleWords.filter((word) =>
+			responseLower.includes(word)
+		);
+		if (titleMatches.length >= Math.min(titleWords.length * 0.6, 3)) {
+			citationScore += 3;
+		}
+
+		// Check for unique keywords from content
+		if (record.note) {
+			const noteWords = record.note
+				.toLowerCase()
+				.split(/\s+/)
+				.filter((word) => word.length > 4 && !commonWords.has(word))
+				.slice(0, 15);
+
+			const noteMatches = noteWords.filter((word) =>
+				responseLower.includes(word)
+			);
+			if (noteMatches.length >= 3) {
+				citationScore += 1;
+			}
+		}
+
+		// Only include if score is significant enough and has minimum relevance
+		const minCitationScore = 5; // Increased from 3 to 5
+		const minRrfScore = 0.01; // Minimum RRF score threshold
+		const rrfScore = record.rrf_score || 0;
+
+		if (citationScore >= minCitationScore && rrfScore >= minRrfScore) {
+			citedSources.push({
+				id: record.id,
+				title: record.title,
+				relevance: record.rrf_score || record.combined_score || record.rank,
+				similarity: record.rrf_score
+					? record.rrf_score * 30
+					: record.semantic_similarity, // Convert RRF to similarity-like value for UI
+				citation: record.citation, // Pass through citation data from hybrid search
+				citationScore, // Store for sorting/deduplication
+				rrfScore, // Store for sorting/deduplication
+				chunkContent: record.note || "", // Store chunk content for query-intent matching
+				semanticSimilarity: record.semantic_similarity || 0, // Store semantic similarity
+			});
+		}
+	}
+
+	// Deduplicate by file ID (keep the chunk that best answers the query)
+	const uniqueSources = citedSources.reduce((acc: any[], source) => {
+		const existing = acc.find((s) => s.id === source.id);
+		if (!existing) {
+			acc.push(source);
+		} else {
+			// NEW: Check if chunk content actually appears in AI response
+			// This ensures we cite the page that contains the actual answer
+			const aiResponseLower = fullResponseText.toLowerCase();
+			const existingContent = (existing.chunkContent || "").toLowerCase();
+			const sourceContent = (source.chunkContent || "").toLowerCase();
+
+			// Extract key phrases from AI response (words/phrases that might be quoted)
+			const extractKeyPhrases = (text: string): string[] => {
+				// Extract quoted text, capitalized phrases, and significant words
+				const quoted = text.match(/"([^"]+)"/g) || [];
+				const capitalized =
+					text.match(/\b[A-Z][a-z]+(?:\s+[A-Z][a-z]+)*\b/g) || [];
+				// Extract bullet points or list items (often contain specific answers)
+				const bulletPoints = text.match(/[•\*\-]\s*([^\n]+)/g) || [];
+				// Extract text after colons (often contains specific answers)
+				const afterColons = text.match(/:\s*([^\n]+)/g) || [];
+				const significantWords = text
+					.toLowerCase()
+					.split(/\s+/)
+					.filter((w) => w.length > 3 && !commonWords.has(w))
+					.slice(0, 15);
+
+				return [
+					...quoted.map((q) => q.replace(/"/g, "").toLowerCase()),
+					...capitalized.map((c) => c.toLowerCase()),
+					...bulletPoints.map((b) =>
+						b
+							.replace(/[•\*\-]\s*/, "")
+							.toLowerCase()
+							.trim()
+					),
+					...afterColons.map((a) => a.replace(/:\s*/, "").toLowerCase().trim()),
+					...significantWords,
+				].filter((phrase) => phrase.length > 2); // Filter out very short phrases
+			};
+
+			const keyPhrases = extractKeyPhrases(fullResponseText);
+
+			// Count how many key phrases appear in each chunk
+			const existingMatches = keyPhrases.filter((phrase) =>
+				existingContent.includes(phrase)
+			).length;
+			const sourceMatches = keyPhrases.filter((phrase) =>
+				sourceContent.includes(phrase)
+			).length;
+
+			// Prefer chunk with more matching phrases from AI response
+			if (sourceMatches > existingMatches) {
+				const index = acc.indexOf(existing);
+				acc[index] = source;
+			} else if (sourceMatches === existingMatches && sourceMatches > 0) {
+				// If same number of matches, use relevance score as tiebreaker
+				const existingRelevance = calculateChunkRelevance(
+					existing,
+					queryForSearch,
+					queryType
+				);
+				const sourceRelevance = calculateChunkRelevance(
+					source,
+					queryForSearch,
+					queryType
+				);
+
+				if (sourceRelevance > existingRelevance) {
+					const index = acc.indexOf(existing);
+					acc[index] = source;
+				}
+			} else {
+				// Fallback to original logic if no content matches
+				const existingRelevance = calculateChunkRelevance(
+					existing,
+					queryForSearch,
+					queryType
+				);
+				const sourceRelevance = calculateChunkRelevance(
+					source,
+					queryForSearch,
+					queryType
+				);
+
+				if (sourceRelevance > existingRelevance) {
+					const index = acc.indexOf(existing);
+					acc[index] = source;
+				}
+			}
+		}
+		return acc;
+	}, []);
+
+	// Sort by combined score: citation score first, then RRF score
+	const sortedSources = uniqueSources
+		.sort((a, b) => {
+			// Primary sort: citation score (how explicitly mentioned)
+			if (b.citationScore !== a.citationScore) {
+				return b.citationScore - a.citationScore;
+			}
+			// Secondary sort: RRF score (relevance to query)
+			return b.rrfScore - a.rrfScore;
+		})
+		// Limit to top 10 most relevant sources
+		.slice(0, 10)
+		.map(
+			({
+				citationScore,
+				rrfScore,
+				chunkContent,
+				semanticSimilarity,
+				...rest
+			}) => rest
+		); // Remove internal scores from final output
 
 	console.log(
-		`[ADMIN CHAT] Response generated with ${sortedSources.length} sources`
+		`[ADMIN CHAT] Response generated with ${sortedSources.length} sources (filtered from ${citedSources.length} candidates)`
 	);
 
 	// Yield sources
@@ -2558,206 +3504,817 @@ export async function* processChatMessageEnhancedStream(
 }
 
 /**
- * Update search vectors for all records (maintenance function)
+ * Update search vectors for all chapter chunks (maintenance function)
  */
 export async function updateSearchVectors(): Promise<void> {
 	try {
 		await prisma.$executeRaw`
-      UPDATE file_list
+      UPDATE chapter_chunks
       SET search_vector =
-        setweight(to_tsvector('english', COALESCE(title, '')),   'A') ||
-        setweight(to_tsvector('english', COALESCE(category, '')),'B') ||
-        setweight(to_tsvector('english', COALESCE(note, '')),    'C')
-      WHERE search_vector IS NULL OR note IS NOT NULL
+        setweight(to_tsvector('english', COALESCE((SELECT title FROM chapters WHERE id = chapter_id), '')), 'A') ||
+        setweight(to_tsvector('english', COALESCE((SELECT s.name FROM chapters c JOIN subjects s ON c.subject_id = s.id WHERE c.id = chapter_id), '')), 'B') ||
+        setweight(to_tsvector('english', COALESCE(content, '')), 'C')
+      WHERE search_vector IS NULL OR content IS NOT NULL
     `;
 
-		console.log("[SEARCH VECTORS] Updated search vectors for all records");
+		console.log(
+			"[SEARCH VECTORS] Updated search vectors for all chapter chunks"
+		);
 	} catch (error) {
 		console.error("Error updating search vectors:", error);
 		throw new Error("Failed to update search vectors");
 	}
 }
 
-/**
- * CENTRALIZED HELPER: Evidence-Based Source Extraction with Final Score Logging
- * Logic:
- * 1. Identify specific data points (names, times, numbers) in the AI's answer.
- * 2. Filter sources that actually contain those data points.
- * 3. Deduplicate by File + Page.
- * 4. Rank by evidence count and score.
- * 5. Dynamic Cutoff: Stop listing sources when quality drops significantly below the top result.
- */
+// --- Exam Prep & Quiz Generation ---
 
-function extractAndRankSources(
-	records: SearchResult[],
-	responseText: string,
-	query: string,
-	queryType: string,
-	commonWords: Set<string>
-): Array<any> {
-	const responseLower = responseText.toLowerCase();
+export interface QuizGenerationConfig {
+	subject: string;
+	topic: string;
+	chapterTitle?: string;
+	difficulty: "easy" | "medium" | "hard";
+	questionCount: number;
+	questionTypes: (
+		| "MCQ"
+		| "TRUE_FALSE"
+		| "FILL_IN_BLANK"
+		| "SHORT_ANSWER"
+		| "LONG_ANSWER"
+	)[];
+	context: string; // The content to generate questions from
+}
 
-	// --- 1. Extract Evidence Terms ---
-	const extractEvidenceTerms = (text: string): string[] => {
-		const properNouns = text.match(/\b[A-Z][a-z]+(?:\s+[A-Z][a-z]+)*\b/g) || [];
-		const dataPoints =
-			text.match(
-				/\b\d+(?::\d{2})?|noon|midnight|am|pm|\$\d+|\d{1,2}[\/\-.]\d{1,2}[\/\-.]\d{2,4}/gi
-			) || [];
-		const phrases =
-			text.match(/(?:due to|because of|using|via)\s+([^.,!]{3,20})/gi) || [];
+const QuizQuestionSchema = z.object({
+	question_text: z.string(),
+	question_type: z.enum([
+		"MCQ",
+		"TRUE_FALSE",
+		"FILL_IN_BLANK",
+		"SHORT_ANSWER",
+		"LONG_ANSWER",
+	]),
+	options: z
+		.array(z.string())
+		.optional()
+		.describe("Array of options for MCQ/TF. Null for others."),
+	correct_answer: z
+		.union([z.string(), z.number(), z.array(z.string())])
+		.describe("The correct answer. MUST be the exact string from the options array for MCQ/TrueFalse."),
+	points: z.number().default(1),
+	explanation: z.string().describe("Explanation of why the answer is correct"),
+});
 
-		return [
-			...properNouns,
-			...dataPoints,
-			...phrases.map((p) =>
-				p.replace(/^(due to|because of|using|via)\s+/i, "").trim()
-			),
-		]
-			.map((t) => t.toLowerCase().trim())
-			.filter((t) => t.length > 2 && !commonWords.has(t));
+const QuizSchema = z.object({
+	title: z.string(),
+	description: z.string(),
+	questions: z.array(QuizQuestionSchema),
+});
+
+// Schema for Batch Question Generation
+const BatchQuestionSchema = z.object({
+	questions: z.array(z.object({
+		question_text: z.string().describe("The question text"),
+		question_type: z.enum(["MCQ", "TRUE_FALSE", "FILL_IN_BLANK", "SHORT_ANSWER", "LONG_ANSWER"]),
+		difficulty: z.enum(["easy", "medium", "hard"]),
+		options: z.array(z.string()).optional().describe("Options for MCQ (4 options) or TRUE_FALSE (2 options)"),
+		correct_answer: z.any().describe("The correct answer. For MCQ/TF/FIB: string. For Short/Long: model answer string."),
+		explanation: z.string().describe("Detailed explanation of why the answer is correct"),
+		points: z.number().describe("Points value: Easy=1, Medium=3, Hard=5")
+	}))
+});
+
+export interface BatchQuestionConfig {
+	context: string;
+	chapterTitle: string;
+	config: {
+		easy: { [key in QuestionType]?: number };
+		medium: { [key in QuestionType]?: number };
+		hard: { [key in QuestionType]?: number };
 	};
+}
 
-	const evidenceTerms = extractEvidenceTerms(responseText);
-	// DEBUG LOG: Evidence terms
-	console.log(`[CITATION-DEBUG] Evidence Terms:`, evidenceTerms);
+/**
+ * Generate a batch of questions based on specific counts per difficulty/type
+ * Used for pre-generating the Question Bank
+ */
+export async function generateBatchQuestions(input: BatchQuestionConfig) {
+	const { context, chapterTitle, config } = input;
 
-	// --- 2. Initial Candidate Scoring ---
-	const candidates = records.map((record) => {
-		const title = record.title.toLowerCase();
-		const content = (record.note || "").toLowerCase();
-		let score = 0;
-		let hasEvidence = false;
+	// Construct a detailed request list
+	let requestList: string[] = [];
+	let totalQuestions = 0;
 
-		// A. Evidence Check
-		if (evidenceTerms.some((term) => content.includes(term))) {
-			score += 10;
-			hasEvidence = true;
-		}
-
-		// B. Title Match (Tie-breaker only)
-		if (responseLower.includes(title)) score += 2;
-
-		// C. Explicit Citation
-		if (responseLower.includes(`(source: ${title})`)) score += 5;
-
-		// D. Keyword Matches
-		if (record.note) {
-			const noteWords = record.note
-				.toLowerCase()
-				.split(/\s+/)
-				.filter((w) => w.length > 4 && !commonWords.has(w))
-				.slice(0, 15);
-			const noteMatches = noteWords.filter((w) => responseLower.includes(w));
-			if (noteMatches.length >= 2) score += 2;
-		}
-
-		return {
-			id: record.id,
-			title: record.title,
-			relevance: record.rrf_score || record.combined_score || record.rank,
-			citationScore: score, // Internal Evidence Score
-			rrfScore: record.rrf_score || 0, // Search Confidence
-			chunkContent: record.note || "",
-			citation: record.citation,
-			hasEvidence: hasEvidence,
-			evidenceCount: 0,
-			semanticSimilarity: record.semantic_similarity || 0,
-		};
-	});
-
-	// --- 3. Filter, Deduplicate & Sort ---
-	const processedCandidates = candidates
-		.filter((source) => {
-			const passed =
-				(source.citationScore >= 5 && source.rrfScore >= 0.01) ||
-				(source.hasEvidence && source.citationScore >= 4);
-
-			// Log drops only if they had some score but failed thresholds
-			if (!passed && source.citationScore > 2) {
-				console.log(
-					`[CITATION-DROP] "${source.title}" (Pg ${source.citation?.pageNumber}) dropped. Score: ${source.citationScore}, Evidence: ${source.hasEvidence}`
-				);
+	(['easy', 'medium', 'hard'] as const).forEach(diff => {
+		Object.entries(config[diff]).forEach(([type, count]) => {
+			if (count && count > 0) {
+				requestList.push(`${count} ${diff.toUpperCase()} ${type} questions`);
+				totalQuestions += count;
 			}
-			return passed;
-		})
-		.filter(
-			(source, index, self) =>
-				index ===
-				self.findIndex(
-					(s) =>
-						s.id === source.id &&
-						s.citation?.pageNumber === source.citation?.pageNumber
-				)
+		});
+	});
+
+	if (totalQuestions === 0) return [];
+
+	const prompt = `You are an expert educational content creator.
+Your task is to generate exactly ${totalQuestions} questions for the chapter section: "${chapterTitle}".
+
+=== SOURCE MATERIAL ===
+${context}
+=== END SOURCE MATERIAL ===
+
+REQUIREMENTS:
+Generate the following mix of questions based STRICTLY on the source material above:
+${requestList.map(r => `• ${r}`).join('\n')}
+
+RULES:
+1. Questions must be high-quality, clear, and unambiguous.
+2. COVERAGE: Ensure questions cover different parts of the text, not just the first paragraph.
+3. DIFFICULTY:
+   - EASY: Recall facts, definitions, simple concepts.
+   - MEDIUM: Apply concepts, compare/contrast, explain "why".
+   - HARD: Analyze, synthesize, evaluate, complex scenarios.
+4. TYPES:
+   - MCQ: Provide 4 distinct options. One correct.
+   - TRUE_FALSE: Provide "True" and "False" as options.
+   - FILL_IN_BLANK: The answer should be a specific word or short phrase from the text.
+   - SHORT_ANSWER: Model answer should be 1-3 sentences.
+   - LONG_ANSWER: Model answer should be a detailed paragraph.
+5. EXPLANATION: Provide a helpful explanation for the correct answer.
+6. SELF-CONTAINED QUESTIONS:
+   - DO NOT reference external materials like "the provided algorithm", "the given diagram", "the figure", "the table", "Case 1/2/3", "the image", "the flowchart", etc.
+   - Questions must be fully self-contained and understandable without any visual aids or external references.
+   - Include all necessary context within the question itself.
+7. PHRASING:
+   - AVOID: "According to the text, ..." or "The text states that ..."
+   - PREFER: Direct questions (e.g., "What is the time complexity of...?") OR "According to the chapter, ..." if needed.
+   - Questions should sound natural and professional, as if from an exam paper.
+8. NO META-QUESTIONS: Do not ask "What does the text say about...", just ask the question directly.
+
+Output a JSON object with a "questions" array.`;
+
+	try {
+		// Get API key and initialize provider
+		// We use a dummy keyId here or allow the system to pick a default
+		const { apiKey } = await getProviderApiKey({ provider: "gemini" });
+		const keyToUse = apiKey || process.env.GEMINI_API_KEY;
+
+		if (!keyToUse) {
+			throw new Error("No Gemini API key found");
+		}
+
+		const google = createGoogleGenerativeAI({ apiKey: keyToUse });
+
+		// Model selection strategy
+		const modelsToTry: string[] = [];
+		const dbModels = await getActiveModelNames("gemini");
+		modelsToTry.push(...dbModels);
+		const fallbackModel = process.env.GEMINI_DEFAULT_MODEL || "gemini-2.0-flash";
+		modelsToTry.push(fallbackModel);
+		const uniqueModels = [...new Set(modelsToTry)];
+
+		for (const modelName of uniqueModels) {
+			try {
+				console.log(`[AI-BATCH] Attempting to generate questions with model: ${modelName}`);
+
+				const result = await generateObject({
+					model: google(modelName),
+					schema: BatchQuestionSchema,
+					prompt: prompt,
+					mode: 'json',
+				});
+
+				// Normalize points based on question type (AI sometimes ignores this)
+				const normalizedQuestions = result.object.questions.map(q => {
+					let correctPoints = 1; // default
+					switch (q.question_type) {
+						case "MCQ":
+						case "TRUE_FALSE":
+						case "FILL_IN_BLANK":
+							correctPoints = 1;
+							break;
+						case "SHORT_ANSWER":
+							correctPoints = 3;
+							break;
+						case "LONG_ANSWER":
+							correctPoints = 5;
+							break;
+					}
+
+					if (q.points !== correctPoints) {
+						console.log(`[AI-BATCH] Correcting points for ${q.question_type}: ${q.points} → ${correctPoints}`);
+					}
+
+					return { ...q, points: correctPoints };
+				});
+
+				return normalizedQuestions;
+			} catch (error: any) {
+				console.warn(`[AI-BATCH] Failed with model ${modelName}: ${error.message}`);
+				// Continue to next model
+			}
+		}
+
+		throw new Error("All models failed to generate questions");
+
+	} catch (error) {
+		console.error("[AI-SERVICE] Batch question generation failed:", error);
+		return [];
+	}
+}
+
+export async function generateQuiz(
+	config: QuizGenerationConfig,
+	opts: { model?: string; keyId?: number; board?: string; level?: string } = {}
+) {
+	try {
+		const { client, keyId } = await getGeminiClient({
+			provider: "gemini",
+			keyId: opts.keyId,
+		});
+
+		// Note: We use the Vercel AI SDK's generateObject which needs a provider instance
+		// We'll reuse the key from getGeminiClient but we need to instantiate the provider
+		const { apiKey } = await getProviderApiKey({
+			provider: "gemini",
+			keyId: opts.keyId,
+		});
+		// Fallback to environment variable if no key found in database
+		const keyToUse = apiKey || process.env.GEMINI_API_KEY;
+		if (!keyToUse) {
+			throw new Error(
+				"No Gemini API key found. Add a key in admin settings or set GEMINI_API_KEY."
+			);
+		}
+		const google = createGoogleGenerativeAI({ apiKey: keyToUse });
+
+		// Calculate question type distribution
+		const typeDistribution = config.questionTypes.map((type, idx) => {
+			const count = Math.floor(config.questionCount / config.questionTypes.length) +
+				(idx < config.questionCount % config.questionTypes.length ? 1 : 0);
+			return `${count}x ${type}`;
+		}).join(", ");
+		const boardContext = opts.board ? `You are an expert ${opts.board} question setter.` : "";
+		const levelContext = opts.level ? `The target audience is ${opts.level} students.` : "";
+
+		const prompt = `${boardContext} ${levelContext}
+You are creating a ${config.difficulty}-level educational quiz for students studying "${config.subject}: ${config.topic}".
+
+**Subject**: ${config.subject}
+**Chapter**: ${config.topic}
+**Difficulty**: ${config.difficulty}
+
+=== EDUCATIONAL MATERIAL ===
+The following is the study material from the textbook chapter on this topic. Use this to create meaningful questions that test students' understanding of the concepts, facts, and knowledge they should learn from this chapter.
+
+${config.context}
+
+=== END OF EDUCATIONAL MATERIAL ===
+
+QUIZ REQUIREMENTS:
+• Total: ${config.questionCount} questions (${typeDistribution})
+• Types: ONLY ${config.questionTypes.join(", ")}
+• ALL questions must test understanding of concepts and knowledge from the educational material above
+• MCQ: 4 options, correct_answer = exact option text, 1 point
+  ${config.difficulty === "hard" ? "• **HARD DIFFICULTY MCQs**: For hard difficulty, include 20-30% multi-select MCQs where multiple options are correct. Format: correct_answer = array of exact option texts (e.g., [\"A. option1\", \"B. option2\"]). Question text MUST include keywords like \"correct reason(s)\", \"correct options are\", or use pattern (i), (ii), (iii), (iv) to indicate multi-select." : ""}
+• TRUE_FALSE: 2 options ("True", "False"), correct_answer = exact text, 1 point  
+• FILL_IN_BLANK: correct_answer = missing word/phrase, 1 point
+• SHORT_ANSWER: correct_answer = 2-3 sentence model answer, 2 points
+• LONG_ANSWER: correct_answer = 5+ sentence detailed answer, 5 points
+
+CRITICAL RULES - QUESTIONS MUST:
+✓ Test actual subject knowledge and concepts
+✓ Be completely self-contained and understandable without any visual aids
+✓ Be answerable using the knowledge from the educational material
+✓ Focus on "what", "why", and "how" of the subject matter
+✓ Include all necessary context within the question itself
+
+STRICTLY PROHIBITED - DO NOT CREATE:
+✗ Questions referencing unavailable materials: "the provided algorithm", "the given diagram", "the figure", "the table", "Case 1/2/3", "the image", "the flowchart", "the graph"
+✗ Questions about document structure (e.g., "what number appears in the content")
+✗ Questions referencing "Activity X.X", "Figure X.X", "Table X.X", or "Box X.X" numbers
+✗ Questions using phrases like "According to the text", "The text states", "the provided text", "the content above", "the material shown"
+✗ Questions about formatting, layout, or visual presentation
+✗ Questions that reference section numbers, page numbers, or document organization
+✗ Meta-questions about the text itself rather than the subject matter
+
+PHRASING GUIDELINES:
+✓ GOOD: Direct questions (e.g., "What is the time complexity of binary search?")
+✓ ACCEPTABLE: "According to the chapter, what is..."
+✗ AVOID: "According to the text, what is..."
+✗ AVOID: "The text states that..."
+
+EXAMPLES:
+❌ BAD: "In the provided 'Remove' algorithm, which case is executed when...?"
+✅ GOOD: "In a linked list removal operation, what happens when the list contains only one node that matches the value to be removed?"
+
+❌ BAD: "Which of the following numbers is shown in the provided content?"
+✅ GOOD: "What is the boiling point of water in Celsius?"
+
+❌ BAD: "According to the text, which data structure is used for BFS?"
+✅ GOOD: "Which data structure is traditionally used in the implementation of breadth-first traversal?"
+
+❌ BAD: "According to Figure 2.1, what process is shown?"
+✅ GOOD: "What is the process by which water vapor turns into liquid water?"
+
+❌ BAD: "In Activity 1.3, what was demonstrated?"
+✅ GOOD: "What happens when you mix an acid with a base?"
+
+Remember: You are testing students' knowledge of ${config.subject}, not their ability to read the textbook layout! Questions should be professional exam-style questions that stand alone without any external references.`;
+
+
+
+		// Model fallback strategy
+		// Priority: 1. Requested model (if any), 2. Admin-configured models, 3. .env fallback
+		const modelsToTry: string[] = [];
+		if (opts.model) modelsToTry.push(opts.model);
+
+		// Add admin-configured models
+		const dbModels = await getActiveModelNames("gemini");
+		modelsToTry.push(...dbModels);
+
+		// Add .env fallback
+		const fallbackModel = process.env.GEMINI_DEFAULT_MODEL || "gemini-2.0-flash";
+		modelsToTry.push(fallbackModel);
+
+		// Remove duplicates
+		const uniqueModels = [...new Set(modelsToTry)];
+
+		let lastError;
+
+		for (const modelName of uniqueModels) {
+			try {
+				console.log(`[AI-QUIZ] Attempting to generate quiz with model: ${modelName}`);
+
+				const resultPromise = generateObject({
+					model: google(modelName),
+					schema: QuizSchema,
+					prompt: prompt,
+				});
+
+				const result = await Promise.race([
+					resultPromise,
+					new Promise((_, reject) =>
+						setTimeout(() => reject(new Error("Quiz generation timed out after 90 seconds")), 90000)
+					)
+				]) as typeof resultPromise extends Promise<infer T> ? T : never;
+
+				console.log(`[AI-QUIZ] Successfully generated quiz with ${result.object.questions.length} questions`);
+
+				// Normalize points based on question type (AI sometimes ignores this)
+				result.object.questions = result.object.questions.map(q => {
+					let correctPoints = 1; // default
+					switch (q.question_type) {
+						case "MCQ":
+						case "TRUE_FALSE":
+						case "FILL_IN_BLANK":
+							correctPoints = 1;
+							break;
+						case "SHORT_ANSWER":
+							correctPoints = 2;
+							break;
+						case "LONG_ANSWER":
+							correctPoints = 5;
+							break;
+					}
+
+					if (q.points !== correctPoints) {
+						console.log(`[AI-QUIZ] Correcting points for ${q.question_type}: ${q.points} → ${correctPoints}`);
+					}
+
+					return { ...q, points: correctPoints };
+				});
+
+				if (keyId) await recordKeyUsage(keyId, true);
+				return result.object;
+
+			} catch (error: any) {
+				console.warn(`[AI-QUIZ] Failed with model ${modelName}: ${error.message}`);
+				lastError = error;
+
+				// If it's not a quota/availability issue (e.g. schema validation), maybe we shouldn't retry?
+				// But for now, let's assume most errors are model-related and try the next one.
+				// Specifically check for 429 (Resource Exhausted) or 404 (Not Found)
+				const isRetryable =
+					error.message.includes("429") ||
+					error.message.includes("404") ||
+					error.message.includes("quota") ||
+					error.message.includes("not found") ||
+					error.message.includes("overloaded");
+
+				if (!isRetryable && opts.model) {
+					// If user specified a specific model and it failed with non-retryable, throw immediately
+					throw error;
+				}
+
+				// Continue to next model
+			}
+		}
+
+		// If we get here, all models failed
+		throw lastError || new Error("Failed to generate quiz with all available models");
+
+	} catch (error: any) {
+		console.error("Error generating quiz:", error);
+		throw new Error(`Failed to generate quiz: ${error.message || String(error)}`);
+	}
+}
+
+export async function gradeQuiz(
+	questions: {
+		question_text: string;
+		user_answer: string;
+		correct_answer: string;
+		type: string;
+	}[],
+	opts: { model?: string; keyId?: number } = {}
+) {
+	try {
+		// Filter for subjective questions that need AI grading
+		const subjectiveQuestions = questions.filter((q) =>
+			["SHORT_ANSWER", "LONG_ANSWER"].includes(q.type)
 		);
 
-	const sortedCandidates = processedCandidates.sort((a, b) => {
-		const contentA = (a.chunkContent || "").toLowerCase();
-		const contentB = (b.chunkContent || "").toLowerCase();
-		const evidenceCountA = evidenceTerms.filter((t) =>
-			contentA.includes(t)
-		).length;
-		const evidenceCountB = evidenceTerms.filter((t) =>
-			contentB.includes(t)
-		).length;
+		if (subjectiveQuestions.length === 0) {
+			return [];
+		}
 
-		a.evidenceCount = evidenceCountA;
-		b.evidenceCount = evidenceCountB;
+		const { client, keyId } = await getGeminiClient({
+			provider: "gemini",
+			keyId: opts.keyId,
+		});
 
-		if (evidenceCountB !== evidenceCountA)
-			return evidenceCountB - evidenceCountA;
-		if (b.citationScore !== a.citationScore)
-			return b.citationScore - a.citationScore;
-		return b.rrfScore - a.rrfScore;
-	});
-
-	// --- 4. Dynamic Cutoff & Final Selection ---
-	if (sortedCandidates.length === 0) return [];
-
-	const topResult = sortedCandidates[0];
-	const topScore = topResult.citationScore;
-	const strictMode = topResult.hasEvidence;
-
-	const finalSelection = sortedCandidates.filter((source, index) => {
-		if (index === 0) return true;
-		if (index >= 5) return false;
-
-		const scoreDrop = source.citationScore < topScore * 0.5;
-		const evidenceDrop = strictMode && !source.hasEvidence;
-
-		if (evidenceDrop) {
-			console.log(
-				`[CITATION-CUT] "${source.title}" removed: No evidence vs Top Result`
+		// Use priority: 1) opts.model, 2) admin-configured models, 3) .env fallback
+		const dbModels = await getActiveModelNames("gemini");
+		const fallbackModel = process.env.GEMINI_DEFAULT_MODEL || "gemini-2.0-flash";
+		const modelName = opts.model || dbModels[0] || fallbackModel;
+		const { apiKey } = await getProviderApiKey({
+			provider: "gemini",
+			keyId: opts.keyId,
+		});
+		// Fallback to environment variable if no key found in database
+		const keyToUse = apiKey || process.env.GEMINI_API_KEY;
+		if (!keyToUse) {
+			throw new Error(
+				"No Gemini API key found. Add a key in admin settings or set GEMINI_API_KEY."
 			);
-			return false;
 		}
-		if (scoreDrop) {
-			console.log(
-				`[CITATION-CUT] "${source.title}" removed: Low score (${source.citationScore}) vs Top (${topScore})`
-			);
-			return false;
-		}
-		return true;
-	});
+		const google = createGoogleGenerativeAI({ apiKey: keyToUse });
 
-	// --- 5. LOG FINAL SELECTED SCORES ---
-	console.log(`[CITATION-FINAL] Selected ${finalSelection.length} sources:`);
-	finalSelection.forEach((s, i) => {
-		console.log(
-			`  #${i + 1}: "${s.title}" (Pg ${s.citation?.pageNumber}) | Score: ${
-				s.citationScore
-			} | Evidence: ${s.hasEvidence} | RRF: ${s.rrfScore?.toFixed(4)}`
-		);
-	});
+		const GradingSchema = z.object({
+			grades: z.array(
+				z.object({
+					question_text: z.string(),
+					is_correct: z.boolean(),
+					score_percentage: z.number().min(0).max(100),
+					feedback: z.string(),
+				})
+			),
+		});
 
-	return finalSelection.map(
-		({
-			hasEvidence,
-			evidenceCount,
-			citationScore, // We remove this from the return object to match interface
-			...rest
-		}) => {
-			return rest;
-		}
-	);
+		const prompt = `Grade the following student answers based on the model answer.
+        
+        Questions:
+        ${JSON.stringify(subjectiveQuestions, null, 2)}
+        
+        Provide a score (0-100) and feedback for each. Be lenient on phrasing but strict on factual accuracy.`;
+
+		const result = await generateObject({
+			model: google(modelName),
+			schema: GradingSchema,
+			prompt: prompt,
+		});
+
+		if (keyId) await recordKeyUsage(keyId, true);
+
+		return result.object.grades;
+	} catch (error) {
+		console.error("Error grading quiz:", error);
+		// Fallback: mark all as needing manual review or give full credit?
+		// For now, throw error
+		throw new Error("Failed to grade quiz");
+	}
+}
+
+// --- Study Materials Generation ---
+
+export interface StudyMaterialsConfig {
+	subject: string;
+	chapterTitle: string;
+	content: string; // The chapter content to generate materials from
+}
+
+const StudyMaterialSchema = z.object({
+	summary_markdown: z.string().describe("A comprehensive 5-minute read summary of the chapter in markdown format"),
+	key_terms: z.array(z.object({
+		term: z.string(),
+		definition: z.string(),
+	})).describe("Glossary of important terms and concepts with clear definitions"),
+	flashcards: z.array(z.object({
+		front: z.string().describe("Question or term"),
+		back: z.string().describe("Answer or definition"),
+	})).min(10).max(20).describe("10-20 flashcard pairs for quick revision"),
+	youtube_search_queries: z.array(z.string()).length(3).describe("3 precise search terms to find the best educational videos for this topic"),
+	mind_map_mermaid: z.string().describe("Mermaid.js flowchart syntax representing the chapter's concept hierarchy"),
+	important_formulas: z.array(z.object({
+		name: z.string(),
+		formula: z.string(),
+		explanation: z.string(),
+	})).optional().describe("Key formulas if this is a math/science chapter"),
+});
+
+export async function generateStudyMaterials(
+	config: StudyMaterialsConfig,
+	opts: { model?: string; keyId?: number } = {}
+) {
+	try {
+		// Use getGeminiClient to respect admin-configured models
+		const { client, keyId } = await getGeminiClient({
+			provider: "gemini",
+			keyId: opts.keyId,
+		});
+
+		// Use priority: 1) opts.model, 2) admin-configured models, 3) .env fallback
+		const dbModels = await getActiveModelNames("gemini");
+		const fallbackModel = process.env.GEMINI_DEFAULT_MODEL || "gemini-2.0-flash	";
+		const modelName = opts.model || dbModels[0] || fallbackModel;
+
+		// Get API key for generateObject
+		const { apiKey } = await getProviderApiKey({ provider: "gemini", keyId: opts.keyId });
+		if (!apiKey) throw new Error("No Gemini API key found");
+		const google = createGoogleGenerativeAI({ apiKey });
+
+		// Limit content to avoid token limits
+		const contentSnippet = config.content.substring(0, 40000);
+
+		const prompt = `Generate comprehensive study materials for the following chapter.
+
+Chapter: ${config.subject} - ${config.chapterTitle}
+
+Content:
+${contentSnippet}
+
+Generate the following study materials:
+1. A comprehensive summary (5-minute read) formatted in **Markdown**.
+   - **Formatting:**
+   - Use **bold** for key terms.
+   - Use bullet points for lists.
+   - Use \`code blocks\` for code.
+   - **NO TABLES:** Do not use Markdown tables. They do not render well on mobile devices. Use bulleted lists or clear text structures instead.
+   - **Newlines:** Use double newlines between paragraphs for better readability.
+   - Use bullet points for lists.
+   - Use **bold** for key concepts.
+2. A glossary of important terms and definitions.
+3. 10-20 flashcard pairs (front: question/term, back: answer/definition).
+4. 3 specific YouTube search queries to find the best educational videos.
+5. A Mermaid.js **flowchart** diagram to visualize the concepts.
+   - Start with "graph TD" (Top-Down).
+   - Use simple node labels like [Main Topic] --> [Subtopic].
+   - AVOID special characters like (), {}, or quotes inside the node text.
+   - Example:
+     graph TD
+       A[Main Topic] --> B[Subtopic 1]
+       A --> C[Subtopic 2]
+       B --> D[Detail 1]
+6. If applicable, list important formulas with explanations.
+
+Make the materials student-friendly, clear, and focused on exam preparation.`;
+
+		const result = await generateObject({
+			model: google(modelName),
+			schema: StudyMaterialSchema,
+			prompt: prompt,
+		});
+
+		if (keyId) await recordKeyUsage(keyId, true);
+
+		return result.object;
+
+	} catch (error) {
+		console.error("Error generating study materials:", error);
+		throw new Error("Failed to generate study materials");
+	}
+}
+
+// ==========================================
+// QUESTION BANK UPLOAD HELPERS
+// ==========================================
+
+const ExtractedQuestionSchema = z.object({
+	question_text: z.string().describe("The full text of the question"),
+	question_type: z.enum(["MCQ", "SHORT_ANSWER", "LONG_ANSWER", "TRUE_FALSE", "FILL_IN_THE_BLANK"]).describe("The type of question inferred from format"),
+	points: z.number().optional().describe("Marks allocated to this question if specified"),
+	options: z.array(z.string()).optional().describe("For MCQs, the list of options"),
+	question_number: z.string().optional().describe("The question number as it appears in the paper (e.g. '1', '2(a)')"),
+});
+
+const ExtractedPaperSchema = z.object({
+	questions: z.array(ExtractedQuestionSchema).describe("List of all extracted questions")
+});
+
+const AnswerGenerationSchema = z.object({
+	correct_answer: z.string().describe("The correct answer to the question"),
+	explanation: z.string().describe("Detailed explanation of why this is the correct answer"),
+});
+
+/**
+ * Extracts structured questions from a parsed exam paper markdown
+ */
+export async function extractQuestionsFromPaper(pdfMarkdown: string) {
+	try {
+		console.log(`[AI-EXTRACT] Extracting questions from paper (${pdfMarkdown.length} chars)...`);
+
+		// Initialize Google Provider
+		const { apiKey } = await getProviderApiKey({ provider: "gemini" });
+		const keyToUse = apiKey || process.env.GEMINI_API_KEY;
+		if (!keyToUse) throw new Error("No Gemini API key found");
+		const google = createGoogleGenerativeAI({ apiKey: keyToUse });
+
+		const prompt = `
+You are an expert exam paper parser. Your task is to extract questions from the provided exam paper content.
+
+INPUT CONTENT:
+${pdfMarkdown.slice(0, 30000)} // Limit context to avoid token limits
+
+INSTRUCTIONS:
+1. Identify all questions in the text.
+2. CRITICAL: The paper may contain both English and Hindi text. IGNORE all Hindi text/translations. Extract ONLY the English version of the questions.
+3. For each question, determine its type (MCQ, SHORT_ANSWER, LONG_ANSWER, etc.).
+4. Extract the points/marks if mentioned (e.g. "[1 Mark]", "(3)").
+5. For MCQs, extract all options into an array (English only).
+   - **CRITICAL**: Remove ONLY the outermost option label (e.g., "A.", "B.", "(a)", "(b)", "1.", "2.").
+   - **PRESERVE** internal numbering or references like "(i)", "(ii)", "1.", "2." if they are part of the answer content.
+   - Example: If text is "A. (i) and (ii)", store "(i) and (ii)".
+   - Example: If text is "(b) Statement 1 is correct", store "Statement 1 is correct".
+6. Preserve the exact question text.
+7. HANDLING DIAGRAMS:
+   - If a question refers to a diagram (e.g., "In the given circuit"), look for any text description provided in the input.
+   - If the diagram is described in text (e.g., "Circuit with 1 ohm and 2 ohm resistors"), include that description in the question text.
+   - If the question is purely visual and impossible to solve without seeing the image, SKIP IT.
+8. Ignore instructions like "All questions are compulsory" or section headers unless relevant.
+
+OUTPUT FORMAT:
+Return a JSON object with a "questions" array containing the extracted data.
+`;
+
+		const result = await generateObject({
+			model: google("gemini-2.5-pro"), // Use Pro for better reasoning on complex layouts
+			schema: ExtractedPaperSchema,
+			prompt: prompt,
+		});
+
+		console.log(`[AI-EXTRACT] Successfully extracted ${result.object.questions.length} questions.`);
+		return result.object.questions;
+
+	} catch (error) {
+		console.error("[AI-EXTRACT] Error extracting questions:", error);
+		throw error;
+	}
+}
+
+/**
+ * Generates an answer for a question using chapter context
+ */
+export async function generateAnswerForQuestion(question: string, context: string, marks: number = 1) {
+	try {
+		// Initialize Google Provider
+		const { apiKey } = await getProviderApiKey({ provider: "gemini" });
+		const keyToUse = apiKey || process.env.GEMINI_API_KEY;
+		if (!keyToUse) throw new Error("No Gemini API key found");
+		const google = createGoogleGenerativeAI({ apiKey: keyToUse });
+
+		const prompt = `
+You are an expert subject tutor. Your task is to answer an exam question based strictly on the provided textbook content.
+
+QUESTION:
+${question}
+
+MARKS: ${marks} (Answer length and detail should be appropriate for these marks)
+
+TEXTBOOK CONTENT:
+${context.slice(0, 20000)}
+
+INSTRUCTIONS:
+1. Read the question and the textbook content carefully.
+2. **CRITICAL FOR MCQs**:
+   - Select the correct option(s) from the provided choices.
+   - The "correct_answer" field must contain the **EXACT TEXT** of the correct option(s).
+   - If multiple options are correct (e.g., "Both A and B"), state that clearly using the option text.
+3. Generate the CORRECT ANSWER based on the textbook.
+4. Provide a detailed EXPLANATION referencing the textbook concepts.
+5. If the answer cannot be found in the context, use your general knowledge but mention that it wasn't in the provided text.
+
+OUTPUT FORMAT:
+Return a JSON object with "correct_answer" and "explanation".
+`;
+
+		const result = await generateObject({
+			model: google("gemini-2.0-flash"), // Flash is sufficient for answering
+			schema: AnswerGenerationSchema,
+			prompt: prompt,
+		});
+
+		return result.object;
+
+	} catch (error) {
+		console.error("[AI-SOLVE] Error generating answer:", error);
+		// Return a fallback structure instead of throwing, to allow partial success
+		return {
+			correct_answer: "Could not generate answer.",
+			explanation: "AI failed to generate an answer for this question."
+		};
+	}
+}
+
+const BatchAnswerSchema = z.object({
+	answers: z.array(z.object({
+		question_number: z.string().optional(),
+		question_text_snippet: z.string().describe("First few words of question to identify it"),
+		correct_answer: z.union([z.string(), z.array(z.string())]),
+		explanation: z.string()
+	}))
+});
+
+/**
+ * Generates answers for a BATCH of questions using chapter context
+ * Much more efficient than one-by-one
+ */
+/**
+ * Generates answers for a BATCH of questions using chapter context
+ * Much more efficient than one-by-one
+ */
+export async function generateAnswersForBatch(
+	questions: any[],
+	context: string,
+	metadata: { board?: string, level?: string, subject?: string, chapter?: string } = {}
+) {
+	try {
+		// Initialize Google Provider
+		const { apiKey } = await getProviderApiKey({ provider: "gemini" });
+		const keyToUse = apiKey || process.env.GEMINI_API_KEY;
+		if (!keyToUse) throw new Error("No Gemini API key found");
+		const google = createGoogleGenerativeAI({ apiKey: keyToUse });
+
+		console.log(`[AI-SOLVE] Generating answers for batch of ${questions.length} questions...`);
+
+		const questionsText = questions.map((q, i) =>
+			`Q${i + 1} [${q.points || 1} Marks] (${q.question_type}): ${q.question_text}`
+		).join("\n\n");
+
+		const boardContext = metadata.board ? `You are an expert ${metadata.board} question setter.` : "You are an expert subject tutor.";
+		const levelContext = metadata.level ? `The current level is ${metadata.level}.` : "";
+		const subjectChapter = metadata.subject && metadata.chapter
+			? `**Subject**: ${metadata.subject}\n**Chapter**: ${metadata.chapter}\n`
+			: "";
+
+		const prompt = `
+${boardContext} ${levelContext}
+Your task is to answer exam questions accurately.
+
+${subjectChapter}
+QUESTIONS:
+${questionsText}
+
+TEXTBOOK CONTENT:
+${context}
+
+INSTRUCTIONS:
+1. For EACH question, generate the CORRECT ANSWER and EXPLANATION.
+2. **CRITICAL FOR MCQs - FOLLOW EXACTLY**: 
+   - You MUST select from the options provided in the question.
+   - The "correct_answer" field MUST be the **CLEAN TEXT** of the correct option.
+   - **STRICT RULE**: Do NOT include the *outer* option label (A, B, C, D).
+   - **PRESERVE** content like "(i) and (ii)" if it is part of the option text.
+   - Example: If option is "(i) and (ii)", answer MUST be "(i) and (ii)".
+   - Example: If option is "A. (i) and (ii)", answer MUST be "(i) and (ii)" (Strip 'A.', keep '(i)...').
+   - **NEVER** create an answer that is not in the options list (after stripping outer prefixes).
+   - **NEVER** return just the letter (e.g., "B").
+   - **NEVER** hallucinate an answer (e.g., do not write "Grass → Hawk" if it is not an option).
+   - If multiple options are correct, list all correct option texts separated by " and ".
+3. **SOURCE PRIORITY**:
+   - First, check the provided TEXTBOOK CONTENT.
+   - If the answer is NOT in the textbook, **YOU MUST USE YOUR GENERAL KNOWLEDGE**.
+   - **NEVER** return "Cannot be determined" or "Not found in text" for standard academic questions. Always provide the correct academic answer.
+4. **LEVEL**: Keep answers at a ${metadata.level || "High School / CBSE"} level.
+
+STRICTLY PROHIBITED IN EXPLANATIONS:
+- Do not refer to "the provided text", "the context", "the above material", "Activity X.X", "Figure X.X", "Table X.X", "Reaction X.X", "Law X.X" or similar references.
+- Do not say "According to the text" or "As mentioned in the chapter".
+- Explanations must be self-contained and based on general subject knowledge + context facts, without meta-references.
+
+OUTPUT FORMAT:
+Return a JSON object with an "answers" array.
+`;
+
+		const result = await generateObject({
+			model: google("gemini-2.0-flash"), // Flash is great for large context
+			schema: BatchAnswerSchema,
+			prompt: prompt,
+		});
+
+		return result.object.answers;
+
+	} catch (error) {
+		console.error("[AI-SOLVE] Error generating batch answers:", error);
+		throw error;
+	}
 }

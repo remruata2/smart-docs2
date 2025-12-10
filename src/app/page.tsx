@@ -2,6 +2,7 @@
 
 import Link from "next/link";
 import { Button } from "@/components/ui/button";
+import Image from "next/image";
 import {
 	Card,
 	CardContent,
@@ -11,14 +12,16 @@ import {
 } from "@/components/ui/card";
 import {
 	Check,
-	BarChart3,
-	FileSearch,
-	Quote,
-	Table2,
-	Zap,
+	Brain,
+	BookOpen,
+	Trophy,
+	Target,
+	GraduationCap,
+	Sparkles,
 	ArrowRight,
 } from "lucide-react";
 import { useEffect, useRef, useState } from "react";
+import { Footer } from "@/components/Footer";
 
 export default function Home() {
 	const [isVisible, setIsVisible] = useState<Record<string, boolean>>({});
@@ -49,7 +52,7 @@ export default function Home() {
 	}, []);
 
 	return (
-		<div className="min-h-screen bg-gradient-to-b from-gray-50 to-white">
+		<div className="min-h-screen bg-gradient-to-b from-gray-50 to-white overflow-x-hidden">
 			<style jsx>{`
 				@keyframes fadeInUp {
 					from {
@@ -147,7 +150,7 @@ export default function Home() {
 				}
 
 				.gradient-text {
-					background: linear-gradient(135deg, #3b82f6 0%, #8b5cf6 100%);
+					background: linear-gradient(135deg, #6366f1 0%, #a855f7 100%);
 					-webkit-background-clip: text;
 					-webkit-text-fill-color: transparent;
 					background-clip: text;
@@ -157,26 +160,38 @@ export default function Home() {
 			{/* Header */}
 			<header className="border-b bg-white/80 backdrop-blur-sm sticky top-0 z-50 transition-all duration-300">
 				<div className="container mx-auto px-4 py-4 flex items-center justify-between">
-					<div className="text-2xl font-bold text-gray-900 animate-fade-in">
-						Smart Docs
-					</div>
-					<nav className="flex items-center gap-4">
+					<Link href="/" className="animate-fade-in">
+						<Image
+							src="/zirnalogosmall.png"
+							alt="Zirna"
+							width={120}
+							height={40}
+							className="h-8 md:h-10 w-auto"
+							priority
+							unoptimized
+						/>
+					</Link>
+					<nav className="flex items-center gap-2 md:gap-4">
 						<Link
 							href="/pricing"
-							className="text-gray-600 hover:text-gray-900 transition-colors duration-200"
+							className="text-gray-600 hover:text-gray-900 transition-colors duration-200 text-sm md:text-base hidden sm:block"
 						>
 							Pricing
 						</Link>
 						<Link href="/login">
 							<Button
 								variant="outline"
-								className="transition-all duration-200 hover:scale-105"
+								size="sm"
+								className="transition-all duration-200 hover:scale-105 md:h-10 md:px-4 md:py-2"
 							>
 								Sign In
 							</Button>
 						</Link>
 						<Link href="/register">
-							<Button className="transition-all duration-200 hover:scale-105 hover:shadow-lg">
+							<Button
+								size="sm"
+								className="transition-all duration-200 hover:scale-105 hover:shadow-lg md:h-10 md:px-4 md:py-2"
+							>
 								Get Started
 							</Button>
 						</Link>
@@ -185,36 +200,35 @@ export default function Home() {
 			</header>
 
 			{/* Hero Section */}
-			<section className="container mx-auto px-4 py-20 text-center">
+			<section className="container mx-auto px-4 py-12 md:py-20 text-center">
 				<div className="animate-fade-in-up">
-					<h1 className="text-5xl md:text-6xl font-bold text-gray-900 mb-6">
-						The AI Analyst for
+					<h1 className="text-3xl sm:text-4xl md:text-6xl font-bold text-gray-900 mb-4 md:mb-6">
+						Your AI-Powered Companion for
 						<br />
 						<span className="gradient-text animate-float">
-							Complex Documents
+							Exam Excellence
 						</span>
 					</h1>
-					<p className="text-xl text-gray-600 mb-8 max-w-3xl mx-auto animate-fade-in-up animate-delay-200">
-						Professional-grade document analysis with table-accurate extraction,
-						exact citations, deep search capabilities, and intelligent chart
-						generation. Built for professionals who need precision, not just
-						speed.
+					<p className="text-lg md:text-xl text-gray-600 mb-6 md:mb-8 max-w-3xl mx-auto animate-fade-in-up animate-delay-200 px-2">
+						Master your exams with AI-generated quizzes, smart study materials,
+						and gamified learning. Built for students across boards, institutions,
+						and competitive exams who need results.
 					</p>
-					<div className="flex gap-4 justify-center animate-fade-in-up animate-delay-300">
-						<Link href="/register">
+					<div className="flex flex-col sm:flex-row gap-3 sm:gap-4 justify-center animate-fade-in-up animate-delay-300 px-4 sm:px-0">
+						<Link href="/register" className="w-full sm:w-auto">
 							<Button
 								size="lg"
-								className="text-lg px-8 transition-all duration-200 hover:scale-105 hover:shadow-xl group"
+								className="w-full sm:w-auto text-base md:text-lg px-6 md:px-8 bg-gradient-to-r from-indigo-600 to-purple-600 hover:from-indigo-700 hover:to-purple-700 transition-all duration-200 hover:scale-105 hover:shadow-xl group"
 							>
-								Start Free Trial
+								Start Learning Free
 								<ArrowRight className="ml-2 h-4 w-4 transition-transform duration-200 group-hover:translate-x-1" />
 							</Button>
 						</Link>
-						<Link href="/pricing">
+						<Link href="/pricing" className="w-full sm:w-auto">
 							<Button
 								size="lg"
 								variant="outline"
-								className="text-lg px-8 transition-all duration-200 hover:scale-105 hover:shadow-lg"
+								className="w-full sm:w-auto text-base md:text-lg px-6 md:px-8 transition-all duration-200 hover:scale-105 hover:shadow-lg"
 							>
 								View Pricing
 							</Button>
@@ -223,86 +237,114 @@ export default function Home() {
 				</div>
 			</section>
 
-			{/* Key Differentiators */}
+			{/* Key Features */}
 			<section className="container mx-auto px-4 py-16">
 				<div
-					id="differentiators"
+					id="features"
 					data-animate
-					className={`transition-all duration-700 ${
-						isVisible["differentiators"]
-							? "opacity-100 translate-y-0"
-							: "opacity-0 translate-y-10"
-					}`}
+					className={`transition-all duration-700 ${isVisible["features"]
+						? "opacity-100 translate-y-0"
+						: "opacity-0 translate-y-10"
+						}`}
 				>
 					<h2 className="text-3xl font-bold text-center mb-4 text-gray-900">
-						Built for Professional Accuracy
+						Everything You Need to Excel
 					</h2>
 					<p className="text-center text-gray-600 mb-12 max-w-2xl mx-auto">
-						Unlike simple chat interfaces, our AI analyst understands document
-						structure, preserves data integrity, and delivers precise answers
-						with verifiable sources.
+						From AI-generated practice questions to gamified learning experiences,
+						we provide comprehensive tools to help you succeed in your exams.
 					</p>
 				</div>
-				<div className="grid md:grid-cols-2 lg:grid-cols-4 gap-6">
+				<div className="grid md:grid-cols-2 lg:grid-cols-3 gap-6">
 					{[
 						{
-							id: "table-accuracy",
-							icon: Table2,
+							id: "ai-quizzes",
+							icon: Brain,
+							iconColor: "text-indigo-600",
+							bgColor: "bg-indigo-100",
+							borderColor: "border-indigo-100 hover:border-indigo-300",
+							title: "AI-Generated Quizzes",
+							description:
+								"Practice with unlimited custom quizzes tailored to your subjects and chapters. Multiple question types including MCQs, fill-in-the-blanks, and more.",
+							features: [
+								"Chapter-specific questions",
+								"5 types of question formats",
+								"Instant feedback & explanations",
+							],
+						},
+						{
+							id: "battle-mode",
+							icon: Target,
+							iconColor: "text-red-600",
+							bgColor: "bg-red-100",
+							borderColor: "border-red-100 hover:border-red-300",
+							title: "Quiz Battle Mode",
+							description:
+								"Challenge your friends or random opponents in real-time quiz battles. Compete head-to-head and climb the leaderboard while learning.",
+							features: [
+								"Real-time competitive quizzes",
+								"Challenge friends or random matches",
+								"Earn points and achievements",
+							],
+						},
+						{
+							id: "ai-tutor",
+							icon: GraduationCap,
 							iconColor: "text-blue-600",
 							bgColor: "bg-blue-100",
 							borderColor: "border-blue-100 hover:border-blue-300",
-							title: "Table-Accuracy",
+							title: "AI Learning Tutor",
 							description:
-								"Layout-aware parsing preserves table structure, ensuring financial data, spreadsheets, and structured content maintain their integrity.",
+								"Get personalized help from your AI tutor that breaks down complex topics into simple, easy-to-understand explanations tailored to your learning pace.",
 							features: [
-								"Multi-column table preservation",
-								"Financial statement accuracy",
-								"No data hallucination",
+								"Step-by-step chapter guidance",
+								"Simplified explanations",
+								"24/7 personalized assistance",
 							],
 						},
 						{
-							id: "citations",
-							icon: Quote,
+							id: "study-materials",
+							icon: BookOpen,
 							iconColor: "text-green-600",
 							bgColor: "bg-green-100",
 							borderColor: "border-green-100 hover:border-green-300",
-							title: "Exact Citations",
+							title: "Smart Study Materials",
 							description:
-								"Every answer includes precise source references with page numbers, document titles, and exact locations for verification.",
+								"Access organized content by board, institution, and program. All your textbooks and study materials in one place with AI-powered summaries.",
 							features: [
-								"Page-level source tracking",
-								"Verifiable references",
-								"Clickable source links",
+								"Multi-board support (CBSE, MBSE, etc.)",
+								"Chapter-wise organization",
+								"AI-generated summaries & flashcards",
 							],
 						},
 						{
-							id: "deep-search",
-							icon: FileSearch,
+							id: "gamification",
+							icon: Sparkles,
 							iconColor: "text-purple-600",
 							bgColor: "bg-purple-100",
 							borderColor: "border-purple-100 hover:border-purple-300",
-							title: "Deep Search",
+							title: "Gamified Learning",
 							description:
-								"Hybrid search technology combines keyword matching with semantic understanding to find exact IDs, dates, names, and complex analytical queries.",
+								"Earn points for every quiz, climb the leaderboards, and stay motivated with achievements. Learning made fun and engaging.",
 							features: [
-								"Find specific IDs and codes",
-								"Aggregation across documents",
-								"Multi-document analysis",
+								"Points for every activity",
+								"Achievement badges",
+								"Progress tracking",
 							],
 						},
 						{
-							id: "charts",
-							icon: BarChart3,
+							id: "leaderboards",
+							icon: Trophy,
 							iconColor: "text-orange-600",
 							bgColor: "bg-orange-100",
 							borderColor: "border-orange-100 hover:border-orange-300",
-							title: "Generating Charts",
+							title: "Compete & Excel",
 							description:
-								"Transform data insights into visual charts automatically. Export as PNG, PDF, SVG, or interactive HTML with full data tables.",
+								"See how you rank against peers in your institution and board. Friendly competition that drives excellence.",
 							features: [
-								"Bar, line, pie, and area charts",
-								"Multiple export formats",
-								"Data table preservation",
+								"Institution rankings",
+								"Board-wide leaderboards",
+								"Performance insights",
 							],
 						},
 					].map((feature, index) => {
@@ -312,13 +354,11 @@ export default function Home() {
 								key={feature.id}
 								id={feature.id}
 								data-animate
-								className={`card-hover border-2 ${
-									feature.borderColor
-								} transition-all duration-300 ${
-									isVisible[feature.id]
+								className={`card-hover border-2 ${feature.borderColor
+									} transition-all duration-300 ${isVisible[feature.id]
 										? "opacity-100 translate-y-0"
 										: "opacity-0 translate-y-10"
-								}`}
+									}`}
 								style={{ transitionDelay: `${index * 100}ms` }}
 							>
 								<CardHeader>
@@ -351,50 +391,49 @@ export default function Home() {
 				</div>
 			</section>
 
-			{/* Technical Advantages */}
+			{/* How It Works */}
 			<section className="bg-gray-50 py-16">
 				<div className="container mx-auto px-4">
 					<div
-						id="technical"
+						id="how-it-works"
 						data-animate
-						className={`transition-all duration-700 ${
-							isVisible["technical"]
-								? "opacity-100 translate-y-0"
-								: "opacity-0 translate-y-10"
-						}`}
+						className={`transition-all duration-700 ${isVisible["how-it-works"]
+							? "opacity-100 translate-y-0"
+							: "opacity-0 translate-y-10"
+							}`}
 					>
 						<h2 className="text-3xl font-bold text-center mb-12 text-gray-900">
-							Professional-Grade Architecture
+							Powered by Advanced AI Technology
 						</h2>
 					</div>
 					<div className="grid md:grid-cols-3 gap-8 max-w-5xl mx-auto">
 						{[
 							{
-								id: "hybrid-search",
-								icon: Zap,
-								iconColor: "text-blue-600",
-								bgColor: "bg-blue-100",
-								title: "Hybrid Search Technology",
+								id: "board-filtering",
+								icon: Target,
+								iconColor: "text-indigo-600",
+								bgColor: "bg-indigo-100",
+								title: "Board-Specific Content",
 								description:
-									"Combines keyword search (for exact matches) with vector search (for semantic understanding) using Reciprocal Rank Fusion (RRF) to ensure both specific queries and analytical questions get accurate results.",
+									"Content filtered by your board, institution, and program ensures you only study what matters for your exams. Zero irrelevant material, maximum focus.",
 							},
 							{
-								id: "layout-aware",
-								icon: Table2,
+								id: "adaptive-learning",
+								icon: Brain,
 								iconColor: "text-green-600",
 								bgColor: "bg-green-100",
-								title: "Layout-Aware Processing",
+								title: "Adaptive Learning Paths",
 								description:
-									"Advanced document parsing preserves table structures, multi-column layouts, and formatting. Financial statements, legal documents, and technical reports maintain their structural integrity for accurate analysis.",
+									"AI tracks your performance and adapts question difficulty. Focus on weak areas automatically while maintaining strengths for optimal learning.",
 							},
 							{
-								id: "multi-path",
-								icon: FileSearch,
+								id: "analytics",
+								icon: GraduationCap,
 								iconColor: "text-purple-600",
 								bgColor: "bg-purple-100",
-								title: "Multi-Path Query Logic",
+								title: "Comprehensive Analytics",
 								description:
-									"Intelligent routing distinguishes between specific lookups (exact IDs, dates) and analytical queries (trends, aggregations). Each query type uses optimized retrieval strategies for maximum accuracy.",
+									"Detailed insights into your performance by subject, chapter, and question type. Identify patterns and improve strategically.",
 							},
 						].map((tech, index) => {
 							const Icon = tech.icon;
@@ -403,11 +442,10 @@ export default function Home() {
 									key={tech.id}
 									id={tech.id}
 									data-animate
-									className={`text-center transition-all duration-500 ${
-										isVisible[tech.id]
-											? "opacity-100 translate-y-0"
-											: "opacity-0 translate-y-10"
-									}`}
+									className={`text-center transition-all duration-500 ${isVisible[tech.id]
+										? "opacity-100 translate-y-0"
+										: "opacity-0 translate-y-10"
+										}`}
 									style={{ transitionDelay: `${index * 150}ms` }}
 								>
 									<div
@@ -431,49 +469,48 @@ export default function Home() {
 				<div
 					id="use-cases"
 					data-animate
-					className={`transition-all duration-700 ${
-						isVisible["use-cases"]
-							? "opacity-100 translate-y-0"
-							: "opacity-0 translate-y-10"
-					}`}
+					className={`transition-all duration-700 ${isVisible["use-cases"]
+						? "opacity-100 translate-y-0"
+						: "opacity-0 translate-y-10"
+						}`}
 				>
 					<h2 className="text-3xl font-bold text-center mb-12 text-gray-900">
-						Built for Professionals Who Need Accuracy
+						Built for Every Learning Journey
 					</h2>
 				</div>
 				<div className="grid md:grid-cols-3 gap-8">
 					{[
 						{
-							id: "legal",
-							title: "Legal Professionals",
+							id: "students",
+							title: "K-12 Students",
 							description:
-								"Find exact clauses, case references, and contract terms with precise citations",
+								"Master your board exams with chapter-specific quizzes and study materials organized by your syllabus",
 							features: [
-								"Exact case number lookup",
-								"Contract clause extraction",
-								"Multi-document case analysis",
+								"CBSE, MBSE, State boards",
+								"Subject and chapter-wise practice",
+								"Track progress and improve",
 							],
 						},
 						{
-							id: "financial",
-							title: "Financial Analysts",
+							id: "aspirants",
+							title: "Competitive Exam Aspirants",
 							description:
-								"Analyze financial statements, balance sheets, and reports with table-accurate data",
+								"Prepare for UPSC, IIT-JEE, NEET, and other competitive exams with targeted practice and AI assistance",
 							features: [
-								"Accurate financial calculations",
-								"Trend analysis across periods",
-								"Automated chart generation",
+								"Exam-specific content",
+								"Previous year questions pattern",
+								"Performance analytics",
 							],
 						},
 						{
-							id: "research",
-							title: "Research & Compliance",
+							id: "educators",
+							title: "Educators & Institutions",
 							description:
-								"Deep search across large document archives with verifiable source tracking",
+								"Monitor student progress, assign quizzes, and manage learning outcomes for your entire institution",
 							features: [
-								"Aggregate data across files",
-								"Compliance verification",
-								"Audit trail with citations",
+								"Bulk student management",
+								"Custom content upload",
+								"Institution-wide analytics",
 							],
 						},
 					].map((useCase, index) => (
@@ -481,11 +518,10 @@ export default function Home() {
 							key={useCase.id}
 							id={useCase.id}
 							data-animate
-							className={`card-hover transition-all duration-500 ${
-								isVisible[useCase.id]
-									? "opacity-100 translate-y-0"
-									: "opacity-0 translate-y-10"
-							}`}
+							className={`card-hover transition-all duration-500 ${isVisible[useCase.id]
+								? "opacity-100 translate-y-0"
+								: "opacity-0 translate-y-10"
+								}`}
 							style={{ transitionDelay: `${index * 100}ms` }}
 						>
 							<CardHeader>
@@ -514,19 +550,18 @@ export default function Home() {
 			<section
 				id="cta"
 				data-animate
-				className={`bg-blue-600 text-white py-16 transition-all duration-700 ${
-					isVisible["cta"]
-						? "opacity-100 translate-y-0"
-						: "opacity-0 translate-y-10"
-				}`}
+				className={`bg-gradient-to-r from-indigo-600 to-purple-600 text-white py-16 transition-all duration-700 ${isVisible["cta"]
+					? "opacity-100 translate-y-0"
+					: "opacity-0 translate-y-10"
+					}`}
 			>
 				<div className="container mx-auto px-4 text-center">
 					<h2 className="text-3xl font-bold mb-4">
-						Ready to experience professional-grade document analysis?
+						Ready to ace your exams with AI?
 					</h2>
-					<p className="text-xl mb-8 text-blue-100">
-						Join professionals who trust accuracy over speed. Get precise
-						answers with verifiable sources.
+					<p className="text-xl mb-8 text-indigo-100">
+						Join thousands of students who are already learning smarter,
+						not harder. Start your journey to exam excellence today.
 					</p>
 					<Link href="/register">
 						<Button
@@ -534,7 +569,7 @@ export default function Home() {
 							variant="secondary"
 							className="text-lg px-8 transition-all duration-200 hover:scale-110 hover:shadow-2xl group"
 						>
-							Start Free Trial
+							Start Learning Free
 							<ArrowRight className="ml-2 h-4 w-4 transition-transform duration-200 group-hover:translate-x-1" />
 						</Button>
 					</Link>
@@ -542,11 +577,7 @@ export default function Home() {
 			</section>
 
 			{/* Footer */}
-			<footer className="border-t py-8 mt-16">
-				<div className="container mx-auto px-4 text-center text-gray-600">
-					<p>&copy; 2025 Smart Docs. All rights reserved.</p>
-				</div>
-			</footer>
+			<Footer />
 		</div>
 	);
 }

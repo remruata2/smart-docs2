@@ -47,11 +47,10 @@ export async function POST(request: NextRequest) {
 		if (!rateLimitResult.allowed) {
 			return NextResponse.json(
 				{
-					error: `Rate limit exceeded. You can make ${
-						rateLimitResult.remaining
-					} more requests. Try again in ${Math.ceil(
-						rateLimitResult.resetIn / 1000
-					)} seconds.`,
+					error: `Rate limit exceeded. You can make ${rateLimitResult.remaining
+						} more requests. Try again in ${Math.ceil(
+							rateLimitResult.resetIn / 1000
+						)} seconds.`,
 					errorCode: "RATE_LIMIT_EXCEEDED",
 					resetAt: rateLimitResult.resetAt,
 				},
@@ -61,7 +60,7 @@ export async function POST(request: NextRequest) {
 
 		// Validate request body
 		const body = await request.json();
-		const { message, provider, model, keyId, category, stream } = body;
+		const { message, provider, model, keyId, stream, boardId, subjectId, chapterId } = body;
 		let conversationHistory = body.conversationHistory;
 
 		if (!message || typeof message !== "string") {
@@ -141,12 +140,11 @@ export async function POST(request: NextRequest) {
 		}
 
 		// Validate and sanitize optional filters
-		const filters: { category?: string; userId?: number } = {
-			userId: userId, // Enforce user scoping
+		const filters: { boardId?: string; subjectId?: number; chapterId?: number } = {
+			boardId: boardId || 'CBSE', // Default to CBSE
 		};
-		if (category && typeof category === "string" && category.trim()) {
-			filters.category = sanitizeFilterValue(category);
-		}
+		if (subjectId) filters.subjectId = Number(subjectId);
+		if (chapterId) filters.chapterId = Number(chapterId);
 
 		// Process the chat message (use sanitized message)
 		console.log(

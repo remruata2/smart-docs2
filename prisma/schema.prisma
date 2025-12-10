@@ -95,7 +95,7 @@ model user {
    id             Int               @id @default(autoincrement())
    username       String            @unique @db.VarChar(100)
    password_hash  String?           @db.VarChar(255)
-   role           UserRole          @default(user)
+   role           UserRole          @default(student)
    is_active      Boolean?          @default(true)
    last_login     DateTime?         @db.Timestamptz(6)
    created_at     DateTime?         @default(now()) @db.Timestamptz(6)
@@ -105,6 +105,13 @@ model user {
    files          FileList[]
    usage_tracking UsageTracking[]
    subscription   UserSubscription?
+   profile        Profile?
+   quizzes        Quiz[]
+   points         UserPoints[]
+   badges         UserBadge[]
+   learning_sessions LearningSession[]
+   created_battles Battle[]
+   battle_participations BattleParticipant[]
 
    @@index([email], map: "idx_user_email")
 }
@@ -120,11 +127,17 @@ model Conversation {
   message_count   Int                   @default(0)
   is_pinned       Boolean               @default(false)
   is_archived     Boolean               @default(false)
+  subject_id      Int?
+  chapter_id      BigInt?
   messages        ConversationMessage[]
   user            user                  @relation(fields: [user_id], references: [id], onDelete: Cascade)
+  subject         Subject?              @relation(fields: [subject_id], references: [id])
+  chapter         Chapter?              @relation(fields: [chapter_id], references: [id])
 
   @@index([user_id, updated_at(sort: Desc)], map: "idx_conversations_user_updated")
   @@index([user_id, is_pinned, updated_at(sort: Desc)], map: "idx_conversations_user_pinned")
+  @@index([subject_id])
+  @@index([chapter_id])
   @@map("conversations")
 }
 
@@ -193,8 +206,8 @@ model SubscriptionPlan {
   description             String?
   price_monthly           Decimal            @db.Decimal(10, 2)
   price_yearly            Decimal?           @db.Decimal(10, 2)
-  stripe_price_id_monthly String?            @db.VarChar(255)
-  stripe_price_id_yearly  String?            @db.VarChar(255)
+  razorpay_plan_id_monthly String?           @db.VarChar(255)
+  razorpay_plan_id_yearly  String?           @db.VarChar(255)
   features                Json?
   limits                  Json
   is_active               Boolean            @default(true)
@@ -212,8 +225,9 @@ model UserSubscription {
   id                     Int                @id @default(autoincrement())
   user_id                Int                @unique
   plan_id                Int
-  stripe_subscription_id String?            @unique @db.VarChar(255)
-  stripe_customer_id     String?            @db.VarChar(255)
+  razorpay_subscription_id String?          @unique @db.VarChar(255)
+  razorpay_customer_id     String?          @db.VarChar(255)
+  razorpay_order_id        String?          @db.VarChar(255)
   status                 SubscriptionStatus @default(active)
   billing_cycle          BillingCycle       @default(monthly)
   current_period_start   DateTime           @db.Timestamptz(6)
@@ -226,7 +240,7 @@ model UserSubscription {
   user                   user               @relation(fields: [user_id], references: [id], onDelete: Cascade)
 
   @@index([status, current_period_end], map: "idx_user_subscriptions_status")
-  @@index([stripe_subscription_id], map: "idx_user_subscriptions_stripe")
+  @@index([razorpay_subscription_id], map: "idx_user_subscriptions_razorpay")
   @@map("user_subscriptions")
 }
 
@@ -247,6 +261,211 @@ model UsageTracking {
   @@map("usage_tracking")
 }
 
+// --- Bharat-Tutor Multi-Tenancy Models ---
+
+model Country {
+  id       String  @id // 'IN', 'NG', 'PK', 'PH'
+  name     String // 'India', 'Nigeria'...
+  currency String // '₹', '₦'...
+  locale   String  @default("en")
+  is_active Boolean @default(true)
+
+  boards Board[]
+
+  @@map("countries")
+}
+
+model Board {
+  id         String   @id // 'CBSE', 'MBSE', 'WAEC', 'IIT-JEE', 'UPSC', etc.
+  name       String   // 'Central Board of Secondary Education', 'Union Public Service Commission'
+  country_id String   @default("IN")
+  state      String?  // 'Mizoram' (null for national/central)
+  type       String   @default("academic") // 'academic', 'competitive_exam', 'professional'
+  is_active  Boolean  @default(true)
+  created_at DateTime @default(now())
+  updated_at DateTime @updatedAt
+
+  country      Country       @relation(fields: [country_id], references: [id])
+  institutions Institution[]
+  programs     Program[]
+  chunkBoards  ChapterChunkBoard[]
+
+  @@index([country_id, is_active])
+  @@index([type])
+  @@map("boards")
+}
+
+// Replaces old "School" model - supports schools, colleges, universities, coaching centers
+model Institution {
+  id             BigInt   @id @default(autoincrement())
+  board_id       String
+  name           String
+  type           String   // 'school', 'college', 'university', 'coaching_center'
+  district       String?
+  state          String?
+  license_expiry DateTime?
+  is_active      Boolean  @default(true)
+  created_at     DateTime @default(now())
+
+  board    Board     @relation(fields: [board_id], references: [id])
+  programs Program[]
+  profiles Profile[]
+
+  @@index([board_id, is_active])
+  @@index([type])
+  @@map("institutions")
+}
+
+// New model: represents Class 10, B.Tech IT, MBBS Year 2, UPSC Prelims, etc.
+model Program {
+  id             Int      @id @default(autoincrement())
+  board_id       String
+  institution_id BigInt?  // null for board-level programs (e.g., UPSC CSE)
+  name           String   // 'Class 10', 'B.Tech - Computer Science', 'MBBS - Year 2', 'UPSC Civil Services'
+  code           String?  // 'CLS10', 'BTECH_CS', 'MBBS_Y2', 'UPSC_CSE'
+  level          String?  // 'secondary', 'undergraduate', 'postgraduate', 'competitive'
+  duration_years Int?     // 1, 4, 5, etc. (null for one-time exams)
+  is_active      Boolean  @default(true)
+  created_at     DateTime @default(now())
+
+  board       Board        @relation(fields: [board_id], references: [id])
+  institution Institution? @relation(fields: [institution_id], references: [id])
+  subjects    Subject[]
+  profiles    Profile[]
+  exams       Exam[]
+
+  @@unique([board_id, institution_id, name])
+  @@index([board_id, level])
+  @@map("programs")
+}
+
+model Profile {
+  id            Int      @id @default(autoincrement())
+  user_id       Int      @unique
+  institution_id BigInt? // null for self-paced learners
+  program_id    Int?     // null until program selected
+  is_premium    Boolean  @default(false)
+  last_sync_at  BigInt?  // Unix ms for mobile sync
+
+  user        user         @relation(fields: [user_id], references: [id], onDelete: Cascade)
+  institution Institution? @relation(fields: [institution_id], references: [id])
+  program     Program?     @relation(fields: [program_id], references: [id])
+
+  @@index([institution_id])
+  @@index([program_id])
+  @@map("profiles")
+}
+
+// Subjects now linked to Programs instead of Boards
+model Subject {
+  id         Int      @id @default(autoincrement())
+  program_id Int      // Required: subjects belong to programs
+  name       String   // 'Physics', 'Data Structures', 'General Studies', 'Pharmacology'
+  code       String?  // 'PHY', 'DS', 'GS', 'PHARM'
+  is_active  Boolean  @default(true)
+  created_at DateTime @default(now())
+
+  program  Program   @relation(fields: [program_id], references: [id])
+  term       String?   // e.g. "Semester 1", "Year 2", or null for annual
+  chapters Chapter[]
+  quizzes    Quiz[]
+  conversations Conversation[]
+
+  @@unique([program_id, name])
+  @@index([program_id])
+  @@map("subjects")
+}
+
+enum ChapterStatus {
+  PENDING
+  PROCESSING
+  COMPLETED
+  FAILED
+
+  @@map("chapter_status")
+}
+
+model Chapter {
+  id                BigInt         @id @default(autoincrement())
+  subject_id        Int
+  title             String         // 'Chapter 6: Life Processes'
+  chapter_number    Int?
+  content_json      Json           // LlamaParse output
+  version_id        String         @default(cuid()) // For sync
+  accessible_boards String[]       // For cross-board content (e.g., NCERT used by multiple boards)
+  is_global         Boolean        @default(false) // true = accessible to all boards
+  is_active         Boolean        @default(true)
+  processing_status ChapterStatus  @default(PENDING)
+  error_message     String?        @db.Text
+  processed_at      DateTime?
+  created_at        DateTime       @default(now())
+  updated_at        DateTime       @updatedAt
+  parsed_at         DateTime?
+
+  subject     Subject             @relation(fields: [subject_id], references: [id])
+  chunks      ChapterChunk[]
+  pages       ChapterPage[]
+   quizzes     Quiz[]
+   study_materials StudyMaterial?
+   learning_sessions LearningSession[]
+   conversations Conversation[]
+   questions     Question[]
+
+  @@index([subject_id, chapter_number])
+  @@index([accessible_boards], type: Gin) // For RLS
+  @@index([processing_status])
+  @@map("chapters")
+}
+
+model ChapterChunk {
+  id              BigInt                   @id @default(autoincrement())
+  chapter_id      BigInt
+  chunk_index     Int
+  content         String
+  page_number     Int?
+  bbox            Json?                    // Bounding box
+  search_vector   Unsupported("tsvector")?
+  semantic_vector Unsupported("vector")?
+  subject_id      Int?                     // Denormalized
+  created_at      DateTime                 @default(now())
+
+  chapter     Chapter             @relation(fields: [chapter_id], references: [id], onDelete: Cascade)
+  chunkBoards ChapterChunkBoard[]
+
+  @@index([chapter_id, chunk_index])
+  @@index([search_vector], type: Gin)
+  @@index([semantic_vector])
+  @@index([subject_id])
+  @@map("chapter_chunks")
+}
+
+// Junction table for board access (scales better than array)
+model ChapterChunkBoard {
+  chunk_id BigInt
+  board_id String
+  chunk    ChapterChunk @relation(fields: [chunk_id], references: [id], onDelete: Cascade)
+  board    Board        @relation(fields: [board_id], references: [id])
+
+  @@id([chunk_id, board_id])
+  @@index([board_id])
+  @@map("chapter_chunk_boards")
+}
+
+model ChapterPage {
+  id          BigInt   @id @default(autoincrement())
+  chapter_id  BigInt
+  page_number Int
+  image_url   String
+  width       Int?
+  height      Int?
+  created_at  DateTime @default(now())
+
+  chapter Chapter @relation(fields: [chapter_id], references: [id], onDelete: Cascade)
+
+  @@index([chapter_id, page_number])
+  @@map("chapter_pages")
+}
+
 enum MessageRole {
   user
   assistant
@@ -256,8 +475,8 @@ enum MessageRole {
 
 enum UserRole {
   admin
-  staff
-  user
+  institution
+  student
 
   @@map("user_role")
 }
@@ -285,6 +504,9 @@ enum UsageType {
   chat_message
   document_export
   ai_processing
+  quiz_generation
+  battle_match
+  ai_tutor_session
 
   @@map("usage_type")
 }
@@ -296,4 +518,276 @@ enum Provider {
   anthropic
   llamaparse
   openrouter
+}
+
+// --- Exam Prep & Gamification Models ---
+
+enum QuestionType {
+  MCQ
+  TRUE_FALSE
+  FILL_IN_BLANK
+  SHORT_ANSWER
+  LONG_ANSWER
+}
+
+enum QuizStatus {
+  IN_PROGRESS
+  COMPLETED
+  ABANDONED
+}
+
+/// System-wide settings for quiz configuration
+model SystemSetting {
+  id    Int    @id @default(autoincrement())
+  key   String @unique @db.VarChar(255)
+  value String @db.Text
+  type  String @db.VarChar(50) // 'number', 'string', 'boolean', 'json'
+  
+  created_at DateTime @default(now()) @db.Timestamptz(6)
+  updated_at DateTime @updatedAt @db.Timestamptz(6)
+  
+  @@map("system_settings")
+}
+
+model Quiz {
+  id          String     @id @default(cuid())
+  user_id     Int
+  subject_id  Int
+  chapter_id  BigInt?    // Optional: quiz can be for a whole subject or specific chapter
+  title       String
+  description String?
+  
+  status      QuizStatus @default(IN_PROGRESS)
+  score       Int        @default(0)
+  total_points Int       @default(0)
+  
+  created_at  DateTime   @default(now())
+  updated_at  DateTime   @updatedAt
+  completed_at DateTime?
+
+  user        user       @relation(fields: [user_id], references: [id], onDelete: Cascade)
+  subject     Subject    @relation(fields: [subject_id], references: [id])
+  chapter     Chapter?   @relation(fields: [chapter_id], references: [id])
+  
+  questions   QuizQuestion[]
+   battles     Battle[]
+
+  @@index([user_id])
+  @@index([subject_id])
+  @@map("quizzes")
+}
+
+model QuizQuestion {
+  id             String       @id @default(cuid())
+  quiz_id        String
+  question_text  String       @db.Text
+  question_type  QuestionType
+  
+  // For MCQ/TF: JSON array of options e.g. ["Option A", "Option B"]
+  options        Json?
+  
+  // The correct answer(s). For MCQ: index or string. For FITB: correct word.
+  correct_answer Json
+  
+  // User's submitted answer
+  user_answer    Json?
+  
+  is_correct     Boolean?
+  points         Int          @default(1)
+  
+  // AI-generated explanation for the answer
+  explanation    String?      @db.Text
+  
+  // AI feedback for subjective questions (Short/Long answer)
+  feedback       String?      @db.Text
+
+  quiz           Quiz         @relation(fields: [quiz_id], references: [id], onDelete: Cascade)
+
+  @@index([quiz_id])
+  @@map("quiz_questions")
+}
+
+/// Question Bank Model - Stores pre-generated questions for chapters
+model Question {
+  id             String       @id @default(cuid())
+  chapter_id     BigInt
+  question_text  String       @db.Text
+  question_type  QuestionType
+  difficulty     String       // 'easy', 'medium', 'hard'
+  
+  // For MCQ/TF: JSON array of options e.g. ["Option A", "Option B"]
+  options        Json?
+  
+  // The correct answer
+  correct_answer Json
+  
+  // AI-generated explanation
+  explanation    String?      @db.Text
+  
+  points         Int          @default(1)
+  is_active      Boolean      @default(true)
+  created_at     DateTime     @default(now())
+  updated_at     DateTime     @updatedAt
+
+  chapter        Chapter      @relation(fields: [chapter_id], references: [id], onDelete: Cascade)
+
+  @@index([chapter_id, difficulty, question_type])
+  @@map("questions")
+}
+
+model UserPoints {
+  id          String   @id @default(cuid())
+  user_id     Int
+  points      Int
+  reason      String   // e.g. "quiz_completion", "daily_streak", "bonus"
+  metadata    Json?    // e.g. { quiz_id: "..." }
+  
+  created_at  DateTime @default(now())
+
+  user        user     @relation(fields: [user_id], references: [id], onDelete: Cascade)
+
+  @@index([user_id])
+  @@map("user_points")
+}
+
+model StudyMaterial {
+  id             BigInt   @id @default(autoincrement())
+  chapter_id     BigInt   @unique
+  
+  // AI-generated content as JSON
+  summary        Json?    // { brief: "", key_points: [], important_formulas: [] }
+  definitions    Json?    // [{ term: "", definition: "" }]
+  flashcards     Json?    // [{ front: "", back: "" }]
+  mind_map       String?  @db.Text // Mermaid.js syntax
+  
+  // YouTube integration  
+  video_queries  String[] // Search queries used
+  curated_videos Json?    // [{ title: "", videoId: "", duration: "", thumbnail: "" }]
+  
+  created_at     DateTime @default(now())
+  updated_at     DateTime @updatedAt
+  
+  chapter        Chapter  @relation(fields: [chapter_id], references: [id], onDelete: Cascade)
+  
+  @@index([chapter_id])
+  @@map("study_materials")
+}
+
+model Exam {
+  id          String   @id @default(cuid())
+  title       String
+  description String?
+  date        DateTime
+  program_id  Int?
+  is_active   Boolean  @default(true)
+  created_at  DateTime @default(now())
+  updated_at  DateTime @updatedAt
+
+  program     Program? @relation(fields: [program_id], references: [id])
+
+  @@index([program_id])
+  @@index([date])
+  @@map("exams")
+}
+
+model StreakBadge {
+  id          String   @id @default(cuid())
+  name        String
+  icon        String   // Emoji or icon name
+  min_streak  Int      @unique // 7, 14, 30 etc.
+  is_active   Boolean  @default(true)
+  created_at  DateTime @default(now())
+  updated_at  DateTime @updatedAt
+
+  user_badges UserBadge[]
+
+  @@map("streak_badges")
+}
+
+model UserBadge {
+  id          String   @id @default(cuid())
+  user_id     Int
+  badge_id    String
+  earned_at   DateTime @default(now())
+
+  user        user        @relation(fields: [user_id], references: [id], onDelete: Cascade)
+  badge       StreakBadge @relation(fields: [badge_id], references: [id], onDelete: Cascade)
+
+  @@unique([user_id, badge_id])
+  @@index([user_id])
+  @@index([badge_id])
+  @@map("user_badges")
+}
+
+model LearningSession {
+  id            String   @id @default(cuid())
+  user_id       Int
+  chapter_id    BigInt
+  status        String   @default("active") // active, completed, paused
+  current_topic String?  // e.g., "Balancing Chemical Equations"
+  progress      Int      @default(0) // 0-100%
+  created_at    DateTime @default(now())
+  updated_at    DateTime @updatedAt
+
+  user    user    @relation(fields: [user_id], references: [id])
+  chapter Chapter @relation(fields: [chapter_id], references: [id])
+
+  @@index([user_id, chapter_id])
+  @@map("learning_sessions")
+}
+
+// --- P2P Battle Models ---
+
+enum BattleStatus {
+  WAITING     // Waiting for opponent
+  STARTING    // Countdown
+  IN_PROGRESS // Battle is live
+  COMPLETED   // Battle finished
+  ABANDONED   // Someone left or timed out
+  EXPIRED     // Created but never joined
+}
+
+model Battle {
+  id          String       @id @default(cuid())
+  quiz_id     String
+  code        String       @unique @db.VarChar(10) // 6-digit join code
+  status      BattleStatus @default(WAITING)
+  
+  created_by  Int
+  created_at  DateTime     @default(now())
+  started_at  DateTime?
+  ended_at    DateTime?
+  
+  // Settings snapshot
+  settings    Json?        // { timePerQuestion: 15, ... }
+
+  quiz        Quiz         @relation(fields: [quiz_id], references: [id])
+  creator     user         @relation(fields: [created_by], references: [id])
+  
+  participants BattleParticipant[]
+
+  @@index([code])
+  @@index([status])
+  @@index([created_by])
+  @@map("battles")
+}
+
+model BattleParticipant {
+  id          String   @id @default(cuid())
+  battle_id   String
+  user_id     Int
+  
+  score       Int      @default(0)
+  current_q_index Int  @default(0) // Which question they are on
+  finished    Boolean  @default(false)
+  joined_at   DateTime @default(now())
+  
+  // Realtime state
+  last_active DateTime @default(now())
+
+  battle      Battle   @relation(fields: [battle_id], references: [id], onDelete: Cascade)
+  user        user     @relation(fields: [user_id], references: [id], onDelete: Cascade)
+
+  @@unique([battle_id, user_id])
+  @@map("battle_participants")
 }

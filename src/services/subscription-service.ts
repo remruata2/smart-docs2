@@ -48,8 +48,9 @@ export async function upsertUserSubscription(
 	userId: number,
 	data: {
 		planId: number;
-		stripeSubscriptionId?: string;
-		stripeCustomerId?: string;
+		razorpaySubscriptionId?: string;
+		razorpayCustomerId?: string;
+		razorpayOrderId?: string;
 		status?: SubscriptionStatus;
 		billingCycle?: BillingCycle;
 		currentPeriodStart: Date;
@@ -58,8 +59,9 @@ export async function upsertUserSubscription(
 ) {
 	const {
 		planId,
-		stripeSubscriptionId,
-		stripeCustomerId,
+		razorpaySubscriptionId,
+		razorpayCustomerId,
+		razorpayOrderId,
 		status = SubscriptionStatus.active,
 		billingCycle = BillingCycle.monthly,
 		currentPeriodStart,
@@ -70,8 +72,9 @@ export async function upsertUserSubscription(
 		where: { user_id: userId },
 		update: {
 			plan_id: planId,
-			stripe_subscription_id: stripeSubscriptionId,
-			stripe_customer_id: stripeCustomerId,
+			razorpay_subscription_id: razorpaySubscriptionId,
+			razorpay_customer_id: razorpayCustomerId,
+			razorpay_order_id: razorpayOrderId,
 			status,
 			billing_cycle: billingCycle,
 			current_period_start: currentPeriodStart,
@@ -80,8 +83,9 @@ export async function upsertUserSubscription(
 		create: {
 			user_id: userId,
 			plan_id: planId,
-			stripe_subscription_id: stripeSubscriptionId,
-			stripe_customer_id: stripeCustomerId,
+			razorpay_subscription_id: razorpaySubscriptionId,
+			razorpay_customer_id: razorpayCustomerId,
+			razorpay_order_id: razorpayOrderId,
 			status,
 			billing_cycle: billingCycle,
 			current_period_start: currentPeriodStart,

@@ -13,7 +13,7 @@
  *   node --loader ts-node/esm scripts/migrate-bbox-coordinates.ts
  */
 
-import { PrismaClient } from "../src/generated/prisma";
+import { PrismaClient, Prisma } from "../src/generated/prisma";
 
 const prisma = new PrismaClient();
 
@@ -66,7 +66,7 @@ async function migrateBoundingBoxes() {
 		const chunks = await prisma.fileChunk.findMany({
 			where: {
 				bbox: {
-					not: null,
+					not: Prisma.DbNull,
 				},
 			},
 			select: {

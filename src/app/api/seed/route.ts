@@ -1,8 +1,23 @@
-import { NextResponse } from "next/server";
+import { NextRequest, NextResponse } from "next/server";
 import { db } from "@/lib/db";
 import { hash } from "bcryptjs";
 
-export async function GET() {
+export async function GET(request: NextRequest) {
+	// SECURITY: Block seed route in production unless API key is provided
+	const isProduction = process.env.NODE_ENV === "production";
+	const apiKey = request.headers.get("x-seed-api-key");
+	const validApiKey = process.env.SEED_API_KEY;
+
+	if (isProduction) {
+		// In production, require a valid API key
+		if (!validApiKey || !apiKey || apiKey !== validApiKey) {
+			return NextResponse.json(
+				{ error: "Forbidden: Seed route is disabled in production" },
+				{ status: 403 }
+			);
+		}
+	}
+
 	try {
 		// Check if admin user already exists
 		const existingUser = await db.user.findUnique({

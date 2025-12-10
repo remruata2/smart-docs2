@@ -1,9 +1,9 @@
 "use client";
 
-import { signIn } from "next-auth/react";
+import { signIn, useSession } from "next-auth/react";
 import { useRouter } from "next/navigation";
-import { useState } from "react";
-import { Loader2, Lock, User, AlertCircle } from "lucide-react";
+import { useEffect, useState } from "react";
+import { Loader2, Lock, User, AlertCircle, BookOpen, Brain, GraduationCap, Sparkles } from "lucide-react";
 import { FcGoogle } from "react-icons/fc";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
@@ -23,7 +23,24 @@ export default function LoginPage() {
 	const [password, setPassword] = useState("");
 	const [error, setError] = useState("");
 	const [isLoading, setIsLoading] = useState(false);
+	const [isMounted, setIsMounted] = useState(false);
 	const router = useRouter();
+	const { data: session, status } = useSession();
+	const userRole = session?.user?.role;
+	const isSessionLoading = status === "loading";
+	const isSessionAuthenticated = status === "authenticated";
+
+	useEffect(() => {
+		setIsMounted(true);
+	}, []);
+
+	useEffect(() => {
+		if (isSessionAuthenticated) {
+			const destination = userRole === "admin" ? "/admin" : "/app";
+			router.replace(destination);
+		}
+	}, [isSessionAuthenticated, router, userRole]);
+	const isFormDisabled = isLoading || isSessionLoading || isSessionAuthenticated || !isMounted;
 
 	const handleSubmit = async (e: React.FormEvent) => {
 		e.preventDefault();
@@ -31,7 +48,6 @@ export default function LoginPage() {
 		setIsLoading(true);
 
 		try {
-			// Use callbackUrl to ensure proper redirect after login
 			const result = await signIn("credentials", {
 				redirect: false,
 				username,
@@ -44,12 +60,10 @@ export default function LoginPage() {
 				return;
 			}
 
-			// Wait a moment for session to be available, then get user session to determine role-based redirect
 			await new Promise((resolve) => setTimeout(resolve, 100));
 			const sessionResponse = await fetch("/api/auth/session");
 			const session = await sessionResponse.json();
 
-			// Redirect based on user role
 			if (session?.user?.role === "admin") {
 				router.replace("/admin");
 			} else {
@@ -63,126 +77,194 @@ export default function LoginPage() {
 	};
 
 	return (
-		<div className="min-h-screen flex flex-col items-center justify-center bg-gradient-to-b from-gray-50 to-gray-100 dark:from-gray-900 dark:to-gray-800 p-4 sm:p-6 lg:p-8">
-			<div className="w-full max-w-md space-y-6">
-				<Card className="border-none shadow-lg">
-					<CardHeader className="space-y-1">
-						<CardTitle className="text-2xl font-semibold text-center">
-							Smart Docs
-						</CardTitle>
-						<CardDescription className="text-center">
-							Sign in to your account
-						</CardDescription>
-					</CardHeader>
+		<div className="min-h-screen flex flex-col bg-gradient-to-br from-gray-50 to-gray-100">
+			{isSessionAuthenticated && (
+				<div className="fixed inset-0 z-50 flex flex-col items-center justify-center bg-white/80 backdrop-blur-sm px-6 text-center">
+					<Loader2 className="h-8 w-8 animate-spin text-indigo-600 mb-4" />
+					<p className="text-base font-semibold text-gray-800">Checking your session...</p>
+					<p className="text-sm text-gray-500 mt-1">Hang tight while we redirect you to your dashboard.</p>
+				</div>
+			)}
+			{/* Mobile Header - Compact branding */}
+			<div className="lg:hidden bg-gradient-to-r from-indigo-600 to-purple-600 p-6 text-white">
+				<div className="flex items-center gap-3 justify-center mb-2">
+					<div className="p-2 bg-white/20 backdrop-blur-lg rounded-xl">
+						<GraduationCap className="w-8 h-8" />
+					</div>
+					<h1 className="text-2xl font-bold">Zirna</h1>
+				</div>
+				<p className="text-center text-white/90 text-sm">
+					Your AI-powered exam prep companion
+				</p>
+			</div>
 
-					{error && (
-						<div className="mx-6 p-3 bg-destructive/10 border border-destructive/20 rounded-md flex items-center gap-2 text-destructive">
-							<AlertCircle className="h-4 w-4" />
-							<p className="text-sm">{error}</p>
+			<div className="flex-1 flex flex-col lg:flex-row">
+				{/* Desktop Left Panel - Branding (Hidden on mobile) */}
+				<div className="hidden lg:flex relative lg:w-1/2 bg-gradient-to-br from-indigo-600 via-purple-600 to-pink-500 p-8 lg:p-12 items-center justify-center overflow-hidden">
+					{/* Animated Background Elements */}
+					<div className="absolute inset-0 opacity-20">
+						<div className="absolute top-20 left-20 w-72 h-72 bg-white rounded-full mix-blend-overlay filter blur-3xl animate-pulse" />
+						<div className="absolute bottom-20 right-20 w-96 h-96 bg-pink-200 rounded-full mix-blend-overlay filter blur-3xl animate-pulse delay-700" />
+						<div className="absolute top-1/2 left-1/2 w-80 h-80 bg-purple-200 rounded-full mix-blend-overlay filter blur-3xl animate-pulse delay-1000" />
+					</div>
+
+					{/* Content */}
+					<div className="relative z-10 max-w-md text-white">
+						<div className="mb-8 flex items-center gap-3">
+							<div className="p-3 bg-white/20 backdrop-blur-lg rounded-2xl">
+								<GraduationCap className="w-10 h-10" />
+							</div>
+							<h1 className="text-4xl font-bold">Zirna</h1>
 						</div>
-					)}
 
-					<CardContent>
-						<form onSubmit={handleSubmit} className="space-y-4">
-							<div className="space-y-2">
-								<Label htmlFor="username">Email or Username</Label>
-								<div className="relative">
-									<User className="absolute left-3 top-2.5 h-4 w-4 text-muted-foreground" />
-									<Input
-										id="username"
-										name="username"
-										type="text"
-										autoComplete="username"
-										required
-										className="pl-10"
-										placeholder="Enter your email or username"
-										value={username}
-										onChange={(e) => setUsername(e.target.value)}
-										disabled={isLoading}
-									/>
+						<p className="text-xl text-white/90 mb-8 leading-relaxed">
+							Your AI-powered companion for exam preparation and academic excellence.
+						</p>
+
+						<div className="space-y-6">
+							<div className="flex items-start gap-4 group">
+								<div className="p-2 bg-white/10 backdrop-blur-sm rounded-lg group-hover:bg-white/20 transition-all">
+									<Brain className="w-6 h-6" />
+								</div>
+								<div>
+									<h3 className="font-semibold text-lg mb-1">AI-Generated Quizzes</h3>
+									<p className="text-white/80 text-sm">Practice with custom quizzes tailored to your subjects and chapters</p>
 								</div>
 							</div>
 
-							<div className="space-y-2">
-								<div className="flex items-center justify-between">
-									<Label htmlFor="password">Password</Label>
+							<div className="flex items-start gap-4 group">
+								<div className="p-2 bg-white/10 backdrop-blur-sm rounded-lg group-hover:bg-white/20 transition-all">
+									<BookOpen className="w-6 h-6" />
 								</div>
-								<div className="relative">
-									<Lock className="absolute left-3 top-2.5 h-4 w-4 text-muted-foreground" />
-									<Input
-										id="password"
-										name="password"
-										type="password"
-										autoComplete="current-password"
-										required
-										className="pl-10"
-										placeholder="Enter your password"
-										value={password}
-										onChange={(e) => setPassword(e.target.value)}
-										disabled={isLoading}
-									/>
+								<div>
+									<h3 className="font-semibold text-lg mb-1">Smart Study Materials</h3>
+									<p className="text-white/80 text-sm">Access organized content by board, institution, and program</p>
 								</div>
 							</div>
 
-							<div className="flex items-center space-x-2">
-								<input
-									id="remember"
-									name="remember"
-									type="checkbox"
-									className="h-4 w-4 rounded border-gray-300 text-primary focus:ring-primary"
-									disabled={isLoading}
-								/>
-								<Label
-									htmlFor="remember"
-									className="text-sm font-medium leading-none peer-disabled:cursor-not-allowed peer-disabled:opacity-70"
+							<div className="flex items-start gap-4 group">
+								<div className="p-2 bg-white/10 backdrop-blur-sm rounded-lg group-hover:bg-white/20 transition-all">
+									<Sparkles className="w-6 h-6" />
+								</div>
+								<div>
+									<h3 className="font-semibold text-lg mb-1">Gamified Learning</h3>
+									<p className="text-white/80 text-sm">Earn points and compete on leaderboards while you learn</p>
+								</div>
+							</div>
+						</div>
+					</div>
+				</div>
+
+				{/* Right Panel - Login Form */}
+				<div className="flex-1 lg:w-1/2 flex items-center justify-center p-6 lg:p-12 bg-gradient-to-br from-gray-50 to-gray-100">
+					<div className="w-full max-w-md">
+						<Card className="border-none shadow-2xl bg-white/80 backdrop-blur-sm">
+							<CardHeader className="space-y-1 pb-6">
+								<CardTitle className="text-3xl font-bold text-center bg-gradient-to-r from-indigo-600 to-purple-600 bg-clip-text text-transparent">
+									Welcome Back
+								</CardTitle>
+								<CardDescription className="text-center text-base">
+									Sign in to continue your learning journey
+								</CardDescription>
+							</CardHeader>
+
+							{error && (
+								<div className="mx-6 mb-4 p-4 bg-red-50 border border-red-200 rounded-lg flex items-center gap-3 text-red-700 animate-in fade-in slide-in-from-top-2 duration-300">
+									<AlertCircle className="h-5 w-5 flex-shrink-0" />
+									<p className="text-sm font-medium">{error}</p>
+								</div>
+							)}
+
+							<CardContent className="space-y-6">
+								<form onSubmit={handleSubmit} className="space-y-5">
+									<div className="space-y-2">
+										<Label htmlFor="username" className="text-sm font-semibold">Email or Username</Label>
+										<div className="relative group">
+											<User className="absolute left-3 top-3 h-5 w-5 text-gray-400 group-focus-within:text-indigo-600 transition-colors" />
+											<Input
+												id="username"
+												name="username"
+												type="text"
+												autoComplete="username"
+												required
+												className="pl-10 h-12 border-gray-200 focus:border-indigo-500 focus:ring-indigo-500 transition-all"
+												placeholder="Enter your email or username"
+												value={username}
+												onChange={(e) => setUsername(e.target.value)}
+												disabled={isFormDisabled}
+											/>
+										</div>
+									</div>
+
+									<div className="space-y-2">
+										<Label htmlFor="password" className="text-sm font-semibold">Password</Label>
+										<div className="relative group">
+											<Lock className="absolute left-3 top-3 h-5 w-5 text-gray-400 group-focus-within:text-indigo-600 transition-colors" />
+											<Input
+												id="password"
+												name="password"
+												type="password"
+												autoComplete="current-password"
+												required
+												className="pl-10 h-12 border-gray-200 focus:border-indigo-500 focus:ring-indigo-500 transition-all"
+												placeholder="Enter your password"
+												value={password}
+												onChange={(e) => setPassword(e.target.value)}
+												disabled={isFormDisabled}
+											/>
+										</div>
+									</div>
+
+									<Button
+										type="submit"
+										className="w-full h-12 bg-gradient-to-r from-indigo-600 to-purple-600 hover:from-indigo-700 hover:to-purple-700 text-white font-semibold shadow-lg hover:shadow-xl transition-all duration-200"
+										disabled={isFormDisabled}
+									>
+										{isLoading ? (
+											<>
+												<Loader2 className="mr-2 h-5 w-5 animate-spin" />
+												Signing in...
+											</>
+										) : (
+											"Sign in"
+										)}
+									</Button>
+								</form>
+
+								<div className="relative">
+									<div className="absolute inset-0 flex items-center">
+										<span className="w-full border-t border-gray-200" />
+									</div>
+									<div className="relative flex justify-center text-xs uppercase">
+										<span className="bg-white px-3 text-gray-500 font-medium">
+											Or continue with
+										</span>
+									</div>
+								</div>
+
+								<Button
+									type="button"
+									variant="outline"
+									className="w-full h-12 border-2 hover:bg-gray-50 hover:border-gray-300 transition-all duration-200 font-semibold"
+									onClick={() => signIn("google", { callbackUrl: "/app" })}
+									disabled={isFormDisabled}
 								>
-									Remember me
-								</Label>
-							</div>
+									<FcGoogle className="mr-2 h-5 w-5" />
+									Sign in with Google
+								</Button>
+							</CardContent>
 
-							<Button type="submit" className="w-full" disabled={isLoading}>
-								{isLoading ? (
-									<>
-										<Loader2 className="mr-2 h-4 w-4 animate-spin" />
-										Signing in...
-									</>
-								) : (
-									"Sign in"
-								)}
-							</Button>
-						</form>
-
-						<div className="relative">
-							<div className="absolute inset-0 flex items-center">
-								<span className="w-full border-t" />
-							</div>
-							<div className="relative flex justify-center text-xs uppercase">
-								<span className="bg-background px-2 text-muted-foreground">
-									Or continue with
-								</span>
-							</div>
-						</div>
-
-						<Button
-							type="button"
-							variant="outline"
-							className="w-full"
-							onClick={() => signIn("google", { callbackUrl: "/app" })}
-							disabled={isLoading}
-						>
-							<FcGoogle className="mr-2 h-4 w-4" />
-							Sign in with Google
-						</Button>
-					</CardContent>
-					<CardFooter className="flex flex-col space-y-2">
-						<div className="text-sm text-center text-muted-foreground">
-							Don&apos;t have an account?{" "}
-							<Link href="/register" className="text-primary hover:underline">
-								Sign up
-							</Link>
-						</div>
-					</CardFooter>
-				</Card>
+							<CardFooter className="flex flex-col space-y-3 pb-6">
+								<div className="text-sm text-center text-gray-600">
+									Don&apos;t have an account?{" "}
+									<Link href="/register" className="text-indigo-600 hover:text-indigo-700 font-semibold hover:underline transition-colors">
+										Sign up
+									</Link>
+								</div>
+							</CardFooter>
+						</Card>
+					</div>
+				</div>
 			</div>
 		</div>
 	);

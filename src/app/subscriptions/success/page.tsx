@@ -19,7 +19,7 @@ async function CheckoutSuccessContent() {
 				</CardHeader>
 				<CardContent className="space-y-4">
 					<p className="text-center text-gray-600">
-						You now have access to all premium features. Start using Smart Docs to its full
+						You now have access to all premium features. Start using Zirna to its full
 						potential!
 					</p>
 					<Link href="/app">
@@ -27,7 +27,7 @@ async function CheckoutSuccessContent() {
 					</Link>
 					<Link href="/admin">
 						<Button variant="outline" className="w-full">
-							Start Using Smart Docs
+							Start Using Zirna
 						</Button>
 					</Link>
 				</CardContent>
