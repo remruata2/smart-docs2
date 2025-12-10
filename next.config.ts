@@ -115,11 +115,10 @@ const nextConfig: NextConfig = {
 			},
 		];
 	},
-	// Increase server timeout
-	serverRuntimeConfig: {
-		// Increase timeout for API routes
-		maxDuration: 300, // 5 minutes
-	},
+
+	// Add empty turbopack config to silence webpack migration warning
+	// Turbopack will use webpack config as fallback
+	turbopack: {},
 	// Performance optimizations
 	poweredByHeader: false,
 	compress: true,
