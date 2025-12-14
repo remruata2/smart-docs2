@@ -4,16 +4,12 @@ import Link from "next/link";
 import { Button } from "@/components/ui/button";
 
 import { Badge } from "@/components/ui/badge";
-import { ArrowLeft, MessageSquare, BookOpen, Brain } from "lucide-react";
+import { ArrowLeft } from "lucide-react";
 import { ChapterPagesViewer } from "@/components/study/ChapterPagesViewer";
 import { prisma } from "@/lib/prisma";
 
-export const revalidate = 3600; // Revalidate every hour
-export const dynamicParams = true; // Allow generating pages on demand
-
-export async function generateStaticParams() {
-    return []; // Don't generate any pages at build time
-}
+// Force dynamic rendering since getChapterById requires session/headers
+export const dynamic = 'force-dynamic';
 
 export default async function ChapterDetailPage({
     params,
