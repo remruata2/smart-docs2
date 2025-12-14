@@ -1,19 +1,14 @@
-import { authOptions } from "@/lib/auth-options";
 import { redirect } from "next/navigation";
-import { getStudyMaterialsAction, generateStudyMaterialsAction } from "../actions";
+import { getStudyMaterialsAction } from "../actions";
 import { StudyMaterialsClient } from "@/components/study/StudyMaterialsClient";
 import { GenerateStudyMaterialsButton } from "@/components/study/GenerateStudyMaterialsButton";
 import { Button } from "@/components/ui/button";
-import { ArrowLeft, Loader2, Sparkles } from "lucide-react";
+import { ArrowLeft, Sparkles } from "lucide-react";
 import Link from "next/link";
 import { prisma } from "@/lib/prisma";
 
-export const revalidate = 3600;
-export const dynamicParams = true;
-
-export async function generateStaticParams() {
-    return [];
-}
+// Force dynamic rendering since getStudyMaterialsAction requires session/headers
+export const dynamic = 'force-dynamic';
 
 export default async function StudyMaterialsPage({ params }: { params: Promise<{ chapterId: string }> }) {
     const { chapterId } = await params;

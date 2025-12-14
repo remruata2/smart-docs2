@@ -14,6 +14,7 @@ import {
 	BrainCircuit,
 	Trophy,
 	History,
+	Swords,
 } from "lucide-react";
 import {
 	DropdownMenu,
@@ -124,6 +125,21 @@ export default function UserSidebar({ setSidebarOpen }: UserSidebarProps) {
 						className={`${displayCollapsed ? "h-5 w-5" : "mr-3 h-5 w-5"}`}
 					/>
 					{!displayCollapsed && "Practice"}
+				</Link>
+
+				<Link
+					href="/app/practice/battle"
+					onClick={() => setSidebarOpen && setSidebarOpen(false)}
+					className={`${baseLinkClasses} ${pathname.startsWith("/app/practice/battle")
+						? "bg-white/20 text-white shadow-sm"
+						: "text-white/70 hover:bg-white/10 hover:text-white"
+						} ${displayCollapsed ? "justify-center px-0" : ""}`}
+					title={displayCollapsed ? "Battle Mode" : ""}
+				>
+					<Swords
+						className={`${displayCollapsed ? "h-5 w-5" : "mr-3 h-5 w-5"}`}
+					/>
+					{!displayCollapsed && "Battle Mode"}
 				</Link>
 
 				<Link
