@@ -7,6 +7,8 @@ import { isAdmin } from "@/lib/auth";
 import InstitutionForm from "./institution-form";
 import InstitutionStatusToggle from "./institution-status-toggle";
 import FilterSelect from "@/components/admin/FilterSelect";
+import DeleteEntityButton from "@/components/admin/DeleteEntityButton";
+import { deleteInstitution } from "@/app/actions/admin-extended";
 
 export default async function InstitutionsPage({
     searchParams,
@@ -82,8 +84,14 @@ export default async function InstitutionsPage({
                                                 {institution.is_active ? 'Active' : 'Inactive'}
                                             </span>
                                         </div>
-                                        <div className="ml-2 flex-shrink-0 flex">
+                                        <div className="ml-2 flex-shrink-0 flex items-center gap-2">
                                             <InstitutionStatusToggle institutionId={institution.id} isActive={institution.is_active} />
+                                            <DeleteEntityButton
+                                                entityId={institution.id}
+                                                entityName={institution.name}
+                                                entityType="Institution"
+                                                deleteAction={deleteInstitution}
+                                            />
                                         </div>
                                     </div>
                                     <div className="mt-2 sm:flex sm:justify-between">

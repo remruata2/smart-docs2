@@ -7,6 +7,8 @@ import { isAdmin } from "@/lib/auth";
 import SubjectForm from "./subject-form";
 import SubjectStatusToggle from "./subject-status-toggle";
 import FilterSelect from "@/components/admin/FilterSelect";
+import DeleteEntityButton from "@/components/admin/DeleteEntityButton";
+import { deleteSubject } from "@/app/actions/admin-extended";
 
 export default async function SubjectsPage({
     searchParams,
@@ -90,8 +92,14 @@ export default async function SubjectsPage({
                                                 {subject.is_active ? 'Active' : 'Inactive'}
                                             </span>
                                         </div>
-                                        <div className="ml-2 flex-shrink-0 flex">
+                                        <div className="ml-2 flex-shrink-0 flex items-center gap-2">
                                             <SubjectStatusToggle subjectId={subject.id} isActive={subject.is_active} />
+                                            <DeleteEntityButton
+                                                entityId={subject.id}
+                                                entityName={subject.name}
+                                                entityType="Subject"
+                                                deleteAction={deleteSubject}
+                                            />
                                         </div>
                                     </div>
                                     <div className="mt-2 sm:flex sm:justify-between">

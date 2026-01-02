@@ -3,7 +3,7 @@
 import { useState, useTransition, useEffect } from "react";
 import { useRouter } from "next/navigation";
 import { toast } from "sonner";
-import { Wand2, Sparkles, Loader2 } from "lucide-react";
+import { Wand2, Sparkles, Loader2, Trash2 } from "lucide-react";
 import { Button } from "@/components/ui/button";
 
 interface ChapterListClientProps {
@@ -112,6 +112,22 @@ export default function ChapterListClient({ chapters, onDelete }: ChapterListCli
                 router.refresh();
             } catch (error: any) {
                 toast.error(error.message || "Failed to delete chapters");
+            }
+        });
+    };
+
+    const handleDeleteIndividual = async (id: string, title: string) => {
+        if (!confirm(`Permanently delete chapter "${title}"? This cannot be undone.`)) {
+            return;
+        }
+
+        startTransition(async () => {
+            try {
+                await onDelete([id]);
+                toast.success(`Chapter "${title}" deleted`);
+                router.refresh();
+            } catch (error: any) {
+                toast.error(error.message || "Failed to delete chapter");
             }
         });
     };
@@ -232,6 +248,19 @@ export default function ChapterListClient({ chapters, onDelete }: ChapterListCli
                                             >
                                                 <Wand2 className="w-4 h-4 mr-2" />
                                                 Generate
+                                            </Button>
+
+                                            <Button
+                                                variant="outline"
+                                                size="sm"
+                                                onClick={(e) => {
+                                                    e.stopPropagation();
+                                                    handleDeleteIndividual(chapter.id.toString(), chapter.title);
+                                                }}
+                                                disabled={isPending}
+                                                className="h-8 border-red-200 text-red-700 hover:bg-red-50 hover:text-red-800"
+                                            >
+                                                <Trash2 className="w-4 h-4" />
                                             </Button>
                                         </div>
                                     </div>

@@ -7,6 +7,8 @@ import { isAdmin } from "@/lib/auth";
 import ProgramForm from "./program-form";
 import ProgramStatusToggle from "./program-status-toggle";
 import FilterSelect from "@/components/admin/FilterSelect";
+import DeleteEntityButton from "@/components/admin/DeleteEntityButton";
+import { deleteProgram } from "@/app/actions/admin-extended";
 
 export default async function ProgramsPage({
     searchParams,
@@ -97,8 +99,14 @@ export default async function ProgramsPage({
                                                 {program.is_active ? 'Active' : 'Inactive'}
                                             </span>
                                         </div>
-                                        <div className="ml-2 flex-shrink-0 flex">
+                                        <div className="ml-2 flex-shrink-0 flex items-center gap-2">
                                             <ProgramStatusToggle programId={program.id} isActive={program.is_active} />
+                                            <DeleteEntityButton
+                                                entityId={program.id}
+                                                entityName={program.name}
+                                                entityType="Program"
+                                                deleteAction={deleteProgram}
+                                            />
                                         </div>
                                     </div>
                                 </div>

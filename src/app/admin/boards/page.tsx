@@ -6,6 +6,8 @@ import { authOptions } from "@/lib/auth-options";
 import { isAdmin } from "@/lib/auth";
 import BoardForm from "./board-form";
 import BoardStatusToggle from "./board-status-toggle";
+import DeleteEntityButton from "@/components/admin/DeleteEntityButton";
+import { deleteBoard } from "@/app/actions/admin-extended";
 
 export default async function BoardsPage() {
     const session = await getServerSession(authOptions);
@@ -60,8 +62,14 @@ export default async function BoardsPage() {
                                                 {board.is_active ? 'Active' : 'Inactive'}
                                             </span>
                                         </div>
-                                        <div className="ml-2 flex-shrink-0 flex">
+                                        <div className="ml-2 flex-shrink-0 flex items-center gap-2">
                                             <BoardStatusToggle boardId={board.id} isActive={board.is_active} />
+                                            <DeleteEntityButton
+                                                entityId={board.id}
+                                                entityName={board.name}
+                                                entityType="Board"
+                                                deleteAction={deleteBoard}
+                                            />
                                         </div>
                                     </div>
                                     <div className="mt-2 sm:flex sm:justify-between">

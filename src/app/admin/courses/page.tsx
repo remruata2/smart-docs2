@@ -1,4 +1,5 @@
-import { getCourses } from "./actions";
+import { getCourses, deleteCourse } from "./actions";
+import DeleteEntityButton from "@/components/admin/DeleteEntityButton";
 import Link from "next/link";
 import { Button } from "@/components/ui/button";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
@@ -58,12 +59,20 @@ export default async function CoursesAdminPage() {
                                     </div>
                                 </div>
 
-                                <Link href={`/admin/courses/${course.id}`}>
-                                    <Button variant="outline" className="w-full">
-                                        <Settings className="h-4 w-4 mr-2" />
-                                        Edit Details
-                                    </Button>
-                                </Link>
+                                <div className="flex gap-2">
+                                    <Link href={`/admin/courses/${course.id}`} className="flex-1">
+                                        <Button variant="outline" className="w-full">
+                                            <Settings className="h-4 w-4 mr-2" />
+                                            Edit Details
+                                        </Button>
+                                    </Link>
+                                    <DeleteEntityButton
+                                        entityId={course.id}
+                                        entityName={course.title}
+                                        entityType="Program" // Closest match or just use a generic 'Course' if I update the component
+                                        deleteAction={deleteCourse}
+                                    />
+                                </div>
                             </CardContent>
                         </Card>
                     ))
