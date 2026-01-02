@@ -22,14 +22,23 @@ export async function uploadChapterPdf(
     }
 
     if (!validation.bucketExists) {
-        // Attempt to create bucket if it doesn't exist (optional, but good for robustness)
-        // For now, assume admin has created it as per previous setup patterns
-        throw new Error(`Supabase Storage bucket '${BUCKET_NAME}' does not exist.`);
+        console.log(`[PDF-SERVICE] Bucket '${BUCKET_NAME}' missing. Attempting to create...`);
+        
+        const { error: createError } = await supabaseAdmin!.storage.createBucket(BUCKET_NAME, {
+            public: true,
+            fileSizeLimit: 52428800, // 50MB
+            allowedMimeTypes: ['application/pdf']
+        });
+
+        if (createError) {
+            console.error(`[PDF-SERVICE] Failed to create bucket '${BUCKET_NAME}':`, createError);
+            throw new Error(`Supabase Storage bucket '${BUCKET_NAME}' does not exist and could not be created: ${createError.message}`);
+        }
+
+        console.log(`[PDF-SERVICE] ✅ Successfully created bucket '${BUCKET_NAME}'`);
     }
 
-    if (!supabaseAdmin) throw new Error("Supabase Admin not initialized");
-
-    const { data, error } = await supabaseAdmin.storage
+    const { error } = await supabaseAdmin!.storage
         .from(BUCKET_NAME)
         .upload(fileName, fileBuffer, {
             contentType: "application/pdf",
@@ -45,7 +54,7 @@ export async function uploadChapterPdf(
 
     const {
         data: { publicUrl },
-    } = supabaseAdmin.storage.from(BUCKET_NAME).getPublicUrl(fileName);
+    } = supabaseAdmin!.storage.from(BUCKET_NAME).getPublicUrl(fileName);
 
     return publicUrl;
 }
