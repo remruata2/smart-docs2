@@ -7,6 +7,10 @@ import { Badge } from "@/components/ui/badge";
 import { Button } from "@/components/ui/button";
 import { CheckCircle2, XCircle, ArrowLeft } from "lucide-react";
 import Link from "next/link";
+import ReactMarkdown from "react-markdown";
+import remarkMath from "remark-math";
+import rehypeKatex from "rehype-katex";
+import "katex/dist/katex.min.css";
 
 export default async function QuizResultPage({ params }: { params: Promise<{ quizId: string }> }) {
     const session = await getServerSession(authOptions);
@@ -139,7 +143,15 @@ export default async function QuizResultPage({ params }: { params: Promise<{ qui
                                             {idx + 1}
                                         </span>
                                         <CardTitle className="text-lg font-medium leading-relaxed text-gray-900">
-                                            {q.question_text}
+                                            <ReactMarkdown
+                                                remarkPlugins={[remarkMath]}
+                                                rehypePlugins={[rehypeKatex]}
+                                                components={{
+                                                    p: ({ node, ...props }) => <span {...props} />,
+                                                }}
+                                            >
+                                                {q.question_text}
+                                            </ReactMarkdown>
                                         </CardTitle>
                                     </div>
                                     {q.is_correct ? (
@@ -163,7 +175,15 @@ export default async function QuizResultPage({ params }: { params: Promise<{ qui
                                             Your Answer
                                         </div>
                                         <div className={`font-medium ${q.is_correct ? "text-green-900" : "text-red-900"}`}>
-                                            {String(q.user_answer || "No answer provided")}
+                                            <ReactMarkdown
+                                                remarkPlugins={[remarkMath]}
+                                                rehypePlugins={[rehypeKatex]}
+                                                components={{
+                                                    p: ({ node, ...props }) => <span {...props} />,
+                                                }}
+                                            >
+                                                {String(q.user_answer || "No answer provided")}
+                                            </ReactMarkdown>
                                         </div>
                                     </div>
 
@@ -173,7 +193,15 @@ export default async function QuizResultPage({ params }: { params: Promise<{ qui
                                                 Correct Answer
                                             </div>
                                             <div className="font-medium text-green-900">
-                                                {String(q.correct_answer)}
+                                                <ReactMarkdown
+                                                    remarkPlugins={[remarkMath]}
+                                                    rehypePlugins={[rehypeKatex]}
+                                                    components={{
+                                                        p: ({ node, ...props }) => <span {...props} />,
+                                                    }}
+                                                >
+                                                    {String(q.correct_answer)}
+                                                </ReactMarkdown>
                                             </div>
                                         </div>
                                     )}
@@ -185,13 +213,23 @@ export default async function QuizResultPage({ params }: { params: Promise<{ qui
                                         {q.explanation && (
                                             <div className="bg-gray-50 rounded-lg p-4 text-sm text-gray-600 leading-relaxed">
                                                 <span className="font-semibold text-gray-900 block mb-1">Explanation:</span>
-                                                {q.explanation}
+                                                <ReactMarkdown
+                                                    remarkPlugins={[remarkMath]}
+                                                    rehypePlugins={[rehypeKatex]}
+                                                >
+                                                    {q.explanation}
+                                                </ReactMarkdown>
                                             </div>
                                         )}
                                         {q.feedback && (
                                             <div className="bg-blue-50 rounded-lg p-4 text-sm text-blue-800 leading-relaxed border border-blue-100">
                                                 <span className="font-semibold text-blue-900 block mb-1">AI Feedback:</span>
-                                                {q.feedback}
+                                                <ReactMarkdown
+                                                    remarkPlugins={[remarkMath]}
+                                                    rehypePlugins={[rehypeKatex]}
+                                                >
+                                                    {q.feedback}
+                                                </ReactMarkdown>
                                             </div>
                                         )}
                                     </div>

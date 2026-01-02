@@ -3709,11 +3709,11 @@ RULES:
    - LONG_ANSWER: Model answer should be a detailed paragraph.
 5. EXPLANATION: Provide a helpful explanation for the correct answer.
 6. SELF-CONTAINED QUESTIONS:
-   - DO NOT reference external materials like "the provided algorithm", "the given diagram", "the figure", "the table", "Case 1/2/3", "the image", "the flowchart", etc.
+   - DO NOT reference external materials like "the provided algorithm", "the given diagram", "the figure", "the table", "Case 1/2/3", "the image", "the flowchart", "Exercise 1.2", "Note to Reader", etc.
    - Questions must be fully self-contained and understandable without any visual aids or external references.
    - Include all necessary context within the question itself.
 7. PHRASING:
-   - AVOID: "According to the text, ..." or "The text states that ..."
+   - AVOID: "According to the text, ...", "The text states that ...", "In the exercise...", "According to the note..."
    - PREFER: Direct questions (e.g., "What is the time complexity of...?") OR "According to the chapter, ..." if needed.
    - Questions should sound natural and professional, as if from an exam paper.
 8. NO META-QUESTIONS: Do not ask "What does the text say about...", just ask the question directly.
@@ -3858,6 +3858,8 @@ CRITICAL RULES - QUESTIONS MUST:
 
 STRICTLY PROHIBITED - DO NOT CREATE:
 ✗ Questions referencing unavailable materials: "the provided algorithm", "the given diagram", "the figure", "the table", "Case 1/2/3", "the image", "the flowchart", "the graph"
+✗ Questions referencing specific exercises or activities: "In Exercise 1.2", "In Problem 3", "Activity X.X"
+✗ Questions referencing side notes or boxes: "According to the 'NOTE TO THE READER'", "In the 'Did You Know' box"
 ✗ Questions about document structure (e.g., "what number appears in the content")
 ✗ Questions referencing "Activity X.X", "Figure X.X", "Table X.X", or "Box X.X" numbers
 ✗ Questions using phrases like "According to the text", "The text states", "the provided text", "the content above", "the material shown"
@@ -3870,8 +3872,15 @@ PHRASING GUIDELINES:
 ✓ ACCEPTABLE: "According to the chapter, what is..."
 ✗ AVOID: "According to the text, what is..."
 ✗ AVOID: "The text states that..."
+✗ AVOID: "In the exercise regarding..."
 
 EXAMPLES:
+❌ BAD: "In Exercise 1.2, what is the value of x?"
+✅ GOOD: "If x + 2 = 5, what is the value of x?"
+
+❌ BAD: "According to the 'Note to the Reader', what implies..."
+✅ GOOD: "What implies that the product of HCF and LCM for three numbers equals the product of the numbers?"
+
 ❌ BAD: "In the provided 'Remove' algorithm, which case is executed when...?"
 ✅ GOOD: "In a linked list removal operation, what happens when the list contains only one node that matches the value to be removed?"
 
