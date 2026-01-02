@@ -11,7 +11,6 @@ export async function proxy(req: NextRequest) {
 	// NOTE: /api/seed is now protected at the route level with API key check
 	const publicRoutes = [
 		"/",
-		"/pricing",
 		"/register",
 		"/api/auth/register",
 		"/api/subscriptions/webhook",

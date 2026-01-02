@@ -46,7 +46,7 @@ export default async function ChaptersPage({
                 },
             },
             _count: {
-                select: { chunks: true, pages: true },
+                select: { chunks: true },
             },
         },
         orderBy: { created_at: "desc" },

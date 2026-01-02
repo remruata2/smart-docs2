@@ -3,135 +3,158 @@
 import { useState } from "react";
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
-import { FlashcardViewer } from "@/components/study/FlashcardViewer";
-import { VideoGallery } from "@/components/study/VideoGallery";
-import { BookOpen, Video, CreditCard, Book } from "lucide-react";
+import { FlashcardViewer } from "./FlashcardViewer";
+import { VideoGallery } from "./VideoGallery";
+import { BookOpen, Video, FileText, Sparkles, Brain } from "lucide-react";
 import ReactMarkdown from "react-markdown";
+import { GenerateStudyMaterialsButton } from "./GenerateStudyMaterialsButton";
 
 interface StudyMaterialsClientProps {
     materials: any;
+    chapterId: string;
 }
 
-export function StudyMaterialsClient({ materials }: StudyMaterialsClientProps) {
-    const summary = materials.summary as any;
-    const definitions = materials.definitions as any[];
-    const flashcards = materials.flashcards as any[];
-    const videos = materials.curated_videos as any[];
+export function StudyMaterialsClient({ materials, chapterId }: StudyMaterialsClientProps) {
+
+    const [activeTab, setActiveTab] = useState("summary");
+
+
+    const renderSummary = () => {
+        if (!materials?.summary) return null;
+        return (
+            <div className="prose prose-indigo max-w-none dark:prose-invert">
+                <ReactMarkdown
+                    components={{
+                        h1: ({ node, ...props }) => <h1 className="text-2xl font-bold mt-6 mb-4" {...props} />,
+                        h2: ({ node, ...props }) => <h2 className="text-xl font-bold mt-5 mb-3" {...props} />,
+                        h3: ({ node, ...props }) => <h3 className="text-lg font-bold mt-4 mb-2" {...props} />,
+                        p: ({ node, ...props }) => <p className="mb-4 leading-relaxed text-muted-foreground" {...props} />,
+                        ul: ({ node, ...props }) => <ul className="list-disc pl-6 mb-4 space-y-2" {...props} />,
+                        li: ({ node, ...props }) => <li className="text-muted-foreground" {...props} />,
+                    }}
+                >
+                    {materials.summary.brief}
+                </ReactMarkdown>
+            </div>
+        );
+    };
 
     return (
-        <div className="space-y-8">
-            <Tabs defaultValue="overview" className="w-full">
-                <div className="flex justify-center mb-8">
-                    <TabsList className="grid w-full max-w-3xl grid-cols-2 md:grid-cols-4 h-auto md:h-14 p-1 bg-muted/50 backdrop-blur-sm border rounded-xl md:rounded-full gap-1">
-                        <TabsTrigger
-                            value="overview"
-                            className="cursor-pointer rounded-lg md:rounded-full data-[state=active]:bg-green-600 data-[state=active]:text-white data-[state=active]:shadow-md transition-all duration-300 h-10 md:h-full"
-                        >
-                            <BookOpen className="w-4 h-4 mr-2" />
-                            <span className="font-medium">Overview</span>
-                        </TabsTrigger>
-                        <TabsTrigger
-                            value="keyterms"
-                            className="cursor-pointer rounded-lg md:rounded-full data-[state=active]:bg-green-600 data-[state=active]:text-white data-[state=active]:shadow-md transition-all duration-300 h-10 md:h-full"
-                        >
-                            <Book className="w-4 h-4 mr-2" />
-                            <span className="font-medium">Key Terms</span>
-                        </TabsTrigger>
-                        <TabsTrigger
-                            value="flashcards"
-                            className="cursor-pointer rounded-lg md:rounded-full data-[state=active]:bg-green-600 data-[state=active]:text-white data-[state=active]:shadow-md transition-all duration-300 h-10 md:h-full"
-                        >
-                            <CreditCard className="w-4 h-4 mr-2" />
-                            <span className="font-medium">Flashcards</span>
-                        </TabsTrigger>
-                        <TabsTrigger
-                            value="videos"
-                            className="cursor-pointer rounded-lg md:rounded-full data-[state=active]:bg-green-600 data-[state=active]:text-white data-[state=active]:shadow-md transition-all duration-300 h-10 md:h-full"
-                        >
-                            <Video className="w-4 h-4 mr-2" />
-                            <span className="font-medium">Videos</span>
-                        </TabsTrigger>
-                    </TabsList>
-                </div>
-
-                <TabsContent value="overview" className="space-y-8 animate-in fade-in-50 duration-500 slide-in-from-bottom-2">
-                    {/* Summary */}
-                    <Card className="border-none shadow-lg overflow-hidden bg-white dark:bg-gray-800">
-                        <CardHeader className="bg-muted/30 pb-4">
-                            <CardTitle className="text-xl font-bold flex items-center gap-2 text-purple-700 dark:text-green-400">
-                                <BookOpen className="w-6 h-6" /> Chapter Summary
-                            </CardTitle>
-                        </CardHeader>
-                        <CardContent className="p-8">
-                            <div className="prose prose-lg prose-slate dark:prose-invert max-w-none prose-headings:text-foreground prose-a:text-primary prose-strong:text-foreground">
-                                <ReactMarkdown
-                                    components={{
-                                        h1: ({ node, ...props }) => <h1 className="text-3xl font-bold mb-6 mt-2 text-foreground" {...props} />,
-                                        h2: ({ node, ...props }) => <h2 className="text-2xl font-semibold mb-4 mt-8 border-b pb-2 border-border" {...props} />,
-                                        h3: ({ node, ...props }) => <h3 className="text-xl font-semibold mb-3 mt-6" {...props} />,
-                                        p: ({ node, ...props }) => <p className="mb-4 leading-relaxed text-muted-foreground" {...props} />,
-                                        ul: ({ node, ...props }) => <ul className="list-disc pl-6 mb-4 space-y-2" {...props} />,
-                                        li: ({ node, ...props }) => <li className="pl-1" {...props} />,
-                                    }}
-                                >
-                                    {summary?.brief || "No summary available"}
-                                </ReactMarkdown>
-                            </div>
-                        </CardContent>
-                    </Card>
-                </TabsContent>
-
-                <TabsContent value="keyterms" className="animate-in fade-in-50 duration-500 slide-in-from-bottom-2">
-                    {/* Key Terms */}
-                    {definitions && definitions.length > 0 ? (
-                        <Card className="border-none shadow-lg overflow-hidden bg-white dark:bg-gray-800">
-                            <CardHeader className="bg-muted/30 pb-4">
-                                <CardTitle className="text-xl font-bold flex items-center gap-2 text-purple-700 dark:text-green-400">
-                                    <Book className="w-6 h-6" /> Key Terms & Definitions
-                                </CardTitle>
-                            </CardHeader>
-                            <CardContent className="p-6">
-                                <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
-                                    {definitions.map((def, idx) => (
-                                        <div key={idx} className="group p-4 rounded-xl bg-card border hover:border-blue-500/50 hover:shadow-md transition-all duration-200">
-                                            <dt className="font-bold text-lg mb-2 text-blue-700 dark:text-blue-400 group-hover:text-blue-600 transition-colors">{def.term}</dt>
-                                            <dd className="text-muted-foreground text-sm leading-relaxed">{def.definition}</dd>
-                                        </div>
-                                    ))}
-                                </div>
-                            </CardContent>
-                        </Card>
-                    ) : (
-                        <div className="text-center py-12 text-muted-foreground">No definitions available</div>
+        <Tabs defaultValue="summary" className="w-full" onValueChange={setActiveTab}>
+            <div className="flex flex-col items-center mb-10">
+                <TabsList className="bg-muted/30 p-1.5 h-auto rounded-xl border border-muted/50 shadow-sm inline-flex">
+                    {materials && (
+                        <>
+                            <TabsTrigger
+                                value="summary"
+                                className="px-6 py-3 rounded-lg data-[state=active]:bg-indigo-600 data-[state=active]:text-white data-[state=active]:shadow-lg transition-all duration-200 gap-2 text-base font-medium cursor-pointer"
+                            >
+                                <BookOpen className="w-5 h-5" />
+                                Summary
+                            </TabsTrigger>
+                            <TabsTrigger
+                                value="terms"
+                                className="px-6 py-3 rounded-lg data-[state=active]:bg-indigo-600 data-[state=active]:text-white data-[state=active]:shadow-lg transition-all duration-200 gap-2 text-base font-medium cursor-pointer"
+                            >
+                                <Sparkles className="w-5 h-5" />
+                                Key Terms
+                            </TabsTrigger>
+                            <TabsTrigger
+                                value="flashcards"
+                                className="px-6 py-3 rounded-lg data-[state=active]:bg-indigo-600 data-[state=active]:text-white data-[state=active]:shadow-lg transition-all duration-200 gap-2 text-base font-medium cursor-pointer"
+                            >
+                                <Brain className="w-5 h-5" />
+                                Flashcards
+                            </TabsTrigger>
+                            <TabsTrigger
+                                value="videos"
+                                className="px-6 py-3 rounded-lg data-[state=active]:bg-indigo-600 data-[state=active]:text-white data-[state=active]:shadow-lg transition-all duration-200 gap-2 text-base font-medium cursor-pointer"
+                            >
+                                <Video className="w-5 h-5" />
+                                Videos
+                            </TabsTrigger>
+                        </>
                     )}
-                </TabsContent>
+                </TabsList>
 
-                <TabsContent value="flashcards" className="animate-in fade-in-50 duration-500 slide-in-from-bottom-2">
-                    <Card className="border-none shadow-xl bg-gradient-to-br from-purple-50/50 to-white dark:from-purple-950/20 dark:to-gray-900">
-                        <CardHeader className="text-center pb-2">
-                            <CardTitle className="text-2xl font-bold text-purple-600 dark:text-purple-400">Interactive Flashcards</CardTitle>
-                            <p className="text-muted-foreground">Test your knowledge with these cards</p>
-                        </CardHeader>
-                        <CardContent className="p-6">
-                            <FlashcardViewer flashcards={flashcards || []} />
+            </div>
+
+
+
+            <TabsContent value="summary" className="mt-0 outline-none">
+                <Card className="border-none shadow-xl bg-card">
+                    <CardHeader className="border-b bg-muted/30 pb-4">
+                        <CardTitle className="text-xl flex items-center gap-2">
+                            <BookOpen className="w-5 h-5 text-primary" />
+                            Chapter Summary
+                        </CardTitle>
+                    </CardHeader>
+                    <CardContent className="pt-6">
+                        {materials?.summary ? renderSummary() : <GenerateCTA chapterId={chapterId} />}
+                    </CardContent>
+                </Card>
+            </TabsContent>
+
+            <TabsContent value="terms" className="mt-0 outline-none">
+                <Card className="border-none shadow-xl bg-card">
+                    <CardHeader className="border-b bg-muted/30 pb-4">
+                        <CardTitle className="text-xl flex items-center gap-2">
+                            <Sparkles className="w-5 h-5 text-primary" />
+                            Key Terms & Definitions
+                        </CardTitle>
+                    </CardHeader>
+                    <CardContent className="pt-6">
+                        {materials?.definitions ? (
+                            <div className="grid gap-4 sm:grid-cols-2">
+                                {Array.isArray(materials.definitions) && materials.definitions.map((item: any, i: number) => (
+                                    <div key={i} className="p-4 rounded-lg bg-muted/50 border hover:border-primary/30 transition-colors">
+                                        <h4 className="font-bold text-indigo-600 mb-1">{item.term}</h4>
+                                        <p className="text-sm text-muted-foreground">{item.definition}</p>
+                                    </div>
+                                ))}
+                            </div>
+                        ) : (
+                            <GenerateCTA chapterId={chapterId} />
+                        )}
+                    </CardContent>
+                </Card>
+            </TabsContent>
+
+            <TabsContent value="flashcards" className="mt-0 outline-none">
+                {materials?.flashcards ? (
+                    <FlashcardViewer flashcards={materials.flashcards || []} />
+                ) : (
+                    <Card className="border-none shadow-xl bg-card">
+                        <CardContent className="pt-6">
+                            <GenerateCTA chapterId={chapterId} />
                         </CardContent>
                     </Card>
-                </TabsContent>
+                )}
+            </TabsContent>
 
-                <TabsContent value="videos" className="animate-in fade-in-50 duration-500 slide-in-from-bottom-2">
-                    <Card className="border-none shadow-xl">
-                        <CardHeader>
-                            <CardTitle className="text-2xl font-bold text-red-600 dark:text-red-400 flex items-center gap-2">
-                                <Video className="w-6 h-6 text-red-500" />
-                                Curated Educational Videos
-                            </CardTitle>
-                        </CardHeader>
-                        <CardContent className="p-6">
-                            <VideoGallery videos={videos || []} />
+            <TabsContent value="videos" className="mt-0 outline-none">
+                {materials?.curated_videos ? (
+                    <VideoGallery videos={materials.curated_videos || []} />
+                ) : (
+                    <Card className="border-none shadow-xl bg-card">
+                        <CardContent className="pt-6">
+                            <GenerateCTA chapterId={chapterId} />
                         </CardContent>
                     </Card>
-                </TabsContent>
-            </Tabs>
+                )}
+            </TabsContent>
+        </Tabs>
+    );
+}
+
+function GenerateCTA({ chapterId }: { chapterId: string }) {
+    return (
+        <div className="text-center py-20 bg-white dark:bg-gray-800 rounded-2xl shadow-sm border border-gray-100">
+            <Sparkles className="w-16 h-16 mx-auto mb-4 text-purple-500 opacity-50" />
+            <h2 className="text-2xl font-bold mb-2">Study Materials Not Available</h2>
+            <p className="text-muted-foreground mb-6 max-w-md mx-auto">
+                Study materials for this chapter are not yet available. Please check back later or contact your instructor.
+            </p>
         </div>
     );
 }

@@ -16,41 +16,34 @@ export async function deleteChapters(chapterIds: string[]) {
     try {
         const ids = chapterIds.map(id => BigInt(id));
 
-        // 1. Fetch all page image URLs before deleting
-        const pages = await prisma.chapterPage.findMany({
-            where: {
-                chapter_id: { in: ids }
-            },
-            select: { image_url: true }
+        // 1. Fetch PDF URLs before deleting
+        const chaptersToDelete = await prisma.chapter.findMany({
+            where: { id: { in: ids } },
+            select: { pdf_url: true }
         });
 
-        // 2. Extract file paths from Supabase URLs for deletion
-        const filePaths: string[] = [];
-        for (const page of pages) {
-            if (page.image_url) {
-                // Extract path from URL like: https://xxx.supabase.co/storage/v1/object/public/chapter_pages/folder/file.jpg
-                const match = page.image_url.match(/\/chapter_pages\/(.+)$/);
+        // 2. Extract file paths for PDF deletion
+        const pdfPaths: string[] = [];
+        for (const chapter of chaptersToDelete) {
+            if (chapter.pdf_url) {
+                // Extract path from URL like: https://xxx.supabase.co/storage/v1/object/public/chapters_pdf/folder/file.pdf
+                const match = chapter.pdf_url.match(/\/chapters_pdf\/(.+)$/);
                 if (match) {
-                    filePaths.push(match[1]);
+                    pdfPaths.push(match[1]);
                 }
             }
         }
 
-        // 3. Delete images from Supabase Storage
-        if (filePaths.length > 0) {
-            if (!supabaseAdmin) {
-                console.error("Supabase Admin not initialized, skipping image deletion");
-            } else {
-                const { error: storageError } = await supabaseAdmin.storage
-                    .from('chapter_pages')
-                    .remove(filePaths);
+        // 3. Delete PDFs from Supabase Storage
+        if (pdfPaths.length > 0 && supabaseAdmin) {
+            const { error: storageError } = await supabaseAdmin.storage
+                .from('chapters_pdf')
+                .remove(pdfPaths);
 
-                if (storageError) {
-                    console.error("Error deleting images from storage:", storageError);
-                    // Continue with database deletion even if storage cleanup fails
-                } else {
-                    console.log(`Deleted ${filePaths.length} images from Supabase Storage`);
-                }
+            if (storageError) {
+                console.error("Error deleting PDFs from storage:", storageError);
+            } else {
+                console.log(`Deleted ${pdfPaths.length} PDFs from Supabase Storage`);
             }
         }
 

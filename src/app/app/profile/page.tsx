@@ -189,11 +189,6 @@ export default async function ProfilePage() {
                                                     : `₹${subscription.plan.price_yearly}/year`}
                                             </p>
                                         </div>
-                                        <Link href="/pricing">
-                                            <Button size="sm" variant="outline" className="bg-white hover:bg-gray-50 text-indigo-600 border-indigo-200">
-                                                Change Plan
-                                            </Button>
-                                        </Link>
                                     </div>
 
                                     <div className="grid grid-cols-1 sm:grid-cols-2 gap-4 text-sm">
@@ -227,12 +222,7 @@ export default async function ProfilePage() {
                                 </div>
                             ) : (
                                 <div className="text-center py-8 bg-gray-50 rounded-lg border border-dashed border-gray-200">
-                                    <p className="text-gray-500 mb-4">You are currently on the Free Plan</p>
-                                    <Link href="/pricing">
-                                        <Button className="bg-indigo-600 hover:bg-indigo-700">
-                                            Upgrade to Premium
-                                        </Button>
-                                    </Link>
+                                    <p className="text-gray-500">You are currently on the Free Plan</p>
                                 </div>
                             )}
                         </CardContent>

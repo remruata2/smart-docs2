@@ -84,7 +84,8 @@ import { SemanticVectorService } from "@/lib/semantic-vector";
 import { writeFile, unlink } from "fs/promises";
 import { join } from "path";
 import { tmpdir } from "os";
-import { generatePageImages, uploadPageImages } from "@/lib/pdf-image-generator";
+// No image imports needed anymore
+
 
 // ... (imports)
 
@@ -142,16 +143,8 @@ export async function ingestChapter(formData: FormData) {
         const parser = new LlamaParseDocumentParser();
         const pages = await parser.parseFile(tempFilePath, { fastMode: false });
 
-        // 3. Generate & Upload Images
-        // We do this in parallel with parsing ideally, but sequential is safer for now
-        let pageUrlMap = new Map<number, string>();
-        try {
-            const imagePaths = await generatePageImages(tempFilePath, imagesDir, uploadId);
-            pageUrlMap = await uploadPageImages(imagePaths, uploadId);
-        } catch (imgErr) {
-            console.error("Failed to generate/upload images:", imgErr);
-            // Continue without images
-        }
+        // Image generation removed in favor of direct PDF viewing
+
 
         // 4. Create Chapter
         const chapter = await prisma.chapter.create({
@@ -179,7 +172,6 @@ export async function ingestChapter(formData: FormData) {
                     chunk_index: i,
                     content: content,
                     page_number: page.page,
-                    bbox: page.items as any,
                     subject_id: parseInt(subjectId),
                 },
             });
@@ -199,18 +191,8 @@ export async function ingestChapter(formData: FormData) {
             }
         }
 
-        // 6. Create Chapter Pages
-        for (const page of pages) {
-            await prisma.chapterPage.create({
-                data: {
-                    chapter_id: chapter.id,
-                    page_number: page.page,
-                    image_url: pageUrlMap.get(page.page) || "",
-                    width: page.width || null,
-                    height: page.height || null
-                }
-            });
-        }
+        // Chapter pages (images) removed
+
 
         revalidatePath("/admin/chapters");
         return { success: true };
@@ -275,19 +257,8 @@ export async function batchCreateChapters(formData: FormData) {
         const detectedChapters = JSON.parse(chaptersJson);
         const fullPages = JSON.parse(fullPagesJson);
 
-        // Generate Images if file provided
-        let pageUrlMap = new Map<number, string>();
-        if (file) {
-            try {
-                const bytes = await file.arrayBuffer();
-                await writeFile(tempFilePath, Buffer.from(bytes));
+        // Image generation removed
 
-                const imagePaths = await generatePageImages(tempFilePath, imagesDir, uploadId);
-                pageUrlMap = await uploadPageImages(imagePaths, uploadId);
-            } catch (imgErr) {
-                console.error("Failed to generate/upload images:", imgErr);
-            }
-        }
 
         let successCount = 0;
         let errorCount = 0;
@@ -322,7 +293,6 @@ export async function batchCreateChapters(formData: FormData) {
                             chunk_index: i,
                             content: content,
                             page_number: page.page,
-                            bbox: page.items as any,
                             subject_id: parseInt(subjectId),
                         },
                     });
@@ -342,17 +312,8 @@ export async function batchCreateChapters(formData: FormData) {
                     }
                 }
 
-                for (const page of chapterPages) {
-                    await prisma.chapterPage.create({
-                        data: {
-                            chapter_id: chapter.id,
-                            page_number: page.page,
-                            image_url: pageUrlMap.get(page.page) || "",
-                            width: page.width || null,
-                            height: page.height || null
-                        }
-                    });
-                }
+                // Chapter pages (images) removed
+
 
                 successCount++;
             } catch (chapterError: any) {

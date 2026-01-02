@@ -22,7 +22,6 @@
 		"generate:vectors": "tsx scripts/generate-semantic-vectors.ts",
 		"update-search-vectors": "node scripts/update-search-vectors.js",
 		"upgrade-complete": "npm run migrate-markdown && npm run update-search-vectors && npm run generate-semantic-vectors",
-		"seed:plans": "tsx scripts/seed-subscription-plans.ts",
 		"migrate:bbox": "tsx scripts/migrate-bbox-coordinates.ts",
 		"fix:images": "tsx scripts/fix-image-filenames.ts",
 		"migrate:chunks": "tsx scripts/migrate-to-page-level-chunks.ts",

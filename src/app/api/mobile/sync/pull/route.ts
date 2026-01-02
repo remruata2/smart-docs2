@@ -36,7 +36,6 @@ export async function GET(request: NextRequest) {
         const changes = {
             subjects: { created: [], updated: [], deleted: [] },
             chapters: { created: [], updated: [], deleted: [] },
-            chapter_pages: { created: [], updated: [], deleted: [] },
         };
 
         // Fetch Subjects (assuming all subjects are visible for now, or filter by board if we had a relation)
@@ -60,12 +59,6 @@ export async function GET(request: NextRequest) {
             }
         });
 
-        // Fetch Chapter Pages (ChapterPage only has created_at, not updated_at)
-        const pages = await prisma.chapterPage.findMany({
-            where: {
-                created_at: { gt: new Date(lastPulledAt) }
-            }
-        });
 
         // Map to WatermelonDB format
         // Note: WatermelonDB expects 'created' for new records and 'updated' for modified.
@@ -89,7 +82,6 @@ export async function GET(request: NextRequest) {
 
         categorize(subjects, changes.subjects);
         categorize(chapters, changes.chapters);
-        categorize(pages, changes.chapter_pages);
 
         return NextResponse.json({
             changes,

@@ -12,9 +12,16 @@ export function BrowseHeader() {
     return (
         <header className="border-b bg-white/80 backdrop-blur-sm sticky top-0 z-50">
             <div className="container mx-auto px-4 py-4 flex items-center justify-between">
-                <Link href="/" className="flex items-center gap-2">
-                    <BrainCircuit className="h-8 w-8 text-indigo-600" />
-                    <span className="text-xl font-bold text-gray-900">Zirna</span>
+                <Link href="/" className="animate-fade-in">
+                    <Image
+                        src="/zirnalogosmall.png"
+                        alt="Zirna"
+                        width={120}
+                        height={40}
+                        className="h-8 md:h-10 w-auto"
+                        priority
+                        unoptimized
+                    />
                 </Link>
 
                 <nav className="hidden md:flex items-center gap-6">
@@ -23,9 +30,6 @@ export function BrowseHeader() {
                     </Link>
                     <Link href="/about" className="text-gray-600 hover:text-gray-900 font-medium">
                         About
-                    </Link>
-                    <Link href="/pricing" className="text-gray-600 hover:text-gray-900 font-medium">
-                        Pricing
                     </Link>
                     {session && (
                         <Link href="/my-learning" className="text-gray-600 hover:text-gray-900 font-medium">

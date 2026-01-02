@@ -27,22 +27,13 @@ import "katex/dist/katex.min.css";
 import { SmartChart } from "@/components/dashboard/SmartChart";
 import { ResponseTranslator } from "@/components/chat/ResponseTranslator";
 import { translateContent } from "./actions";
-import {
-	SplitScreenProvider,
-	useSplitScreen,
-} from "@/components/split-screen/SplitScreenContext";
-import { SplitScreenLayout } from "@/components/split-screen/SplitScreenLayout";
-import { GraduationCap } from "lucide-react";
-
-
 
 export default function DashboardChatPage() {
 	return (
-		<SplitScreenProvider>
-			<ChatPageContent />
-		</SplitScreenProvider>
+		<ChatPageContent />
 	);
 }
+
 
 function ChatPageContent() {
 	const [messages, setMessages] = useState<ChatMessage[]>([]);
@@ -66,10 +57,7 @@ function ChatPageContent() {
 		analysisUsed?: boolean;
 	} | null>(null);
 	const [copiedMessageId, setCopiedMessageId] = useState<string | null>(null);
-	// Track expanded source lists by message ID
-	const [expandedSources, setExpandedSources] = useState<
-		Record<string, boolean>
-	>({});
+
 	// Subject and Chapter filters
 	const [subjects, setSubjects] = useState<Array<{ id: number; name: string }>>(
 		[]
@@ -103,8 +91,27 @@ function ChatPageContent() {
 			if (!isNaN(convId)) {
 				loadConversation(convId);
 			}
+		} else {
+			// URL ID removed (New Chat pressed), reset state if needed
+			if (currentConversationId !== null) {
+				setCurrentConversationId(null);
+				setConversationTitle("New Conversation");
+				setMessages([]);
+				setError(null);
+				setLastResponseMeta(null);
+				setInputMessage("");
+			}
 		}
+		// eslint-disable-next-line react-hooks/exhaustive-deps
 	}, [urlConversationId]);
+
+	// Trigger global sidebar refresh when needed (for new chats or deletions)
+	useEffect(() => {
+		if (sidebarRefreshTrigger > 0) {
+			// Dispatch custom event for UserSidebar to pick up
+			window.dispatchEvent(new Event("refresh-conversations"));
+		}
+	}, [sidebarRefreshTrigger]);
 
 	// Load available subjects
 	useEffect(() => {
@@ -354,6 +361,10 @@ function ChatPageContent() {
 					// For assistant messages, always show filters
 					filters:
 						msg.role === "assistant" ? msg.metadata?.filters || {} : undefined,
+					// Image data
+					imageUrl: msg.metadata?.imageUrl,
+					imageAlt: msg.metadata?.imageAlt,
+					imageLimitReached: msg.metadata?.imageLimitReached,
 				})
 			);
 
@@ -553,6 +564,9 @@ function ChatPageContent() {
 			let assistantSources: any[] = [];
 			let assistantTokenCount: any = null;
 			let assistantChartData: any = null;
+			let assistantImageUrl: string | null = null;
+			let assistantImageAlt: string | null = null;
+			let assistantImageLimitReached: boolean = false;
 
 			if (!reader) {
 				throw new Error("Failed to get response reader");
@@ -688,6 +702,57 @@ function ChatPageContent() {
 										return msg;
 									})
 								);
+							} else if (data.type === "image_generating") {
+								// Show loading state for image generation
+								console.log("[IMAGE] Generating image...");
+								setMessages((prev) =>
+									prev.map((msg) =>
+										msg.id === assistantMessageId
+											? { ...msg, imageGenerating: true }
+											: msg
+									)
+								);
+							} else if (data.type === "image") {
+								// Image generated successfully
+								console.log("[IMAGE] Image received:", data.url);
+								assistantImageUrl = data.url;
+								assistantImageAlt = data.alt;
+
+								setMessages((prev) =>
+									prev.map((msg) =>
+										msg.id === assistantMessageId
+											? {
+												...msg,
+												imageUrl: data.url,
+												imageAlt: data.alt,
+												imageGenerating: false
+											}
+											: msg
+									)
+								);
+								toast.success(`Image generated! (${data.remaining} remaining today)`);
+							} else if (data.type === "image_error") {
+								// Image generation failed
+								console.error("[IMAGE] Error:", data.error);
+								setMessages((prev) =>
+									prev.map((msg) =>
+										msg.id === assistantMessageId
+											? { ...msg, imageGenerating: false }
+											: msg
+									)
+								);
+								toast.error(data.error || "Failed to generate image");
+							} else if (data.type === "image_limit_reached") {
+								// Daily limit reached
+								console.log("[IMAGE] Limit reached:", data.message);
+								setMessages((prev) =>
+									prev.map((msg) =>
+										msg.id === assistantMessageId
+											? { ...msg, imageLimitReached: true, imageGenerating: false }
+											: msg
+									)
+								);
+								toast.warning(data.message);
 							} else if (data.type === "error") {
 								throw new Error(data.error || "Streaming error occurred");
 							}
@@ -751,6 +816,9 @@ function ChatPageContent() {
 						analysisUsed: metadata.analysisUsed,
 						filters: saveFilters,
 						chartData: assistantChartData, // Store chartData in metadata
+						imageUrl: assistantImageUrl,
+						imageAlt: assistantImageAlt,
+						imageLimitReached: assistantImageLimitReached,
 					},
 				});
 				// Trigger sidebar refresh to update message count
@@ -784,16 +852,6 @@ function ChatPageContent() {
 		}
 	};
 
-
-
-	// Toggle source expansion for a specific message
-	const toggleSourceExpansion = (messageId: string) => {
-		setExpandedSources((prev) => ({
-			...prev,
-			[messageId]: !prev[messageId],
-		}));
-	};
-
 	const formatTimestamp = (timestamp: Date | string | undefined) => {
 		if (!timestamp) return "";
 		const date = new Date(timestamp);
@@ -820,570 +878,514 @@ function ChatPageContent() {
 		}
 	};
 
-	const { openCitation } = useSplitScreen();
-
 	return (
 		<div className="flex h-full overflow-hidden">
-			<SplitScreenLayout>
-				{/* Main Chat Area */}
-				<div className="flex-1 flex flex-col overflow-hidden bg-gray-50/50 dark:bg-gray-900/50 h-full">
-					<div className="flex-1 flex flex-col overflow-hidden min-h-0">
-						{/* Header */}
-						<div className="border-b bg-white/80 dark:bg-gray-900/80 backdrop-blur-sm p-4 flex items-center justify-between sticky top-0 z-10">
-							<div className="flex items-center gap-3">
-								<div className="p-2 bg-primary/10 rounded-lg">
-									<Bot className="w-5 h-5 text-primary" />
-								</div>
-								<div>
-									<h1 className="text-lg font-semibold text-gray-900 dark:text-gray-100">
-										{conversationTitle}
-									</h1>
-									<div className="flex items-center gap-2 text-xs text-muted-foreground">
-										<span className="flex items-center gap-1">
-											<div className="w-1.5 h-1.5 rounded-full bg-green-500 animate-pulse" />
-											Online
-										</span>
-									</div>
-								</div>
+			{/* Main Chat Area */}
+			<div className="flex-1 flex flex-col overflow-hidden bg-gray-50/50 dark:bg-gray-900/50 h-full">
+				<div className="flex-1 flex flex-col overflow-hidden min-h-0">
+					{/* Header */}
+					<div className="border-b bg-white/80 dark:bg-gray-900/80 backdrop-blur-sm p-4 flex items-center justify-between sticky top-0 z-10">
+						<div className="flex items-center gap-3">
+							<div className="p-2 bg-primary/10 rounded-lg">
+								<Bot className="w-5 h-5 text-primary" />
 							</div>
-
-							<div className="flex items-center gap-2">
-								<Button
-									variant="ghost"
-									size="sm"
-									onClick={startNewConversation}
-									className="text-muted-foreground hover:text-primary"
-								>
-									<MessageSquare className="w-4 h-4 mr-2" />
-									New Chat
-								</Button>
+							<div>
+								<h1 className="text-lg font-semibold text-gray-900 dark:text-gray-100">
+									{conversationTitle}
+								</h1>
+								<div className="flex items-center gap-2 text-xs text-muted-foreground">
+									<span className="flex items-center gap-1">
+										<div className="w-1.5 h-1.5 rounded-full bg-green-500 animate-pulse" />
+										Online
+									</span>
+								</div>
 							</div>
 						</div>
 
-						{/* Messages Area */}
-						<div className="flex-1 overflow-y-auto p-4 space-y-6 scroll-smooth">
-							{messages.length === 0 ? (
-								<div className="h-full flex flex-col items-center justify-center text-center p-8 animate-in fade-in zoom-in duration-500">
-									<div className="w-24 h-24 bg-primary/5 rounded-3xl flex items-center justify-center mb-6 shadow-inner">
-										<Bot className="w-12 h-12 text-primary/80" />
-									</div>
-									<h2 className="text-2xl font-bold text-gray-900 dark:text-gray-100 mb-3">
-										How can I help you today?
-									</h2>
-									<p className="text-muted-foreground max-w-md mb-8 leading-relaxed">
-										I can analyze your documents, summarize information, and
-										answer questions about your files.
-									</p>
+						<div className="flex items-center gap-2">
+							<Button
+								variant="ghost"
+								size="sm"
+								onClick={startNewConversation}
+								className="text-muted-foreground hover:text-primary"
+							>
+								<MessageSquare className="w-4 h-4 mr-2" />
+								New Chat
+							</Button>
+						</div>
+					</div>
 
-									<div className="grid grid-cols-1 md:grid-cols-2 gap-4 max-w-2xl w-full">
-										{[
-											"Summarize the latest documents",
-											"Find information about...",
-											"What are the key points in...",
-											"Compare documents related to...",
-										].map((suggestion, i) => (
-											<button
-												key={i}
-												onClick={() => {
-													setInputMessage(suggestion);
-													inputRef.current?.focus();
-												}}
-												className="p-4 text-sm text-left bg-white dark:bg-gray-800 border border-gray-200 dark:border-gray-700 rounded-xl hover:border-primary/50 hover:shadow-md transition-all duration-200 group"
-											>
-												<span className="text-gray-600 dark:text-gray-300 group-hover:text-primary transition-colors">
-													{suggestion}
-												</span>
-											</button>
-										))}
-									</div>
+					{/* Messages Area */}
+					<div className="flex-1 overflow-y-auto p-4 space-y-6 scroll-smooth">
+						{messages.length === 0 ? (
+							<div className="h-full flex flex-col items-center justify-center text-center p-8 animate-in fade-in zoom-in duration-500">
+								<div className="w-24 h-24 bg-primary/5 rounded-3xl flex items-center justify-center mb-6 shadow-inner">
+									<Bot className="w-12 h-12 text-primary/80" />
 								</div>
-							) : (
-								<div className="space-y-6 max-w-4xl mx-auto pb-4">
-									{messages.map((msg) => (
-										<div
-											key={msg.id}
-											className={`flex gap-4 ${msg.role === "user" ? "justify-end" : "justify-start"
-												} animate-in fade-in slide-in-from-bottom-4 duration-500`}
-										>
-											{msg.role === "assistant" && (
-												<div className="w-8 h-8 rounded-full bg-primary/10 flex items-center justify-center flex-shrink-0 mt-1">
-													<Bot className="w-5 h-5 text-primary" />
-												</div>
-											)}
+								<h2 className="text-2xl font-bold text-gray-900 dark:text-gray-100 mb-3">
+									How can I help you today?
+								</h2>
+								<p className="text-muted-foreground max-w-md mb-8 leading-relaxed">
+									I'm your AI tutor. I can help you understand chapters, explain complex topics, and create visual diagrams for better learning.
+									<br />
+									<span className="text-xs font-medium text-primary/80 mt-2 block bg-primary/5 py-1 px-3 rounded-full w-fit mx-auto border border-primary/10">
+										Supported languages: English, Mizo & Hindi
+									</span>
+								</p>
 
+								<div className="grid grid-cols-1 md:grid-cols-2 gap-4 max-w-2xl w-full">
+									{[
+										"Summarize this chapter",
+										"Explain key concepts",
+										"Create a diagram of...",
+										"Test my knowledge",
+									].map((suggestion, i) => (
+										<button
+											key={i}
+											onClick={() => {
+												setInputMessage(suggestion);
+												inputRef.current?.focus();
+											}}
+											className="p-4 text-sm text-left bg-white dark:bg-gray-800 border border-gray-200 dark:border-gray-700 rounded-xl hover:border-primary/50 hover:shadow-md transition-all duration-200 group"
+										>
+											<span className="text-gray-600 dark:text-gray-300 group-hover:text-primary transition-colors">
+												{suggestion}
+											</span>
+										</button>
+									))}
+								</div>
+							</div>
+						) : (
+							<div className="space-y-6 max-w-4xl mx-auto pb-4">
+								{messages.map((msg) => (
+									<div
+										key={msg.id}
+										className={`flex gap-4 ${msg.role === "user" ? "justify-end" : "justify-start"
+											} animate-in fade-in slide-in-from-bottom-4 duration-500`}
+									>
+										{msg.role === "assistant" && (
+											<div className="w-8 h-8 rounded-full bg-primary/10 flex items-center justify-center flex-shrink-0 mt-1">
+												<Bot className="w-5 h-5 text-primary" />
+											</div>
+										)}
+
+										<div
+											className={`flex flex-col max-w-[85%] ${msg.role === "user" ? "items-end" : "items-start"
+												}`}
+										>
 											<div
-												className={`flex flex-col max-w-[85%] ${msg.role === "user" ? "items-end" : "items-start"
+												className={`rounded-2xl p-4 shadow-sm ${msg.role === "user"
+													? "bg-primary text-primary-foreground rounded-tr-none"
+													: "bg-white dark:bg-gray-800 border border-gray-100 dark:border-gray-700 rounded-tl-none"
 													}`}
 											>
-												<div
-													className={`rounded-2xl p-4 shadow-sm ${msg.role === "user"
-														? "bg-primary text-primary-foreground rounded-tr-none"
-														: "bg-white dark:bg-gray-800 border border-gray-100 dark:border-gray-700 rounded-tl-none"
-														}`}
-												>
-													{msg.role === "assistant" ? (
-														<div className="prose prose-sm dark:prose-invert max-w-none">
-															<ReactMarkdown
-																remarkPlugins={[remarkMath, remarkGfm, remarkBreaks]}
-																rehypePlugins={[rehypeKatex]}
-																components={{
-																	code({
-																		node,
-																		inline,
-																		className,
-																		children,
-																		...props
-																	}: any) {
-																		return !inline ? (
-																			<div className="relative group rounded-md overflow-hidden my-2">
-																				<div className="absolute right-2 top-2 opacity-0 group-hover:opacity-100 transition-opacity">
-																					<Button
-																						variant="ghost"
-																						size="icon"
-																						className="h-6 w-6 bg-gray-800/50 hover:bg-gray-800 text-white"
-																						onClick={() =>
-																							handleCopy(
-																								String(children),
-																								`code-${msg.id}`
-																							)
-																						}
-																					>
-																						{copiedMessageId ===
-																							`code-${msg.id}` ? (
-																							<Check className="h-3 w-3" />
-																						) : (
-																							<Copy className="h-3 w-3" />
-																						)}
-																					</Button>
-																				</div>
-																				<pre className="bg-gray-900 text-gray-100 p-3 rounded-md overflow-x-auto">
-																					<code {...props}>{children}</code>
-																				</pre>
+												{msg.role === "assistant" ? (
+													<div className="prose prose-sm dark:prose-invert max-w-none">
+														<ReactMarkdown
+															remarkPlugins={[remarkMath, remarkGfm, remarkBreaks]}
+															rehypePlugins={[rehypeKatex]}
+															components={{
+																code({
+																	node,
+																	inline,
+																	className,
+																	children,
+																	...props
+																}: any) {
+																	return !inline ? (
+																		<div className="relative group rounded-md overflow-hidden my-2">
+																			<div className="absolute right-2 top-2 opacity-0 group-hover:opacity-100 transition-opacity">
+																				<Button
+																					variant="ghost"
+																					size="icon"
+																					className="h-6 w-6 bg-gray-800/50 hover:bg-gray-800 text-white"
+																					onClick={() =>
+																						handleCopy(
+																							String(children),
+																							`code-${msg.id}`
+																						)
+																					}
+																				>
+																					{copiedMessageId ===
+																						`code-${msg.id}` ? (
+																						<Check className="h-3 w-3" />
+																					) : (
+																						<Copy className="h-3 w-3" />
+																					)}
+																				</Button>
 																			</div>
-																		) : (
-																			<code
-																				className="bg-gray-100 dark:bg-gray-800 px-1.5 py-0.5 rounded text-sm font-mono text-primary"
-																				{...props}
-																			>
+																			<pre className="bg-gray-900 text-gray-100 p-3 rounded-md overflow-x-auto">
+																				<code {...props}>{children}</code>
+																			</pre>
+																		</div>
+																	) : (
+																		<code
+																			className="bg-gray-100 dark:bg-gray-800 px-1.5 py-0.5 rounded text-sm font-mono text-primary"
+																			{...props}
+																		>
+																			{children}
+																		</code>
+																	);
+																},
+																table({ children }) {
+																	return (
+																		<div className="overflow-x-auto my-4 border rounded-lg">
+																			<table className="min-w-full divide-y divide-gray-200 dark:divide-gray-700">
 																				{children}
-																			</code>
-																		);
-																	},
-																	table({ children }) {
-																		return (
-																			<div className="overflow-x-auto my-4 border rounded-lg">
-																				<table className="min-w-full divide-y divide-gray-200 dark:divide-gray-700">
-																					{children}
-																				</table>
-																			</div>
-																		);
-																	},
-																	th({ children }) {
-																		return (
-																			<th className="px-4 py-3 bg-gray-50 dark:bg-gray-800 text-left text-xs font-medium text-gray-500 dark:text-gray-400 uppercase tracking-wider">
-																				{children}
-																			</th>
-																		);
-																	},
-																	td({ children }) {
-																		return (
-																			<td className="px-4 py-3 whitespace-nowrap text-sm border-t border-gray-100 dark:border-gray-700">
-																				{children}
-																			</td>
-																		);
-																	},
-																	p({ children }) {
-																		return <p className="mb-2 last:mb-0 leading-relaxed">{children}</p>;
-																	},
-																	ul({ children }) {
-																		return <ul className="list-disc pl-4 mb-2 space-y-1">{children}</ul>;
-																	},
-																	ol({ children }) {
-																		return <ol className="list-decimal pl-4 mb-2 space-y-1">{children}</ol>;
-																	},
-																	li({ children }) {
-																		return <li className="leading-relaxed">{children}</li>;
-																	},
-																	h1({ children }) {
-																		return <h1 className="text-xl font-bold mb-2 mt-4">{children}</h1>;
-																	},
-																	h2({ children }) {
-																		return <h2 className="text-lg font-bold mb-2 mt-3">{children}</h2>;
-																	},
-																	h3({ children }) {
-																		return <h3 className="text-base font-bold mb-1 mt-2">{children}</h3>;
-																	},
-																	blockquote({ children }) {
-																		return <blockquote className="border-l-4 border-primary/30 pl-4 italic my-2 text-muted-foreground">{children}</blockquote>;
-																	},
-																}}
-															>
-																{msg.content.replace(
-																	/```json\s*({[\s\S]*"related_questions"[\s\S]*})\s*```/g,
-																	""
-																)}
-															</ReactMarkdown>
-
-															{/* Render Chart if chartData is present */}
-															{msg.chartData && (
-																<div className="mt-4 w-full h-64 md:h-80 lg:h-96">
-																	<SmartChart
-																		config={msg.chartData}
-																	/>
-																</div>
+																			</table>
+																		</div>
+																	);
+																},
+																th({ children }) {
+																	return (
+																		<th className="px-4 py-3 bg-gray-50 dark:bg-gray-800 text-left text-xs font-medium text-gray-500 dark:text-gray-400 uppercase tracking-wider">
+																			{children}
+																		</th>
+																	);
+																},
+																td({ children }) {
+																	return (
+																		<td className="px-4 py-3 whitespace-nowrap text-sm border-t border-gray-100 dark:border-gray-700">
+																			{children}
+																		</td>
+																	);
+																},
+																p({ children }) {
+																	return <p className="mb-2 last:mb-0 leading-relaxed">{children}</p>;
+																},
+																ul({ children }) {
+																	return <ul className="list-disc pl-4 mb-2 space-y-1">{children}</ul>;
+																},
+																ol({ children }) {
+																	return <ol className="list-decimal pl-4 mb-2 space-y-1">{children}</ol>;
+																},
+																li({ children }) {
+																	return <li className="leading-relaxed">{children}</li>;
+																},
+																h1({ children }) {
+																	return <h1 className="text-xl font-bold mb-2 mt-4">{children}</h1>;
+																},
+																h2({ children }) {
+																	return <h2 className="text-lg font-bold mb-2 mt-3">{children}</h2>;
+																},
+																h3({ children }) {
+																	return <h3 className="text-base font-bold mb-1 mt-2">{children}</h3>;
+																},
+																blockquote({ children }) {
+																	return <blockquote className="border-l-4 border-primary/30 pl-4 italic my-2 text-muted-foreground">{children}</blockquote>;
+																},
+															}}
+														>
+															{msg.content.replace(
+																/```json\s*({[\s\S]*"related_questions"[\s\S]*})\s*```/g,
+																""
 															)}
+														</ReactMarkdown>
 
-															<ResponseTranslator
-																originalText={msg.originalContent || msg.content}
-																translatedText={msg.originalContent ? msg.content : undefined}
-																onTranslationComplete={(translatedText) => {
+														{/* Render Chart if chartData is present */}
+														{msg.chartData && (
+															<div className="mt-4 w-full h-64 md:h-80 lg:h-96">
+																<SmartChart
+																	config={msg.chartData}
+																/>
+															</div>
+														)}
+
+														{/* Generated Image Display */}
+														{msg.imageGenerating && (
+															<div className="mt-4 p-4 bg-gray-100 dark:bg-gray-800 rounded-lg flex items-center gap-3">
+																<Loader2 className="w-5 h-5 animate-spin text-primary" />
+																<span className="text-sm text-muted-foreground">Generating educational diagram...</span>
+															</div>
+														)}
+														{msg.imageUrl && (
+															<div className="mt-4">
+																<img
+																	src={msg.imageUrl}
+																	alt={msg.imageAlt || "Generated educational diagram"}
+																	className="max-w-full rounded-lg shadow-md border border-gray-200 dark:border-gray-700"
+																	loading="lazy"
+																/>
+																<p className="text-xs text-muted-foreground mt-1 italic">
+																	AI-generated educational diagram
+																</p>
+															</div>
+														)}
+														{msg.imageLimitReached && !msg.imageUrl && (
+															<div className="mt-4 p-3 bg-amber-50 dark:bg-amber-900/20 border border-amber-200 dark:border-amber-800 rounded-lg text-sm text-amber-700 dark:text-amber-300">
+																⚠️ Daily image limit reached. Your limit will reset tomorrow.
+															</div>
+														)}
+
+														<ResponseTranslator
+															originalText={msg.originalContent || msg.content}
+															translatedText={msg.originalContent ? msg.content : undefined}
+															onTranslationComplete={(translatedText) => {
+																setMessages((prev) =>
+																	prev.map((m) => {
+																		if (m.id === msg.id) {
+																			return {
+																				...m,
+																				content: translatedText,
+																				originalContent: m.originalContent || m.content,
+																			};
+																		}
+																		return m;
+																	})
+																);
+															}}
+															onRevert={() => {
+																if (msg.originalContent) {
 																	setMessages((prev) =>
 																		prev.map((m) => {
 																			if (m.id === msg.id) {
 																				return {
 																					...m,
-																					content: translatedText,
-																					originalContent: m.originalContent || m.content,
+																					content: m.originalContent!,
+																					originalContent: undefined,
 																				};
 																			}
 																			return m;
 																		})
 																	);
-																}}
-																onRevert={() => {
-																	if (msg.originalContent) {
-																		setMessages((prev) =>
-																			prev.map((m) => {
-																				if (m.id === msg.id) {
-																					return {
-																						...m,
-																						content: m.originalContent!,
-																						originalContent: undefined,
-																					};
-																				}
-																				return m;
-																			})
-																		);
-																	}
-																}}
-															/>
-														</div>
-													) : (
-														<p className="whitespace-pre-wrap text-sm">
-															{msg.content.replace(
-																/```json\s*({[\s\S]*"related_questions"[\s\S]*})\s*```/,
-																""
-															)}
-														</p>
-													)}
-												</div>
-
-												{/* Message Footer (Timestamp, Sources, Token Count) */}
-												<div className="flex items-center gap-2 mt-1 px-1">
-													<span className="text-[10px] text-muted-foreground">
-														{formatTimestamp(msg.timestamp)}
-													</span>
-
-													{msg.role === "assistant" && (
-														<div className="flex items-center gap-2">
-															<Button
-																variant="ghost"
-																size="icon"
-																className="h-6 w-6 text-muted-foreground hover:text-primary"
-																onClick={() =>
-																	handleCopy(msg.content, msg.id)
 																}
-															>
-																{copiedMessageId === msg.id ? (
-																	<Check className="h-3 w-3" />
-																) : (
-																	<Copy className="h-3 w-3" />
-																)}
-															</Button>
-
-															{msg.tokenCount && (
-																<span className="text-[10px] text-muted-foreground bg-gray-100 dark:bg-gray-800 px-1.5 py-0.5 rounded-full">
-																	{msg.tokenCount.input + msg.tokenCount.output}{" "}
-																	tokens
-																</span>
-															)}
-														</div>
-													)}
-													{/* Suggested Questions */}
-													{(() => {
-														const jsonMatch = msg.content.match(
-															/```json\s*({[\s\S]*"related_questions"[\s\S]*})\s*```/
-														);
-														if (jsonMatch) {
-															try {
-																const data = JSON.parse(jsonMatch[1]);
-																if (
-																	data.related_questions &&
-																	Array.isArray(data.related_questions)
-																) {
-																	return (
-																		<div className="mt-3 flex flex-wrap gap-2">
-																			{data.related_questions.map(
-																				(q: string, i: number) => (
-																					<button
-																						key={i}
-																						onClick={() => {
-																							setInputMessage(q);
-																							// Optional: Auto-send
-																							// handleSendMessage();
-																						}}
-																						className="text-xs bg-primary/10 text-primary hover:bg-primary/20 px-3 py-1.5 rounded-full transition-colors text-left"
-																					>
-																						{q}
-																					</button>
-																				)
-																			)}
-																		</div>
-																	);
-																}
-															} catch (e) {
-																// Ignore parsing errors
-															}
-														}
-														return null;
-													})()}
-												</div>
-
-												{/* Suggested Responses (Tutor Mode) */}
-												{msg.suggestedResponses && msg.suggestedResponses.length > 0 && (
-													<div className="flex flex-wrap gap-2 mt-3 animate-in fade-in slide-in-from-top-2 duration-300">
-														{msg.suggestedResponses.map((response, i) => (
-															<Button
-																key={i}
-																variant="outline"
-																size="sm"
-																onClick={() => handleSendMessage(response)}
-																className="bg-primary/5 hover:bg-primary/10 border-primary/20 text-primary rounded-full"
-															>
-																{response}
-															</Button>
-														))}
+															}}
+														/>
 													</div>
-												)}
-
-												{/* Sources Section */}
-												{msg.sources && msg.sources.length > 0 && (
-													<div className="mt-2 w-full max-w-2xl animate-in fade-in slide-in-from-top-2 duration-300">
-														<div className="bg-white dark:bg-gray-800 rounded-xl border border-gray-200 dark:border-gray-700 overflow-hidden shadow-sm">
-															<button
-																onClick={() => toggleSourceExpansion(msg.id)}
-																className="w-full flex items-center justify-between p-3 bg-gray-50/50 dark:bg-gray-800/50 hover:bg-gray-100 dark:hover:bg-gray-700 transition-colors"
-															>
-																<div className="flex items-center gap-2 text-sm font-medium text-gray-700 dark:text-gray-200">
-																	<FileText className="w-4 h-4 text-primary" />
-																	<span>
-																		Sources ({msg.sources.length})
-																	</span>
-																</div>
-																<div className="text-xs text-muted-foreground">
-																	{expandedSources[msg.id]
-																		? "Hide"
-																		: "Show"}
-																</div>
-															</button>
-
-															{expandedSources[msg.id] && (
-																<div className="p-3 grid gap-2 bg-white dark:bg-gray-800">
-																	{msg.sources.map((source: any) => (
-																		<div
-																			key={source.id}
-																			className="group flex items-start gap-3 p-2 rounded-lg hover:bg-gray-50 dark:hover:bg-gray-700/50 transition-all border border-transparent hover:border-gray-100 dark:hover:border-gray-700 cursor-pointer"
-																			onClick={() => {
-																				// Use citation data if available, otherwise fallback
-																				const citation = source.citation || {};
-																				openCitation({
-																					pageNumber:
-																						citation.pageNumber ||
-																						source.page_number ||
-																						1,
-																					imageUrl:
-																						citation.imageUrl ||
-																						source.image_url,
-																					boundingBox:
-																						citation.boundingBox ||
-																						source.bbox,
-																					chapterId:
-																						msg.filters?.chapterId, // Pass chapterId from message filters
-																				});
-																			}}
-																		>
-																			<div className="mt-1 p-1.5 bg-primary/10 rounded-md group-hover:bg-primary/20 transition-colors">
-																				<FileText className="w-3.5 h-3.5 text-primary" />
-																			</div>
-																			<div className="flex-1 min-w-0">
-																				<div className="flex items-center justify-between gap-2">
-																					<p className="text-sm font-medium text-gray-900 dark:text-gray-100 truncate group-hover:text-primary transition-colors">
-																						{source.title}
-																					</p>
-																					{source.similarity && (
-																						<Badge
-																							variant="secondary"
-																							className="text-[10px] h-5 px-1.5"
-																						>
-																							{Math.round(
-																								source.similarity * 100
-																							)}
-																							% match
-																						</Badge>
-																					)}
-																				</div>
-																				{source.citation?.pageNumber && (
-																					<p className="text-xs text-muted-foreground mt-0.5">
-																						Page {source.citation.pageNumber}
-																					</p>
-																				)}
-																			</div>
-																			<ExternalLink className="w-3.5 h-3.5 text-gray-400 opacity-0 group-hover:opacity-100 transition-opacity" />
-																		</div>
-																	))}
-																</div>
-															)}
-														</div>
-													</div>
+												) : (
+													<p className="whitespace-pre-wrap text-sm">
+														{msg.content.replace(
+															/```json\s*({[\s\S]*"related_questions"[\s\S]*})\s*```/,
+															""
+														)}
+													</p>
 												)}
 											</div>
+
+											{/* Message Footer (Timestamp, Sources, Token Count) */}
+											<div className="flex items-center gap-2 mt-1 px-1">
+												<span className="text-[10px] text-muted-foreground">
+													{formatTimestamp(msg.timestamp)}
+												</span>
+
+												{msg.role === "assistant" && (
+													<div className="flex items-center gap-2">
+														<Button
+															variant="ghost"
+															size="icon"
+															className="h-6 w-6 text-muted-foreground hover:text-primary"
+															onClick={() =>
+																handleCopy(msg.content, msg.id)
+															}
+														>
+															{copiedMessageId === msg.id ? (
+																<Check className="h-3 w-3" />
+															) : (
+																<Copy className="h-3 w-3" />
+															)}
+														</Button>
+
+														{msg.tokenCount && (
+															<span className="text-[10px] text-muted-foreground bg-gray-100 dark:bg-gray-800 px-1.5 py-0.5 rounded-full">
+																{msg.tokenCount.input + msg.tokenCount.output}{" "}
+																tokens
+															</span>
+														)}
+													</div>
+												)}
+												{/* Suggested Questions */}
+												{(() => {
+													const jsonMatch = msg.content.match(
+														/```json\s*({[\s\S]*"related_questions"[\s\S]*})\s*```/
+													);
+													if (jsonMatch) {
+														try {
+															const data = JSON.parse(jsonMatch[1]);
+															if (
+																data.related_questions &&
+																Array.isArray(data.related_questions)
+															) {
+																return (
+																	<div className="mt-3 flex flex-wrap gap-2">
+																		{data.related_questions.map(
+																			(q: string, i: number) => (
+																				<button
+																					key={i}
+																					onClick={() => {
+																						setInputMessage(q);
+																						// Optional: Auto-send
+																						// handleSendMessage();
+																					}}
+																					className="text-xs bg-primary/10 text-primary hover:bg-primary/20 px-3 py-1.5 rounded-full transition-colors text-left"
+																				>
+																					{q}
+																				</button>
+																			)
+																		)}
+																	</div>
+																);
+															}
+														} catch (e) {
+															// Ignore parsing errors
+														}
+													}
+													return null;
+												})()}
+											</div>
+
+											{/* Suggested Responses (Tutor Mode) */}
+											{msg.suggestedResponses && msg.suggestedResponses.length > 0 && (
+												<div className="flex flex-wrap gap-2 mt-3 animate-in fade-in slide-in-from-top-2 duration-300">
+													{msg.suggestedResponses.map((response, i) => (
+														<Button
+															key={i}
+															variant="outline"
+															size="sm"
+															onClick={() => handleSendMessage(response)}
+															className="bg-primary/5 hover:bg-primary/10 border-primary/20 text-primary rounded-full"
+														>
+															{response}
+														</Button>
+													))}
+												</div>
+											)}
 										</div>
-									))}
-									<div ref={messagesEndRef} />
-								</div>
-							)}
-						</div>
-
-						{/* Input Area */}
-						<div className="border-t bg-white dark:bg-gray-900 p-4">
-							<div className="max-w-4xl mx-auto space-y-4">
-								{/* Filters */}
-								<div className="flex flex-wrap items-center gap-3">
-									{currentConversationId && (
-										<div className="w-full text-xs text-amber-600 bg-amber-50 px-2 py-1 rounded border border-amber-200 mb-1 flex items-center gap-1">
-											<span>🔒 Context locked to this conversation. Start a new chat to change.</span>
-										</div>
-									)}
-									<select
-										className="h-9 text-sm border rounded-md px-3 bg-white dark:bg-gray-800 focus:ring-2 focus:ring-primary/20 outline-none disabled:opacity-50 disabled:cursor-not-allowed"
-										value={selectedSubjectId || ""}
-
-										onChange={(e) => {
-											const val = e.target.value;
-											if (val) {
-												const id = parseInt(val);
-												setSelectedSubjectId(id);
-												const subj = subjects.find((s) => s.id === id);
-												if (subj) setSelectedSubjectName(subj.name);
-
-												// Update URL
-												const params = new URLSearchParams(searchParams.toString());
-												params.set("subjectId", val);
-												params.delete("chapterId"); // Reset chapter when subject changes
-												router.push(`?${params.toString()}`);
-											}
-											// No "All Subjects" option allowed
-										}}
-										disabled={subjectsLoading || !!currentConversationId}
-									>
-										{subjects.map((s) => (
-											<option key={s.id} value={s.id}>
-												{s.name}
-											</option>
-										))}
-									</select>
-
-									<select
-										className="h-9 text-sm border rounded-md px-3 bg-white dark:bg-gray-800 focus:ring-2 focus:ring-primary/20 outline-none max-w-[200px]"
-										value={selectedChapterId || ""}
-										onChange={(e) => {
-											const val = e.target.value;
-											if (val) {
-												setSelectedChapterId(val);
-												const chap = chapters.find((c) => c.id === val);
-												if (chap) setSelectedChapterTitle(chap.title);
-
-												// Update URL
-												const params = new URLSearchParams(searchParams.toString());
-												params.set("chapterId", val);
-												router.push(`?${params.toString()}`);
-											}
-										}}
-										disabled={chaptersLoading || !selectedSubjectId || !!currentConversationId}
-									>
-										{chapters.length === 0 ? (
-											<option value="" disabled>
-												No chapters found
-											</option>
-										) : (
-											chapters.map((c) => (
-												<option key={c.id} value={c.id}>
-													{c.chapter_number ? `${c.chapter_number}. ` : ""}
-													{c.title}
-												</option>
-											))
-										)}
-									</select>
-								</div>
-
-								{/* Input Box */}
-								<div className="relative flex items-end gap-2 bg-white dark:bg-gray-800 border rounded-xl shadow-sm focus-within:ring-2 focus-within:ring-primary/20 focus-within:border-primary transition-all p-2">
-									<div className="flex-1">
-										<Input
-											ref={inputRef}
-											value={inputMessage}
-											onChange={(e) => setInputMessage(e.target.value)}
-											onKeyDown={handleKeyPress}
-											placeholder={
-												selectedChapterId
-													? `Ask about ${truncateTitle(
-														selectedChapterTitle,
-														30
-													)}...`
-													: "Select a chapter to start chatting..."
-											}
-											className="border-0 focus-visible:ring-0 px-3 py-2 h-auto max-h-32 min-h-[44px] resize-none bg-transparent"
-											disabled={isLoading || !selectedChapterId}
-										/>
 									</div>
-									<Button
-										onClick={() => handleSendMessage()}
-										disabled={
-											isLoading || !inputMessage.trim() || !selectedChapterId
+								))}
+								<div ref={messagesEndRef} />
+							</div>
+						)}
+					</div>
+
+					{/* Input Area */}
+					<div className="border-t bg-white dark:bg-gray-900 p-4">
+						<div className="max-w-4xl mx-auto space-y-4">
+							{/* Filters */}
+							<div className="flex flex-wrap items-center gap-3">
+								{currentConversationId && (
+									<div className="w-full text-xs text-amber-600 bg-amber-50 px-2 py-1 rounded border border-amber-200 mb-1 flex items-center gap-1">
+										<span>🔒 Context locked to this conversation. Start a new chat to change.</span>
+									</div>
+								)}
+								<select
+									className="h-9 text-sm border rounded-md px-3 bg-white dark:bg-gray-800 focus:ring-2 focus:ring-primary/20 outline-none disabled:opacity-50 disabled:cursor-not-allowed"
+									value={selectedSubjectId || ""}
+
+									onChange={(e) => {
+										const val = e.target.value;
+										if (val) {
+											const id = parseInt(val);
+											setSelectedSubjectId(id);
+											const subj = subjects.find((s) => s.id === id);
+											if (subj) setSelectedSubjectName(subj.name);
+
+											// Update URL
+											const params = new URLSearchParams(searchParams.toString());
+											params.set("subjectId", val);
+											params.delete("chapterId"); // Reset chapter when subject changes
+											router.push(`?${params.toString()}`);
 										}
-										size="icon"
-										className={`h-10 w-10 rounded-lg transition-all duration-200 ${inputMessage.trim() && !isLoading && selectedChapterId
-											? "bg-primary hover:bg-primary/90 text-primary-foreground shadow-md hover:shadow-lg scale-100"
-											: "bg-gray-100 text-gray-400 scale-95"
-											}`}
-									>
-										{isLoading ? (
-											<Loader2 className="h-5 w-5 animate-spin" />
-										) : (
-											<Send className="h-5 w-5" />
-										)}
-									</Button>
-								</div>
-								<div className="flex justify-between items-center px-1">
-									<p className="text-xs text-muted-foreground">
-										AI can make mistakes. Please verify important information.
-									</p>
-									{lastResponseMeta && (
-										<Badge
-											variant="outline"
-											className="text-[10px] h-5 font-normal text-muted-foreground"
-										>
-											{lastResponseMeta.queryType === "analytical_query"
-												? "Deep Analysis"
-												: "Quick Search"}
-										</Badge>
+										// No "All Subjects" option allowed
+									}}
+									disabled={subjectsLoading || !!currentConversationId}
+								>
+									{subjects.map((s) => (
+										<option key={s.id} value={s.id}>
+											{s.name}
+										</option>
+									))}
+								</select>
+
+								<select
+									className="h-9 text-sm border rounded-md px-3 bg-white dark:bg-gray-800 focus:ring-2 focus:ring-primary/20 outline-none max-w-[200px]"
+									value={selectedChapterId || ""}
+									onChange={(e) => {
+										const val = e.target.value;
+										if (val) {
+											setSelectedChapterId(val);
+											const chap = chapters.find((c) => c.id === val);
+											if (chap) setSelectedChapterTitle(chap.title);
+
+											// Update URL
+											const params = new URLSearchParams(searchParams.toString());
+											params.set("chapterId", val);
+											router.push(`?${params.toString()}`);
+										}
+									}}
+									disabled={chaptersLoading || !selectedSubjectId || !!currentConversationId}
+								>
+									{chapters.length === 0 ? (
+										<option value="" disabled>
+											No chapters found
+										</option>
+									) : (
+										chapters.map((c) => (
+											<option key={c.id} value={c.id}>
+												{c.chapter_number ? `${c.chapter_number}. ` : ""}
+												{c.title}
+											</option>
+										))
 									)}
+								</select>
+							</div>
+
+							{/* Input Box */}
+							<div className="relative flex items-end gap-2 bg-white dark:bg-gray-800 border rounded-xl shadow-sm focus-within:ring-2 focus-within:ring-primary/20 focus-within:border-primary transition-all p-2">
+								<div className="flex-1">
+									<Input
+										ref={inputRef}
+										value={inputMessage}
+										onChange={(e) => setInputMessage(e.target.value)}
+										onKeyDown={handleKeyPress}
+										placeholder={
+											selectedChapterId
+												? `Ask about ${truncateTitle(
+													selectedChapterTitle,
+													30
+												)}...`
+												: "Select a chapter to start chatting..."
+										}
+										className="border-0 focus-visible:ring-0 px-3 py-2 h-auto max-h-32 min-h-[44px] resize-none bg-transparent"
+										disabled={isLoading || !selectedChapterId}
+									/>
 								</div>
+								<Button
+									onClick={() => handleSendMessage()}
+									disabled={
+										isLoading || !inputMessage.trim() || !selectedChapterId
+									}
+									size="icon"
+									className={`h-10 w-10 rounded-lg transition-all duration-200 ${inputMessage.trim() && !isLoading && selectedChapterId
+										? "bg-primary hover:bg-primary/90 text-primary-foreground shadow-md hover:shadow-lg scale-100"
+										: "bg-gray-100 text-gray-400 scale-95"
+										}`}
+								>
+									{isLoading ? (
+										<Loader2 className="h-5 w-5 animate-spin" />
+									) : (
+										<Send className="h-5 w-5" />
+									)}
+								</Button>
+							</div>
+							<div className="flex justify-between items-center px-1">
+								<p className="text-xs text-muted-foreground">
+									AI can make mistakes. Please verify important information.
+								</p>
+								{lastResponseMeta && (
+									<Badge
+										variant="outline"
+										className="text-[10px] h-5 font-normal text-muted-foreground"
+									>
+										{lastResponseMeta.queryType === "analytical_query"
+											? "Deep Analysis"
+											: "Quick Search"}
+									</Badge>
+								)}
 							</div>
 						</div>
 					</div>
 				</div>
-			</SplitScreenLayout>
+			</div>
 		</div>
 	);
 }
@@ -1447,5 +1449,9 @@ function parseSuggestedResponses(content: string): { cleanedContent: string; sug
 		}
 	}
 
+	// Remove [GENERATE_IMAGE: ...] patterns from display (images are shown separately)
+	cleanedContent = cleanedContent.replace(/\[GENERATE_IMAGE:[^\]]+\]/gi, '').trim();
+
 	return { cleanedContent, suggestedResponses };
 }
+

@@ -4,7 +4,7 @@ import Link from "next/link";
 import { Card, CardContent } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
 import { Badge } from "@/components/ui/badge";
-import { BookOpen, MessageSquare, Eye, ArrowLeft, FileText, Brain, ChevronRight, GraduationCap } from "lucide-react";
+import { BookOpen, MessageSquare, ArrowLeft, FileText, Brain, GraduationCap, Sparkles } from "lucide-react";
 
 export default async function ChaptersPage({
     searchParams,
@@ -114,9 +114,7 @@ export default async function ChaptersPage({
 }
 
 function ChapterRow({ chapter, isNewTextbook, textbookId, subjectId }: any) {
-    const viewUrl = isNewTextbook
-        ? `/app/chapters/${chapter.id}`
-        : `/app/chapters/${chapter.id}`; // Currently same, but logic allows divergence
+    const viewUrl = `/app/study/${chapter.id}`;
 
     return (
         <Card className="group hover:shadow-xl transition-all duration-300 border-gray-100 overflow-hidden bg-white">
@@ -148,15 +146,23 @@ function ChapterRow({ chapter, isNewTextbook, textbookId, subjectId }: any) {
                                 </div>
                             </div>
 
-                            <div className="flex items-center gap-3">
+                            <div className="flex flex-wrap items-center gap-3">
                                 <Link href={viewUrl} className="flex-1 md:flex-initial">
-                                    <Button className="w-full bg-indigo-600 hover:bg-indigo-700 text-white font-bold px-8 shadow-md shadow-indigo-100">
-                                        Read Now
+                                    <Button className="w-full bg-indigo-600 hover:bg-indigo-700 text-white font-bold px-6 shadow-md shadow-indigo-100">
+                                        <Sparkles className="h-4 w-4 mr-2" />
+                                        Study Hub
                                     </Button>
                                 </Link>
-                                <Link href={`/app/chat?chapterId=${chapter.id}${textbookId ? `&textbookId=${textbookId}` : `&subjectId=${subjectId}`}`}>
-                                    <Button variant="outline" size="icon" className="border-gray-200 hover:border-indigo-200 hover:text-indigo-600 hover:bg-indigo-50">
-                                        <MessageSquare className="h-5 w-5" />
+                                <Link href={`/app/practice?subjectId=${subjectId || chapter.subject_id}&chapterId=${chapter.id}`} className="flex-1 md:flex-initial">
+                                    <Button variant="outline" className="w-full border-green-200 hover:border-green-300 hover:bg-green-50 text-green-700 font-bold px-6">
+                                        <Brain className="h-4 w-4 mr-2" />
+                                        Practice
+                                    </Button>
+                                </Link>
+                                <Link href={`/app/chat?chapterId=${chapter.id}${textbookId ? `&textbookId=${textbookId}` : `&subjectId=${subjectId}`}`} className="flex-1 md:flex-initial">
+                                    <Button variant="outline" className="w-full border-gray-200 hover:border-indigo-200 hover:text-indigo-600 hover:bg-indigo-50 font-bold px-4">
+                                        <MessageSquare className="h-4 w-4 mr-2" />
+                                        Ask AI
                                     </Button>
                                 </Link>
                             </div>

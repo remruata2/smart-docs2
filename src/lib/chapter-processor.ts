@@ -10,7 +10,7 @@ import { SemanticVectorService } from "./semantic-vector";
 import { writeFile, unlink } from "fs/promises";
 import { join } from "path";
 import { tmpdir } from "os";
-import { generatePageImages, uploadPageImages } from "./pdf-image-generator";
+import { uploadChapterPdf } from "./pdf-service";
 import { generateStudyMaterials, StudyMaterialsConfig } from "./ai-service-enhanced";
 import { searchYouTubeVideos } from "./youtube-service";
 import { generateQuestionBank, FullQuestionBankConfig } from "./question-bank-service";
@@ -171,35 +171,6 @@ export async function processChapterBackground(job: ChapterProcessingJob) {
 
 		console.log(`[BG-PROCESSOR] Parsed ${chapterPages.length} pages`);
 
-		// Helper function to convert PDF point coordinates to percentages (0-1)
-		// This is essential for split-screen citation highlighting to work correctly
-		function convertBBoxToPercentages(
-			bbox: { x: number; y: number; w: number; h: number },
-			actualPageWidth: number = 595,
-			actualPageHeight: number = 842
-		): number[] {
-			// Validate bbox values and handle null/undefined
-			const x = bbox.x ?? 0;
-			const y = bbox.y ?? 0;
-			const w = bbox.w ?? 1;
-			const h = bbox.h ?? 1;
-
-			// Ensure dimensions are valid (greater than 0)
-			if (actualPageWidth <= 0 || actualPageHeight <= 0) {
-				console.warn(
-					`[BG-PROCESSOR] Invalid page dimensions: ${actualPageWidth}x${actualPageHeight}, using defaults`
-				);
-				actualPageWidth = 595;
-				actualPageHeight = 842;
-			}
-
-			return [
-				Math.max(0, Math.min(1, x / actualPageWidth)),
-				Math.max(0, Math.min(1, y / actualPageHeight)),
-				Math.max(0, Math.min(1, w / actualPageWidth)),
-				Math.max(0, Math.min(1, h / actualPageHeight)),
-			];
-		}
 
 		// 4. Create chunks from LlamaParse output
 		// ONE chunk per page (consolidate all items on a page)
@@ -211,36 +182,11 @@ export async function processChapterBackground(job: ChapterProcessingJob) {
 
 			// Consolidate all text items for this page into one chunk
 			let fullPageText = "";
-			let layoutItemsArray: Array<{ text: string; bbox: number[] }> = [];
-
 			for (const item of items) {
 				if (!item.md || item.md.trim().length === 0) continue;
 
 				const text = item.md.trim();
 				fullPageText += text + "\n\n";
-
-				// Collect bbox information for split-screen citations
-				const itemBBox = item.bbox || item.bBox;
-				if (itemBBox && typeof itemBBox === "object") {
-					if (
-						typeof itemBBox.x === "number" &&
-						typeof itemBBox.y === "number" &&
-						typeof itemBBox.w === "number" &&
-						typeof itemBBox.h === "number"
-					) {
-						const bbox = convertBBoxToPercentages(itemBBox, pageWidth, pageHeight);
-						const textSnippet = text; // Store full text for the overlay
-						layoutItemsArray.push({
-							text: textSnippet,
-							bbox: bbox,
-						});
-					} else {
-						console.warn(
-							`[BG-PROCESSOR] Invalid bbox structure for item on page ${pageData.page}:`,
-							itemBBox
-						);
-					}
-				}
 			}
 
 			// Fallback: if no items but page has text/md, use that
@@ -258,7 +204,6 @@ export async function processChapterBackground(job: ChapterProcessingJob) {
 			chunks.push({
 				content: fullPageText.trim(),
 				page_number: pageData.page,
-				bbox: layoutItemsArray.length > 0 ? layoutItemsArray : null, // Array of bbox items for this page
 			});
 		}
 
@@ -280,7 +225,6 @@ export async function processChapterBackground(job: ChapterProcessingJob) {
 						chunk_index: index,
 						content: chunk.content,
 						page_number: chunk.page_number,
-						bbox: chunk.bbox,
 						subject_id: chapter.subject_id,
 					},
 				})
@@ -374,38 +318,24 @@ export async function processChapterBackground(job: ChapterProcessingJob) {
 			`[BG-PROCESSOR] Generated embeddings and search vectors for all chunks`
 		);
 
-		// 9. Generate page screenshots and upload to Supabase
-		console.log(`[BG-PROCESSOR] Generating page screenshots...`);
-		const outputDir = join(tmpdir(), `chapter-${chapterId}-images`);
-		const imagePaths = await generatePageImages(
-			tempFilePath,
-			outputDir,
-			chapterId,
-			startPage,
-			endPage
+		// 9. Upload PDF to Supabase Storage
+		console.log(`[BG-PROCESSOR] Uploading chapter PDF to Supabase...`);
+		const pdfUrl = await uploadChapterPdf(
+			pdfBuffer,
+			`chapter-${chapterId}/${fileName}`
 		);
 
-		const imageUrls = await uploadPageImages(
-			imagePaths,
-			`chapter-${chapterId}`
-		);
-
-		// 10. Create ChapterPage records
-		const pageRecords = parseResult.map((page: any) => ({
-			chapter_id: bigChapterId,
-			page_number: page.page,
-			image_url: imageUrls.get(page.page) || "",
-			width: page.width || null,
-			height: page.height || null,
-		}));
-
-		await prisma.chapterPage.createMany({
-			data: pageRecords,
+		// 10. Update chapter with pdf_url
+		await prisma.chapter.update({
+			where: { id: bigChapterId },
+			data: {
+				pdf_url: pdfUrl,
+			},
 		});
 
-		console.log(`[BG-PROCESSOR] Created ${pageRecords.length} page records`);
+		console.log(`[BG-PROCESSOR] PDF uploaded: ${pdfUrl}`);
 
-		// 9. Clean up temporary files
+		// 11. Clean up temporary files
 		await unlink(tempFilePath);
 
 		// 12. Generate study materials (wait for completion)

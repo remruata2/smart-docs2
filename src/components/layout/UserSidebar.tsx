@@ -3,7 +3,7 @@
 import { useSession, signOut } from "next-auth/react";
 import Link from "next/link";
 import { usePathname } from "next/navigation";
-import { useState } from "react";
+import { useState, useEffect } from "react";
 import {
 	ChevronLeft,
 	ChevronRight,
@@ -23,6 +23,7 @@ import {
 	DropdownMenuItem,
 	DropdownMenuTrigger,
 } from "@/components/ui/dropdown-menu";
+import Image from "next/image";
 import ConversationList from "@/components/ConversationList";
 
 interface UserSidebarProps {
@@ -33,6 +34,19 @@ export default function UserSidebar({ setSidebarOpen }: UserSidebarProps) {
 	const { data: session } = useSession();
 	const pathname = usePathname();
 	const [isCollapsed, setIsCollapsed] = useState(false);
+	const [refreshTrigger, setRefreshTrigger] = useState(0);
+
+	useEffect(() => {
+		const handleRefresh = () => {
+			console.log("Refreshing sidebar conversation list...");
+			setRefreshTrigger((prev) => prev + 1);
+		};
+
+		window.addEventListener("refresh-conversations", handleRefresh);
+		return () => {
+			window.removeEventListener("refresh-conversations", handleRefresh);
+		};
+	}, []);
 
 	const baseLinkClasses =
 		"flex items-center px-3 py-2 text-sm font-medium rounded-md transition-colors duration-200";
@@ -69,10 +83,17 @@ export default function UserSidebar({ setSidebarOpen }: UserSidebarProps) {
 			{/* Title */}
 			<div className="flex-shrink-0 px-4 py-4 flex items-center justify-between h-16">
 				{!displayCollapsed ? (
-					<h1 className="text-xl font-bold text-white tracking-tight flex items-center gap-2">
-						<BrainCircuit className="w-6 h-6" />
-						Zirna
-					</h1>
+					<Link href="/" className="flex items-center">
+						<Image
+							src="/zirnalogosmall.png"
+							alt="Zirna"
+							width={100}
+							height={32}
+							className="h-8 w-auto brightness-0 invert"
+							priority
+							unoptimized
+						/>
+					</Link>
 				) : (
 					<div className="w-full flex justify-center">
 						<span className="text-lg font-bold text-white">SD</span>
@@ -201,7 +222,7 @@ export default function UserSidebar({ setSidebarOpen }: UserSidebarProps) {
 						History
 					</div>
 				)}
-				<ConversationList isCollapsed={displayCollapsed} />
+				<ConversationList isCollapsed={displayCollapsed} refreshTrigger={refreshTrigger} />
 			</div>
 
 			{/* User info & Sign Out */}

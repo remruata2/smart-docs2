@@ -34,7 +34,7 @@ export default function TermsOfService() {
                     <section>
                         <h2 className="text-2xl font-semibold text-gray-900 mb-4">1. Acceptance of Terms</h2>
                         <p className="text-gray-700 leading-relaxed">
-                            By accessing and using Zirna ("the Service"), you accept and agree to be bound by the terms and provision of this agreement. If you do not agree to these Terms of Service, please do not use the Service.
+                            By accessing and using Zirna (&quot;the Service&quot;), you accept and agree to be bound by the terms and provision of this agreement. If you do not agree to these Terms of Service, please do not use the Service.
                         </p>
                     </section>
 
@@ -71,12 +71,12 @@ export default function TermsOfService() {
                             Zirna offers both free and paid subscription plans:
                         </p>
                         <ul className="list-disc list-inside text-gray-700 space-y-2 ml-4">
-                            <li>Free plans have usage limitations as specified on our pricing page</li>
-                            <li>Paid subscriptions are billed on a recurring basis (monthly or yearly)</li>
+                            <li>Free features have usage limitations as specified in the platform</li>
+                            <li>Paid courses or subscriptions are billed as specified during purchase</li>
                             <li>All payments are processed securely through Razorpay</li>
-                            <li>Subscription fees are non-refundable except as required by law</li>
-                            <li>You may cancel your subscription at any time, effective at the end of the current billing period</li>
-                            <li>We reserve the right to modify pricing with 30 days notice to existing subscribers</li>
+                            <li>Fees are non-refundable except as required by law</li>
+                            <li>You may cancel any recurring subscription at any time, effective at the end of the current billing period</li>
+                            <li>We reserve the right to modify pricing with reasonable notice to existing subscribers</li>
                         </ul>
                     </section>
 

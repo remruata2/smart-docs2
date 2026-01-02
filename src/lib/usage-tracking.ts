@@ -100,6 +100,7 @@ export async function getAllCurrentUsage(userId: number) {
 		quiz_generation: 0,
 		battle_match: 0,
 		ai_tutor_session: 0,
+		image_generation: 0,
 	};
 
 	usageRecords.forEach((record) => {

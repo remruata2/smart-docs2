@@ -10,13 +10,20 @@ const DEFAULT_LIMIT = 30;
 
 // Model keys from refactor
 const MODEL_KEYS = {
+  // Legacy chat key (keeping for compatibility)
   chat: "ai.model.chat",
   translation: "ai.model.translation",
   comparison: "ai.model.comparison",
   title_gen: "ai.model.title_gen",
+  // Textbook models
   textbook_content: "ai.model.textbook.content",
   textbook_image: "ai.model.textbook.image",
   textbook_parser: "ai.model.textbook.parser",
+  // Chat-specific models
+  chat_primary: "ai.model.chat.primary",
+  chat_fallback: "ai.model.chat.fallback",
+  chat_analyzer: "ai.model.chat.analyzer",
+  chat_image: "ai.model.chat.image",
 };
 
 export async function GET(request: NextRequest) {

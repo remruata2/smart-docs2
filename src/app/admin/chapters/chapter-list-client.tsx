@@ -3,6 +3,8 @@
 import { useState, useTransition, useEffect } from "react";
 import { useRouter } from "next/navigation";
 import { toast } from "sonner";
+import { Wand2, Sparkles, Loader2 } from "lucide-react";
+import { Button } from "@/components/ui/button";
 
 interface ChapterListClientProps {
     chapters: any[];
@@ -18,6 +20,50 @@ export default function ChapterListClient({ chapters, onDelete }: ChapterListCli
     const hasProcessingChapters = chapters.some(
         ch => ch.processing_status === 'PENDING' || ch.processing_status === 'PROCESSING'
     );
+
+    const handleGenerateMaterials = async (chapterId: string) => {
+        startTransition(async () => {
+            try {
+                // We'll use the same action we just restricted
+                const { generateStudyMaterialsAction } = await import("@/app/app/study/actions");
+                await generateStudyMaterialsAction(chapterId);
+                toast.success("Study materials generated successfully");
+                router.refresh();
+            } catch (error: any) {
+                toast.error(error.message || "Failed to generate materials");
+            }
+        });
+    };
+
+    const handleBulkGenerate = async () => {
+        if (selectedIds.size === 0) return;
+
+        startTransition(async () => {
+            try {
+                const { generateStudyMaterialsAction } = await import("@/app/app/study/actions");
+                const ids = Array.from(selectedIds);
+                let successCount = 0;
+                let failCount = 0;
+
+                for (const id of ids) {
+                    try {
+                        await generateStudyMaterialsAction(id);
+                        successCount++;
+                    } catch (e) {
+                        failCount++;
+                    }
+                }
+
+                if (successCount > 0) toast.success(`Generated materials for ${successCount} chapters`);
+                if (failCount > 0) toast.error(`Failed for ${failCount} chapters`);
+
+                setSelectedIds(new Set());
+                router.refresh();
+            } catch (error: any) {
+                toast.error("Bulk generation failed");
+            }
+        });
+    };
 
     // Auto-refresh when chapters are processing
     useEffect(() => {
@@ -103,13 +149,23 @@ export default function ChapterListClient({ chapters, onDelete }: ChapterListCli
                     <span className="text-sm font-medium text-indigo-900">
                         {selectedIds.size} chapter(s) selected
                     </span>
-                    <button
-                        onClick={handleDeleteSelected}
-                        disabled={isPending}
-                        className="bg-red-600 text-white px-4 py-2 rounded-md hover:bg-red-700 disabled:opacity-50 text-sm font-medium"
-                    >
-                        {isPending ? "Deleting..." : "Delete Selected"}
-                    </button>
+                    <div className="flex gap-2">
+                        <button
+                            onClick={handleBulkGenerate}
+                            disabled={isPending}
+                            className="bg-indigo-600 text-white px-4 py-2 rounded-md hover:bg-indigo-700 disabled:opacity-50 text-sm font-medium flex items-center gap-2"
+                        >
+                            {isPending ? <Loader2 className="w-4 h-4 animate-spin" /> : <Sparkles className="w-4 h-4" />}
+                            {isPending ? "Processing..." : "Generate Materials"}
+                        </button>
+                        <button
+                            onClick={handleDeleteSelected}
+                            disabled={isPending}
+                            className="bg-red-600 text-white px-4 py-2 rounded-md hover:bg-red-700 disabled:opacity-50 text-sm font-medium"
+                        >
+                            {isPending ? "Deleting..." : "Delete Selected"}
+                        </button>
+                    </div>
                 </div>
             )}
 
@@ -162,6 +218,21 @@ export default function ChapterListClient({ chapters, onDelete }: ChapterListCli
                                             <span className={`px-2 inline-flex text-xs leading-5 font-semibold rounded-full ${chapter.is_active ? 'bg-green-100 text-green-800' : 'bg-red-100 text-red-800'}`}>
                                                 {chapter.is_active ? 'Active' : 'Inactive'}
                                             </span>
+                                        </div>
+                                        <div className="flex items-center gap-2">
+                                            <Button
+                                                variant="outline"
+                                                size="sm"
+                                                onClick={(e) => {
+                                                    e.stopPropagation();
+                                                    handleGenerateMaterials(chapter.id.toString());
+                                                }}
+                                                disabled={isPending}
+                                                className="h-8 border-indigo-200 text-indigo-700 hover:bg-indigo-50"
+                                            >
+                                                <Wand2 className="w-4 h-4 mr-2" />
+                                                Generate
+                                            </Button>
                                         </div>
                                     </div>
                                     <div className="mt-2 sm:flex sm:justify-between">

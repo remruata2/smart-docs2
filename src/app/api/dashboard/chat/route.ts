@@ -15,6 +15,8 @@ import {
 import { enforceUsageLimit } from "@/lib/usage-limits";
 import { trackUsage } from "@/lib/usage-tracking";
 import { UsageType } from "@/generated/prisma";
+import { generateChatImage, detectImageGenerationRequest, inferImageType } from "@/lib/chat-image-generator";
+import { checkImageGenerationLimit, IMAGE_GENERATION_DAILY_LIMIT } from "@/lib/image-generation-limits";
 
 export async function POST(request: NextRequest) {
 	try {
@@ -166,8 +168,10 @@ export async function POST(request: NextRequest) {
 						let metadata: any = {};
 						let sources: any[] = [];
 						let tokenCount: any = {};
-
 						let chartData: any = null;
+
+						// Accumulate full text to detect image generation requests
+						let fullResponseText = "";
 
 						for await (const chunk of processChatMessageEnhancedStream(
 							sanitizedMessage,
@@ -196,6 +200,8 @@ export async function POST(request: NextRequest) {
 								});
 								controller.enqueue(encoder.encode(`data: ${data}\n\n`));
 							} else if (chunk.type === "token") {
+								// Accumulate text for image detection
+								fullResponseText += chunk.text || "";
 								// Send token event
 								const data = JSON.stringify({
 									type: "token",
@@ -223,8 +229,66 @@ export async function POST(request: NextRequest) {
 								controller.enqueue(encoder.encode(`data: ${data}\n\n`));
 							} else if (chunk.type === "done") {
 								tokenCount = chunk.tokenCount || {};
+
+								// Process image generation requests BEFORE sending done event
+								const imagePrompt = detectImageGenerationRequest(fullResponseText);
+								if (imagePrompt) {
+									console.log(`[IMAGE-GEN] Detected image request: ${imagePrompt.substring(0, 50)}...`);
+
+									// Check usage limit
+									const limitCheck = await checkImageGenerationLimit(userId);
+
+									if (limitCheck.allowed) {
+										// Send image_generating event
+										const generatingData = JSON.stringify({
+											type: "image_generating",
+											prompt: imagePrompt,
+											remaining: limitCheck.remaining - 1,
+										});
+										controller.enqueue(encoder.encode(`data: ${generatingData}\n\n`));
+
+										// Generate the image
+										const imageResult = await generateChatImage(imagePrompt, {
+											imageType: inferImageType(imagePrompt),
+										});
+
+										if (imageResult.success) {
+											// Track usage
+											const { trackImageGeneration } = await import("@/lib/image-generation-limits");
+											await trackImageGeneration(userId);
+
+											// Send image event
+											const imageData = JSON.stringify({
+												type: "image",
+												url: imageResult.imageUrl,
+												alt: imageResult.alt,
+												remaining: limitCheck.remaining - 1,
+											});
+											controller.enqueue(encoder.encode(`data: ${imageData}\n\n`));
+											console.log(`[IMAGE-GEN] Successfully generated image: ${imageResult.imageUrl}`);
+										} else {
+											console.error(`[IMAGE-GEN] Failed to generate image: ${imageResult.error}`);
+											// Send error but don't fail the whole request
+											const errorData = JSON.stringify({
+												type: "image_error",
+												error: "Failed to generate image. Please try again.",
+											});
+											controller.enqueue(encoder.encode(`data: ${errorData}\n\n`));
+										}
+									} else {
+										// Limit reached - notify student
+										console.log(`[IMAGE-GEN] Daily limit reached for user ${userId}`);
+										const limitData = JSON.stringify({
+											type: "image_limit_reached",
+											message: `You've reached your daily image limit (${IMAGE_GENERATION_DAILY_LIMIT} images/day). Your limit will reset tomorrow.`,
+											limit: IMAGE_GENERATION_DAILY_LIMIT,
+										});
+										controller.enqueue(encoder.encode(`data: ${limitData}\n\n`));
+									}
+								}
+
 								console.log(
-									"[CHART API] Done event - chartData:",
+									"[CHAT API] Done event - chartData:",
 									chartData ? "present" : "missing"
 								);
 								// Send done event with token count and chart data

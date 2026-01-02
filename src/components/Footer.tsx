@@ -29,11 +29,6 @@ export function Footer() {
                         <h4 className="font-semibold text-gray-900 mb-4">Product</h4>
                         <ul className="space-y-2 text-sm">
                             <li>
-                                <Link href="/pricing" className="text-gray-600 hover:text-gray-900">
-                                    Pricing
-                                </Link>
-                            </li>
-                            <li>
                                 <Link href="/app" className="text-gray-600 hover:text-gray-900">
                                     Features
                                 </Link>

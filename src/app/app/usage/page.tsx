@@ -2,9 +2,8 @@ import { getServerSession } from "next-auth";
 import { authOptions } from "@/lib/auth-options";
 import { prisma } from "@/lib/prisma";
 import { redirect } from "next/navigation";
-import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card";
+import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Progress } from "@/components/ui/progress";
-import { Button } from "@/components/ui/button";
 import { ArrowLeft, Zap, FileText, MessageSquare, BrainCircuit } from "lucide-react";
 import Link from "next/link";
 import { format } from "date-fns";
@@ -134,11 +133,6 @@ export default async function UsagePage() {
                                 {user?.subscription?.plan?.display_name || "Free Plan"}
                             </h2>
                         </div>
-                        {!user?.subscription && (
-                            <Link href="/pricing">
-                                <Button>Upgrade to Unlimited</Button>
-                            </Link>
-                        )}
                     </CardContent>
                 </Card>
 

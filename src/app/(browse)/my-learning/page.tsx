@@ -94,10 +94,10 @@ function EnrolledCourseCard({ enrollment }: { enrollment: any }) {
                             </div>
                         </div>
                     </div>
-                    {/* Progress Bar */}
-                    <div className="absolute bottom-0 left-0 right-0 h-1 bg-black/20">
+                    {/* Mastery Bar */}
+                    <div className="absolute bottom-0 left-0 right-0 h-1.5 bg-black/20">
                         <div
-                            className="h-full bg-indigo-500 transition-all duration-500"
+                            className={`h-full transition-all duration-500 shadow-[0_0_8px_rgba(0,0,0,0.2)] ${progress >= 80 ? 'bg-emerald-500' : 'bg-indigo-500'}`}
                             style={{ width: `${progress}%` }}
                         />
                     </div>
@@ -108,8 +108,8 @@ function EnrolledCourseCard({ enrollment }: { enrollment: any }) {
                         <h3 className="text-lg font-bold text-gray-900 leading-tight group-hover:text-indigo-600 transition-colors line-clamp-2">
                             {course.title}
                         </h3>
-                        <Badge variant="secondary" className="shrink-0 bg-indigo-50 text-indigo-700">
-                            {progress}%
+                        <Badge variant="secondary" className={`shrink-0 border-none font-bold ${progress >= 80 ? 'bg-emerald-50 text-emerald-700' : 'bg-indigo-50 text-indigo-700'}`}>
+                            {progress}% Mastery
                         </Badge>
                     </div>
 

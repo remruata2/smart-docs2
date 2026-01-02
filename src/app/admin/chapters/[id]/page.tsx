@@ -30,15 +30,12 @@ export default async function ChapterViewPage({
                     },
                 },
             },
-            pages: {
-                orderBy: { page_number: "asc" },
-            },
             chunks: {
                 orderBy: { chunk_index: "asc" },
                 take: 10, // Preview first 10 chunks
             },
             _count: {
-                select: { chunks: true, pages: true },
+                select: { chunks: true },
             },
         },
     });
@@ -106,8 +103,8 @@ export default async function ChapterViewPage({
                             <dd className="mt-1 text-sm text-gray-900">{chapter.chapter_number || "N/A"}</dd>
                         </div>
                         <div>
-                            <dt className="text-sm font-medium text-gray-500">Total Pages</dt>
-                            <dd className="mt-1 text-sm text-gray-900">{chapter._count.pages}</dd>
+                            <dt className="text-sm font-medium text-gray-500">PDF URL</dt>
+                            <dd className="mt-1 text-sm text-gray-900 truncate max-w-xs">{chapter.pdf_url || "N/A"}</dd>
                         </div>
                         <div>
                             <dt className="text-sm font-medium text-gray-500">Total Chunks</dt>
@@ -137,34 +134,6 @@ export default async function ChapterViewPage({
                     </div>
 
                     {/* Page Screenshots */}
-                    {chapter.pages.length > 0 && (
-                        <div className="mt-8">
-                            <h3 className="text-lg font-medium text-gray-900 mb-4">Page Screenshots</h3>
-                            <div className="grid grid-cols-2 md:grid-cols-4 gap-4">
-                                {chapter.pages.slice(0, 8).map((page) => (
-                                    <div key={page.id} className="border rounded-lg overflow-hidden">
-                                        {page.image_url ? (
-                                            <img
-                                                src={page.image_url}
-                                                alt={`Page ${page.page_number}`}
-                                                className="w-full h-auto"
-                                            />
-                                        ) : (
-                                            <div className="bg-gray-100 h-48 flex items-center justify-center text-gray-400">
-                                                No Image
-                                            </div>
-                                        )}
-                                        <div className="p-2 bg-gray-50 text-center text-xs text-gray-600">
-                                            Page {page.page_number}
-                                        </div>
-                                    </div>
-                                ))}
-                            </div>
-                            {chapter.pages.length > 8 && (
-                                <p className="mt-2 text-xs text-gray-500">Showing first 8 of {chapter.pages.length} pages</p>
-                            )}
-                        </div>
-                    )}
                 </div>
             </div>
         </div>

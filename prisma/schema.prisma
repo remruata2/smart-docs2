@@ -464,10 +464,10 @@ model Chapter {
   created_at        DateTime      @default(now())
   updated_at        DateTime      @updatedAt
   parsed_at         DateTime?
+  pdf_url           String?
 
   subject           Subject           @relation(fields: [subject_id], references: [id])
   chunks            ChapterChunk[]
-  pages             ChapterPage[]
   quizzes           Quiz[]
   study_materials   StudyMaterial?
   learning_sessions LearningSession[]
@@ -486,7 +486,6 @@ model ChapterChunk {
   chunk_index     Int
   content         String
   page_number     Int?
-  bbox            Json? // Bounding box
   search_vector   Unsupported("tsvector")?
   semantic_vector Unsupported("vector")?
   subject_id      Int? // Denormalized
@@ -514,20 +513,6 @@ model ChapterChunkBoard {
   @@map("chapter_chunk_boards")
 }
 
-model ChapterPage {
-  id          BigInt   @id @default(autoincrement())
-  chapter_id  BigInt
-  page_number Int
-  image_url   String
-  width       Int?
-  height      Int?
-  created_at  DateTime @default(now())
-
-  chapter Chapter @relation(fields: [chapter_id], references: [id], onDelete: Cascade)
-
-  @@index([chapter_id, page_number])
-  @@map("chapter_pages")
-}
 
 enum MessageRole {
   user
@@ -571,6 +556,7 @@ enum UsageType {
   quiz_generation
   battle_match
   ai_tutor_session
+  image_generation
 
   @@map("usage_type")
 }

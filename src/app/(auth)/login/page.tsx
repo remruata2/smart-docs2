@@ -3,7 +3,7 @@
 import { signIn, useSession } from "next-auth/react";
 import { useRouter } from "next/navigation";
 import { useEffect, useState } from "react";
-import { Loader2, Lock, User, AlertCircle, BookOpen, Brain, GraduationCap, Sparkles } from "lucide-react";
+import { Loader2, Lock, User, AlertCircle, BookOpen, Brain, GraduationCap, Sparkles, ArrowLeft } from "lucide-react";
 import { FcGoogle } from "react-icons/fc";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
@@ -17,6 +17,7 @@ import {
 	CardFooter,
 } from "@/components/ui/card";
 import Link from "next/link";
+import Image from "next/image";
 
 export default function LoginPage() {
 	const [username, setUsername] = useState("");
@@ -103,16 +104,29 @@ export default function LoginPage() {
 				</div>
 			)}
 			{/* Mobile Header - Compact branding */}
-			<div className="lg:hidden bg-gradient-to-r from-indigo-600 to-purple-600 p-6 text-white">
-				<div className="flex items-center gap-3 justify-center mb-2">
-					<div className="p-2 bg-white/20 backdrop-blur-lg rounded-xl">
-						<GraduationCap className="w-8 h-8" />
-					</div>
-					<h1 className="text-2xl font-bold">Zirna</h1>
+			<div className="lg:hidden bg-gradient-to-r from-indigo-600 to-purple-600 p-6 text-white relative">
+				<div className="absolute top-4 left-4">
+					<Link href="/" className="inline-flex items-center gap-1.5 text-xs font-medium hover:text-white/80 transition-colors bg-white/10 backdrop-blur-sm px-2.5 py-1.5 rounded-lg border border-white/10 uppercase tracking-wider">
+						<ArrowLeft className="w-3.5 h-3.5" />
+						Home
+					</Link>
 				</div>
-				<p className="text-center text-white/90 text-sm">
-					Your AI-powered exam prep companion
-				</p>
+				<div className="flex flex-col items-center pt-8">
+					<Link href="/" className="mb-2">
+						<Image
+							src="/zirnalogosmall.png"
+							alt="Zirna"
+							width={140}
+							height={46}
+							className="h-10 w-auto brightness-0 invert"
+							priority
+							unoptimized
+						/>
+					</Link>
+					<p className="text-center text-white/90 text-sm">
+						Your AI-powered exam prep companion
+					</p>
+				</div>
 			</div>
 
 			<div className="flex-1 flex flex-col lg:flex-row">
@@ -125,13 +139,28 @@ export default function LoginPage() {
 						<div className="absolute top-1/2 left-1/2 w-80 h-80 bg-purple-200 rounded-full mix-blend-overlay filter blur-3xl animate-pulse delay-1000" />
 					</div>
 
+					{/* Back Button */}
+					<div className="absolute top-8 left-8">
+						<Link href="/" className="inline-flex items-center gap-2 text-sm font-medium text-white/90 hover:text-white transition-colors bg-white/10 backdrop-blur-md px-4 py-2 rounded-xl border border-white/20 hover:bg-white/20 group">
+							<ArrowLeft className="w-4 h-4 transition-transform group-hover:-translate-x-1" />
+							Back to Home
+						</Link>
+					</div>
+
 					{/* Content */}
 					<div className="relative z-10 max-w-md text-white">
-						<div className="mb-8 flex items-center gap-3">
-							<div className="p-3 bg-white/20 backdrop-blur-lg rounded-2xl">
-								<GraduationCap className="w-10 h-10" />
-							</div>
-							<h1 className="text-4xl font-bold">Zirna</h1>
+						<div className="mb-10">
+							<Link href="/" className="inline-block">
+								<Image
+									src="/zirnalogosmall.png"
+									alt="Zirna"
+									width={180}
+									height={60}
+									className="h-12 w-auto brightness-0 invert"
+									priority
+									unoptimized
+								/>
+							</Link>
 						</div>
 
 						<p className="text-xl text-white/90 mb-8 leading-relaxed">

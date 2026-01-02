@@ -10,15 +10,19 @@ import { prisma } from "@/lib/prisma";
 // Force dynamic rendering since getStudyMaterialsAction requires session/headers
 export const dynamic = 'force-dynamic';
 
-export default async function StudyMaterialsPage({ params }: { params: Promise<{ chapterId: string }> }) {
+export default async function StudyMaterialsPage({
+    params
+}: {
+    params: Promise<{ chapterId: string }>
+}) {
     const { chapterId } = await params;
-
-    // Session check removed to allow static generation (protected by middleware)
 
     // Get chapter info
     const chapter = await prisma.chapter.findUnique({
         where: { id: BigInt(chapterId) },
-        select: { title: true, subject: { select: { id: true, name: true } } },
+        include: {
+            subject: { select: { id: true, name: true } }
+        },
     });
 
     if (!chapter) {
@@ -42,19 +46,10 @@ export default async function StudyMaterialsPage({ params }: { params: Promise<{
                 <p className="text-muted-foreground text-lg">{chapter.subject.name}</p>
             </div>
 
-            {/* Materials or Generate */}
-            {materials ? (
-                <StudyMaterialsClient materials={materials} />
-            ) : (
-                <div className="text-center py-20">
-                    <Sparkles className="w-16 h-16 mx-auto mb-4 text-muted-foreground" />
-                    <h2 className="text-2xl font-bold mb-2">Study Materials Not Generated Yet</h2>
-                    <p className="text-muted-foreground mb-6">
-                        Generate comprehensive study materials including summaries, flashcards, videos, and mind maps.
-                    </p>
-                    <GenerateStudyMaterialsButton chapterId={chapterId} />
-                </div>
-            )}
+            <StudyMaterialsClient
+                materials={materials}
+                chapterId={chapterId}
+            />
         </div>
     );
 }

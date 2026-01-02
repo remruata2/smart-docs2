@@ -27,7 +27,7 @@ export default async function SubjectsPage({
             ...subject,
             courseTitle: enrollment.course.title,
             courseId: enrollment.course.id,
-            progress: enrollment.progress,
+            mastery: subject.mastery,
         }))
     );
 
@@ -109,13 +109,16 @@ export default async function SubjectsPage({
                                     <div className="space-y-4 pt-2">
                                         <div className="space-y-1.5">
                                             <div className="flex items-center justify-between text-xs font-bold">
-                                                <span className="text-gray-400 uppercase">Course Progress</span>
-                                                <span className="text-blue-600">{subject.progress}%</span>
+                                                <span className="text-gray-400 uppercase tracking-wider">Mastery Level</span>
+                                                <span className={subject.mastery >= 80 ? "text-emerald-600" : "text-blue-600"}>
+                                                    {subject.mastery}%
+                                                </span>
                                             </div>
-                                            <div className="w-full bg-gray-100 rounded-full h-2">
+                                            <div className="w-full bg-gray-100 rounded-full h-2 overflow-hidden shadow-inner">
                                                 <div
-                                                    className="bg-blue-600 h-2 rounded-full transition-all duration-1000"
-                                                    style={{ width: `${subject.progress}%` }}
+                                                    className={`h-full rounded-full transition-all duration-1000 ${subject.mastery >= 80 ? 'bg-emerald-500' : 'bg-blue-600'
+                                                        }`}
+                                                    style={{ width: `${subject.mastery}%` }}
                                                 />
                                             </div>
                                         </div>

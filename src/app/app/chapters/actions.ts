@@ -89,7 +89,6 @@ export async function getChaptersForSubject(subjectId: number) {
 			_count: {
 				select: {
 					chunks: true,
-					pages: true,
 				},
 			},
 		},
@@ -157,11 +156,6 @@ export async function getChapterById(chapterId: string) {
 					program: true,
 				},
 			},
-			pages: {
-				orderBy: {
-					page_number: "asc",
-				},
-			},
 		},
 	});
 
@@ -221,11 +215,6 @@ export async function getChapterData(chapterId: string) {
 							board: true
 						}
 					}
-				},
-			},
-			pages: {
-				orderBy: {
-					page_number: "asc",
 				},
 			},
 		},

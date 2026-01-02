@@ -12,9 +12,6 @@ export interface HybridSearchResult {
 	keyword_rank?: number;
 	citation?: {
 		pageNumber: number;
-		imageUrl: string;
-		boundingBox: any;
-		layoutItems?: any[];
 		chunkContent: string;
 		title: string;
 	};
@@ -110,16 +107,13 @@ export class HybridSearchService {
 							cc.content as chunk_content,
 							cc.content as content,
 							cc.page_number,
-							cc.bbox,
 							c.created_at,
-							cp.image_url,
 							1.0 as rrf_score,
 							1 as semantic_rank,
 							1 as keyword_rank
 						FROM chapter_chunks cc
 						JOIN chapters c ON cc.chapter_id = c.id
 						JOIN subjects s ON c.subject_id = s.id
-						LEFT JOIN chapter_pages cp ON c.id = cp.chapter_id AND cc.page_number = cp.page_number
 						WHERE c.id = $1
 						  AND ($2::int IS NULL OR c.subject_id = $2)
 						  AND c.is_active = true
@@ -145,9 +139,7 @@ export class HybridSearchService {
 							cc.content as chunk_content,
 							cc.content as content,
 							cc.page_number,
-							cc.bbox,
 							c.created_at,
-							cp.image_url,
 							1.0 as rrf_score,
 							1 as semantic_rank,
 							1 as keyword_rank
@@ -155,7 +147,6 @@ export class HybridSearchService {
 						JOIN chapters c ON cc.chapter_id = c.id
 						JOIN subjects s ON c.subject_id = s.id
 						LEFT JOIN chapter_chunk_boards ccb ON cc.id = ccb.chunk_id AND ccb.board_id = $1
-						LEFT JOIN chapter_pages cp ON c.id = cp.chapter_id AND cc.page_number = cp.page_number
 						WHERE (c.is_global = true OR ccb.chunk_id IS NOT NULL)
 						  AND ($2::int IS NULL OR c.subject_id = $2)
 						  AND c.is_active = true
@@ -190,14 +181,11 @@ export class HybridSearchService {
                 s.name as subject_name,
                 cc.content as chunk_content,
                 cc.page_number,
-                cc.bbox,
                 c.created_at,
-                cp.image_url,
                 RANK() OVER (ORDER BY cc.semantic_vector <=> $1::vector) as rank
             FROM chapter_chunks cc
             JOIN chapters c ON cc.chapter_id = c.id
             JOIN subjects s ON c.subject_id = s.id
-            LEFT JOIN chapter_pages cp ON c.id = cp.chapter_id AND cc.page_number = cp.page_number
             WHERE cc.semantic_vector IS NOT NULL
               AND c.id = $2
               AND ($3::int IS NULL OR c.subject_id = $3)
@@ -214,15 +202,12 @@ export class HybridSearchService {
                 s.name as subject_name,
                 cc.content as chunk_content,
                 cc.page_number,
-                cc.bbox,
                 c.created_at,
-                cp.image_url,
                 ts_rank_cd(cc.search_vector, websearch_to_tsquery('english', $4)) as search_rank,
                 RANK() OVER (ORDER BY ts_rank_cd(cc.search_vector, websearch_to_tsquery('english', $4)) DESC) as rank
             FROM chapter_chunks cc
             JOIN chapters c ON cc.chapter_id = c.id
             JOIN subjects s ON c.subject_id = s.id
-            LEFT JOIN chapter_pages cp ON c.id = cp.chapter_id AND cc.page_number = cp.page_number
             WHERE cc.search_vector @@ websearch_to_tsquery('english', $4)
               AND c.id = $2
               AND ($3::int IS NULL OR c.subject_id = $3)
@@ -243,9 +228,7 @@ export class HybridSearchService {
             s.rank as semantic_rank,
             k.rank as keyword_rank,
             
-            COALESCE(s.page_number, k.page_number) as page_number,
-            COALESCE(s.bbox, k.bbox) as bbox,
-            COALESCE(s.image_url, k.image_url) as image_url
+            COALESCE(s.page_number, k.page_number) as page_number
         FROM semantic_search s
         FULL OUTER JOIN keyword_search k ON s.chunk_id = k.chunk_id
         ORDER BY rrf_score DESC
@@ -269,15 +252,12 @@ export class HybridSearchService {
                 s.name as subject_name,
                 cc.content as chunk_content,
                 cc.page_number,
-                cc.bbox,
                 c.created_at,
-                cp.image_url,
                 RANK() OVER (ORDER BY cc.semantic_vector <=> $1::vector) as rank
             FROM chapter_chunks cc
             JOIN chapters c ON cc.chapter_id = c.id
             JOIN subjects s ON c.subject_id = s.id
             LEFT JOIN chapter_chunk_boards ccb ON cc.id = ccb.chunk_id AND ccb.board_id = $2
-            LEFT JOIN chapter_pages cp ON c.id = cp.chapter_id AND cc.page_number = cp.page_number
             WHERE cc.semantic_vector IS NOT NULL
               AND (c.is_global = true OR ccb.chunk_id IS NOT NULL)
               AND ($3::int IS NULL OR c.subject_id = $3)
@@ -294,16 +274,13 @@ export class HybridSearchService {
                 s.name as subject_name,
                 cc.content as chunk_content,
                 cc.page_number,
-                cc.bbox,
                 c.created_at,
-                cp.image_url,
                 ts_rank_cd(cc.search_vector, websearch_to_tsquery('english', $4)) as search_rank,
                 RANK() OVER (ORDER BY ts_rank_cd(cc.search_vector, websearch_to_tsquery('english', $4)) DESC) as rank
             FROM chapter_chunks cc
             JOIN chapters c ON cc.chapter_id = c.id
             JOIN subjects s ON c.subject_id = s.id
             LEFT JOIN chapter_chunk_boards ccb ON cc.id = ccb.chunk_id AND ccb.board_id = $2
-            LEFT JOIN chapter_pages cp ON c.id = cp.chapter_id AND cc.page_number = cp.page_number
             WHERE cc.search_vector @@ websearch_to_tsquery('english', $4)
               AND (c.is_global = true OR ccb.chunk_id IS NOT NULL)
               AND ($3::int IS NULL OR c.subject_id = $3)
@@ -324,9 +301,7 @@ export class HybridSearchService {
             s.rank as semantic_rank,
             k.rank as keyword_rank,
             
-            COALESCE(s.page_number, k.page_number) as page_number,
-            COALESCE(s.bbox, k.bbox) as bbox,
-            COALESCE(s.image_url, k.image_url) as image_url
+            COALESCE(s.page_number, k.page_number) as page_number
         FROM semantic_search s
         FULL OUTER JOIN keyword_search k ON s.chunk_id = k.chunk_id
         ORDER BY rrf_score DESC
@@ -351,25 +326,8 @@ export class HybridSearchService {
 			else if (keywordCount > 0 && semanticCount === 0)
 				searchMethod = "keyword_only";
 
+
 			const mappedResults: HybridSearchResult[] = results.map((r: any) => {
-				let parsedBbox = r.bbox;
-				if (typeof r.bbox === "string") {
-					try {
-						parsedBbox = JSON.parse(r.bbox);
-					} catch (e) {
-						parsedBbox = null;
-					}
-				}
-
-				let boundingBox: number[] | undefined = undefined;
-				if (parsedBbox && Array.isArray(parsedBbox) && parsedBbox.length > 0) {
-					if (typeof parsedBbox[0] === "object" && parsedBbox[0].bbox) {
-						boundingBox = parsedBbox[0].bbox;
-					} else if (typeof parsedBbox[0] === "number") {
-						boundingBox = parsedBbox;
-					}
-				}
-
 				return {
 					id: r.id.toString(),
 					subject: r.subject,
@@ -382,8 +340,6 @@ export class HybridSearchService {
 					citation: r.page_number
 						? {
 							pageNumber: r.page_number,
-							imageUrl: r.image_url || "", // Use Supabase URL directly from chapter_pages
-							boundingBox: boundingBox || [0, 0, 1, 1],
 							chunkContent: r.content || "",
 							title: r.title,
 						}

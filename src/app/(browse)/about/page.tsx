@@ -157,47 +157,7 @@ export default function Home() {
 				}
 			`}</style>
 
-			{/* Header */}
-			<header className="border-b bg-white/80 backdrop-blur-sm sticky top-0 z-50 transition-all duration-300">
-				<div className="container mx-auto px-4 py-4 flex items-center justify-between">
-					<Link href="/" className="animate-fade-in">
-						<Image
-							src="/zirnalogosmall.png"
-							alt="Zirna"
-							width={120}
-							height={40}
-							className="h-8 md:h-10 w-auto"
-							priority
-							unoptimized
-						/>
-					</Link>
-					<nav className="flex items-center gap-2 md:gap-4">
-						<Link
-							href="/pricing"
-							className="text-gray-600 hover:text-gray-900 transition-colors duration-200 text-sm md:text-base hidden sm:block"
-						>
-							Pricing
-						</Link>
-						<Link href="/login">
-							<Button
-								variant="outline"
-								size="sm"
-								className="transition-all duration-200 hover:scale-105 md:h-10 md:px-4 md:py-2"
-							>
-								Sign In
-							</Button>
-						</Link>
-						<Link href="/register">
-							<Button
-								size="sm"
-								className="transition-all duration-200 hover:scale-105 hover:shadow-lg md:h-10 md:px-4 md:py-2"
-							>
-								Get Started
-							</Button>
-						</Link>
-					</nav>
-				</div>
-			</header>
+
 
 			{/* Hero Section */}
 			<section className="container mx-auto px-4 py-12 md:py-20 text-center">
@@ -222,15 +182,6 @@ export default function Home() {
 							>
 								Start Learning Free
 								<ArrowRight className="ml-2 h-4 w-4 transition-transform duration-200 group-hover:translate-x-1" />
-							</Button>
-						</Link>
-						<Link href="/pricing" className="w-full sm:w-auto">
-							<Button
-								size="lg"
-								variant="outline"
-								className="w-full sm:w-auto text-base md:text-lg px-6 md:px-8 transition-all duration-200 hover:scale-105 hover:shadow-lg"
-							>
-								View Pricing
 							</Button>
 						</Link>
 					</div>

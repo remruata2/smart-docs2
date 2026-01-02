@@ -146,5 +146,42 @@ export async function getMyLearningData() {
         }
     });
 
-    return { enrollments };
+    // Calculate mastery for each enrollment
+    const enrollmentsWithMastery = await Promise.all(enrollments.map(async (enrollment) => {
+        let totalMastery = 0;
+        const subjects = enrollment.course.subjects;
+
+        if (subjects.length > 0) {
+            const subjectMasteries = await Promise.all(subjects.map(async (subject) => {
+                const completedQuizzes = await prisma.quiz.findMany({
+                    where: {
+                        user_id: userId,
+                        subject_id: subject.id,
+                        status: "COMPLETED",
+                        total_points: { gt: 0 }
+                    },
+                    select: {
+                        score: true,
+                        total_points: true
+                    }
+                });
+
+                if (completedQuizzes.length > 0) {
+                    const totalScore = completedQuizzes.reduce((sum, q) => sum + q.score, 0);
+                    const totalPoints = completedQuizzes.reduce((sum, q) => sum + q.total_points, 0);
+                    return (totalScore / totalPoints) * 100;
+                }
+                return 0;
+            }));
+
+            totalMastery = Math.round(subjectMasteries.reduce((sum, m) => sum + m, 0) / subjects.length);
+        }
+
+        return {
+            ...enrollment,
+            progress: totalMastery // Reuse progress field for mastery score
+        };
+    }));
+
+    return { enrollments: enrollmentsWithMastery };
 }

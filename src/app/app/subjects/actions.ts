@@ -52,8 +52,47 @@ export async function getSubjectsForUserProgram(courseId?: number) {
         },
     });
 
+    // Calculate mastery for each enrollment based on quiz scores
+    // Mastery is calculated at the course level in the DB, but we want to show it per subject in the UI
+    const enrollmentsWithMastery = await Promise.all(enrollments.map(async (enrollment) => {
+        const subjectsWithMastery = await Promise.all(enrollment.course.subjects.map(async (subject) => {
+            const completedQuizzes = await prisma.quiz.findMany({
+                where: {
+                    user_id: userId,
+                    subject_id: subject.id,
+                    status: "COMPLETED",
+                    total_points: { gt: 0 }
+                },
+                select: {
+                    score: true,
+                    total_points: true
+                }
+            });
+
+            let mastery = 0;
+            if (completedQuizzes.length > 0) {
+                const totalScore = completedQuizzes.reduce((sum, q) => sum + q.score, 0);
+                const totalPoints = completedQuizzes.reduce((sum, q) => sum + q.total_points, 0);
+                mastery = Math.round((totalScore / totalPoints) * 100);
+            }
+
+            return {
+                ...subject,
+                mastery
+            };
+        }));
+
+        return {
+            ...enrollment,
+            course: {
+                ...enrollment.course,
+                subjects: subjectsWithMastery
+            }
+        };
+    }));
+
     return {
-        enrollments,
+        enrollments: enrollmentsWithMastery,
         programInfo: profile?.program ? {
             program: profile.program,
             board: profile.program.board,

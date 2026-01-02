@@ -122,8 +122,6 @@ export interface ChatMessage {
 		similarity?: number; // For UI display (converted from RRF score or semantic_similarity)
 		citation?: {
 			pageNumber: number;
-			imageUrl: string;
-			boundingBox: any;
 		};
 	}>;
 	tokenCount?: {
@@ -145,6 +143,11 @@ export interface ChatMessage {
 		data: Array<Record<string, string | number>>;
 	};
 	suggestedResponses?: string[];
+	// Image generation
+	imageUrl?: string;
+	imageAlt?: string;
+	imageGenerating?: boolean;
+	imageLimitReached?: boolean;
 }
 
 export interface SearchResult {
@@ -165,11 +168,8 @@ export interface SearchResult {
 	semantic_similarity?: number;
 	combined_score?: number;
 
-	// Citation data for split-screen view
 	citation?: {
 		pageNumber: number;
-		imageUrl: string;
-		boundingBox: any;
 	};
 
 	// Internal flag
@@ -363,15 +363,18 @@ export async function analyzeQueryForSearch(
 			provider: "gemini",
 			keyId: opts.keyId,
 		});
-		const dbModels = await getActiveModelNames("gemini");
-		const attemptModels = Array.from(
-			new Set([opts.model, ...dbModels].filter(Boolean))
-		);
-		// Fallback to .env or hardcoded default if no models are available
-		if (attemptModels.length === 0) {
-			const fallbackModel = await getSettingString("ai.model.chat_fallback", process.env.GEMINI_DEFAULT_MODEL || "gemini-2.0-flash");
-			attemptModels.push(fallbackModel);
+
+		// Get model from app_settings (not priority-based aiModel table)
+		const { getChatModels, CHAT_AI_MODELS } = await import("@/lib/chat-models");
+		let analyzerModel: string = CHAT_AI_MODELS.QUERY_ANALYZER;
+		try {
+			const chatModels = await getChatModels();
+			analyzerModel = chatModels.QUERY_ANALYZER;
+		} catch (e) {
+			console.warn("[QUERY ANALYSIS] Failed to get settings, using default");
 		}
+
+		const attemptModels = [opts.model || analyzerModel].filter(Boolean);
 
 		// Build conversation context
 		const recentHistory = conversationHistory.slice(-6); // Last 3 exchanges
@@ -1360,15 +1363,20 @@ export async function generateAIResponse(
 		provider: "gemini",
 		keyId: opts.keyId,
 	});
-	const dbModels = await getActiveModelNames("gemini");
-	const attemptModels = Array.from(
-		new Set([opts.model, ...dbModels].filter(Boolean))
-	);
-	// Fallback to .env or hardcoded default if no models are available
-	if (attemptModels.length === 0) {
-		const fallbackModel = process.env.GEMINI_DEFAULT_MODEL || "gemini-2.0-flash";
-		attemptModels.push(fallbackModel);
+
+	// Get model from app_settings (not priority-based aiModel table)
+	const { getChatModels, CHAT_AI_MODELS } = await import("@/lib/chat-models");
+	let chatModel: string = CHAT_AI_MODELS.CHAT_PRIMARY;
+	let fallbackModel: string = CHAT_AI_MODELS.CHAT_FALLBACK;
+	try {
+		const chatModels = await getChatModels();
+		chatModel = chatModels.CHAT_PRIMARY;
+		fallbackModel = chatModels.CHAT_FALLBACK;
+	} catch (e) {
+		console.warn("[AI-GEN] Failed to get settings, using defaults");
 	}
+
+	const attemptModels = [opts.model || chatModel, fallbackModel].filter(Boolean);
 
 	// Build conversation context for follow-up questions
 	const recentHistory = conversationHistory.slice(-4); // Last 2 exchanges
@@ -1441,7 +1449,15 @@ ${historyContext}
 "${question}"
 
 === SYSTEM INSTRUCTIONS ===
-1. **Student-Friendly Explanations (MOST IMPORTANT):**
+1. **Multilingual Support (RESPOND IN USER'S LANGUAGE):**
+   - Detect the language the student is using (Mizo, Hindi, or English).
+   - ALWAYS respond in the SAME language the student used in their question.
+   - If the student asks in Mizo, respond entirely in Mizo.
+   - If the student asks in Hindi, respond entirely in Hindi.
+   - If the student asks in English, respond entirely in English.
+   - Technical terms can remain in English but provide translations in parentheses when helpful.
+
+2. **Student-Friendly Explanations (MOST IMPORTANT):**
    - Explain everything in simple, clear language that students can easily understand.
    - Break down complex concepts into smaller, digestible parts.
    - Use everyday analogies and examples to help students relate to the material.
@@ -1473,7 +1489,27 @@ ${historyContext}
    - The system will automatically detect this intent and generate the chart for you.
    - You do not need to generate ASCII charts; a real interactive chart will be rendered.
 
-6. **Honesty:**
+6. **Image Generation (INTELLIGENT - USE WISELY):**
+   - You can generate educational diagrams, illustrations, and visualizations to help explain concepts.
+   - **When to generate images (use your judgment):**
+     * When explaining complex structures (molecules, cells, organs, circuits, etc.)
+     * When describing processes with multiple steps (photosynthesis, digestion, water cycle)
+     * When spatial relationships are important (geography, anatomy, physics diagrams)
+     * When the student explicitly asks for a visual/diagram/picture
+     * When a diagram would significantly improve understanding
+   - **When NOT to generate images:**
+     * For simple text-based explanations that don't need visuals
+     * When answering simple factual questions
+     * When the concept is already clear from text
+   - **Format:** Use this exact syntax when you decide an image would help:
+     [GENERATE_IMAGE: detailed description of the educational image]
+   - **Description Guidelines:**
+     * Be specific and detailed (include labels, colors, key components)
+     * Focus on educational clarity
+     * Example: [GENERATE_IMAGE: Labeled diagram of plant cell showing cell wall, cell membrane, nucleus, chloroplasts, mitochondria, and vacuole with arrows pointing to each organelle]
+   - **Limit:** Students have 10 images/day. Use images meaningfully to maximize learning value.
+
+7. **Honesty:**
    - If the provided records do not contain the answer, state: "I cannot find information about [X] in the current study materials."
    - Do not invent information.
    - If you're not sure, say so and suggest what the student might look for.
@@ -1674,15 +1710,19 @@ export async function* generateAIResponseStream(
 		provider: "gemini",
 		keyId: opts.keyId,
 	});
-	const dbModels = await getActiveModelNames("gemini");
-	const attemptModels = Array.from(
-		new Set([opts.model, ...dbModels].filter(Boolean))
-	);
-	// Fallback to .env or hardcoded default if no models are available
-	if (attemptModels.length === 0) {
-		const fallbackModel = process.env.GEMINI_DEFAULT_MODEL || "gemini-2.0-flash";
-		attemptModels.push(fallbackModel);
+	// Get model from app_settings (not priority-based aiModel table)
+	const { getChatModels, CHAT_AI_MODELS } = await import("@/lib/chat-models");
+	let chatModel: string = CHAT_AI_MODELS.CHAT_PRIMARY;
+	let fallbackModel: string = CHAT_AI_MODELS.CHAT_FALLBACK;
+	try {
+		const chatModels = await getChatModels();
+		chatModel = chatModels.CHAT_PRIMARY;
+		fallbackModel = chatModels.CHAT_FALLBACK;
+	} catch (e) {
+		console.warn("[AI-GEN-STREAM] Failed to get settings, using defaults");
 	}
+
+	const attemptModels = [opts.model || chatModel, fallbackModel].filter(Boolean);
 
 	// Build conversation context for follow-up questions
 	const recentHistory = conversationHistory.slice(-4); // Last 2 exchanges
@@ -1754,7 +1794,15 @@ ${historyContext}
 "${question}"
 
 === SYSTEM INSTRUCTIONS ===
-1. **Persona: The Friendly Teacher:**
+1. **Multilingual Support (RESPOND IN USER'S LANGUAGE):**
+   - Detect the language the student is using (Mizo, Hindi, or English).
+   - ALWAYS respond in the SAME language the student used in their question.
+   - If the student asks in Mizo, respond entirely in Mizo.
+   - If the student asks in Hindi, respond entirely in Hindi.
+   - If the student asks in English, respond entirely in English.
+   - Technical terms can remain in English but provide translations in parentheses when helpful.
+
+2. **Persona: The Friendly Teacher:**
    - You are not just an AI; you are a patient, encouraging, and wise teacher.
    - Your goal is to *guide* the student to understanding, not just give answers.
    - Use phrases like "Great question!", "Let's break this down," or "Think of it this way..."
@@ -1864,7 +1912,27 @@ Format:
    - The system will automatically detect this intent and generate the chart for you.
    - You do not need to generate ASCII charts; a real interactive chart will be rendered.
 
-6. **Knowledge Guidelines:**
+6. **Image Generation (INTELLIGENT - USE WISELY):**
+   - You can generate educational diagrams, illustrations, and visualizations to help explain concepts.
+   - **When to generate images (use your judgment):**
+     * When explaining complex structures (molecules, cells, organs, circuits, etc.)
+     * When describing processes with multiple steps (photosynthesis, digestion, water cycle)
+     * When spatial relationships are important (geography, anatomy, physics diagrams)
+     * When the student explicitly asks for a visual/diagram/picture
+     * When a diagram would significantly improve understanding
+   - **When NOT to generate images:**
+     * For simple text-based explanations that don't need visuals
+     * When answering simple factual questions
+     * When the concept is already clear from text
+   - **Format:** Use this exact syntax when you decide an image would help:
+     [GENERATE_IMAGE: detailed description of the educational image]
+   - **Description Guidelines:**
+     * Be specific and detailed (include labels, colors, key components)
+     * Focus on educational clarity
+     * Example: [GENERATE_IMAGE: Labeled diagram of plant cell showing cell wall, cell membrane, nucleus, chloroplasts, mitochondria, and vacuole with arrows pointing to each organelle]
+   - **Limit:** Students have 10 images/day. Use images meaningfully to maximize learning value.
+
+7. **Knowledge Guidelines:**
    - **Primary Source:** Base your answers on the provided chapter content.
    - **Supplementary Knowledge Allowed:** You may use your general knowledge when:
      * It helps explain or clarify concepts from the chapter
@@ -1978,8 +2046,6 @@ export async function processChatMessageEnhanced(
 		similarity?: number; // For UI display (converted from RRF score or semantic_similarity)
 		citation?: {
 			pageNumber: number;
-			imageUrl: string;
-			boundingBox: any;
 		};
 	}>;
 	searchQuery: string;
@@ -2131,6 +2197,7 @@ export async function processChatMessageEnhanced(
 				subject: r.subject,
 				note: r.content,
 				entry_date_real: r.created_at,
+				citation: r.citation ? { pageNumber: r.citation.pageNumber } : undefined,
 			}));
 			searchMethod = "analytical_fallback";
 			searchStats = hybridSearchResponse.stats;
@@ -2152,6 +2219,7 @@ export async function processChatMessageEnhanced(
 				subject: r.subject,
 				note: r.content,
 				entry_date_real: r.created_at,
+				citation: r.citation ? { pageNumber: r.citation.pageNumber } : undefined,
 			}));
 			// Map RRF search methods to expected types
 			const methodMap: Record<
@@ -2733,9 +2801,7 @@ export async function* processChatMessageEnhancedStream(
 			similarity?: number; // For UI display (converted from RRF score or semantic_similarity)
 			citation?: {
 				pageNumber: number;
-				imageUrl: string;
-				boundingBox: any;
-			};
+		};
 		}>;
 		searchQuery?: string;
 		searchMethod?: string;
@@ -2826,6 +2892,7 @@ export async function* processChatMessageEnhancedStream(
 				subject: r.subject,
 				note: r.content,
 				entry_date_real: r.created_at,
+				citation: r.citation ? { pageNumber: r.citation.pageNumber } : undefined,
 			}));
 			searchMethod = "analytical_fallback";
 			searchStats = hybridSearchResponse.stats;
@@ -2847,6 +2914,7 @@ export async function* processChatMessageEnhancedStream(
 				subject: r.subject,
 				note: r.content,
 				entry_date_real: r.created_at,
+				citation: r.citation ? { pageNumber: r.citation.pageNumber } : undefined,
 			}));
 			// Map RRF search methods to expected types
 			const methodMap: Record<

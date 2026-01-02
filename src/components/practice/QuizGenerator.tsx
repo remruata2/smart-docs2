@@ -13,49 +13,61 @@ import { generateQuizAction } from "@/app/app/practice/actions";
 import { getSubjectsForUserProgram } from "@/app/app/subjects/actions";
 import { getChaptersForSubject } from "@/app/app/chapters/actions";
 
-export function QuizGenerator() {
+export function QuizGenerator({
+    initialSubjectId,
+    initialChapterId
+}: {
+    initialSubjectId?: string;
+    initialChapterId?: string;
+}) {
     const router = useRouter();
     const [loading, setLoading] = useState(false);
     const [currentStep, setCurrentStep] = useState(1);
     const [subjects, setSubjects] = useState<any[]>([]);
     const [chapters, setChapters] = useState<any[]>([]);
 
-    const [selectedSubject, setSelectedSubject] = useState<string>("");
-    const [selectedChapter, setSelectedChapter] = useState<string>("");
+    const [selectedSubject, setSelectedSubject] = useState<string>(initialSubjectId || "");
+    const [selectedChapter, setSelectedChapter] = useState<string>(initialChapterId || "");
     const [difficulty, setDifficulty] = useState<"easy" | "medium" | "hard" | "exam">("medium");
     const [questionCount, setQuestionCount] = useState([10]);
     const [questionTypes, setQuestionTypes] = useState<string[]>(["MCQ"]);
 
     useEffect(() => {
-        // Fetch subjects on mount and preselect first one
+        // Fetch subjects on mount
         getSubjectsForUserProgram().then(data => {
             if (data && data.enrollments && data.enrollments.length > 0) {
                 // Flatten subjects from all course enrollments
                 const allSubjects = data.enrollments.flatMap(e => e.course.subjects);
                 setSubjects(allSubjects);
-                // Preselect first subject if available
-                if (allSubjects.length > 0) {
+
+                // Preselect first subject only if no initialSubjectId provided
+                if (!initialSubjectId && allSubjects.length > 0) {
                     setSelectedSubject(allSubjects[0].id.toString());
                 }
             }
         }).catch(console.error);
-    }, []);
+    }, [initialSubjectId]);
 
     useEffect(() => {
         if (selectedSubject) {
-            // Fetch chapters when subject changes and preselect first one
+            // Fetch chapters when subject changes
             getChaptersForSubject(parseInt(selectedSubject)).then(data => {
                 if (data && data.chapters && data.chapters.length > 0) {
                     setChapters(data.chapters);
-                    // Preselect first chapter
-                    setSelectedChapter(data.chapters[0].id.toString());
+                    // Preselect first chapter only if no initialChapterId provided OR if user manually changed subject
+                    const isInitialSubject = selectedSubject === initialSubjectId;
+                    if (!isInitialSubject || !initialChapterId) {
+                        setSelectedChapter(data.chapters[0].id.toString());
+                    } else if (initialChapterId) {
+                        setSelectedChapter(initialChapterId);
+                    }
                 }
             }).catch(console.error);
         } else {
             setChapters([]);
             setSelectedChapter("");
         }
-    }, [selectedSubject]);
+    }, [selectedSubject, initialSubjectId, initialChapterId]);
 
     const handleGenerate = async () => {
         if (!selectedSubject) {

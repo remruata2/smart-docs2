@@ -41,6 +41,11 @@ export async function generateStudyMaterialsAction(chapterId: string) {
         throw new Error("Unauthorized");
     }
 
+    // Role check: Only admins and instructors can generate materials
+    if (session.user.role !== 'admin' && session.user.role !== 'instructor') {
+        throw new Error("Only administrators or instructors can generate study materials");
+    }
+
     try {
         const chapterIdBigInt = BigInt(chapterId);
 

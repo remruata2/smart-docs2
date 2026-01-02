@@ -25,6 +25,11 @@ interface ModelSettings {
   textbook_content: string;
   textbook_image: string;
   textbook_parser: string;
+  // Chat-specific models
+  chat_primary: string;
+  chat_fallback: string;
+  chat_analyzer: string;
+  chat_image: string;
 }
 
 export default function AiConfigForm() {
@@ -37,6 +42,10 @@ export default function AiConfigForm() {
     textbook_content: "",
     textbook_image: "",
     textbook_parser: "",
+    chat_primary: "",
+    chat_fallback: "",
+    chat_analyzer: "",
+    chat_image: "",
   });
   const [availableModels, setAvailableModels] = useState<string[]>([]);
   const [loading, setLoading] = useState<boolean>(false);
@@ -97,13 +106,20 @@ export default function AiConfigForm() {
   };
 
   const modelFields: { key: keyof ModelSettings; label: string; description: string; placeholder: string }[] = [
-    { key: "chat", label: "Main Chat model", description: "Default model for general AI interactions.", placeholder: "gemini-2.0-flash" },
+    // Chat Models (Student-facing)
+    { key: "chat_primary", label: "Chat Primary", description: "Primary model for student chat responses.", placeholder: "gemini-3-flash-preview" },
+    { key: "chat_fallback", label: "Chat Fallback", description: "Fallback when primary chat model fails.", placeholder: "gemini-2.5-flash" },
+    { key: "chat_analyzer", label: "Query Analyzer", description: "Fast model for analyzing student queries.", placeholder: "gemini-2.0-flash" },
+    { key: "chat_image", label: "Chat Image Generation", description: "Model for generating educational diagrams in chat.", placeholder: "gemini-2.5-flash-image" },
+    // Textbook Models
+    { key: "textbook_content", label: "Textbook Content", description: "Primary model for generating textbook chapters.", placeholder: "gemini-3-pro-preview" },
+    { key: "textbook_image", label: "Textbook Images", description: "Used for generating high-quality educational diagrams.", placeholder: "gemini-3-pro-image-preview" },
+    { key: "textbook_parser", label: "Syllabus Parser", description: "Used for parsing syllabus structure.", placeholder: "gemini-3-flash-preview" },
+    // Other Features
+    { key: "chat", label: "Legacy Chat (deprecated)", description: "Old chat model key - may not be used.", placeholder: "gemini-2.0-flash" },
     { key: "translation", label: "Translation model", description: "Used for multi-language content translation.", placeholder: "gemini-3-flash-preview" },
     { key: "comparison", label: "Document Comparison", description: "Used for comparing different document versions.", placeholder: "gemini-3-flash-preview" },
     { key: "title_gen", label: "Title Generation", description: "Used for generating conversation titles.", placeholder: "gemini-2.0-flash" },
-    { key: "textbook_content", label: "Textbook Content", description: "Primary model for generating textbook chapters.", placeholder: "gemini-3-pro-preview" },
-    { key: "textbook_image", label: "Textbook Images", description: "Used for generating educational diagrams.", placeholder: "gemini-3-pro-image-preview" },
-    { key: "textbook_parser", label: "Syllabus Parser", description: "Used for parsing syllabus structure.", placeholder: "gemini-3-flash-preview" },
   ];
 
   return (

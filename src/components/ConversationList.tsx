@@ -30,7 +30,7 @@ import {
 	AlertDialogHeader,
 	AlertDialogTitle,
 } from "@/components/ui/alert-dialog";
-import { useRouter } from "next/navigation";
+import { useRouter, useSearchParams } from "next/navigation";
 
 interface Conversation {
 	id: number;
@@ -53,12 +53,14 @@ interface ConversationListProps {
 	isCollapsed: boolean;
 	onSelectConversation?: (id: number) => void;
 	basePath?: string;
+	refreshTrigger?: number;
 }
 
 export default function ConversationList({
 	isCollapsed,
 	onSelectConversation,
 	basePath = "/api/dashboard/conversations",
+	refreshTrigger = 0,
 }: ConversationListProps) {
 	const router = useRouter();
 	const [conversations, setConversations] = useState<Conversation[]>([]);
@@ -66,10 +68,7 @@ export default function ConversationList({
 	const [isLoading, setIsLoading] = useState(true);
 	const [editingId, setEditingId] = useState<number | null>(null);
 	const [editTitle, setEditTitle] = useState("");
-	const [deleteDialogOpen, setDeleteDialogOpen] = useState(false);
-	const [conversationToDelete, setConversationToDelete] = useState<
-		number | null
-	>(null);
+	// State for Clear All dialog only
 	const [clearAllDialogOpen, setClearAllDialogOpen] = useState(false);
 
 	// Load conversations
@@ -93,7 +92,7 @@ export default function ConversationList({
 
 	useEffect(() => {
 		loadConversations();
-	}, [searchQuery]);
+	}, [searchQuery, refreshTrigger]);
 
 	// Group conversations by date
 	const groupConversations = (): ConversationGroup[] => {
@@ -165,8 +164,16 @@ export default function ConversationList({
 		}
 	};
 
+	const searchParams = useSearchParams();
+	const currentIdParam = searchParams.get("id");
+	const currentConversationId = currentIdParam ? parseInt(currentIdParam) : null;
+
 	// Delete conversation
 	const deleteConversation = async (id: number) => {
+		if (!window.confirm("Are you sure you want to delete this conversation? This action cannot be undone.")) {
+			return;
+		}
+
 		try {
 			const response = await fetch(`${basePath}/${id}`, {
 				method: "DELETE",
@@ -175,13 +182,16 @@ export default function ConversationList({
 			if (!response.ok) throw new Error("Failed to delete conversation");
 
 			toast.success("Conversation deleted");
+
+			// If we deleted the current conversation, redirect to new chat
+			if (currentConversationId === id) {
+				router.push("/app/chat");
+			}
+
 			loadConversations();
 		} catch (error) {
 			console.error("Error deleting conversation:", error);
 			toast.error("Failed to delete conversation");
-		} finally {
-			setDeleteDialogOpen(false);
-			setConversationToDelete(null);
 		}
 	};
 
@@ -362,10 +372,7 @@ export default function ConversationList({
 																		{conv.isPinned ? "Unpin" : "Pin"}
 																	</DropdownMenuItem>
 																	<DropdownMenuItem
-																		onClick={() => {
-																			setConversationToDelete(conv.id);
-																			setDeleteDialogOpen(true);
-																		}}
+																		onClick={() => deleteConversation(conv.id)}
 																		className="text-xs text-red-500 focus:bg-gray-100 focus:text-red-600"
 																	>
 																		<Trash2 className="h-3 w-3 mr-2" />
@@ -439,30 +446,6 @@ export default function ConversationList({
 							className="bg-red-600 hover:bg-red-700"
 						>
 							Delete All
-						</AlertDialogAction>
-					</AlertDialogFooter>
-				</AlertDialogContent>
-			</AlertDialog>
-
-			{/* Delete Confirmation Dialog */}
-			<AlertDialog open={deleteDialogOpen} onOpenChange={setDeleteDialogOpen}>
-				<AlertDialogContent>
-					<AlertDialogHeader>
-						<AlertDialogTitle>Delete Conversation?</AlertDialogTitle>
-						<AlertDialogDescription>
-							This will permanently delete the conversation and all its
-							messages. This action cannot be undone.
-						</AlertDialogDescription>
-					</AlertDialogHeader>
-					<AlertDialogFooter>
-						<AlertDialogCancel>Cancel</AlertDialogCancel>
-						<AlertDialogAction
-							onClick={() =>
-								conversationToDelete && deleteConversation(conversationToDelete)
-							}
-							className="bg-red-600 hover:bg-red-700"
-						>
-							Delete
 						</AlertDialogAction>
 					</AlertDialogFooter>
 				</AlertDialogContent>
