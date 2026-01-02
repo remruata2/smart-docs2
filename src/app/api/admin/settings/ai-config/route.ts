@@ -2,12 +2,22 @@ import { NextRequest, NextResponse } from "next/server";
 import { getServerSession } from "next-auth";
 import { authOptions } from "@/lib/auth-options";
 import { isAdmin } from "@/lib/auth";
-import { getSettingInt, setSettingInt } from "@/lib/app-settings";
+import { getSettingInt, setSettingInt, getSetting, setSetting } from "@/lib/app-settings";
+import { getActiveModelNames } from "@/lib/ai-key-store";
 
-const SETTING_KEY = "ai.search.limit";
+const SEARCH_LIMIT_KEY = "ai.search.limit";
 const DEFAULT_LIMIT = 30;
-const MIN_LIMIT = 1;
-const MAX_LIMIT = 200;
+
+// Model keys from refactor
+const MODEL_KEYS = {
+  chat: "ai.model.chat",
+  translation: "ai.model.translation",
+  comparison: "ai.model.comparison",
+  title_gen: "ai.model.title_gen",
+  textbook_content: "ai.model.textbook.content",
+  textbook_image: "ai.model.textbook.image",
+  textbook_parser: "ai.model.textbook.parser",
+};
 
 export async function GET(request: NextRequest) {
   try {
@@ -20,8 +30,25 @@ export async function GET(request: NextRequest) {
       return NextResponse.json({ error: "Admin privileges required" }, { status: 403 });
     }
 
-    const searchLimit = await getSettingInt(SETTING_KEY, DEFAULT_LIMIT);
-    return NextResponse.json({ success: true, data: { searchLimit } });
+    const searchLimit = await getSettingInt(SEARCH_LIMIT_KEY, DEFAULT_LIMIT);
+
+    // Fetch current model settings
+    const models: Record<string, string> = {};
+    for (const [key, dbKey] of Object.entries(MODEL_KEYS)) {
+      models[key] = await getSetting(dbKey) || "";
+    }
+
+    // Fetch available models from DB for the dropdowns
+    const availableModels = await getActiveModelNames("gemini");
+
+    return NextResponse.json({
+      success: true,
+      data: {
+        searchLimit,
+        models,
+        availableModels
+      }
+    });
   } catch (error) {
     console.error("[ADMIN SETTINGS] GET ai-config error:", error);
     return NextResponse.json(
@@ -43,27 +70,30 @@ export async function POST(request: NextRequest) {
     }
 
     const body = await request.json();
-    const { searchLimit } = body || {};
+    const { searchLimit, models } = body || {};
 
-    // Validate
-    const parsed = Number(searchLimit);
-    if (!Number.isFinite(parsed)) {
-      return NextResponse.json(
-        { error: "searchLimit must be a number" },
-        { status: 400 }
-      );
+    if (searchLimit !== undefined) {
+      const parsed = Number(searchLimit);
+      if (Number.isFinite(parsed)) {
+        let clamped = Math.floor(parsed);
+        if (clamped < 1) clamped = 1;
+        if (clamped > 200) clamped = 200;
+        await setSettingInt(SEARCH_LIMIT_KEY, clamped);
+      }
     }
-    let clamped = Math.floor(parsed);
-    if (clamped < MIN_LIMIT) clamped = MIN_LIMIT;
-    if (clamped > MAX_LIMIT) clamped = MAX_LIMIT;
 
-    await setSettingInt(SETTING_KEY, clamped);
+    if (models && typeof models === 'object') {
+      for (const [key, value] of Object.entries(models)) {
+        const dbKey = (MODEL_KEYS as any)[key];
+        if (dbKey && typeof value === 'string') {
+          await setSetting(dbKey, value);
+        }
+      }
+    }
 
-    console.log(
-      `[ADMIN SETTINGS] ${session.user.email} updated ${SETTING_KEY} to ${clamped}`
-    );
+    console.log(`[ADMIN SETTINGS] ${session.user.email} updated AI configuration`);
 
-    return NextResponse.json({ success: true, data: { searchLimit: clamped } });
+    return NextResponse.json({ success: true });
   } catch (error) {
     console.error("[ADMIN SETTINGS] POST ai-config error:", error);
     return NextResponse.json(

@@ -2,7 +2,7 @@
 
 import { useSession } from "next-auth/react";
 import { useRouter } from "next/navigation";
-import { useEffect, useState } from "react";
+import { useEffect, useState, useRef } from "react";
 import AdminSidebar from "@/components/layout/AdminSidebar";
 import { Toaster } from "@/components/ui/sonner";
 import "../../styles/lexical-editor-styles.css";
@@ -15,13 +15,15 @@ export default function AdminLayout({
 	const { data: session, status } = useSession();
 	const router = useRouter();
 	const [sidebarOpen, setSidebarOpen] = useState(false); // For mobile off-canvas
+	const hasRedirected = useRef(false);
 
 	useEffect(() => {
 		if (status === "loading") return;
-		if (!session) {
+		if (!session && !hasRedirected.current) {
+			hasRedirected.current = true;
 			router.push("/login");
 		}
-	}, [session, status, router]);
+	}, [session, status]); // Removed router from dependencies
 
 	if (status === "loading") {
 		return (

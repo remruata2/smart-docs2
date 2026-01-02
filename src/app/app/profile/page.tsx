@@ -9,6 +9,7 @@ import { User, Mail, School, BookOpen, CreditCard, Calendar, Activity } from "lu
 import Link from "next/link";
 import { format } from "date-fns";
 import ProfileActions from "./profile-actions";
+import { ProfileEditForm } from "./ProfileEditForm";
 
 export default async function ProfilePage() {
     const session = await getServerSession(authOptions);
@@ -113,7 +114,13 @@ export default async function ProfilePage() {
                             {profile ? (
                                 <div className="grid grid-cols-1 sm:grid-cols-2 gap-6">
                                     <div className="space-y-1">
-                                        <p className="text-sm font-medium text-gray-500">Institution</p>
+                                        <div className="flex items-center justify-between">
+                                            <p className="text-sm font-medium text-gray-500">Institution</p>
+                                            <ProfileEditForm
+                                                currentInstitutionId={profile.institution_id?.toString()}
+                                                currentBoardId={profile.institution?.board_id || profile.program?.board_id}
+                                            />
+                                        </div>
                                         <div className="flex items-center gap-2">
                                             <School className="h-4 w-4 text-gray-400" />
                                             <span className="font-medium">

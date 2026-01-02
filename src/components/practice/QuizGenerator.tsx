@@ -29,10 +29,14 @@ export function QuizGenerator() {
     useEffect(() => {
         // Fetch subjects on mount and preselect first one
         getSubjectsForUserProgram().then(data => {
-            if (data && data.subjects && data.subjects.length > 0) {
-                setSubjects(data.subjects);
-                // Preselect first subject
-                setSelectedSubject(data.subjects[0].id.toString());
+            if (data && data.enrollments && data.enrollments.length > 0) {
+                // Flatten subjects from all course enrollments
+                const allSubjects = data.enrollments.flatMap(e => e.course.subjects);
+                setSubjects(allSubjects);
+                // Preselect first subject if available
+                if (allSubjects.length > 0) {
+                    setSelectedSubject(allSubjects[0].id.toString());
+                }
             }
         }).catch(console.error);
     }, []);

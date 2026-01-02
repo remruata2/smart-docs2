@@ -17,8 +17,9 @@ export interface LeaderboardEntry {
 }
 
 export async function getLeaderboardData(
-    scope: LeaderboardScope,
-    metric: LeaderboardMetric
+    scope: LeaderboardScope | "COURSE",
+    metric: LeaderboardMetric,
+    courseId?: number
 ): Promise<{ entries: LeaderboardEntry[]; currentUserRank: number | null; userContext: any } | null> {
     const session = await getServerSession(authOptions);
     if (!session?.user?.id) {
@@ -45,8 +46,8 @@ export async function getLeaderboardData(
         },
     });
 
-    if (!profile?.program_id) {
-        return null; // User must be in a program to be on a leaderboard
+    if (!profile) {
+        return null;
     }
 
     const programId = profile.program_id;
@@ -54,21 +55,36 @@ export async function getLeaderboardData(
     const institutionId = profile.institution_id;
 
     // 2. Define Filter Conditions
-    // Always filter by Program
-    const whereClause: any = {
-        program_id: programId,
-    };
+    let targetUserIds: number[] = [];
 
-    // Filter by Scope
-    if (scope === "INSTITUTION") {
+    if (scope === "COURSE" && courseId) {
+        // Fetch all users enrolled in this course
+        const enrollments = await prisma.userEnrollment.findMany({
+            where: {
+                course_id: courseId,
+                status: "active"
+            },
+            select: { user_id: true }
+        });
+        targetUserIds = enrollments.map(e => e.user_id);
+    } else if (scope === "INSTITUTION") {
         if (!institutionId) {
-            return null; // Cannot show institution leaderboard if user has no institution
+            return null;
         }
-        whereClause.institution_id = institutionId;
-    } else if (scope === "BOARD") {
-        // Implicitly filtered by program (which belongs to a board)
-        // But we can ensure we only get users in this program
-        // No extra filter needed beyond program_id as program is unique to board+level
+        // Fetch all users in this institution
+        const profiles = await prisma.profile.findMany({
+            where: { institution_id: institutionId },
+            select: { user_id: true }
+        });
+        targetUserIds = profiles.map(p => p.user_id);
+    } else {
+        // BOARD level - scoped by program for now
+        if (!programId) return null;
+        const profiles = await prisma.profile.findMany({
+            where: { program_id: programId },
+            select: { user_id: true }
+        });
+        targetUserIds = profiles.map(p => p.user_id);
     }
 
     let entries: LeaderboardEntry[] = [];
@@ -81,37 +97,23 @@ export async function getLeaderboardData(
         // So we fetch profiles first, then their points, or use raw query for performance.
         // For now, let's use Prisma's relation queries.
 
-        // Fetch all profiles in this scope
+        // Fetch all profiles in this scope for usernames
         const profiles = await prisma.profile.findMany({
-            where: whereClause,
+            where: { user_id: { in: targetUserIds } },
             select: {
                 user_id: true,
                 user: {
                     select: {
                         username: true,
-                        // avatar: true // Assuming avatar is on user or profile? Schema says user doesn't have avatar field explicitly in the snippet provided, but maybe it does? 
-                        // Let's check schema again. User model has no avatar. Profile has no avatar. 
-                        // Maybe it's not implemented yet? I'll leave it optional.
                     }
                 },
-                // We need to sum points for this user
-                // But points are in UserPoints table linked to user_id
             },
         });
-
-        // This is inefficient for large datasets (N+1), but okay for MVP. 
-        // Better: GroupBy UserPoints where user.profile matches condition.
-
-        // Let's try a more optimized approach using grouping on UserPoints
-        // But UserPoints doesn't know about Program/Institution directly.
-        // We need users who are in the target profiles.
-
-        const userIds = profiles.map(p => p.user_id);
 
         const pointsAgg = await prisma.userPoints.groupBy({
             by: ['user_id'],
             where: {
-                user_id: { in: userIds }
+                user_id: { in: targetUserIds }
             },
             _sum: {
                 points: true
@@ -134,7 +136,7 @@ export async function getLeaderboardData(
         // Average of (score / total_points) * 100
 
         const profiles = await prisma.profile.findMany({
-            where: whereClause,
+            where: { user_id: { in: targetUserIds } },
             select: {
                 user_id: true,
                 user: { select: { username: true } }

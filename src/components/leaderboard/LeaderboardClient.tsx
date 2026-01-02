@@ -18,10 +18,13 @@ interface LeaderboardClientProps {
         institutionName?: string;
         hasInstitution: boolean;
     };
+    enrolledCourses: { id: number; title: string }[];
 }
 
-export function LeaderboardClient({ initialEntries, initialUserRank, userContext }: LeaderboardClientProps) {
-    const [scope, setScope] = useState<LeaderboardScope>(userContext.hasInstitution ? "INSTITUTION" : "BOARD");
+export function LeaderboardClient({ initialEntries, initialUserRank, userContext, enrolledCourses }: LeaderboardClientProps) {
+    const defaultScope = enrolledCourses.length > 0 ? "COURSE" : (userContext.hasInstitution ? "INSTITUTION" : "BOARD");
+    const [scope, setScope] = useState<LeaderboardScope | "COURSE">(defaultScope);
+    const [selectedCourseId, setSelectedCourseId] = useState<string>(enrolledCourses[0]?.id.toString() || "");
     const [metric, setMetric] = useState<LeaderboardMetric>("POINTS");
     const [entries, setEntries] = useState<LeaderboardEntry[]>(initialEntries);
     const [currentUserRank, setCurrentUserRank] = useState<number | null>(initialUserRank);
@@ -32,21 +35,28 @@ export function LeaderboardClient({ initialEntries, initialUserRank, userContext
     // Actually, simpler to just fetch on change.
 
     const handleScopeChange = async (newScope: string) => {
-        const s = newScope as LeaderboardScope;
+        const s = newScope as LeaderboardScope | "COURSE";
         setScope(s);
-        await fetchData(s, metric);
+        await fetchData(s, metric, s === "COURSE" ? parseInt(selectedCourseId) : undefined);
+    };
+
+    const handleCourseChange = async (courseId: string) => {
+        setSelectedCourseId(courseId);
+        if (scope === "COURSE") {
+            await fetchData("COURSE", metric, parseInt(courseId));
+        }
     };
 
     const handleMetricChange = async (newMetric: string) => {
         const m = newMetric as LeaderboardMetric;
         setMetric(m);
-        await fetchData(scope, m);
+        await fetchData(scope, m, scope === "COURSE" ? parseInt(selectedCourseId) : undefined);
     };
 
-    const fetchData = async (s: LeaderboardScope, m: LeaderboardMetric) => {
+    const fetchData = async (s: LeaderboardScope | "COURSE", m: LeaderboardMetric, courseId?: number) => {
         setIsLoading(true);
         try {
-            const data = await getLeaderboardData(s, m);
+            const data = await getLeaderboardData(s, m, courseId);
             if (data) {
                 setEntries(data.entries);
                 setCurrentUserRank(data.currentUserRank);
@@ -67,7 +77,12 @@ export function LeaderboardClient({ initialEntries, initialUserRank, userContext
             <div className="flex flex-col md:flex-row gap-4 justify-between items-start md:items-center bg-muted/30 p-4 rounded-lg border">
                 <div>
                     <h2 className="text-lg font-semibold flex items-center gap-2">
-                        {scope === "INSTITUTION" ? (
+                        {scope === "COURSE" ? (
+                            <>
+                                <Trophy className="w-5 h-5 text-primary" />
+                                {enrolledCourses.find(c => c.id.toString() === selectedCourseId)?.title || "Course"} Leaderboard
+                            </>
+                        ) : scope === "INSTITUTION" ? (
                             <>
                                 <School className="w-5 h-5 text-primary" />
                                 {userContext.institutionName || "Institution"} Leaderboard
@@ -80,13 +95,43 @@ export function LeaderboardClient({ initialEntries, initialUserRank, userContext
                         )}
                     </h2>
                     <p className="text-sm text-muted-foreground">
-                        Ranking for <span className="font-medium text-foreground">{userContext.programName}</span> students
+                        {scope === "COURSE"
+                            ? "Ranking among all enrolled students in this course"
+                            : `Ranking for students in ${userContext.programName || "the program"}`
+                        }
                     </p>
                 </div>
 
-                {/* Scope Switcher (if applicable) */}
-                {userContext.hasInstitution && (
-                    <div className="flex items-center bg-muted p-1 rounded-lg">
+                <div className="flex flex-wrap items-center bg-muted p-1 rounded-lg gap-1">
+                    {enrolledCourses.length > 0 && (
+                        <div className="flex items-center gap-2 mr-2">
+                            {scope === "COURSE" && (
+                                <Select value={selectedCourseId} onValueChange={handleCourseChange}>
+                                    <SelectTrigger className="h-8 w-[180px] bg-background">
+                                        <SelectValue placeholder="Select Course" />
+                                    </SelectTrigger>
+                                    <SelectContent>
+                                        {enrolledCourses.map(course => (
+                                            <SelectItem key={course.id} value={course.id.toString()}>
+                                                {course.title}
+                                            </SelectItem>
+                                        ))}
+                                    </SelectContent>
+                                </Select>
+                            )}
+                            <button
+                                onClick={() => handleScopeChange("COURSE")}
+                                className={`px-3 py-1.5 text-sm font-medium rounded-md transition-all ${scope === "COURSE"
+                                    ? "bg-background shadow-sm text-foreground"
+                                    : "text-muted-foreground hover:text-foreground"
+                                    }`}
+                            >
+                                Course
+                            </button>
+                        </div>
+                    )}
+
+                    {userContext.hasInstitution && (
                         <button
                             onClick={() => handleScopeChange("INSTITUTION")}
                             className={`px-3 py-1.5 text-sm font-medium rounded-md transition-all ${scope === "INSTITUTION"
@@ -96,17 +141,18 @@ export function LeaderboardClient({ initialEntries, initialUserRank, userContext
                         >
                             Institution
                         </button>
-                        <button
-                            onClick={() => handleScopeChange("BOARD")}
-                            className={`px-3 py-1.5 text-sm font-medium rounded-md transition-all ${scope === "BOARD"
-                                ? "bg-background shadow-sm text-foreground"
-                                : "text-muted-foreground hover:text-foreground"
-                                }`}
-                        >
-                            National
-                        </button>
-                    </div>
-                )}
+                    )}
+
+                    <button
+                        onClick={() => handleScopeChange("BOARD")}
+                        className={`px-3 py-1.5 text-sm font-medium rounded-md transition-all ${scope === "BOARD"
+                            ? "bg-background shadow-sm text-foreground"
+                            : "text-muted-foreground hover:text-foreground"
+                            }`}
+                    >
+                        National
+                    </button>
+                </div>
             </div>
 
             {/* User Rank Message (if not in top 100) */}

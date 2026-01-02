@@ -4,8 +4,9 @@ import { UserRole } from "@/generated/prisma";
 // Define the role hierarchy
 const ROLE_HIERARCHY = {
 	student: 0,
-	institution: 1,
-	admin: 2,
+	instructor: 1,
+	institution: 2,
+	admin: 3,
 } as const;
 
 /**
@@ -18,7 +19,9 @@ export const hasRequiredRole = (
 	userRole: UserRole,
 	requiredRole: UserRole
 ): boolean => {
-	return ROLE_HIERARCHY[userRole] >= ROLE_HIERARCHY[requiredRole];
+	const userLevel = ROLE_HIERARCHY[userRole] ?? 0;
+	const requiredLevel = ROLE_HIERARCHY[requiredRole] ?? 0;
+	return userLevel >= requiredLevel;
 };
 
 /**
@@ -36,7 +39,7 @@ export const isAdmin = (userRole: UserRole): boolean => {
  * @returns boolean indicating if the role is valid
  */
 export const isValidRole = (role: string): role is UserRole => {
-	return role === "admin" || role === "institution";
+	return ["admin", "student", "instructor", "institution"].includes(role);
 };
 
 /**
@@ -55,6 +58,8 @@ export const getUserRole = (
 // Export the role constants
 export const ROLES = {
 	ADMIN: "admin" as UserRole,
+	INSTRUCTOR: "instructor" as UserRole,
+	STUDENT: "student" as UserRole,
 	INSTITUTION: "institution" as UserRole,
 } as const;
 

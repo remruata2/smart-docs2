@@ -17,7 +17,7 @@ export default function CreateUserForm() {
 	const [formData, setFormData] = useState({
 		username: "",
 		password: "",
-		role: "staff" as UserRole,
+		role: "student" as UserRole,
 		is_active: true,
 	});
 
@@ -130,8 +130,10 @@ export default function CreateUserForm() {
 									onChange={handleInputChange}
 									className="shadow-sm focus:ring-blue-500 focus:border-blue-500 block w-full text-base border-gray-300 rounded-md h-8 px-4"
 								>
-									<option value="staff">Staff</option>
+									<option value="student">Student</option>
+									<option value="instructor">Instructor</option>
 									<option value="admin">Admin</option>
+									<option value="institution">Institution</option>
 								</select>
 							</div>
 						</div>

@@ -2,7 +2,7 @@
 
 import { useSession } from "next-auth/react";
 import { useRouter } from "next/navigation";
-import { useEffect } from "react";
+import { useEffect, useRef } from "react";
 import UserSidebar from "@/components/layout/UserSidebar";
 import { Toaster } from "@/components/ui/sonner";
 import { MobileBottomNav } from "@/components/dashboard/MobileBottomNav";
@@ -16,13 +16,15 @@ export default function DashboardLayout({
 }) {
     const { data: session, status } = useSession();
     const router = useRouter();
+    const hasRedirected = useRef(false);
 
     useEffect(() => {
         if (status === "loading") return;
-        if (!session) {
+        if (!session && !hasRedirected.current) {
+            hasRedirected.current = true;
             router.push("/login");
         }
-    }, [session, status, router]);
+    }, [session, status]); // Removed router from dependencies
 
     if (status === "loading") {
         return (

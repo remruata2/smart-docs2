@@ -2,7 +2,7 @@
 
 import Link from "next/link";
 import { usePathname } from "next/navigation";
-import { Home, BookOpen, BrainCircuit, User, Swords } from "lucide-react";
+import { Home, BookOpen, BrainCircuit, User, Swords, Compass } from "lucide-react";
 
 export function MobileBottomNav() {
     const pathname = usePathname();
@@ -15,9 +15,9 @@ export function MobileBottomNav() {
                 <Home className="w-6 h-6 mb-1" />
                 <span className="text-[10px] font-medium">Home</span>
             </Link>
-            <Link href="/app/subjects" className={`flex flex-col items-center p-2 rounded-lg transition-colors ${isActive('/app/subjects') || isActive('/app/chapters') ? 'text-primary' : 'text-gray-400 hover:text-gray-600'}`}>
-                <BookOpen className="w-6 h-6 mb-1" />
-                <span className="text-[10px] font-medium">Study</span>
+            <Link href="/app/catalog" className={`flex flex-col items-center p-2 rounded-lg transition-colors ${isActive('/app/catalog') ? 'text-primary' : 'text-gray-400 hover:text-gray-600'}`}>
+                <Compass className="w-6 h-6 mb-1" />
+                <span className="text-[10px] font-medium">Explore</span>
             </Link>
 
             {/* Battle Mode - Popped Out */}
@@ -38,9 +38,9 @@ export function MobileBottomNav() {
                 <BrainCircuit className="w-6 h-6 mb-1" />
                 <span className="text-[10px] font-medium">Practice</span>
             </Link>
-            <Link href="/app/profile" className={`flex flex-col items-center p-2 rounded-lg transition-colors ${isActive('/app/profile') ? 'text-primary' : 'text-gray-400 hover:text-gray-600'}`}>
-                <User className="w-6 h-6 mb-1" />
-                <span className="text-[10px] font-medium">Profile</span>
+            <Link href="/app/subjects" className={`flex flex-col items-center p-2 rounded-lg transition-colors ${isActive('/app/subjects') || isActive('/app/chapters') ? 'text-primary' : 'text-gray-400 hover:text-gray-600'}`}>
+                <BookOpen className="w-6 h-6 mb-1" />
+                <span className="text-[10px] font-medium">My Kurs</span>
             </Link>
         </div>
     );

@@ -2,12 +2,13 @@
 
 import { getGeminiClient, getActiveModelNames, recordKeyUsage } from "@/lib/ai-key-store";
 import { prisma } from "@/lib/prisma";
+import { getSettingString } from "@/lib/app-settings";
 
 export async function translateContent(text: string, targetLanguage: string) {
     try {
         const { client, keyId } = await getGeminiClient();
 
-        const modelName = "gemini-2.5-flash";
+        const modelName = await getSettingString("ai.model.translation", "gemini-3-flash-preview");
         console.log("Translation using model:", modelName);
 
         const model = client.getGenerativeModel({ model: modelName });

@@ -29,18 +29,36 @@ export async function getChaptersForSubject(subjectId: number) {
 		return null;
 	}
 
-	// Fetch subject and verify it belongs to user's program
-	const subject = await prisma.subject.findUnique({
-		where: { id: subjectId },
-		include: {
-			program: true,
-		},
+	// Security check: ensure user is enrolled in a course that contains this subject
+	const enrollment = await prisma.userEnrollment.findFirst({
+		where: {
+			user_id: userId,
+			status: "active",
+			course: {
+				subjects: {
+					some: { id: subjectId }
+				}
+			}
+		}
 	});
 
-	// Security check: ensure subject belongs to user's program
-	if (!subject || subject.program_id !== profile.program_id) {
+	if (!enrollment) {
 		return null;
 	}
+
+	// Fetch subject details for return
+	const subject = await prisma.subject.findUnique({
+		where: { id: subjectId },
+		include: { program: { include: { board: true } } }
+	});
+
+	if (!subject) return null;
+
+	// Update last accessed time
+	await prisma.userEnrollment.update({
+		where: { id: enrollment.id },
+		data: { last_accessed_at: new Date() }
+	});
 
 	// Fetch chapters for this subject
 	// Board access logic:
@@ -185,4 +203,121 @@ export async function getChapterById(chapterId: string) {
 			board: profile.program!.board,
 		},
 	};
+}
+
+/**
+ * Fetches chapter data without user session checks.
+ * STRICTLY for use with generateStaticParams / static generation.
+ * This skips user-specific authorization!
+ */
+export async function getChapterData(chapterId: string) {
+	const chapter = await prisma.chapter.findUnique({
+		where: { id: BigInt(chapterId) },
+		include: {
+			subject: {
+				include: {
+					program: {
+						include: {
+							board: true
+						}
+					}
+				},
+			},
+			pages: {
+				orderBy: {
+					page_number: "asc",
+				},
+			},
+		},
+	});
+
+	if (!chapter) return null;
+
+	return {
+		chapter,
+		subjectInfo: {
+			subject: chapter.subject,
+			program: chapter.subject.program,
+			board: chapter.subject.program.board,
+		},
+	};
+}
+
+/**
+ * Returns all active chapter IDs for static generation
+ */
+export async function getAllChapterIds() {
+	const chapters = await prisma.chapter.findMany({
+		where: { is_active: true },
+		select: { id: true }
+	});
+	return chapters.map(c => ({ id: c.id.toString() }));
+}
+
+export async function getTextbookContent(textbookId: number) {
+	const session = await getServerSession(authOptions);
+
+	if (!session?.user?.id) {
+		return null;
+	}
+
+	const userId = parseInt(session.user.id as string);
+
+	// Verify enrollment via any course that contains this textbook
+	const enrollment = await prisma.userEnrollment.findFirst({
+		where: {
+			user_id: userId,
+			status: "active",
+			course: {
+				subjects: {
+					some: {
+						textbooks: {
+							some: { id: textbookId }
+						}
+					}
+				}
+			}
+		},
+		include: {
+			course: true
+		}
+	});
+
+	if (!enrollment) {
+		return null; // Not enrolled in a course that has this textbook
+	}
+
+	const textbook = await prisma.textbook.findUnique({
+		where: { id: textbookId },
+		include: {
+			units: {
+				include: {
+					chapters: {
+						orderBy: { order: 'asc' }
+					}
+				},
+				orderBy: { order: 'asc' }
+			}
+		}
+	});
+
+	if (!textbook) return null;
+
+	// Update last accessed time
+	await prisma.userEnrollment.update({
+		where: { id: enrollment.id },
+		data: { last_accessed_at: new Date() }
+	});
+
+	return {
+		textbook,
+		enrollment
+	};
+}
+
+export async function updateEnrollmentProgress(enrollmentId: number, progress: number) {
+	return await prisma.userEnrollment.update({
+		where: { id: enrollmentId },
+		data: { progress }
+	});
 }

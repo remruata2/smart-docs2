@@ -4,7 +4,7 @@ import { getServerSession } from "next-auth";
 import { authOptions } from "@/lib/auth-options";
 import { prisma } from "@/lib/prisma";
 
-export async function getSubjectsForUserProgram() {
+export async function getSubjectsForUserProgram(courseId?: number) {
     const session = await getServerSession(authOptions);
 
     if (!session?.user?.id) {
@@ -25,37 +25,38 @@ export async function getSubjectsForUserProgram() {
         },
     });
 
-    if (!profile?.program_id) {
-        return null;
-    }
-
-    // Fetch subjects for user's program
-    const subjects = await prisma.subject.findMany({
+    // Fetch enrolled courses for the user
+    const enrollments = await prisma.userEnrollment.findMany({
         where: {
-            program_id: profile.program_id,
-            is_active: true,
+            user_id: userId,
+            status: "active",
+            ...(courseId ? { course_id: courseId } : {}),
         },
         include: {
-            _count: {
-                select: {
-                    chapters: {
-                        where: {
-                            is_active: true,
-                        },
-                    },
-                },
-            },
+            course: {
+                include: {
+                    subjects: {
+                        include: {
+                            _count: {
+                                select: {
+                                    chapters: true,
+                                }
+                            }
+                        }
+                    }
+                }
+            }
         },
         orderBy: {
-            name: "asc",
+            last_accessed_at: "desc",
         },
     });
 
     return {
-        subjects,
-        programInfo: {
-            program: profile.program!,
-            board: profile.program!.board,
-        },
+        enrollments,
+        programInfo: profile?.program ? {
+            program: profile.program,
+            board: profile.program.board,
+        } : null,
     };
 }

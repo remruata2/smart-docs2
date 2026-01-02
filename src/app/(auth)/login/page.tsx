@@ -35,10 +35,20 @@ export default function LoginPage() {
 	}, []);
 
 	useEffect(() => {
-		if (isSessionAuthenticated) {
-			const destination = userRole === "admin" ? "/admin" : "/app";
-			router.replace(destination);
-		}
+		const handleSmartRedirect = async () => {
+			if (isSessionAuthenticated) {
+				try {
+					const res = await fetch("/api/auth/redirect");
+					const data = await res.json();
+					router.replace(data.redirect || "/");
+				} catch {
+					// Fallback: admin to /admin, others to my-learning
+					const destination = userRole === "admin" ? "/admin" : "/my-learning";
+					router.replace(destination);
+				}
+			}
+		};
+		handleSmartRedirect();
 	}, [isSessionAuthenticated, router, userRole]);
 	const isFormDisabled = isLoading || isSessionLoading || isSessionAuthenticated || !isMounted;
 
@@ -67,7 +77,14 @@ export default function LoginPage() {
 			if (session?.user?.role === "admin") {
 				router.replace("/admin");
 			} else {
-				router.replace("/app");
+				// Use smart redirect for students
+				try {
+					const res = await fetch("/api/auth/redirect");
+					const data = await res.json();
+					router.replace(data.redirect || "/my-learning");
+				} catch {
+					router.replace("/my-learning");
+				}
 			}
 		} catch (err) {
 			console.error("Login error:", err);
@@ -246,7 +263,7 @@ export default function LoginPage() {
 									type="button"
 									variant="outline"
 									className="w-full h-12 border-2 hover:bg-gray-50 hover:border-gray-300 transition-all duration-200 font-semibold"
-									onClick={() => signIn("google", { callbackUrl: "/app" })}
+									onClick={() => signIn("google", { callbackUrl: "/my-learning" })}
 									disabled={isFormDisabled}
 								>
 									<FcGoogle className="mr-2 h-5 w-5" />

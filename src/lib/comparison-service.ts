@@ -3,6 +3,7 @@ import { getProviderApiKey } from "@/lib/ai-key-store";
 import { generateObject } from "ai";
 import { z } from "zod";
 import { createGoogleGenerativeAI } from "@ai-sdk/google";
+import { getSettingString } from "@/lib/app-settings";
 
 // Define the structure of a "Difference"
 export const ComparisonSchema = z.object({
@@ -57,8 +58,10 @@ export async function compareDocuments(fileIdA: number, fileIdB: number) {
 
     const google = createGoogleGenerativeAI({ apiKey });
 
+    const modelName = await getSettingString("ai.model.comparison", "gemini-3-flash-preview");
+
     const { object } = await generateObject({
-        model: google("gemini-1.5-pro"), // Pro is required for heavy reasoning
+        model: google(modelName), // Pro is required for heavy reasoning
         schema: ComparisonSchema,
         prompt: prompt,
     });

@@ -6,7 +6,7 @@ import {
 	getProviderApiKey,
 } from "@/lib/ai-key-store";
 import { HybridSearchService } from "./hybrid-search";
-import { getSettingInt } from "@/lib/app-settings";
+import { getSettingInt, getSettingString } from "@/lib/app-settings";
 import { processChunkedAnalyticalQuery } from "./chunked-processing";
 import { ChartSchema } from "@/lib/chart-schema";
 import { generateObject } from "ai";
@@ -369,7 +369,7 @@ export async function analyzeQueryForSearch(
 		);
 		// Fallback to .env or hardcoded default if no models are available
 		if (attemptModels.length === 0) {
-			const fallbackModel = process.env.GEMINI_DEFAULT_MODEL || "gemini-2.0-flash";
+			const fallbackModel = await getSettingString("ai.model.chat_fallback", process.env.GEMINI_DEFAULT_MODEL || "gemini-2.0-flash");
 			attemptModels.push(fallbackModel);
 		}
 

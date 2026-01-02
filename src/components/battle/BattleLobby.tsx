@@ -27,8 +27,10 @@ export function BattleLobby() {
     useEffect(() => {
         // Fetch subjects on mount
         getSubjectsForUserProgram().then(data => {
-            if (data && data.subjects) {
-                setSubjects(data.subjects);
+            if (data && data.enrollments) {
+                // Flatten subjects from all course enrollments
+                const allSubjects = data.enrollments.flatMap(e => e.course.subjects);
+                setSubjects(allSubjects);
             }
         }).catch(console.error);
     }, []);

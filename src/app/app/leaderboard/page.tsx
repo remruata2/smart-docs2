@@ -22,12 +22,18 @@ export default async function LeaderboardPage() {
         select: { institution_id: true }
     });
 
-    const initialScope = profile?.institution_id ? "INSTITUTION" : "BOARD";
-
     // Fetch data in parallel
+    const enrolledCourses = await prisma.userEnrollment.findMany({
+        where: { user_id: userId, status: "active" },
+        include: { course: { select: { id: true, title: true } } }
+    });
+
+    const initialScope = enrolledCourses.length > 0 ? "COURSE" : (profile?.institution_id ? "INSTITUTION" : "BOARD");
+    const initialCourseId = enrolledCourses[0]?.course.id;
+
     const [userStats, leaderboardData] = await Promise.all([
         getUserStatsAction(),
-        getLeaderboardData(initialScope, "POINTS"),
+        getLeaderboardData(initialScope, "POINTS", initialCourseId),
     ]);
 
     return (
@@ -54,6 +60,7 @@ export default async function LeaderboardPage() {
                         initialEntries={leaderboardData.entries}
                         initialUserRank={leaderboardData.currentUserRank}
                         userContext={leaderboardData.userContext}
+                        enrolledCourses={enrolledCourses.map(e => e.course)}
                     />
                 ) : (
                     <div className="text-center py-12 text-muted-foreground bg-muted/30 rounded-lg border border-dashed">

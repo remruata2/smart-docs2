@@ -16,13 +16,16 @@ export async function GET(req: NextRequest) {
 			return NextResponse.json({ error: "No subjects found" }, { status: 404 });
 		}
 
+		// Flatten subjects from enrollments
+		const subjects = data.enrollments.flatMap(e => e.course.subjects);
+
 		return NextResponse.json({
-			subjects: data.subjects.map((s) => ({
+			subjects: subjects.map((s) => ({
 				id: s.id,
 				name: s.name,
 				program_id: s.program_id,
 			})),
-			boardId: data.programInfo.board.id,
+			boardId: data.programInfo?.board?.id || null,
 		});
 	} catch (error) {
 		console.error("GET /api/dashboard/subjects error:", error);

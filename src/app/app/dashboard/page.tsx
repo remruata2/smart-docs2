@@ -3,7 +3,7 @@ import { getDashboardData } from "./actions";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
 import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar";
-import { Bell, BrainCircuit, Calendar, Flame, Trophy, Award } from "lucide-react";
+import { Bell, BrainCircuit, Calendar, Flame, Trophy, Award, BookOpen, GraduationCap } from "lucide-react";
 import Link from "next/link";
 import { HeroResumeCard } from "@/components/dashboard/HeroResumeCard";
 import { WeaknessSniperList } from "@/components/dashboard/WeaknessSniperList";
@@ -16,11 +16,13 @@ export const dynamic = "force-dynamic";
 export default async function DashboardPage() {
     const data = await getDashboardData();
 
-    const { profile, metrics, weaknessList, resumeData, recentActivity } = data;
+    const { profile, metrics, weaknessList, resumeData, recentActivity, enrollments } = data;
     const program = profile.program;
 
-    if (!program) {
-        redirect("/app/onboarding");
+    // With Coursera model, users don't need a program - they just need enrollments
+    // If no enrollments, redirect to catalog to browse courses
+    if (!enrollments || enrollments.length === 0) {
+        redirect("/");
     }
 
     // Radar Chart Data is now fetched from actions
@@ -148,13 +150,66 @@ export default async function DashboardPage() {
                             />
                         ) : (
                             <Card className="border-none shadow-md bg-gradient-to-r from-indigo-500 to-purple-600 text-white p-8 text-center">
-                                <h2 className="text-2xl font-bold mb-2">Start Your Journey</h2>
-                                <p className="mb-6 opacity-90">Take your first quiz to get a personalized study plan.</p>
-                                <Link href="/app/practice">
-                                    <Button variant="secondary" size="lg" className="font-bold">Start Practice</Button>
-                                </Link>
                             </Card>
                         )}
+
+                        {/* Enrolled Courses Section */}
+                        <div className="space-y-4">
+                            <div className="flex items-center justify-between px-1">
+                                <h3 className="font-bold text-gray-900 text-lg">My Subject Enrollments</h3>
+                                <Link href="/app/catalog" className="text-sm font-medium text-blue-600 hover:text-blue-700">
+                                    Browse Catalog
+                                </Link>
+                            </div>
+
+                            <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+                                {enrollments && enrollments.length > 0 ? enrollments.map((enrollment: any) => (
+                                    <Link key={enrollment.id} href={`/app/subjects?courseId=${enrollment.course_id}`}>
+                                        <Card className="hover:shadow-lg transition-all border-none bg-white overflow-hidden group">
+                                            <CardContent className="p-0">
+                                                <div className="flex gap-4 p-4">
+                                                    <div className="w-16 h-16 rounded-lg bg-indigo-50 flex items-center justify-center flex-shrink-0 group-hover:bg-indigo-100 transition-colors">
+                                                        <BookOpen className="w-8 h-8 text-indigo-600" />
+                                                    </div>
+                                                    <div className="flex-1 min-w-0">
+                                                        <h4 className="font-bold text-gray-900 truncate leading-tight mb-1">
+                                                            {enrollment.course.title}
+                                                        </h4>
+                                                        <p className="text-xs text-gray-500 mb-2">
+                                                            {enrollment.course.subjects.length} Subjects • {enrollment.course.board_id}
+                                                        </p>
+                                                        <div className="space-y-1.5">
+                                                            <div className="flex items-center justify-between text-[10px] font-bold">
+                                                                <span className="text-gray-400 uppercase">Progress</span>
+                                                                <span className="text-indigo-600">{enrollment.progress}%</span>
+                                                            </div>
+                                                            <div className="w-full bg-gray-100 rounded-full h-1.5">
+                                                                <div
+                                                                    className="bg-indigo-600 h-1.5 rounded-full transition-all duration-1000"
+                                                                    style={{ width: `${enrollment.progress}%` }}
+                                                                />
+                                                            </div>
+                                                        </div>
+                                                    </div>
+                                                </div>
+                                            </CardContent>
+                                        </Card>
+                                    </Link>
+                                )) : (
+                                    <Card className="col-span-full border-dashed border-2 border-gray-200 bg-gray-50/50">
+                                        <CardContent className="py-12 text-center">
+                                            <GraduationCap className="w-12 h-12 text-gray-400 mx-auto mb-3" />
+                                            <p className="text-gray-500 font-medium mb-4">No subjects enrolled yet</p>
+                                            <Link href="/app/catalog">
+                                                <Button variant="outline" className="border-indigo-200 text-indigo-600 hover:bg-indigo-50">
+                                                    Explore Catalog
+                                                </Button>
+                                            </Link>
+                                        </CardContent>
+                                    </Card>
+                                )}
+                            </div>
+                        </div>
 
                         {/* Weakness Sniper */}
                         <WeaknessSniperList items={weaknessList} />
@@ -162,7 +217,7 @@ export default async function DashboardPage() {
                         {/* Recent Activity */}
                         <div className="space-y-3">
                             <h3 className="font-semibold text-gray-900 px-1">Recent Activity</h3>
-                            {recentActivity.length > 0 ? recentActivity.map((quiz) => (
+                            {recentActivity.length > 0 ? recentActivity.map((quiz: any) => (
                                 <Link key={quiz.id} href={`/app/practice/${quiz.id}/result`}>
                                     <div className="bg-white p-4 rounded-xl shadow-sm border border-gray-100 flex items-center justify-between hover:bg-gray-50 transition-colors">
                                         <div className="flex items-center gap-3">

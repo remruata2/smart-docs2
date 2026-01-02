@@ -3,6 +3,7 @@ import { getServerSession } from "next-auth";
 import { authOptions } from "@/lib/auth-options";
 import prisma from "@/lib/prisma";
 import { getGeminiClient } from "@/lib/ai-key-store";
+import { getSettingString } from "@/lib/app-settings";
 
 /**
  * POST /api/dashboard/conversations/[id]/generate-title
@@ -78,8 +79,9 @@ Title (concise, descriptive, no quotes):`;
 
         try {
             const { client } = await getGeminiClient({ provider: "gemini" });
+            const modelName = await getSettingString("ai.model.title_gen", "gemini-2.0-flash");
             const model = client.getGenerativeModel({
-                model: "gemini-2.0-flash-exp",
+                model: modelName,
             });
 
             const result = await model.generateContent(prompt);

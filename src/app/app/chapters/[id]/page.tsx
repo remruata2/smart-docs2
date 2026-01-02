@@ -1,4 +1,4 @@
-import { getChapterById } from "../actions";
+import { getChapterData, getAllChapterIds } from "../actions";
 import { redirect } from "next/navigation";
 import Link from "next/link";
 import { Button } from "@/components/ui/button";
@@ -8,8 +8,13 @@ import { ArrowLeft } from "lucide-react";
 import { ChapterPagesViewer } from "@/components/study/ChapterPagesViewer";
 import { prisma } from "@/lib/prisma";
 
-// Force dynamic rendering since getChapterById requires session/headers
-export const dynamic = 'force-dynamic';
+// Generate static paths for all active chapters
+export async function generateStaticParams() {
+    return await getAllChapterIds();
+}
+
+// Revalidate cached content every hour (optional, adjust as needed)
+export const revalidate = 3600;
 
 export default async function ChapterDetailPage({
     params,
@@ -17,7 +22,9 @@ export default async function ChapterDetailPage({
     params: Promise<{ id: string }>;
 }) {
     const { id } = await params;
-    const data = await getChapterById(id);
+
+    // Use the non-session version for static generation
+    const data = await getChapterData(id);
 
     if (!data) {
         redirect("/app/subjects");
@@ -25,7 +32,8 @@ export default async function ChapterDetailPage({
 
     const { chapter, subjectInfo } = data;
 
-    // Fetch text chunks for the invisible layer
+    // Fetch text chunks (this is also database access, ideally should be part of getChapterData or cached)
+    // However, since this runs at build time (or revalidate time), it doesn't hit the DB for every user request.
     const chunks = await prisma.chapterChunk.findMany({
         where: { chapter_id: BigInt(id) },
         select: { page_number: true, bbox: true }

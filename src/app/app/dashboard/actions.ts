@@ -36,11 +36,11 @@ export async function getDashboardData() {
     });
 
     if (!profile) {
-        redirect("/app/onboarding");
+        redirect("/");
     }
 
     // 2. Fetch User Activity Data
-    const [quizzes, userPoints] = await Promise.all([
+    const [quizzes, userPoints, enrollments] = await Promise.all([
         prisma.quiz.findMany({
             where: { user_id: userId, status: "COMPLETED" },
             include: { chapter: true, subject: true },
@@ -50,6 +50,17 @@ export async function getDashboardData() {
             where: { user_id: userId },
             orderBy: { created_at: 'desc' },
             select: { created_at: true }
+        }),
+        prisma.userEnrollment.findMany({
+            where: { user_id: userId },
+            include: {
+                course: {
+                    include: {
+                        subjects: true,
+                    }
+                }
+            },
+            orderBy: { last_accessed_at: 'desc' }
         })
     ]);
 
@@ -67,7 +78,7 @@ export async function getDashboardData() {
     const syllabusCompletion = totalChapters > 0 ? (completedChaptersCount / totalChapters) * 100 : 0;
 
     // B. Quiz Performance
-    const totalQuizScore = quizzes.reduce((acc, q) => acc + (q.score / q.total_points) * 100, 0);
+    const totalQuizScore = quizzes.reduce((acc: number, q: any) => acc + (q.score / q.total_points) * 100, 0);
     const quizAverage = quizzes.length > 0 ? totalQuizScore / quizzes.length : 0;
 
     // C. Readiness Score (Weighted: 70% Quiz Avg, 30% Syllabus)
@@ -208,6 +219,7 @@ export async function getDashboardData() {
         recentActivity: quizzes.slice(0, 5),
         upcomingExams,
         badges,
-        radarData
+        radarData,
+        enrollments
     };
 }

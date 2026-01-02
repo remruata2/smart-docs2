@@ -3,7 +3,7 @@
  */
 
 import React from "react";
-import { render, screen } from "@testing-library/react";
+import { render } from "@testing-library/react";
 import "@testing-library/jest-dom";
 import { UserRole } from "@/generated/prisma";
 import RoleGuard from "../RoleGuard";
@@ -36,13 +36,13 @@ describe("RoleGuard", () => {
       update: jest.fn(),
     });
 
-    render(
+    const { getByText } = render(
       <RoleGuard requiredRole={UserRole.institution}>
         <TestComponent />
       </RoleGuard>
     );
 
-    expect(screen.getByText("Verifying permissions...")).toBeInTheDocument();
+    expect(getByText("Verifying permissions...")).toBeInTheDocument();
   });
 
   it("redirects to login when user is not authenticated", () => {
@@ -84,13 +84,13 @@ describe("RoleGuard", () => {
       update: jest.fn(),
     });
 
-    render(
+    const { getByText } = render(
       <RoleGuard requiredRole={UserRole.institution}>
         <TestComponent />
       </RoleGuard>
     );
 
-    expect(screen.getByText("Protected Content")).toBeInTheDocument();
+    expect(getByText("Protected Content")).toBeInTheDocument();
   });
 
   it("redirects when user has insufficient permissions", () => {

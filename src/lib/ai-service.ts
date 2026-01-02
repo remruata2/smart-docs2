@@ -1,5 +1,6 @@
 import { GoogleGenerativeAI } from "@google/generative-ai";
 import { prisma } from "@/lib/prisma";
+import { getSettingString } from "@/lib/app-settings";
 
 // Initialize Gemini AI
 const genAI = new GoogleGenerativeAI(process.env.GEMINI_API_KEY!);
@@ -119,7 +120,8 @@ export async function generateAIResponse(
 	context: string
 ): Promise<string> {
 	try {
-		const model = genAI.getGenerativeModel({ model: "gemini-2.0-flash" });
+		const modelName = await getSettingString("ai.model.chat", "gemini-2.0-flash");
+		const model = genAI.getGenerativeModel({ model: modelName });
 
 		const prompt = `You are an AI assistant for the Zirna database system. 
 

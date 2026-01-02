@@ -1,0 +1,1149 @@
+generator client {
+  provider      = "prisma-client-js"
+  output        = "../src/generated/prisma"
+  binaryTargets = ["native", "linux-musl-openssl-3.0.x", "rhel-openssl-1.0.x", "rhel-openssl-3.0.x"]
+}
+
+datasource db {
+  provider  = "postgresql"
+  url       = env("DATABASE_URL")
+  directUrl = env("DATABASE_URL")
+}
+
+model CategoryList {
+  id         Int       @id @default(autoincrement())
+  category   String    @db.VarChar(255)
+  created_at DateTime? @default(now()) @db.Timestamptz(6)
+  updated_at DateTime? @default(now()) @db.Timestamptz(6)
+  user_id    Int?
+  user       user?     @relation(fields: [user_id], references: [id], onDelete: Cascade)
+
+  @@index([user_id], map: "idx_category_list_user")
+  @@map("category_list")
+}
+
+model FileList {
+  id              Int                      @id @default(autoincrement())
+  category        String
+  title           String
+  note            String?
+  content_format  String?                  @db.VarChar(20)
+  doc1            String?
+  entry_date      String?                  @db.VarChar(50)
+  entry_date_real DateTime?                @db.Date
+  search_vector   Unsupported("tsvector")?
+  created_at      DateTime?                @default(now()) @db.Timestamptz(6)
+  updated_at      DateTime?                @updatedAt @db.Timestamptz(6)
+  semantic_vector Unsupported("vector")?
+  user_id         Int?
+  user            user?                    @relation(fields: [user_id], references: [id], onDelete: Cascade)
+  parsing_status  String?                  @default("pending") @db.VarChar(20) // 'pending' | 'processing' | 'completed' | 'failed'
+  parsing_error   String?                  @db.Text
+  parsed_at       DateTime?                @db.Timestamptz(6)
+
+  // Relations for Split-Screen Citations
+  pages  DocumentPage[]
+  chunks FileChunk[]
+
+  @@index([category], map: "idx_file_list_category")
+  @@index([entry_date_real], map: "idx_file_list_entry_date")
+  @@index([search_vector], map: "idx_search_vector", type: Gin)
+  @@index([semantic_vector], map: "idx_semantic_vector")
+  @@index([user_id], map: "idx_file_list_user")
+  @@index([parsing_status], map: "idx_file_list_parsing_status")
+  @@map("file_list")
+}
+
+/// Stores visual snapshots of document pages
+model DocumentPage {
+  id          Int      @id @default(autoincrement())
+  file_id     Int
+  page_number Int
+  image_url   String // URL to storage (e.g., "/files/101/page_4.jpg")
+  width       Int? // Original width
+  height      Int? // Original height
+  created_at  DateTime @default(now()) @db.Timestamptz(6)
+
+  file FileList @relation(fields: [file_id], references: [id], onDelete: Cascade)
+
+  @@index([file_id, page_number], map: "idx_document_pages_file_page")
+  @@map("document_pages")
+}
+
+/// Stores granular text chunks with layout coordinates
+model FileChunk {
+  id              Int                      @id @default(autoincrement())
+  file_id         Int
+  chunk_index     Int
+  content         String
+  page_number     Int?
+  bbox            Json? // [x, y, w, h] in percentage (0-1)
+  token_count     Int?
+  search_vector   Unsupported("tsvector")?
+  semantic_vector Unsupported("vector")?
+  created_at      DateTime                 @default(now()) @db.Timestamptz(6)
+
+  file FileList @relation(fields: [file_id], references: [id], onDelete: Cascade)
+
+  @@index([file_id], map: "idx_file_chunks_file")
+  @@index([search_vector], map: "idx_file_chunks_search_vector", type: Gin)
+  @@index([semantic_vector], map: "idx_file_chunks_vector")
+  @@map("file_chunks")
+}
+
+model user {
+  id                    Int                 @id @default(autoincrement())
+  username              String              @unique @db.VarChar(100)
+  password_hash         String?             @db.VarChar(255)
+  role                  UserRole            @default(student)
+  is_active             Boolean?            @default(true)
+  last_login            DateTime?           @db.Timestamptz(6)
+  created_at            DateTime?           @default(now()) @db.Timestamptz(6)
+  email                 String?             @unique @db.VarChar(255)
+  categories            CategoryList[]
+  conversations         Conversation[]
+  files                 FileList[]
+  usage_tracking        UsageTracking[]
+  subscription          UserSubscription?
+  profile               Profile?
+  quizzes               Quiz[]
+  points                UserPoints[]
+  badges                UserBadge[]
+  learning_sessions     LearningSession[]
+  created_battles       Battle[]
+  battle_participations BattleParticipant[]
+  textbooks_created     Textbook[]          @relation("TextbookCreator")
+  enrollments           UserEnrollment[]
+
+  @@index([email], map: "idx_user_email")
+}
+
+model UserEnrollment {
+  id               Int       @id @default(autoincrement())
+  user_id          Int
+  textbook_id      Int
+  status           String    @default("active") // active, completed, archived
+  progress         Int       @default(0) // 0-100
+  last_accessed_at DateTime? @db.Timestamptz(6)
+  enrolled_at      DateTime  @default(now()) @db.Timestamptz(6)
+  completed_at     DateTime? @db.Timestamptz(6)
+
+  user     user     @relation(fields: [user_id], references: [id], onDelete: Cascade)
+  textbook Textbook @relation(fields: [textbook_id], references: [id], onDelete: Cascade)
+
+  @@unique([user_id, textbook_id])
+  @@index([user_id])
+  @@index([textbook_id])
+  @@map("user_enrollments")
+}
+
+/// Stores conversation sessions for chat history
+model Conversation {
+  id              Int                   @id @default(autoincrement())
+  user_id         Int
+  title           String                @default("New Conversation") @db.VarChar(255)
+  created_at      DateTime              @default(now()) @db.Timestamptz(6)
+  updated_at      DateTime              @updatedAt @db.Timestamptz(6)
+  last_message_at DateTime?             @db.Timestamptz(6)
+  message_count   Int                   @default(0)
+  is_pinned       Boolean               @default(false)
+  is_archived     Boolean               @default(false)
+  subject_id      Int?
+  chapter_id      BigInt?
+  messages        ConversationMessage[]
+  user            user                  @relation(fields: [user_id], references: [id], onDelete: Cascade)
+  subject         Subject?              @relation(fields: [subject_id], references: [id])
+  chapter         Chapter?              @relation(fields: [chapter_id], references: [id])
+
+  @@index([user_id, updated_at(sort: Desc)], map: "idx_conversations_user_updated")
+  @@index([user_id, is_pinned, updated_at(sort: Desc)], map: "idx_conversations_user_pinned")
+  @@index([subject_id])
+  @@index([chapter_id])
+  @@map("conversations")
+}
+
+/// Stores individual messages within conversations
+model ConversationMessage {
+  id              Int          @id @default(autoincrement())
+  conversation_id Int
+  role            MessageRole
+  content         String
+  sources         Json?
+  token_count     Json?
+  metadata        Json?
+  created_at      DateTime     @default(now()) @db.Timestamptz(6)
+  conversation    Conversation @relation(fields: [conversation_id], references: [id], onDelete: Cascade)
+
+  @@index([conversation_id, created_at], map: "idx_conversation_messages_conversation")
+  @@map("conversation_messages")
+}
+
+/// Stores encrypted API keys and metadata for AI providers
+model AiApiKey {
+  id            Int       @id @default(autoincrement())
+  provider      Provider
+  label         String    @db.VarChar(100)
+  api_key_enc   String
+  active        Boolean   @default(true)
+  priority      Int       @default(0)
+  success_count Int       @default(0)
+  error_count   Int       @default(0)
+  last_used_at  DateTime? @db.Timestamptz(6)
+  created_at    DateTime  @default(now()) @db.Timestamptz(6)
+  updated_at    DateTime  @updatedAt @db.Timestamptz(6)
+
+  @@index([provider, active, priority], map: "idx_ai_api_keys_active_priority")
+  @@map("ai_api_keys")
+}
+
+/// Lists available models per provider, manageable by admin
+model AiModel {
+  id         Int      @id @default(autoincrement())
+  provider   Provider
+  name       String   @db.VarChar(100)
+  label      String   @db.VarChar(150)
+  active     Boolean  @default(true)
+  priority   Int      @default(0)
+  created_at DateTime @default(now()) @db.Timestamptz(6)
+  updated_at DateTime @updatedAt @db.Timestamptz(6)
+
+  @@unique([provider, name], map: "uq_ai_model_provider_name")
+  @@index([provider, active, priority], map: "idx_ai_models_active_priority")
+  @@map("ai_models")
+}
+
+model app_settings {
+  key        String    @id
+  value      String
+  created_at DateTime? @default(now()) @db.Timestamptz(6)
+  updated_at DateTime? @default(now()) @db.Timestamptz(6)
+}
+
+/// Subscription plans available for users
+model SubscriptionPlan {
+  id                       Int                @id @default(autoincrement())
+  name                     String             @unique @db.VarChar(100)
+  display_name             String             @db.VarChar(150)
+  description              String?
+  price_monthly            Decimal            @db.Decimal(10, 2)
+  price_yearly             Decimal?           @db.Decimal(10, 2)
+  razorpay_plan_id_monthly String?            @db.VarChar(255)
+  razorpay_plan_id_yearly  String?            @db.VarChar(255)
+  features                 Json?
+  limits                   Json
+  is_active                Boolean            @default(true)
+  is_default               Boolean            @default(false)
+  created_at               DateTime           @default(now()) @db.Timestamptz(6)
+  updated_at               DateTime           @updatedAt @db.Timestamptz(6)
+  subscriptions            UserSubscription[]
+
+  @@index([is_active, is_default], map: "idx_subscription_plans_active")
+  @@map("subscription_plans")
+}
+
+/// User subscription information
+model UserSubscription {
+  id                       Int                @id @default(autoincrement())
+  user_id                  Int                @unique
+  plan_id                  Int
+  razorpay_subscription_id String?            @unique @db.VarChar(255)
+  razorpay_customer_id     String?            @db.VarChar(255)
+  razorpay_order_id        String?            @db.VarChar(255)
+  status                   SubscriptionStatus @default(active)
+  billing_cycle            BillingCycle       @default(monthly)
+  current_period_start     DateTime           @db.Timestamptz(6)
+  current_period_end       DateTime           @db.Timestamptz(6)
+  cancel_at_period_end     Boolean            @default(false)
+  canceled_at              DateTime?          @db.Timestamptz(6)
+  created_at               DateTime           @default(now()) @db.Timestamptz(6)
+  updated_at               DateTime           @updatedAt @db.Timestamptz(6)
+  plan                     SubscriptionPlan   @relation(fields: [plan_id], references: [id])
+  user                     user               @relation(fields: [user_id], references: [id], onDelete: Cascade)
+
+  @@index([status, current_period_end], map: "idx_user_subscriptions_status")
+  @@index([razorpay_subscription_id], map: "idx_user_subscriptions_razorpay")
+  @@map("user_subscriptions")
+}
+
+/// Usage tracking for subscription limits
+model UsageTracking {
+  id           Int       @id @default(autoincrement())
+  user_id      Int
+  usage_type   UsageType
+  count        Int       @default(1)
+  period_start DateTime  @db.Timestamptz(6)
+  period_end   DateTime  @db.Timestamptz(6)
+  metadata     Json?
+  created_at   DateTime  @default(now()) @db.Timestamptz(6)
+  user         user      @relation(fields: [user_id], references: [id], onDelete: Cascade)
+
+  @@index([user_id, usage_type, period_start], map: "idx_usage_tracking_user_type")
+  @@index([period_start, period_end], map: "idx_usage_tracking_period")
+  @@map("usage_tracking")
+}
+
+// --- Bharat-Tutor Multi-Tenancy Models ---
+
+model Country {
+  id        String  @id // 'IN', 'NG', 'PK', 'PH'
+  name      String // 'India', 'Nigeria'...
+  currency  String // '₹', '₦'...
+  locale    String  @default("en")
+  is_active Boolean @default(true)
+
+  boards Board[]
+
+  @@map("countries")
+}
+
+model Board {
+  id         String   @id // 'CBSE', 'MBSE', 'WAEC', 'IIT-JEE', 'UPSC', etc.
+  name       String // 'Central Board of Secondary Education', 'Union Public Service Commission'
+  country_id String   @default("IN")
+  state      String? // 'Mizoram' (null for national/central)
+  type       String   @default("academic") // 'academic', 'competitive_exam', 'professional'
+  is_active  Boolean  @default(true)
+  created_at DateTime @default(now())
+  updated_at DateTime @updatedAt
+
+  country      Country             @relation(fields: [country_id], references: [id])
+  institutions Institution[]
+  programs     Program[]
+  chunkBoards  ChapterChunkBoard[]
+
+  @@index([country_id, is_active])
+  @@index([type])
+  @@map("boards")
+}
+
+// Replaces old "School" model - supports schools, colleges, universities, coaching centers
+model Institution {
+  id             BigInt    @id @default(autoincrement())
+  board_id       String
+  name           String
+  type           String // 'school', 'college', 'university', 'coaching_center'
+  district       String?
+  state          String?
+  license_expiry DateTime?
+  is_active      Boolean   @default(true)
+  created_at     DateTime  @default(now())
+
+  board    Board     @relation(fields: [board_id], references: [id])
+  programs Program[]
+  profiles Profile[]
+
+  @@index([board_id, is_active])
+  @@index([type])
+  @@map("institutions")
+}
+
+// New model: represents Class 10, B.Tech IT, MBBS Year 2, UPSC Prelims, etc.
+model Program {
+  id             Int      @id @default(autoincrement())
+  board_id       String
+  institution_id BigInt? // null for board-level programs (e.g., UPSC CSE)
+  name           String // 'Class 10', 'B.Tech - Computer Science', 'MBBS - Year 2', 'UPSC Civil Services'
+  code           String? // 'CLS10', 'BTECH_CS', 'MBBS_Y2', 'UPSC_CSE'
+  level          String? // 'secondary', 'undergraduate', 'postgraduate', 'competitive'
+  duration_years Int? // 1, 4, 5, etc. (null for one-time exams)
+  is_active      Boolean  @default(true)
+  created_at     DateTime @default(now())
+
+  board       Board        @relation(fields: [board_id], references: [id])
+  institution Institution? @relation(fields: [institution_id], references: [id])
+  subjects    Subject[]
+  profiles    Profile[]
+  exams       Exam[]
+
+  @@unique([board_id, institution_id, name])
+  @@index([board_id, level])
+  @@map("programs")
+}
+
+model Profile {
+  id             Int     @id @default(autoincrement())
+  user_id        Int     @unique
+  institution_id BigInt? // null for self-paced learners
+  program_id     Int? // null until program selected
+  is_premium     Boolean @default(false)
+  last_sync_at   BigInt? // Unix ms for mobile sync
+
+  user        user         @relation(fields: [user_id], references: [id], onDelete: Cascade)
+  institution Institution? @relation(fields: [institution_id], references: [id])
+  program     Program?     @relation(fields: [program_id], references: [id])
+
+  @@index([institution_id])
+  @@index([program_id])
+  @@map("profiles")
+}
+
+// Subjects now linked to Programs instead of Boards
+model Subject {
+  id         Int      @id @default(autoincrement())
+  program_id Int // Required: subjects belong to programs
+  name       String // 'Physics', 'Data Structures', 'General Studies', 'Pharmacology'
+  code       String? // 'PHY', 'DS', 'GS', 'PHARM'
+  is_active  Boolean  @default(true)
+  created_at DateTime @default(now())
+
+  program       Program        @relation(fields: [program_id], references: [id])
+  term          String? // e.g. "Semester 1", "Year 2", or null for annual
+  chapters      Chapter[]
+  quizzes       Quiz[]
+  conversations Conversation[]
+
+  @@unique([program_id, name])
+  @@index([program_id])
+  @@map("subjects")
+}
+
+enum ChapterStatus {
+  PENDING
+  PROCESSING
+  COMPLETED
+  FAILED
+
+  @@map("chapter_status")
+}
+
+model Chapter {
+  id                BigInt        @id @default(autoincrement())
+  subject_id        Int
+  title             String // 'Chapter 6: Life Processes'
+  chapter_number    Int?
+  content_json      Json // LlamaParse output
+  version_id        String        @default(cuid()) // For sync
+  accessible_boards String[] // For cross-board content (e.g., NCERT used by multiple boards)
+  is_global         Boolean       @default(false) // true = accessible to all boards
+  is_active         Boolean       @default(true)
+  processing_status ChapterStatus @default(PENDING)
+  error_message     String?       @db.Text
+  processed_at      DateTime?
+  created_at        DateTime      @default(now())
+  updated_at        DateTime      @updatedAt
+  parsed_at         DateTime?
+
+  subject           Subject           @relation(fields: [subject_id], references: [id])
+  chunks            ChapterChunk[]
+  pages             ChapterPage[]
+  quizzes           Quiz[]
+  study_materials   StudyMaterial?
+  learning_sessions LearningSession[]
+  conversations     Conversation[]
+  questions         Question[]
+
+  @@index([subject_id, chapter_number])
+  @@index([accessible_boards], type: Gin) // For RLS
+  @@index([processing_status])
+  @@map("chapters")
+}
+
+model ChapterChunk {
+  id              BigInt                   @id @default(autoincrement())
+  chapter_id      BigInt
+  chunk_index     Int
+  content         String
+  page_number     Int?
+  bbox            Json? // Bounding box
+  search_vector   Unsupported("tsvector")?
+  semantic_vector Unsupported("vector")?
+  subject_id      Int? // Denormalized
+  created_at      DateTime                 @default(now())
+
+  chapter     Chapter             @relation(fields: [chapter_id], references: [id], onDelete: Cascade)
+  chunkBoards ChapterChunkBoard[]
+
+  @@index([chapter_id, chunk_index])
+  @@index([search_vector], type: Gin)
+  @@index([semantic_vector])
+  @@index([subject_id])
+  @@map("chapter_chunks")
+}
+
+// Junction table for board access (scales better than array)
+model ChapterChunkBoard {
+  chunk_id BigInt
+  board_id String
+  chunk    ChapterChunk @relation(fields: [chunk_id], references: [id], onDelete: Cascade)
+  board    Board        @relation(fields: [board_id], references: [id])
+
+  @@id([chunk_id, board_id])
+  @@index([board_id])
+  @@map("chapter_chunk_boards")
+}
+
+model ChapterPage {
+  id          BigInt   @id @default(autoincrement())
+  chapter_id  BigInt
+  page_number Int
+  image_url   String
+  width       Int?
+  height      Int?
+  created_at  DateTime @default(now())
+
+  chapter Chapter @relation(fields: [chapter_id], references: [id], onDelete: Cascade)
+
+  @@index([chapter_id, page_number])
+  @@map("chapter_pages")
+}
+
+enum MessageRole {
+  user
+  assistant
+
+  @@map("message_role")
+}
+
+enum UserRole {
+  admin
+  institution
+  student
+
+  @@map("user_role")
+}
+
+enum SubscriptionStatus {
+  active
+  canceled
+  past_due
+  trialing
+  incomplete
+  incomplete_expired
+
+  @@map("subscription_status")
+}
+
+enum BillingCycle {
+  monthly
+  yearly
+
+  @@map("billing_cycle")
+}
+
+enum UsageType {
+  file_upload
+  chat_message
+  document_export
+  ai_processing
+  quiz_generation
+  battle_match
+  ai_tutor_session
+
+  @@map("usage_type")
+}
+
+/// Provider enum for AI key management
+enum Provider {
+  gemini
+  openai
+  anthropic
+  llamaparse
+  openrouter
+}
+
+// --- Exam Prep & Gamification Models ---
+
+enum QuestionType {
+  MCQ
+  TRUE_FALSE
+  FILL_IN_BLANK
+  SHORT_ANSWER
+  LONG_ANSWER
+}
+
+enum QuizStatus {
+  IN_PROGRESS
+  COMPLETED
+  ABANDONED
+}
+
+/// System-wide settings for quiz configuration
+model SystemSetting {
+  id    Int    @id @default(autoincrement())
+  key   String @unique @db.VarChar(255)
+  value String @db.Text
+  type  String @db.VarChar(50) // 'number', 'string', 'boolean', 'json'
+
+  created_at DateTime @default(now()) @db.Timestamptz(6)
+  updated_at DateTime @updatedAt @db.Timestamptz(6)
+
+  @@map("system_settings")
+}
+
+model Quiz {
+  id          String  @id @default(cuid())
+  user_id     Int
+  subject_id  Int
+  chapter_id  BigInt? // Optional: quiz can be for a whole subject or specific chapter
+  title       String
+  description String?
+
+  status       QuizStatus @default(IN_PROGRESS)
+  score        Int        @default(0)
+  total_points Int        @default(0)
+
+  created_at   DateTime  @default(now())
+  updated_at   DateTime  @updatedAt
+  completed_at DateTime?
+
+  user    user     @relation(fields: [user_id], references: [id], onDelete: Cascade)
+  subject Subject  @relation(fields: [subject_id], references: [id])
+  chapter Chapter? @relation(fields: [chapter_id], references: [id])
+
+  questions QuizQuestion[]
+  battles   Battle[]
+
+  @@index([user_id])
+  @@index([subject_id])
+  @@map("quizzes")
+}
+
+model QuizQuestion {
+  id            String       @id @default(cuid())
+  quiz_id       String
+  question_text String       @db.Text
+  question_type QuestionType
+
+  // For MCQ/TF: JSON array of options e.g. ["Option A", "Option B"]
+  options Json?
+
+  // The correct answer(s). For MCQ: index or string. For FITB: correct word.
+  correct_answer Json
+
+  // User's submitted answer
+  user_answer Json?
+
+  is_correct Boolean?
+  points     Int      @default(1)
+
+  // AI-generated explanation for the answer
+  explanation String? @db.Text
+
+  // AI feedback for subjective questions (Short/Long answer)
+  feedback String? @db.Text
+
+  quiz Quiz @relation(fields: [quiz_id], references: [id], onDelete: Cascade)
+
+  @@index([quiz_id])
+  @@map("quiz_questions")
+}
+
+/// Question Bank Model - Stores pre-generated questions for chapters
+model Question {
+  id            String       @id @default(cuid())
+  chapter_id    BigInt
+  question_text String       @db.Text
+  question_type QuestionType
+  difficulty    String // 'easy', 'medium', 'hard'
+
+  // For MCQ/TF: JSON array of options e.g. ["Option A", "Option B"]
+  options Json?
+
+  // The correct answer
+  correct_answer Json
+
+  // AI-generated explanation
+  explanation String? @db.Text
+
+  points     Int      @default(1)
+  is_active  Boolean  @default(true)
+  created_at DateTime @default(now())
+  updated_at DateTime @updatedAt
+
+  chapter Chapter @relation(fields: [chapter_id], references: [id], onDelete: Cascade)
+
+  @@index([chapter_id, difficulty, question_type])
+  @@map("questions")
+}
+
+model UserPoints {
+  id       String @id @default(cuid())
+  user_id  Int
+  points   Int
+  reason   String // e.g. "quiz_completion", "daily_streak", "bonus"
+  metadata Json? // e.g. { quiz_id: "..." }
+
+  created_at DateTime @default(now())
+
+  user user @relation(fields: [user_id], references: [id], onDelete: Cascade)
+
+  @@index([user_id])
+  @@map("user_points")
+}
+
+model StudyMaterial {
+  id         BigInt @id @default(autoincrement())
+  chapter_id BigInt @unique
+
+  // AI-generated content as JSON
+  summary     Json? // { brief: "", key_points: [], important_formulas: [] }
+  definitions Json? // [{ term: "", definition: "" }]
+  flashcards  Json? // [{ front: "", back: "" }]
+  mind_map    String? @db.Text // Mermaid.js syntax
+
+  // YouTube integration  
+  video_queries  String[] // Search queries used
+  curated_videos Json? // [{ title: "", videoId: "", duration: "", thumbnail: "" }]
+
+  created_at DateTime @default(now())
+  updated_at DateTime @updatedAt
+
+  chapter Chapter @relation(fields: [chapter_id], references: [id], onDelete: Cascade)
+
+  @@index([chapter_id])
+  @@map("study_materials")
+}
+
+model Exam {
+  id          String   @id @default(cuid())
+  title       String
+  description String?
+  date        DateTime
+  program_id  Int?
+  is_active   Boolean  @default(true)
+  created_at  DateTime @default(now())
+  updated_at  DateTime @updatedAt
+
+  program Program? @relation(fields: [program_id], references: [id])
+
+  @@index([program_id])
+  @@index([date])
+  @@map("exams")
+}
+
+model StreakBadge {
+  id         String   @id @default(cuid())
+  name       String
+  icon       String // Emoji or icon name
+  min_streak Int      @unique // 7, 14, 30 etc.
+  is_active  Boolean  @default(true)
+  created_at DateTime @default(now())
+  updated_at DateTime @updatedAt
+
+  user_badges UserBadge[]
+
+  @@map("streak_badges")
+}
+
+model UserBadge {
+  id        String   @id @default(cuid())
+  user_id   Int
+  badge_id  String
+  earned_at DateTime @default(now())
+
+  user  user        @relation(fields: [user_id], references: [id], onDelete: Cascade)
+  badge StreakBadge @relation(fields: [badge_id], references: [id], onDelete: Cascade)
+
+  @@unique([user_id, badge_id])
+  @@index([user_id])
+  @@index([badge_id])
+  @@map("user_badges")
+}
+
+model LearningSession {
+  id            String   @id @default(cuid())
+  user_id       Int
+  chapter_id    BigInt
+  status        String   @default("active") // active, completed, paused
+  current_topic String? // e.g., "Balancing Chemical Equations"
+  progress      Int      @default(0) // 0-100%
+  created_at    DateTime @default(now())
+  updated_at    DateTime @updatedAt
+
+  user    user    @relation(fields: [user_id], references: [id])
+  chapter Chapter @relation(fields: [chapter_id], references: [id])
+
+  @@index([user_id, chapter_id])
+  @@map("learning_sessions")
+}
+
+// --- P2P Battle Models ---
+
+enum BattleStatus {
+  WAITING // Waiting for opponent
+  STARTING // Countdown
+  IN_PROGRESS // Battle is live
+  COMPLETED // Battle finished
+  ABANDONED // Someone left or timed out
+  EXPIRED // Created but never joined
+}
+
+model Battle {
+  id      String       @id @default(cuid())
+  quiz_id String
+  code    String       @unique @db.VarChar(10) // 6-digit join code
+  status  BattleStatus @default(WAITING)
+
+  created_by Int
+  created_at DateTime  @default(now())
+  started_at DateTime?
+  ended_at   DateTime?
+
+  // Settings snapshot
+  settings Json? // { timePerQuestion: 15, ... }
+
+  quiz    Quiz @relation(fields: [quiz_id], references: [id])
+  creator user @relation(fields: [created_by], references: [id])
+
+  participants BattleParticipant[]
+
+  @@index([code])
+  @@index([status])
+  @@index([created_by])
+  @@map("battles")
+}
+
+model BattleParticipant {
+  id        String @id @default(cuid())
+  battle_id String
+  user_id   Int
+
+  score           Int      @default(0)
+  current_q_index Int      @default(0) // Which question they are on
+  finished        Boolean  @default(false)
+  joined_at       DateTime @default(now())
+
+  // Realtime state
+  last_active DateTime @default(now())
+
+  battle Battle @relation(fields: [battle_id], references: [id], onDelete: Cascade)
+  user   user   @relation(fields: [user_id], references: [id], onDelete: Cascade)
+
+  @@unique([battle_id, user_id])
+  @@map("battle_participants")
+}
+
+// ============================================
+// SYLLABUS MANAGEMENT MODELS
+// ============================================
+
+model Syllabus {
+  id          Int     @id @default(autoincrement())
+  title       String  @db.VarChar(255) // e.g., "MBSE Physics Class XI 2024"
+  description String? @db.Text
+
+  // Metadata matching Textbook
+  board         String  @default("MBSE")
+  class_level   String  @db.VarChar(20)
+  stream        String? @db.VarChar(50)
+  subject       String  @db.VarChar(255)
+  academic_year String? @db.VarChar(20)
+
+  // Content
+  raw_text String? @db.Text
+
+  // Status
+  status SyllabusStatus @default(DRAFT)
+
+  // Timestamps
+  created_at DateTime @default(now()) @db.Timestamptz(6)
+  updated_at DateTime @updatedAt @db.Timestamptz(6)
+
+  // Relations
+  units     SyllabusUnit[]
+  textbooks Textbook[] // Textbooks created from this syllabus
+
+  @@map("syllabi")
+}
+
+model SyllabusUnit {
+  id          Int     @id @default(autoincrement())
+  syllabus_id Int
+  title       String  @db.VarChar(255)
+  order       Int
+  description String? @db.Text
+
+  syllabus Syllabus          @relation(fields: [syllabus_id], references: [id], onDelete: Cascade)
+  chapters SyllabusChapter[]
+
+  @@unique([syllabus_id, order])
+  @@map("syllabus_units")
+}
+
+model SyllabusChapter {
+  id             Int    @id @default(autoincrement())
+  unit_id        Int
+  chapter_number String @db.VarChar(10)
+  title          String @db.VarChar(255)
+  order          Int
+  subtopics      Json? // Array of strings
+
+  unit SyllabusUnit @relation(fields: [unit_id], references: [id], onDelete: Cascade)
+
+  @@unique([unit_id, order])
+  @@map("syllabus_chapters")
+}
+
+enum SyllabusStatus {
+  DRAFT
+  PARSING
+  PARSED
+  ARCHIVED
+
+  @@map("syllabus_status")
+}
+
+// ============================================
+// TEXTBOOK GENERATOR MODELS (Zirna-AI)
+// ============================================
+
+/// Represents a complete textbook project
+model Textbook {
+  id           Int     @id @default(autoincrement())
+  title        String  @db.VarChar(255)
+  description  String? @db.Text
+  class_level  String  @db.VarChar(20) // "XI", "XII"
+  stream       String? @db.VarChar(50) // "Arts", "Science", "Commerce"
+  subject_name String? @db.VarChar(255) // Subject name for reference
+  board_id     String? @default("MBSE")
+
+  // Metadata
+  academic_year String? @db.VarChar(20) // "2024-2025"
+  author        String? @db.VarChar(255)
+
+  // Syllabus Link (New)
+  syllabus_id Int?
+  syllabus    Syllabus? @relation(fields: [syllabus_id], references: [id])
+
+  // Raw syllabus input (keeping for backward compat or manual override)
+  raw_syllabus String? @db.Text
+
+  // Status tracking
+  status   TextbookStatus @default(DRAFT)
+  progress Int            @default(0) // 0-100 percentage
+
+  // Generated content
+  cover_image_url  String?
+  pdf_url          String?
+  compiled_pdf_url String? // URL to the compiled full book PDF
+
+  // Timestamps
+  created_at DateTime @default(now()) @db.Timestamptz(6)
+  updated_at DateTime @updatedAt @db.Timestamptz(6)
+  created_by Int
+
+  // Relations
+  creator         user                    @relation("TextbookCreator", fields: [created_by], references: [id])
+  units           TextbookUnit[]
+  generation_jobs TextbookGenerationJob[]
+  enrollments     UserEnrollment[]
+
+  @@index([status, created_at(sort: Desc)])
+  @@index([board_id, class_level])
+  @@index([created_by])
+  @@map("textbooks")
+}
+
+/// Represents a unit/part within a textbook
+model TextbookUnit {
+  id          Int     @id @default(autoincrement())
+  textbook_id Int
+  order       Int
+  title       String  @db.VarChar(255) // e.g., "Part A: INDIAN CONSTITUTION AT WORK"
+  description String? @db.Text
+
+  created_at DateTime @default(now()) @db.Timestamptz(6)
+  updated_at DateTime @updatedAt @db.Timestamptz(6)
+
+  textbook Textbook          @relation(fields: [textbook_id], references: [id], onDelete: Cascade)
+  chapters TextbookChapter[]
+
+  @@unique([textbook_id, order])
+  @@map("textbook_units")
+}
+
+/// Represents a chapter within a unit
+model TextbookChapter {
+  id             Int    @id @default(autoincrement())
+  unit_id        Int
+  chapter_number String @db.VarChar(10) // "1", "1.1", etc.
+  title          String @db.VarChar(255)
+  order          Int
+
+  // Raw syllabus input
+  raw_syllabus_text String? @db.Text
+  subtopics         Json? // Array of subtopic strings
+
+  // Generated content
+  content           String? @db.Text // Full chapter content in Markdown
+  content_markdown  String? @db.Text // Legacy - use content instead
+  content_html      String? @db.Text // Rendered HTML for preview
+  summary           String? @db.Text // Brief chapter summary
+  learning_outcomes Json? // Array of learning outcomes
+  key_takeaways     Json? // Array of key points
+
+  // PDF generation
+  pdf_url      String? // URL to chapter PDF in Supabase
+  generated_at DateTime? @db.Timestamptz(6)
+
+  // Competitive exam highlights
+  neet_relevant   Boolean @default(false)
+  jee_relevant    Boolean @default(false)
+  cuet_relevant   Boolean @default(false)
+  exam_highlights Json? // Specific exam-relevant points
+
+  // Practice questions
+  mcq_questions   Json? // Array of MCQ objects
+  short_questions Json? // Array of short answer questions
+  long_questions  Json? // Array of long answer questions
+
+  // Generation metadata
+  model_used         String? @db.VarChar(100)
+  tokens_used        Json? // { input: number, output: number }
+  generation_time_ms Int?
+
+  // Status
+  status           ChapterGenStatus @default(PENDING)
+  generation_error String?          @db.Text
+
+  created_at DateTime @default(now()) @db.Timestamptz(6)
+  updated_at DateTime @updatedAt @db.Timestamptz(6)
+
+  unit   TextbookUnit    @relation(fields: [unit_id], references: [id], onDelete: Cascade)
+  images TextbookImage[]
+
+  @@unique([unit_id, order])
+  @@index([status])
+  @@map("textbook_chapters")
+}
+
+/// Stores generated images/diagrams for chapters
+model TextbookImage {
+  id         Int               @id @default(autoincrement())
+  chapter_id Int
+  type       TextbookImageType // DIAGRAM, CHART, MAP, ILLUSTRATION, COVER
+  prompt     String?           @db.Text // The prompt used to generate
+  alt_text   String?           @db.VarChar(255)
+  url        String? // Generated image URL in Supabase
+  image_url  String? // Legacy - use url instead
+  order      Int               @default(0)
+  placement  String?           @db.VarChar(255) // Where in the chapter
+  caption    String?           @db.VarChar(500) // Caption text below the image
+
+  // Generation status
+  status ImageGenStatus @default(PENDING)
+
+  // Generation metadata
+  model_used         String?   @db.VarChar(100)
+  generation_time_ms Int?
+  generated_at       DateTime? @db.Timestamptz(6)
+
+  created_at DateTime @default(now()) @db.Timestamptz(6)
+
+  chapter TextbookChapter @relation(fields: [chapter_id], references: [id], onDelete: Cascade)
+
+  @@index([chapter_id, type])
+  @@index([status])
+  @@map("textbook_images")
+}
+
+/// Tracks generation jobs for async processing
+model TextbookGenerationJob {
+  id          Int                       @id @default(autoincrement())
+  textbook_id Int
+  job_type    TextbookGenerationJobType
+  status      TextbookJobStatus         @default(QUEUED)
+
+  // Job details
+  target_id     Int? // chapter_id or unit_id depending on job_type
+  input_data    Json?
+  output_data   Json?
+  error_message String? @db.Text
+
+  // Progress tracking
+  progress     Int       @default(0)
+  started_at   DateTime? @db.Timestamptz(6)
+  completed_at DateTime? @db.Timestamptz(6)
+
+  // Retry logic
+  attempts     Int @default(0)
+  max_attempts Int @default(3)
+
+  created_at DateTime @default(now()) @db.Timestamptz(6)
+
+  textbook Textbook @relation(fields: [textbook_id], references: [id], onDelete: Cascade)
+
+  @@index([status, created_at])
+  @@index([textbook_id, job_type])
+  @@map("textbook_generation_jobs")
+}
+
+// ============================================
+// TEXTBOOK GENERATOR ENUMS
+// ============================================
+
+enum TextbookStatus {
+  DRAFT
+  PARSING
+  GENERATING
+  REVIEWING
+  PUBLISHED
+  ARCHIVED
+
+  @@map("textbook_status")
+}
+
+enum ChapterGenStatus {
+  PENDING
+  GENERATING
+  GENERATED
+  COMPLETED // Added for consistency with other status checks
+  FAILED
+  REVIEWED
+
+  @@map("chapter_gen_status")
+}
+
+enum ImageGenStatus {
+  PENDING
+  GENERATING
+  COMPLETED
+  FAILED
+
+  @@map("image_gen_status")
+}
+
+enum TextbookImageType {
+  DIAGRAM // General conceptual diagram
+  FLOWCHART // Process flow, decision trees
+  CHART // Bar charts, pie charts, comparison charts
+  GRAPH // Mathematical graphs, line graphs
+  ILLUSTRATION // General illustrations, scenes
+  INFOGRAPHIC // Information graphics, summary visuals
+  MINDMAP // Concept maps, relationship diagrams
+  MOLECULAR // Chemical structures, molecular models
+  ANATOMICAL // Biology/human body diagrams
+  EXPERIMENTAL // Lab setups, experimental procedures
+  GEOMETRIC // Mathematical shapes, geometric proofs
+  TIMELINE // Historical timelines, process sequences
+  COMPARISON // Side-by-side comparisons, Venn diagrams
+  MAP // Geographic or concept maps
+  COVER // Book/chapter covers
+  ANATOMY // Legacy - use ANATOMICAL
+  CIRCUIT // Electronic circuit diagrams
+  PHOTO // Realistic photos/representations
+  ICON // Simple iconographic elements
+
+  @@map("textbook_image_type")
+}
+
+enum TextbookGenerationJobType {
+  PARSE_SYLLABUS
+  GENERATE_CHAPTER
+  GENERATE_QUESTIONS
+  GENERATE_IMAGE
+  COMPILE_PDF
+  FULL_TEXTBOOK
+
+  @@map("textbook_generation_job_type")
+}
+
+enum TextbookJobStatus {
+  QUEUED
+  PROCESSING
+  COMPLETED
+  FAILED
+  CANCELLED
+
+  @@map("textbook_job_status")
+}

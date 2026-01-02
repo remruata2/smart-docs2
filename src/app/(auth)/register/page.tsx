@@ -65,8 +65,8 @@ export default function RegisterPage() {
 				return;
 			}
 
-			// Redirect to dashboard
-			router.replace("/app");
+			// Redirect to catalog (new users have no enrollments yet)
+			router.replace("/");
 		} catch (err) {
 			console.error("Registration error:", err);
 			setError("An error occurred. Please try again.");
