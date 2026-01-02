@@ -321,7 +321,15 @@ export function QuizInterface({ quiz }: { quiz: Quiz }) {
                                             className="h-6 w-6 mt-0.5 data-[state=checked]:bg-primary data-[state=checked]:text-primary-foreground border-2"
                                         />
                                         <Label htmlFor={`opt-${idx}`} className="flex-1 cursor-pointer text-base md:text-lg font-medium leading-normal group-hover:text-primary transition-colors">
-                                            {opt}
+                                            <ReactMarkdown
+                                                remarkPlugins={[remarkMath]}
+                                                rehypePlugins={[rehypeKatex]}
+                                                components={{
+                                                    p: ({ node, ...props }) => <span {...props} />,
+                                                }}
+                                            >
+                                                {opt}
+                                            </ReactMarkdown>
                                         </Label>
                                         {isChecked && (
                                             <div className="absolute right-4 md:right-6 text-primary animate-in zoom-in duration-200">
@@ -353,7 +361,15 @@ export function QuizInterface({ quiz }: { quiz: Quiz }) {
                                     >
                                         <RadioGroupItem value={opt} id={`opt-${idx}`} className="h-6 w-6 mt-0.5 border-2" />
                                         <Label htmlFor={`opt-${idx}`} className="flex-1 cursor-pointer text-base md:text-lg font-medium leading-normal group-hover:text-primary transition-colors">
-                                            {opt}
+                                            <ReactMarkdown
+                                                remarkPlugins={[remarkMath]}
+                                                rehypePlugins={[rehypeKatex]}
+                                                components={{
+                                                    p: ({ node, ...props }) => <span {...props} />,
+                                                }}
+                                            >
+                                                {opt}
+                                            </ReactMarkdown>
                                         </Label>
                                         {isSelected && (
                                             <div className="absolute right-4 md:right-6 text-primary animate-in zoom-in duration-200">

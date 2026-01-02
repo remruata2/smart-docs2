@@ -680,7 +680,15 @@ export function BattleArena({ battle: initialBattle, currentUser, supabaseConfig
                                                 {String.fromCharCode(65 + idx)}
                                             </div>
                                             <span className={`text-sm md:text-lg ${selectedAnswer === opt ? "text-white font-medium" : "text-slate-300"}`}>
-                                                {opt}
+                                                <ReactMarkdown
+                                                    remarkPlugins={[remarkMath]}
+                                                    rehypePlugins={[rehypeKatex]}
+                                                    components={{
+                                                        p: ({ node, ...props }) => <span {...props} />,
+                                                    }}
+                                                >
+                                                    {opt}
+                                                </ReactMarkdown>
                                             </span>
                                         </div>
                                     </button>
