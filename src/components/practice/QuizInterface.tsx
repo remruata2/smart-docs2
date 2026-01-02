@@ -16,6 +16,8 @@ import { QuestionCard } from "./QuestionCard";
 import ReactMarkdown from "react-markdown";
 import remarkGfm from "remark-gfm";
 import remarkBreaks from "remark-breaks";
+import remarkMath from "remark-math";
+import rehypeKatex from "rehype-katex";
 import "katex/dist/katex.min.css";
 import { Checkbox } from "@/components/ui/checkbox";
 
@@ -446,7 +448,8 @@ export function QuizInterface({ quiz }: { quiz: Quiz }) {
                             <div className="space-y-6">
                                 <div className="prose prose-lg md:prose-xl dark:prose-invert max-w-none text-foreground leading-relaxed">
                                     <ReactMarkdown
-                                        remarkPlugins={[remarkGfm, remarkBreaks]}
+                                        remarkPlugins={[remarkGfm, remarkBreaks, remarkMath]}
+                                        rehypePlugins={[rehypeKatex]}
                                         components={{
                                             table: ({ node, ...props }) => (
                                                 <table className="min-w-full border-collapse border border-slate-300 dark:border-slate-600 my-4" {...props} />

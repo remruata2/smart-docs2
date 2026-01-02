@@ -10,6 +10,10 @@ import { QuestionCard } from "@/components/practice/QuestionCard";
 import { createClient } from "@supabase/supabase-js";
 
 import { BattleResult } from "@/components/battle/BattleResult";
+import ReactMarkdown from "react-markdown";
+import remarkMath from "remark-math";
+import rehypeKatex from "rehype-katex";
+import "katex/dist/katex.min.css";
 
 interface BattleArenaProps {
     battle: any;
@@ -639,9 +643,17 @@ export function BattleArena({ battle: initialBattle, currentUser, supabaseConfig
                         className="bg-slate-900/80 border-slate-800 shadow-2xl backdrop-blur-sm dark" // Force dark mode
                     >
                         <div className="space-y-4 md:space-y-8 py-2">
-                            <p className="text-lg md:text-2xl font-medium leading-relaxed text-slate-100">
-                                {question.question_text}
-                            </p>
+                            <div className="text-lg md:text-2xl font-medium leading-relaxed text-slate-100 prose prose-invert max-w-none">
+                                <ReactMarkdown
+                                    remarkPlugins={[remarkMath]}
+                                    rehypePlugins={[rehypeKatex]}
+                                    components={{
+                                        p: ({ node, ...props }) => <p {...props} />,
+                                    }}
+                                >
+                                    {question.question_text}
+                                </ReactMarkdown>
+                            </div>
 
                             <div className="grid gap-3 md:gap-4">
                                 {question.options?.map((opt: string, idx: number) => (

@@ -7,6 +7,9 @@ import { FlashcardViewer } from "./FlashcardViewer";
 import { VideoGallery } from "./VideoGallery";
 import { BookOpen, Video, FileText, Sparkles, Brain } from "lucide-react";
 import ReactMarkdown from "react-markdown";
+import remarkMath from "remark-math";
+import rehypeKatex from "rehype-katex";
+import "katex/dist/katex.min.css";
 import { GenerateStudyMaterialsButton } from "./GenerateStudyMaterialsButton";
 
 interface StudyMaterialsClientProps {
@@ -24,6 +27,8 @@ export function StudyMaterialsClient({ materials, chapterId }: StudyMaterialsCli
         return (
             <div className="prose prose-indigo max-w-none dark:prose-invert">
                 <ReactMarkdown
+                    remarkPlugins={[remarkMath]}
+                    rehypePlugins={[rehypeKatex]}
                     components={{
                         h1: ({ node, ...props }) => <h1 className="text-2xl font-bold mt-6 mb-4" {...props} />,
                         h2: ({ node, ...props }) => <h2 className="text-xl font-bold mt-5 mb-3" {...props} />,
@@ -108,8 +113,28 @@ export function StudyMaterialsClient({ materials, chapterId }: StudyMaterialsCli
                             <div className="grid gap-4 sm:grid-cols-2">
                                 {Array.isArray(materials.definitions) && materials.definitions.map((item: any, i: number) => (
                                     <div key={i} className="p-4 rounded-lg bg-muted/50 border hover:border-primary/30 transition-colors">
-                                        <h4 className="font-bold text-indigo-600 mb-1">{item.term}</h4>
-                                        <p className="text-sm text-muted-foreground">{item.definition}</p>
+                                        <h4 className="font-bold text-indigo-600 mb-1">
+                                            <ReactMarkdown
+                                                remarkPlugins={[remarkMath]}
+                                                rehypePlugins={[rehypeKatex]}
+                                                components={{
+                                                    p: ({ node, ...props }) => <span {...props} />,
+                                                }}
+                                            >
+                                                {item.term}
+                                            </ReactMarkdown>
+                                        </h4>
+                                        <div className="text-sm text-muted-foreground">
+                                            <ReactMarkdown
+                                                remarkPlugins={[remarkMath]}
+                                                rehypePlugins={[rehypeKatex]}
+                                                components={{
+                                                    p: ({ node, ...props }) => <p className="mb-1" {...props} />,
+                                                }}
+                                            >
+                                                {item.definition}
+                                            </ReactMarkdown>
+                                        </div>
                                     </div>
                                 ))}
                             </div>

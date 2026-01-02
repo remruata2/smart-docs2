@@ -4,6 +4,10 @@ import { useState } from "react";
 import { Card, CardContent } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
 import { ChevronLeft, ChevronRight, RotateCw } from "lucide-react";
+import ReactMarkdown from "react-markdown";
+import remarkMath from "remark-math";
+import rehypeKatex from "rehype-katex";
+import "katex/dist/katex.min.css";
 
 interface Flashcard {
     front: string;
@@ -73,9 +77,16 @@ export function FlashcardViewer({ flashcards }: FlashcardViewerProps) {
                         style={{ backfaceVisibility: "hidden" }}
                     >
                         <CardContent className="flex items-center justify-center h-full text-center p-8">
-                            <div>
+                            <div className="w-full">
                                 <div className="text-xs font-bold text-blue-100 mb-4 uppercase tracking-wider">Question</div>
-                                <p className="text-xl font-medium leading-relaxed">{currentCard.front}</p>
+                                <div className="text-xl font-medium leading-relaxed prose prose-invert max-w-none">
+                                    <ReactMarkdown
+                                        remarkPlugins={[remarkMath]}
+                                        rehypePlugins={[rehypeKatex]}
+                                    >
+                                        {currentCard.front}
+                                    </ReactMarkdown>
+                                </div>
                             </div>
                         </CardContent>
                     </div>
@@ -89,9 +100,16 @@ export function FlashcardViewer({ flashcards }: FlashcardViewerProps) {
                         }}
                     >
                         <CardContent className="flex items-center justify-center h-full text-center p-8">
-                            <div>
+                            <div className="w-full">
                                 <div className="text-xs font-bold text-green-100 mb-4 uppercase tracking-wider">Answer</div>
-                                <p className="text-lg leading-relaxed">{currentCard.back}</p>
+                                <div className="text-lg leading-relaxed prose prose-invert max-w-none">
+                                    <ReactMarkdown
+                                        remarkPlugins={[remarkMath]}
+                                        rehypePlugins={[rehypeKatex]}
+                                    >
+                                        {currentCard.back}
+                                    </ReactMarkdown>
+                                </div>
                             </div>
                         </CardContent>
                     </div>
