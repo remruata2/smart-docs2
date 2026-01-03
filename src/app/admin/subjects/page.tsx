@@ -9,6 +9,8 @@ import SubjectStatusToggle from "./subject-status-toggle";
 import FilterSelect from "@/components/admin/FilterSelect";
 import DeleteEntityButton from "@/components/admin/DeleteEntityButton";
 import { deleteSubject } from "@/app/actions/admin-extended";
+import EditSubjectDialog from "./edit-subject-dialog";
+import EntityActions from "@/components/admin/EntityActions";
 
 export default async function SubjectsPage({
     searchParams,
@@ -72,56 +74,69 @@ export default async function SubjectsPage({
             <div className="bg-white shadow overflow-hidden sm:rounded-md">
                 <ul className="divide-y divide-gray-200">
                     {subjects.map((subject) => (
-                        <li key={subject.id}>
+                        <li key={subject.id} className="relative group">
                             <Link
                                 href={`/admin/chapters?subjectId=${subject.id}`}
                                 className="block hover:bg-gray-50 transition"
                             >
-                                <div className="px-4 py-4 sm:px-6">
+                                <div className="px-4 py-5 sm:px-6">
                                     <div className="flex items-center justify-between">
                                         <div className="flex items-center">
-                                            <span className="text-sm font-medium text-indigo-600 truncate">
+                                            <span className="text-base font-bold text-indigo-600 truncate">
                                                 {subject.name}
                                             </span>
                                             {subject.code && (
-                                                <span className="ml-2 px-2 inline-flex text-xs leading-5 font-semibold rounded-full bg-gray-100 text-gray-800">
+                                                <span className="ml-3 px-2.5 py-0.5 inline-flex text-xs leading-4 font-semibold rounded-full bg-gray-100 text-gray-800 border border-gray-200 uppercase tracking-wider">
                                                     {subject.code}
                                                 </span>
                                             )}
-                                            <span className={`ml-2 px-2 inline-flex text-xs leading-5 font-semibold rounded-full ${subject.is_active ? 'bg-green-100 text-green-800' : 'bg-red-100 text-red-800'}`}>
+                                            <span className={`ml-2 px-2.5 py-0.5 inline-flex text-xs leading-4 font-semibold rounded-full border ${subject.is_active ? 'bg-green-100 text-green-800 border-green-200' : 'bg-red-100 text-red-800 border-red-200'}`}>
                                                 {subject.is_active ? 'Active' : 'Inactive'}
                                             </span>
                                         </div>
-                                        <div className="ml-2 flex-shrink-0 flex items-center gap-2">
-                                            <SubjectStatusToggle subjectId={subject.id} isActive={subject.is_active} />
-                                            <DeleteEntityButton
-                                                entityId={subject.id}
-                                                entityName={subject.name}
-                                                entityType="Subject"
-                                                deleteAction={deleteSubject}
-                                            />
-                                        </div>
+                                        {/* Spacer for absolute actions */}
+                                        <div className="w-32"></div>
                                     </div>
-                                    <div className="mt-2 sm:flex sm:justify-between">
-                                        <div className="sm:flex">
-                                            <p className="flex items-center text-sm text-gray-500 mr-6">
-                                                Program: {subject.program.name}
-                                            </p>
-                                            <p className="flex items-center text-sm text-gray-500 mr-6">
-                                                Board: {subject.program.board.name}
-                                            </p>
+
+                                    <div className="mt-4 flex flex-col sm:flex-row sm:justify-between sm:items-center gap-4">
+                                        <div className="flex flex-wrap items-center gap-y-2 gap-x-6 text-sm text-gray-500">
+                                            <div className="flex items-center">
+                                                <span className="font-semibold text-gray-600 mr-1.5">Program:</span>
+                                                <span className="bg-gray-50 px-2 py-0.5 rounded border border-gray-100">{subject.program.name}</span>
+                                            </div>
+                                            <div className="flex items-center">
+                                                <span className="font-semibold text-gray-600 mr-1.5">Board:</span>
+                                                <span className="bg-gray-50 px-2 py-0.5 rounded border border-gray-100">{subject.program.board.name}</span>
+                                            </div>
                                             {subject.term && (
-                                                <p className="flex items-center text-sm text-gray-500 mr-6">
-                                                    Term: {subject.term}
-                                                </p>
+                                                <div className="flex items-center">
+                                                    <span className="font-semibold text-gray-600 mr-1.5">Term:</span>
+                                                    <span className="bg-blue-50 px-2 py-0.5 rounded border border-blue-100 text-blue-700">{subject.term}</span>
+                                                </div>
                                             )}
                                         </div>
-                                        <div className="mt-2 flex items-center text-sm text-gray-500 sm:mt-0">
-                                            <p>Chapters: {subject._count.chapters}</p>
+
+                                        <div className="flex items-center gap-3">
+                                            <div className="flex items-center px-3 py-1 bg-indigo-50 text-indigo-700 rounded-lg border border-indigo-100 shadow-sm text-sm">
+                                                <span className="font-bold mr-1.5">Chapters:</span>
+                                                <span className="tabular-nums font-medium">{subject._count.chapters}</span>
+                                            </div>
                                         </div>
                                     </div>
                                 </div>
                             </Link>
+                            <div className="absolute top-5 right-4 sm:right-6">
+                                <EntityActions>
+                                    <EditSubjectDialog subject={subject} programs={programs} />
+                                    <SubjectStatusToggle subjectId={subject.id} isActive={subject.is_active} />
+                                    <DeleteEntityButton
+                                        entityId={subject.id}
+                                        entityName={subject.name}
+                                        entityType="Subject"
+                                        deleteAction={deleteSubject}
+                                    />
+                                </EntityActions>
+                            </div>
                         </li>
                     ))}
                     {subjects.length === 0 && (

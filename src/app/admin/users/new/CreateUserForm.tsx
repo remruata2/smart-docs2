@@ -9,6 +9,7 @@ import { createUserAction } from "../actions"; // Adjusted path to actions.ts
 import { toast } from "sonner";
 import { cardContainer, pageTitle } from "@/styles/ui-classes";
 import BackButton from "@/components/ui/BackButton";
+import { ImageUpload } from "@/components/ui/image-upload";
 
 export default function CreateUserForm() {
 	// The parent CreateUserPage.tsx now wraps this component in pageContainer
@@ -16,6 +17,8 @@ export default function CreateUserForm() {
 	const [error, setError] = useState<string | null>(null);
 	const [formData, setFormData] = useState({
 		username: "",
+		name: "",
+		image: "",
 		password: "",
 		role: "student" as UserRole,
 		is_active: true,
@@ -75,6 +78,33 @@ export default function CreateUserForm() {
 					)}
 
 					<div className="grid grid-cols-1 gap-6">
+						<div>
+							<label
+								htmlFor="name"
+								className="block text-sm font-medium text-gray-700"
+							>
+								Full Name / Display Name
+							</label>
+							<div className="mt-1">
+								<input
+									type="text"
+									name="name"
+									id="name"
+									value={formData.name}
+									onChange={handleInputChange}
+									placeholder="e.g. Dr. John Doe"
+									className="shadow-sm focus:ring-blue-500 focus:border-blue-500 block w-full text-base border-gray-300 rounded-md h-8 px-4"
+								/>
+							</div>
+						</div>
+
+						<ImageUpload
+							value={formData.image}
+							onChange={(url) => setFormData({ ...formData, image: url })}
+							label="Profile Picture / Logo"
+							description="This image will be used in the sidebar and course listings."
+						/>
+
 						<div>
 							<label
 								htmlFor="username"

@@ -4,6 +4,8 @@ import { getServerSession } from "next-auth";
 import { authOptions } from "@/lib/auth-options";
 import { isAdmin } from "@/lib/auth";
 import Link from "next/link";
+import { Button } from "@/components/ui/button";
+import { FileSearch } from "lucide-react";
 
 export default async function ChapterViewPage({
     params,
@@ -75,12 +77,26 @@ export default async function ChapterViewPage({
                                 )}
                             </div>
                         </div>
-                        <Link
-                            href={`/admin/chapters/${id}/questions`}
-                            className="bg-indigo-600 text-white px-4 py-2 rounded-md hover:bg-indigo-700 text-sm font-medium"
-                        >
-                            📝 Manage Questions
-                        </Link>
+                        <div className="flex gap-2">
+                            {chapter.pdf_url && (
+                                <Button
+                                    variant="outline"
+                                    asChild
+                                    className="border-blue-200 text-blue-700 hover:bg-blue-50"
+                                >
+                                    <a href={chapter.pdf_url} target="_blank" rel="noopener noreferrer">
+                                        <FileSearch className="w-4 h-4 mr-2" />
+                                        View Source PDF
+                                    </a>
+                                </Button>
+                            )}
+                            <Link
+                                href={`/admin/chapters/${id}/questions`}
+                                className="bg-indigo-600 text-white px-4 py-2 rounded-md hover:bg-indigo-700 text-sm font-medium flex items-center"
+                            >
+                                📝 Manage Questions
+                            </Link>
+                        </div>
                     </div>
                 </div>
 
@@ -104,7 +120,15 @@ export default async function ChapterViewPage({
                         </div>
                         <div>
                             <dt className="text-sm font-medium text-gray-500">PDF URL</dt>
-                            <dd className="mt-1 text-sm text-gray-900 truncate max-w-xs">{chapter.pdf_url || "N/A"}</dd>
+                            <dd className="mt-1 text-sm text-gray-900">
+                                {chapter.pdf_url ? (
+                                    <a href={chapter.pdf_url} target="_blank" rel="noopener noreferrer" className="text-indigo-600 hover:underline truncate block max-w-xs">
+                                        {chapter.pdf_url}
+                                    </a>
+                                ) : (
+                                    "N/A"
+                                )}
+                            </dd>
                         </div>
                         <div>
                             <dt className="text-sm font-medium text-gray-500">Total Chunks</dt>

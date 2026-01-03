@@ -73,10 +73,11 @@ export class LlamaParseDocumentParser {
 					jsonObjs = await reader.loadJson(filePath);
 					break; // Success
 				} catch (err: any) {
-					console.warn(`[LlamaParse] Attempt ${i + 1} failed:`, err.message);
+					const errorMessage = err.message || String(err);
+					console.warn(`[LlamaParse] Attempt ${i + 1} failed:`, errorMessage);
 
 					// Check for LlamaParse API credit limit error
-					const errorDetail = err.detail || err.message || "";
+					const errorDetail = err.detail || errorMessage || "";
 					if (errorDetail.includes("exceeded the maximum number of credits") ||
 						errorDetail.includes("credits for your plan")) {
 						const creditError = new Error("LlamaParse API credit limit exceeded. Please upgrade your LlamaParse plan or wait for credits to reset.");
@@ -84,9 +85,19 @@ export class LlamaParseDocumentParser {
 						throw creditError;
 					}
 
+					// Handle "fetch failed" (common in Node 18+ for networking issues)
+					if (errorMessage.includes("fetch failed")) {
+						console.error("[LlamaParse] Network error ('fetch failed'). This often indicates a DNS issue, unstable internet, or LlamaParse being temporarily unreachable.");
+						if (i === maxRetries - 1) {
+							throw new Error("LlamaParse parsing failed due to persistent network issues ('fetch failed'). Please check your internet connection and try again.");
+						}
+					}
+
 					if (i === maxRetries - 1) throw err; // Throw on last attempt
-					// Wait before retry (1s, 2s, 4s)
-					await new Promise(resolve => setTimeout(resolve, 1000 * Math.pow(2, i)));
+
+					// Progressive wait before retry (2s, 5s, 10s)
+					const delay = [2000, 5000, 10000][i] || 5000;
+					await new Promise(resolve => setTimeout(resolve, delay));
 				}
 			}
 

@@ -2801,7 +2801,7 @@ export async function* processChatMessageEnhancedStream(
 			similarity?: number; // For UI display (converted from RRF score or semantic_similarity)
 			citation?: {
 				pageNumber: number;
-		};
+			};
 		}>;
 		searchQuery?: string;
 		searchMethod?: string;
@@ -4080,6 +4080,15 @@ export interface StudyMaterialsConfig {
 	content: string; // The chapter content to generate materials from
 }
 
+export interface AIStudyMaterials {
+	summary_markdown: string;
+	key_terms: { term: string; definition: string }[];
+	flashcards: { front: string; back: string }[];
+	youtube_search_queries: string[];
+	mind_map_mermaid: string;
+	important_formulas?: { name: string; formula: string; explanation: string }[];
+}
+
 const StudyMaterialSchema = z.object({
 	summary_markdown: z.string().describe("A comprehensive 5-minute read summary of the chapter in markdown format"),
 	key_terms: z.array(z.object({
@@ -4102,7 +4111,7 @@ const StudyMaterialSchema = z.object({
 export async function generateStudyMaterials(
 	config: StudyMaterialsConfig,
 	opts: { model?: string; keyId?: number } = {}
-) {
+): Promise<AIStudyMaterials> {
 	try {
 		// Use getGeminiClient to respect admin-configured models
 		const { client, keyId } = await getGeminiClient({
@@ -4156,15 +4165,16 @@ Generate the following study materials:
 
 Make the materials student-friendly, clear, and focused on exam preparation.`;
 
-		const result = await generateObject({
+		const result = await (generateObject as any)({
 			model: google(modelName),
 			schema: StudyMaterialSchema,
 			prompt: prompt,
+			maxTokens: 60000, // Optimized for Gemini 3.0 Flash Preview (max 65,536)
 		});
 
 		if (keyId) await recordKeyUsage(keyId, true);
 
-		return result.object;
+		return result.object as AIStudyMaterials;
 
 	} catch (error) {
 		console.error("Error generating study materials:", error);
@@ -4200,11 +4210,20 @@ export async function extractQuestionsFromPaper(pdfMarkdown: string) {
 	try {
 		console.log(`[AI-EXTRACT] Extracting questions from paper (${pdfMarkdown.length} chars)...`);
 
-		// Initialize Google Provider
-		const { apiKey } = await getProviderApiKey({ provider: "gemini" });
-		const keyToUse = apiKey || process.env.GEMINI_API_KEY;
-		if (!keyToUse) throw new Error("No Gemini API key found");
-		const google = createGoogleGenerativeAI({ apiKey: keyToUse });
+		// Use getGeminiClient to respect admin-configured keys/provider
+		const { client, keyId } = await getGeminiClient({
+			provider: "gemini",
+		});
+
+		// Dynamic model selection
+		const dbModels = await getActiveModelNames("gemini");
+		const configModel = await getSettingString("ai.model.extract_questions", "");
+		const fallbackModel = process.env.GEMINI_DEFAULT_MODEL || "gemini-2.0-flash";
+		const modelName = configModel || dbModels[0] || fallbackModel;
+
+		const { apiKey } = await getProviderApiKey({ provider: "gemini", keyId: keyId ?? undefined });
+		if (!apiKey) throw new Error("No Gemini API key found");
+		const google = createGoogleGenerativeAI({ apiKey });
 
 		const prompt = `
 You are an expert exam paper parser. Your task is to extract questions from the provided exam paper content.
@@ -4234,10 +4253,12 @@ Return a JSON object with a "questions" array containing the extracted data.
 `;
 
 		const result = await generateObject({
-			model: google("gemini-2.5-pro"), // Use Pro for better reasoning on complex layouts
+			model: google(modelName),
 			schema: ExtractedPaperSchema,
 			prompt: prompt,
 		});
+
+		if (keyId) await recordKeyUsage(keyId, true);
 
 		console.log(`[AI-EXTRACT] Successfully extracted ${result.object.questions.length} questions.`);
 		return result.object.questions;
@@ -4253,11 +4274,20 @@ Return a JSON object with a "questions" array containing the extracted data.
  */
 export async function generateAnswerForQuestion(question: string, context: string, marks: number = 1) {
 	try {
-		// Initialize Google Provider
-		const { apiKey } = await getProviderApiKey({ provider: "gemini" });
-		const keyToUse = apiKey || process.env.GEMINI_API_KEY;
-		if (!keyToUse) throw new Error("No Gemini API key found");
-		const google = createGoogleGenerativeAI({ apiKey: keyToUse });
+		// Use getGeminiClient to respect admin-configured keys/provider
+		const { client, keyId } = await getGeminiClient({
+			provider: "gemini",
+		});
+
+		// Dynamic model selection
+		const dbModels = await getActiveModelNames("gemini");
+		const configModel = await getSettingString("ai.model.generate_answer", "");
+		const fallbackModel = process.env.GEMINI_DEFAULT_MODEL || "gemini-2.0-flash";
+		const modelName = configModel || dbModels[0] || fallbackModel;
+
+		const { apiKey } = await getProviderApiKey({ provider: "gemini", keyId: keyId ?? undefined });
+		if (!apiKey) throw new Error("No Gemini API key found");
+		const google = createGoogleGenerativeAI({ apiKey });
 
 		const prompt = `
 You are an expert subject tutor. Your task is to answer an exam question based strictly on the provided textbook content.
@@ -4285,10 +4315,12 @@ Return a JSON object with "correct_answer" and "explanation".
 `;
 
 		const result = await generateObject({
-			model: google("gemini-2.0-flash"), // Flash is sufficient for answering
+			model: google(modelName),
 			schema: AnswerGenerationSchema,
 			prompt: prompt,
 		});
+
+		if (keyId) await recordKeyUsage(keyId, true);
 
 		return result.object;
 
@@ -4315,26 +4347,35 @@ const BatchAnswerSchema = z.object({
  * Generates answers for a BATCH of questions using chapter context
  * Much more efficient than one-by-one
  */
-/**
- * Generates answers for a BATCH of questions using chapter context
- * Much more efficient than one-by-one
- */
 export async function generateAnswersForBatch(
 	questions: any[],
 	context: string,
 	metadata: { board?: string, level?: string, subject?: string, chapter?: string } = {}
 ) {
 	try {
-		// Initialize Google Provider
-		const { apiKey } = await getProviderApiKey({ provider: "gemini" });
-		const keyToUse = apiKey || process.env.GEMINI_API_KEY;
-		if (!keyToUse) throw new Error("No Gemini API key found");
-		const google = createGoogleGenerativeAI({ apiKey: keyToUse });
+		if (questions.length === 0) return [];
 
-		console.log(`[AI-SOLVE] Generating answers for batch of ${questions.length} questions...`);
+		// Use getGeminiClient to respect admin-configured keys/provider
+		const { client, keyId } = await getGeminiClient({
+			provider: "gemini",
+		});
+
+		// Dynamic model selection
+		const dbModels = await getActiveModelNames("gemini");
+		// Try batch_answer setting, then answer setting, then fallback
+		const batchModel = await getSettingString("ai.model.batch_answer", "");
+		const answerModel = await getSettingString("ai.model.generate_answer", "");
+		const fallbackModel = process.env.GEMINI_DEFAULT_MODEL || "gemini-2.0-flash";
+		const modelName = batchModel || answerModel || dbModels[0] || fallbackModel;
+
+		const { apiKey } = await getProviderApiKey({ provider: "gemini", keyId: keyId ?? undefined });
+		if (!apiKey) throw new Error("No Gemini API key found");
+		const google = createGoogleGenerativeAI({ apiKey });
+
+		console.log(`[AI-SOLVE] Generating answers for batch of ${questions.length} questions using ${modelName}...`);
 
 		const questionsText = questions.map((q, i) =>
-			`Q${i + 1} [${q.points || 1} Marks] (${q.question_type}): ${q.question_text}`
+			`Q${i + 1} [${q.points || 1} Marks] (${q.question_type || 'GENERAL'}): ${q.question_text}`
 		).join("\n\n");
 
 		const boardContext = metadata.board ? `You are an expert ${metadata.board} question setter.` : "You are an expert subject tutor.";
@@ -4345,28 +4386,18 @@ export async function generateAnswersForBatch(
 
 		const prompt = `
 ${boardContext} ${levelContext}
-Your task is to answer exam questions accurately.
+Your task is to answer exam questions accurately based on the provided technical content.
 
 ${subjectChapter}
 QUESTIONS:
 ${questionsText}
 
 TEXTBOOK CONTENT:
-${context}
+${context.slice(0, 20000)}
 
 INSTRUCTIONS:
-1. For EACH question, generate the CORRECT ANSWER and EXPLANATION.
-2. **CRITICAL FOR MCQs - FOLLOW EXACTLY**: 
-   - You MUST select from the options provided in the question.
-   - The "correct_answer" field MUST be the **CLEAN TEXT** of the correct option.
-   - **STRICT RULE**: Do NOT include the *outer* option label (A, B, C, D).
-   - **PRESERVE** content like "(i) and (ii)" if it is part of the option text.
-   - Example: If option is "(i) and (ii)", answer MUST be "(i) and (ii)".
-   - Example: If option is "A. (i) and (ii)", answer MUST be "(i) and (ii)" (Strip 'A.', keep '(i)...').
-   - **NEVER** create an answer that is not in the options list (after stripping outer prefixes).
-   - **NEVER** return just the letter (e.g., "B").
-   - **NEVER** hallucinate an answer (e.g., do not write "Grass → Hawk" if it is not an option).
-   - If multiple options are correct, list all correct option texts separated by " and ".
+1. Provide accurate, professional answers for each question.
+2. Length should match weightage (marks).
 3. **SOURCE PRIORITY**:
    - First, check the provided TEXTBOOK CONTENT.
    - If the answer is NOT in the textbook, **YOU MUST USE YOUR GENERAL KNOWLEDGE**.
@@ -4382,11 +4413,14 @@ OUTPUT FORMAT:
 Return a JSON object with an "answers" array.
 `;
 
-		const result = await generateObject({
-			model: google("gemini-2.0-flash"), // Flash is great for large context
+		const result = await (generateObject as any)({
+			model: google(modelName),
 			schema: BatchAnswerSchema,
 			prompt: prompt,
+			maxTokens: 16384, // Higher limit for batch processing
 		});
+
+		if (keyId) await recordKeyUsage(keyId, true);
 
 		return result.object.answers;
 

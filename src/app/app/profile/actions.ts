@@ -14,16 +14,19 @@ export async function updateProfileInstitution(institutionId: string | null) {
     const userId = parseInt(session.user.id as string);
 
     try {
-        await prisma.profile.upsert({
-            where: { user_id: userId },
-            create: {
-                user_id: userId,
-                institution_id: institutionId ? BigInt(institutionId) : null,
-            },
-            update: {
-                institution_id: institutionId ? BigInt(institutionId) : null,
-            }
+        const latest = await prisma.userEnrollment.findFirst({
+            where: { user_id: userId, status: "active" },
+            orderBy: { last_accessed_at: "desc" }
         });
+
+        if (latest) {
+            await prisma.userEnrollment.update({
+                where: { id: latest.id },
+                data: {
+                    institution_id: institutionId ? BigInt(institutionId) : null,
+                }
+            });
+        }
 
         revalidatePath("/app/profile");
         return { success: true };

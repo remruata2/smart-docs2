@@ -3,7 +3,7 @@
 import { useState, useTransition, useEffect } from "react";
 import { useRouter } from "next/navigation";
 import { toast } from "sonner";
-import { Wand2, Sparkles, Loader2, Trash2 } from "lucide-react";
+import { Wand2, Sparkles, Loader2, Trash2, FileSearch } from "lucide-react";
 import { Button } from "@/components/ui/button";
 
 interface ChapterListClientProps {
@@ -222,20 +222,34 @@ export default function ChapterListClient({ chapters, onDelete }: ChapterListCli
                                 >
                                     <div className="flex items-center justify-between">
                                         <div className="flex items-center gap-2 flex-wrap">
-                                            <span className="text-sm font-medium text-indigo-600">
+                                            <span className="text-base font-bold text-indigo-600">
                                                 {chapter.title}
                                             </span>
                                             {getStatusBadge(chapter.processing_status)}
                                             {chapter.is_global && (
-                                                <span className="px-2 inline-flex text-xs leading-5 font-semibold rounded-full bg-blue-100 text-blue-800">
+                                                <span className="px-2.5 py-0.5 inline-flex text-xs leading-4 font-semibold rounded-full bg-blue-100 text-blue-800 border border-blue-200">
                                                     Global
                                                 </span>
                                             )}
-                                            <span className={`px-2 inline-flex text-xs leading-5 font-semibold rounded-full ${chapter.is_active ? 'bg-green-100 text-green-800' : 'bg-red-100 text-red-800'}`}>
+                                            <span className={`px-2.5 py-0.5 inline-flex text-xs leading-4 font-semibold rounded-full border ${chapter.is_active ? 'bg-green-100 text-green-800 border-green-200' : 'bg-red-100 text-red-800 border-red-200'}`}>
                                                 {chapter.is_active ? 'Active' : 'Inactive'}
                                             </span>
                                         </div>
                                         <div className="flex items-center gap-2">
+                                            {chapter.pdf_url && (
+                                                <Button
+                                                    variant="outline"
+                                                    size="sm"
+                                                    asChild
+                                                    className="h-8 border-blue-200 text-blue-700 hover:bg-blue-50"
+                                                >
+                                                    <a href={chapter.pdf_url} target="_blank" rel="noopener noreferrer" onClick={(e) => e.stopPropagation()}>
+                                                        <FileSearch className="w-4 h-4 mr-2" />
+                                                        PDF
+                                                    </a>
+                                                </Button>
+                                            )}
+
                                             <Button
                                                 variant="outline"
                                                 size="sm"
@@ -264,26 +278,39 @@ export default function ChapterListClient({ chapters, onDelete }: ChapterListCli
                                             </Button>
                                         </div>
                                     </div>
-                                    <div className="mt-2 sm:flex sm:justify-between">
-                                        <div className="sm:flex">
-                                            <p className="flex items-center text-sm text-gray-500 mr-6">
-                                                Subject: {chapter.subject.name}
-                                            </p>
-                                            <p className="flex items-center text-sm text-gray-500 mr-6">
-                                                Program: {chapter.subject.program.name}
-                                            </p>
-                                            <p className="flex items-center text-sm text-gray-500 mr-6">
-                                                Board: {chapter.subject.program.board.name}
-                                            </p>
+
+                                    <div className="mt-4 flex flex-col sm:flex-row sm:justify-between sm:items-center gap-4">
+                                        <div className="flex flex-wrap items-center gap-y-2 gap-x-6 text-sm text-gray-500">
+                                            <div className="flex items-center">
+                                                <span className="font-semibold text-gray-600 mr-1.5">Subject:</span>
+                                                <span className="bg-gray-50 px-2 py-0.5 rounded border border-gray-100">{chapter.subject.name}</span>
+                                            </div>
+                                            <div className="flex items-center">
+                                                <span className="font-semibold text-gray-600 mr-1.5">Program:</span>
+                                                <span className="bg-gray-50 px-2 py-0.5 rounded border border-gray-100">{chapter.subject.program.name}</span>
+                                            </div>
+                                            <div className="flex items-center">
+                                                <span className="font-semibold text-gray-600 mr-1.5">Board:</span>
+                                                <span className="bg-gray-50 px-2 py-0.5 rounded border border-gray-100">{chapter.subject.program.board.name}</span>
+                                            </div>
                                         </div>
-                                        <div className="mt-2 flex items-center text-sm text-gray-500 sm:mt-0">
-                                            <p className="mr-4">Chunks: {chapter._count.chunks}</p>
-                                            <p>Pages: {chapter._count.pages}</p>
+
+                                        <div className="flex items-center gap-3">
+                                            <div className="flex items-center px-3 py-1 bg-indigo-50 text-indigo-700 rounded-lg border border-indigo-100 shadow-sm text-sm">
+                                                <span className="font-bold mr-1.5">Chunks:</span>
+                                                <span className="tabular-nums font-medium">{chapter._count.chunks}</span>
+                                            </div>
+                                            <div className="flex items-center px-3 py-1 bg-emerald-50 text-emerald-700 rounded-lg border border-emerald-100 shadow-sm text-sm">
+                                                <span className="font-bold mr-1.5">Pages:</span>
+                                                <span className="tabular-nums font-medium">{chapter._count.pages}</span>
+                                            </div>
                                         </div>
                                     </div>
+
                                     {chapter.processing_status === 'FAILED' && chapter.error_message && (
-                                        <div className="mt-2 text-xs text-red-600 bg-red-50 p-2 rounded">
-                                            Error: {chapter.error_message}
+                                        <div className="mt-3 text-xs text-red-600 bg-red-50 border border-red-100 p-2.5 rounded-md flex items-start gap-2">
+                                            <span className="font-bold shrink-0">Error:</span>
+                                            <span>{chapter.error_message}</span>
                                         </div>
                                     )}
                                 </div>

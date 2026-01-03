@@ -7,6 +7,8 @@ import { Loader2, ArrowLeft, Pencil } from 'lucide-react';
 export type UserDetailProps = {
   id: number;
   username: string;
+  name: string | null;
+  image: string | null;
   role: UserRole;
   is_active: boolean | null;
   last_login: string | null; // Dates as ISO strings
@@ -59,7 +61,7 @@ export default function UserDetailClient({ user, loading, error }: UserDetailCli
   if (!user) {
     return (
       <div className="px-4 py-6 sm:px-0">
-         <div className="flex items-center mb-6">
+        <div className="flex items-center mb-6">
           <Link href="/admin/users" className="mr-4 text-gray-500 hover:text-gray-700">
             <ArrowLeft className="h-5 w-5" />
           </Link>
@@ -91,17 +93,34 @@ export default function UserDetailClient({ user, loading, error }: UserDetailCli
       </div>
 
       <div className="bg-white shadow overflow-hidden sm:rounded-lg">
-        <div className="px-4 py-5 sm:px-6 border-b border-gray-200">
-          <h3 className="text-lg leading-6 font-medium text-gray-900">
-            {user.username}
-          </h3>
-          <p className="mt-1 max-w-2xl text-sm text-gray-500">
-            User profile and account details
-          </p>
+        <div className="px-4 py-5 sm:px-6 border-b border-gray-200 flex items-center">
+          <div className="h-16 w-16 rounded-full bg-gray-200 flex items-center justify-center overflow-hidden mr-4">
+            {user.image ? (
+              <img src={user.image} alt="" className="h-full w-full object-cover" />
+            ) : (
+              <span className="text-xl font-bold text-gray-500">
+                {(user.name || user.username).charAt(0).toUpperCase()}
+              </span>
+            )}
+          </div>
+          <div>
+            <h3 className="text-lg leading-6 font-medium text-gray-900">
+              {user.name || user.username}
+            </h3>
+            <p className="mt-1 max-w-2xl text-sm text-gray-500">
+              {user.username} • User profile and account details
+            </p>
+          </div>
         </div>
         <div className="border-t border-gray-200">
           <dl>
             <div className="bg-gray-50 px-4 py-5 sm:grid sm:grid-cols-3 sm:gap-4 sm:px-6">
+              <dt className="text-sm font-medium text-gray-500">Full Name</dt>
+              <dd className="mt-1 text-sm text-gray-900 sm:mt-0 sm:col-span-2">
+                {user.name || 'N/A'}
+              </dd>
+            </div>
+            <div className="bg-white px-4 py-5 sm:grid sm:grid-cols-3 sm:gap-4 sm:px-6">
               <dt className="text-sm font-medium text-gray-500">Username</dt>
               <dd className="mt-1 text-sm text-gray-900 sm:mt-0 sm:col-span-2">
                 {user.username}
@@ -110,9 +129,8 @@ export default function UserDetailClient({ user, loading, error }: UserDetailCli
             <div className="bg-white px-4 py-5 sm:grid sm:grid-cols-3 sm:gap-4 sm:px-6">
               <dt className="text-sm font-medium text-gray-500">Role</dt>
               <dd className="mt-1 text-sm text-gray-900 sm:mt-0 sm:col-span-2">
-                <span className={`inline-flex items-center px-2.5 py-0.5 rounded-full text-xs font-medium ${
-                  user.role === 'admin' ? 'bg-purple-100 text-purple-800' : 'bg-blue-100 text-blue-800'
-                }`}>
+                <span className={`inline-flex items-center px-2.5 py-0.5 rounded-full text-xs font-medium ${user.role === 'admin' ? 'bg-purple-100 text-purple-800' : 'bg-blue-100 text-blue-800'
+                  }`}>
                   {user.role === 'admin' ? 'Admin' : 'Staff'}
                 </span>
               </dd>
@@ -120,9 +138,8 @@ export default function UserDetailClient({ user, loading, error }: UserDetailCli
             <div className="bg-gray-50 px-4 py-5 sm:grid sm:grid-cols-3 sm:gap-4 sm:px-6">
               <dt className="text-sm font-medium text-gray-500">Status</dt>
               <dd className="mt-1 text-sm text-gray-900 sm:mt-0 sm:col-span-2">
-                <span className={`inline-flex items-center px-2.5 py-0.5 rounded-full text-xs font-medium ${
-                  user.is_active ? 'bg-green-100 text-green-800' : 'bg-red-100 text-red-800'
-                }`}>
+                <span className={`inline-flex items-center px-2.5 py-0.5 rounded-full text-xs font-medium ${user.is_active ? 'bg-green-100 text-green-800' : 'bg-red-100 text-red-800'
+                  }`}>
                   {user.is_active ? 'Active' : 'Inactive'}
                 </span>
               </dd>

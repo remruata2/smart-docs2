@@ -12,7 +12,23 @@ export async function GET(request: NextRequest) {
             return NextResponse.json({ error: 'Unauthorized' }, { status: 401 });
         }
 
+        const { searchParams } = new URL(request.url);
+        const search = searchParams.get('search');
+        const classLevel = searchParams.get('class_level');
+
+        const where: any = {};
+        if (classLevel && classLevel !== 'all') {
+            where.class_level = classLevel;
+        }
+        if (search) {
+            where.OR = [
+                { title: { contains: search, mode: 'insensitive' } },
+                { subject: { contains: search, mode: 'insensitive' } },
+            ];
+        }
+
         const syllabi = await prisma.syllabus.findMany({
+            where,
             orderBy: { updated_at: 'desc' },
             include: {
                 _count: {

@@ -231,7 +231,7 @@ export function CourseForm({ course, boards, instructors }: CourseFormProps) {
                                     <option value="">No Instructor Assigned</option>
                                     {instructors.map(inst => (
                                         <option key={inst.id} value={inst.id}>
-                                            {inst.user.username} {inst.title ? `(${inst.title})` : ""}
+                                            {inst.user.name || inst.user.username} {inst.title ? `(${inst.title})` : ""}
                                         </option>
                                     ))}
                                 </select>

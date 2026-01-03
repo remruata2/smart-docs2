@@ -23,55 +23,69 @@ export default async function InstructorsAdminPage() {
                 </Link>
             </div>
 
-            <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
-                {instructors.length === 0 ? (
-                    <Card className="col-span-full border-dashed">
-                        <CardContent className="py-12 text-center text-gray-500">
+            <div className="bg-white shadow overflow-hidden sm:rounded-md">
+                <ul className="divide-y divide-gray-200">
+                    {instructors.length === 0 ? (
+                        <li className="px-4 py-8 text-center text-gray-500">
                             No instructors added yet. Click "Add Instructor" to get started.
-                        </CardContent>
-                    </Card>
-                ) : (
-                    instructors.map((instructor) => (
-                        <Card key={instructor.id} className="hover:shadow-md transition-shadow overflow-hidden">
-                            <CardHeader className="pb-2 border-b">
-                                <div className="flex justify-between items-start mb-2">
-                                    <Badge variant="outline">{instructor.title || "Instructor"}</Badge>
-                                    <Badge variant="secondary">{instructor._count.courses} Courses</Badge>
-                                </div>
-                                <div className="flex items-center gap-3">
-                                    <div className="h-10 w-10 rounded-full bg-indigo-100 flex items-center justify-center text-indigo-700 font-bold">
-                                        {instructor.user.username.charAt(0).toUpperCase()}
+                        </li>
+                    ) : (
+                        instructors.map((instructor) => (
+                            <li key={instructor.id}>
+                                <div className="px-4 py-5 sm:px-6">
+                                    <div className="flex items-center justify-between">
+                                        <div className="flex items-center">
+                                            <div className="h-8 w-8 rounded-full bg-indigo-100 flex items-center justify-center text-indigo-700 font-bold text-xs mr-3">
+                                                {instructor.user.username.charAt(0).toUpperCase()}
+                                            </div>
+                                            <span className="text-base font-bold text-indigo-600 truncate">
+                                                {instructor.user.username}
+                                            </span>
+                                            <span className="ml-3 px-2.5 py-0.5 inline-flex text-xs leading-4 font-semibold rounded-full bg-gray-100 text-gray-800 border border-gray-200 uppercase tracking-wider">
+                                                {instructor.title || "Instructor"}
+                                            </span>
+                                        </div>
+                                        <div className="ml-2 flex-shrink-0 flex items-center gap-3">
+                                            <Link href={`/admin/instructors/${instructor.id}`}>
+                                                <Button variant="outline" size="sm" className="h-8 border-gray-200">
+                                                    Edit Profile
+                                                </Button>
+                                            </Link>
+                                            <Link href={`/instructor/dashboard`}>
+                                                <Button variant="outline" size="sm" className="h-8 border-indigo-200 text-indigo-700 hover:bg-indigo-50">
+                                                    <ExternalLink className="h-4 w-4 mr-2" />
+                                                    Dashboard
+                                                </Button>
+                                            </Link>
+                                        </div>
                                     </div>
-                                    <div>
-                                        <CardTitle className="text-xl">{instructor.user.username}</CardTitle>
-                                        <p className="text-sm text-gray-500 flex items-center gap-1">
-                                            <Mail className="h-3 w-3" />
-                                            {instructor.user.email}
-                                        </p>
-                                    </div>
-                                </div>
-                            </CardHeader>
-                            <CardContent className="pt-4">
-                                <p className="text-gray-600 text-sm line-clamp-3 mb-4 h-12">
-                                    {instructor.bio || "No bio provided."}
-                                </p>
 
-                                <div className="flex gap-2">
-                                    <Link href={`/admin/instructors/${instructor.id}`} className="flex-1">
-                                        <Button variant="outline" className="w-full">
-                                            Edit Profile
-                                        </Button>
-                                    </Link>
-                                    <Link href={`/instructor/dashboard`} className="px-3">
-                                        <Button variant="ghost" size="icon" title="View Dashboard">
-                                            <ExternalLink className="h-4 w-4" />
-                                        </Button>
-                                    </Link>
+                                    <div className="mt-4 flex flex-col sm:flex-row sm:justify-between sm:items-center gap-4 text-sm text-gray-500">
+                                        <div className="flex flex-wrap items-center gap-y-2 gap-x-6">
+                                            <div className="flex items-center">
+                                                <span className="font-semibold text-gray-600 mr-1.5">Email:</span>
+                                                <span className="bg-gray-50 px-2 py-0.5 rounded border border-gray-100">{instructor.user.email}</span>
+                                            </div>
+                                            {instructor.bio && (
+                                                <div className="flex items-center max-w-sm">
+                                                    <span className="truncate italic">"{instructor.bio}"</span>
+                                                </div>
+                                            )}
+                                        </div>
+
+                                        <div className="flex items-center gap-3">
+                                            <div className="flex items-center px-3 py-1 bg-indigo-50 text-indigo-700 rounded-lg border border-indigo-100 shadow-sm text-sm">
+                                                <BookOpen className="w-3.5 h-3.5 mr-1.5 opacity-70" />
+                                                <span className="font-bold mr-1.5">Courses:</span>
+                                                <span className="tabular-nums font-medium">{instructor._count.courses}</span>
+                                            </div>
+                                        </div>
+                                    </div>
                                 </div>
-                            </CardContent>
-                        </Card>
-                    ))
-                )}
+                            </li>
+                        ))
+                    )}
+                </ul>
             </div>
         </div>
     );

@@ -50,7 +50,7 @@ export default function NewTextbookPage() {
     const [formData, setFormData] = useState<CreateTextbookInput>({
         title: '',
         description: '',
-        class_level: 'XI',
+        class_level: '',
         stream: null,
         subject_name: '',
         board_id: 'MBSE',
@@ -59,22 +59,40 @@ export default function NewTextbookPage() {
         raw_syllabus: '',
     });
 
+    const [programs, setPrograms] = useState<{ id: string | number, name: string }[]>([]);
+
     useEffect(() => {
-        const fetchSyllabi = async () => {
+        async function fetchPrograms() {
             try {
-                setFetchingSyllabi(true);
-                const res = await fetch('/api/admin/syllabi');
+                const res = await fetch('/api/admin/programs');
                 if (res.ok) {
                     const data = await res.json();
-                    const parsedSyllabi = data.syllabi.filter((s: Syllabus) => s.status === 'PARSED');
-                    setSyllabi(parsedSyllabi);
+                    setPrograms(data.programs || []);
                 }
-            } catch (e) {
-                console.error("Failed to fetch syllabi", e);
-            } finally {
-                setFetchingSyllabi(false);
+            } catch (error) {
+                console.error('Failed to fetch programs:', error);
             }
-        };
+        }
+        fetchPrograms();
+    }, []);
+
+    const fetchSyllabi = async () => {
+        try {
+            setFetchingSyllabi(true);
+            const res = await fetch('/api/admin/syllabi');
+            if (res.ok) {
+                const data = await res.json();
+                const parsedSyllabi = data.syllabi.filter((s: Syllabus) => s.status === 'PARSED');
+                setSyllabi(parsedSyllabi);
+            }
+        } catch (e) {
+            console.error("Failed to fetch syllabi", e);
+        } finally {
+            setFetchingSyllabi(false);
+        }
+    };
+
+    useEffect(() => {
         fetchSyllabi();
     }, []);
 
@@ -86,8 +104,8 @@ export default function NewTextbookPage() {
                     ...prev,
                     title: `Textbook: ${syllabus.title}`,
                     subject_name: syllabus.subject,
-                    class_level: syllabus.class_level as 'XI' | 'XII',
-                    stream: syllabus.stream as 'Arts' | 'Science' | 'Commerce' | 'Vocational' | null,
+                    class_level: syllabus.class_level,
+                    stream: syllabus.stream as any,
                     board_id: syllabus.board,
                     academic_year: syllabus.academic_year || prev.academic_year
                 }));
@@ -293,14 +311,15 @@ export default function NewTextbookPage() {
                                         <Label htmlFor="class_level">Class Level *</Label>
                                         <Select
                                             value={formData.class_level}
-                                            onValueChange={(v) => updateField('class_level', v as 'XI' | 'XII')}
+                                            onValueChange={(v) => updateField('class_level', v)}
                                         >
                                             <SelectTrigger>
                                                 <SelectValue />
                                             </SelectTrigger>
                                             <SelectContent>
-                                                <SelectItem value="XI">Class XI</SelectItem>
-                                                <SelectItem value="XII">Class XII</SelectItem>
+                                                {programs.map(p => (
+                                                    <SelectItem key={p.id} value={p.name}>{p.name}</SelectItem>
+                                                ))}
                                             </SelectContent>
                                         </Select>
                                     </div>

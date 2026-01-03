@@ -3,6 +3,36 @@
 import { db } from "@/lib/db";
 import { getServerSession } from "next-auth";
 import { authOptions } from "@/lib/auth-options";
+import { updateUser as updateUserService } from "@/services/user-service";
+import { revalidatePath } from "next/cache";
+
+export async function updateSelfAction(data: {
+    name: string;
+    image?: string;
+}) {
+    const session = await getServerSession(authOptions);
+
+    if (!session || !session.user) {
+        return { success: false, error: "Unauthorized" };
+    }
+
+    const userId = parseInt(session.user.id);
+
+    try {
+        await updateUserService(userId, {
+            name: data.name,
+            image: data.image,
+        });
+
+        revalidatePath("/instructor/settings");
+        revalidatePath("/instructor/dashboard");
+
+        return { success: true };
+    } catch (error: any) {
+        console.error("Failed to update self profile:", error);
+        return { success: false, error: error.message || "Failed to update profile. Please try again." };
+    }
+}
 
 async function getInstructor() {
     const session = await getServerSession(authOptions);

@@ -14,7 +14,7 @@ export default async function UserEditPage({ params }: { params: Promise<{ id: s
   if (!session || !session.user || session.user.role !== UserRole.admin) {
     redirect('/unauthorized');
   }
-  
+
   const { id: paramId } = await params;
   const userId = parseInt(paramId, 10);
   let initialUserData: UserEditData | null = null;
@@ -29,6 +29,8 @@ export default async function UserEditPage({ params }: { params: Promise<{ id: s
         initialUserData = {
           id: rawUser.id,
           username: rawUser.username,
+          name: rawUser.name,
+          image: rawUser.image,
           role: rawUser.role,
           is_active: rawUser.is_active === null ? true : rawUser.is_active, // Default to true if null
         };

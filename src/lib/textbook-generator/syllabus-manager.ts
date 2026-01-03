@@ -15,28 +15,57 @@ import { parseSyllabus } from './syllabus-parser';
  */
 
 export async function createSyllabus(data: CreateSyllabusInput) {
-    return await prisma.syllabus.create({
-        data: {
-            title: data.title,
-            description: data.description,
-            class_level: data.class_level,
-            stream: data.stream,
-            subject: data.subject,
-            board: data.board || 'MBSE',
-            academic_year: data.academic_year,
-            raw_text: data.raw_text,
-            status: 'DRAFT'
+    return await prisma.$transaction(async (tx) => {
+        const syllabus = await tx.syllabus.create({
+            data: {
+                title: data.title,
+                description: data.description,
+                class_level: data.class_level,
+                stream: data.stream,
+                subject: data.subject,
+                board: data.board || 'MBSE',
+                academic_year: data.academic_year,
+                raw_text: data.raw_text,
+                status: data.units && data.units.length > 0 ? 'PARSED' : 'DRAFT'
+            }
+        });
+
+        if (data.units && data.units.length > 0) {
+            for (let i = 0; i < data.units.length; i++) {
+                const unit = data.units[i];
+                const createdUnit = await tx.syllabusUnit.create({
+                    data: {
+                        syllabus_id: syllabus.id,
+                        title: unit.title,
+                        order: i + 1,
+                        description: `Unit ${i + 1}`
+                    }
+                });
+
+                if (unit.chapters && unit.chapters.length > 0) {
+                    await tx.syllabusChapter.createMany({
+                        data: unit.chapters.map((ch, idx) => ({
+                            unit_id: createdUnit.id,
+                            chapter_number: ch.number,
+                            title: ch.title,
+                            order: idx + 1,
+                            subtopics: JSON.stringify(ch.subtopics || [])
+                        }))
+                    });
+                }
+            }
         }
+
+        return syllabus;
     });
 }
 
-export async function updateSyllabus(id: number, data: UpdateSyllabusInput & { raw_text?: string }) {
+export async function updateSyllabus(id: number, input: UpdateSyllabusInput & { raw_text?: string }) {
+    const { units, ...data } = input;
     return await prisma.syllabus.update({
         where: { id },
         data: {
             ...data,
-            // If raw_text is updated, reset detailed structure? 
-            // Better to let user manually request re-parse.
         }
     });
 }

@@ -13,6 +13,7 @@ type AppUser = {
 	username: string;
 	email: string;
 	name: string;
+	image?: string | null;
 };
 
 declare module "next-auth" {
@@ -76,7 +77,8 @@ export const authOptions: NextAuthOptions = {
 					username: user.username,
 					role: user.role,
 					email: user.email || user.username,
-					name: user.username,
+					name: user.name || user.username,
+					image: user.image,
 				};
 			},
 		}),
@@ -149,13 +151,16 @@ export const authOptions: NextAuthOptions = {
 						token.role = dbUser.role;
 						token.username = dbUser.username;
 						token.email = dbUser.email || user.email;
-						token.name = dbUser.username;
+						token.name = dbUser.name || dbUser.username;
+						token.image = dbUser.image;
 					}
 				} else {
 					// For credentials-based login, use the user object directly
 					token.id = user.id;
 					token.role = user.role;
 					token.username = user.username;
+					token.name = user.name;
+					token.image = user.image;
 				}
 			}
 			return token;
@@ -165,6 +170,8 @@ export const authOptions: NextAuthOptions = {
 				session.user.id = token.id;
 				session.user.role = token.role as UserRole;
 				session.user.username = token.username;
+				session.user.name = token.name || token.username || "";
+				session.user.image = token.image;
 			}
 			return session;
 		},

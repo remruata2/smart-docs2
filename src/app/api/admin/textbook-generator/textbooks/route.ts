@@ -105,8 +105,8 @@ export async function POST(request: NextRequest) {
         if (!body.title?.trim()) {
             return NextResponse.json({ error: 'Title is required' }, { status: 400 });
         }
-        if (!body.class_level || !['XI', 'XII'].includes(body.class_level)) {
-            return NextResponse.json({ error: 'Valid class level (XI or XII) is required' }, { status: 400 });
+        if (!body.class_level) {
+            return NextResponse.json({ error: 'Class level is required' }, { status: 400 });
         }
 
         // Get user ID from session

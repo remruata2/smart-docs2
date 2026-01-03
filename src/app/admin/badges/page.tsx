@@ -40,38 +40,50 @@ export default async function AdminBadgesPage({ searchParams }: { searchParams: 
                     </Link>
                 </div>
 
-                <div className="grid gap-4 md:grid-cols-2 lg:grid-cols-4">
-                    {badges.map((badge) => (
-                        <Card key={badge.id}>
-                            <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-2">
-                                <CardTitle className="text-sm font-medium">
-                                    {badge.name}
-                                </CardTitle>
-                                <BadgeIcon name={badge.icon} className="w-8 h-8 text-indigo-500" />
-                            </CardHeader>
-                            <CardContent>
-                                <div className="text-2xl font-bold">
-                                    {badge.min_streak} Days
+                <div className="bg-white shadow overflow-hidden sm:rounded-md">
+                    <ul className="divide-y divide-gray-200">
+                        {badges.map((badge) => (
+                            <li key={badge.id}>
+                                <div className="px-4 py-5 sm:px-6">
+                                    <div className="flex items-center justify-between">
+                                        <div className="flex items-center">
+                                            <div className="p-2 bg-indigo-50 rounded-lg border border-indigo-100 mr-3">
+                                                <BadgeIcon name={badge.icon} className="w-6 h-6 text-indigo-600" />
+                                            </div>
+                                            <span className="text-base font-bold text-gray-900 truncate">
+                                                {badge.name}
+                                            </span>
+                                            <span className="ml-3 px-2.5 py-0.5 inline-flex text-xs leading-4 font-semibold rounded-full bg-orange-100 text-orange-800 border border-orange-200 uppercase tracking-wider">
+                                                {badge.min_streak} Day Streak
+                                            </span>
+                                        </div>
+                                        <div className="ml-2 flex-shrink-0">
+                                            <form action={deleteBadge.bind(null, badge.id)}>
+                                                <Button variant="outline" size="sm" type="submit" className="h-8 border-red-200 text-red-700 hover:bg-red-50">
+                                                    <Trash2 className="w-4 h-4 mr-2" />
+                                                    Delete
+                                                </Button>
+                                            </form>
+                                        </div>
+                                    </div>
+
+                                    <div className="mt-4 flex flex-col sm:flex-row sm:justify-between sm:items-center gap-4">
+                                        <div className="flex items-center gap-3">
+                                            <div className="flex items-center px-3 py-1 bg-emerald-50 text-emerald-700 rounded-lg border border-emerald-100 shadow-sm text-sm">
+                                                <span className="font-bold mr-1.5">Total Earners:</span>
+                                                <span className="tabular-nums font-medium">{badge._count.user_badges}</span>
+                                            </div>
+                                        </div>
+                                    </div>
                                 </div>
-                                <p className="text-xs text-muted-foreground mt-1">
-                                    {badge._count.user_badges} earners
-                                </p>
-                                <div className="flex items-center gap-2 mt-4">
-                                    <form action={deleteBadge.bind(null, badge.id)}>
-                                        <Button variant="destructive" size="sm" type="submit" className="w-full">
-                                            <Trash2 className="w-3 h-3 mr-2" />
-                                            Delete
-                                        </Button>
-                                    </form>
-                                </div>
-                            </CardContent>
-                        </Card>
-                    ))}
-                    {badges.length === 0 && (
-                        <div className="col-span-full text-center py-8 bg-white rounded-lg border border-dashed">
-                            <p className="text-gray-500">No badges configured.</p>
-                        </div>
-                    )}
+                            </li>
+                        ))}
+                        {badges.length === 0 && (
+                            <li className="px-4 py-8 text-center text-gray-500">
+                                No badges configured.
+                            </li>
+                        )}
+                    </ul>
                 </div>
             </div>
 

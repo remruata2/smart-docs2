@@ -40,6 +40,38 @@ export async function createBoard(formData: FormData) {
     }
 }
 
+export async function updateBoard(formData: FormData) {
+    const session = await getServerSession(authOptions);
+    if (!session?.user || !isAdmin((session.user as any).role)) {
+        return { success: false, error: "Unauthorized" };
+    }
+
+    const id = formData.get("id") as string;
+    const name = formData.get("name") as string;
+    const countryId = formData.get("countryId") as string;
+    const state = formData.get("state") as string;
+
+    if (!id || !name || !countryId) {
+        return { success: false, error: "Missing required fields" };
+    }
+
+    try {
+        await prisma.board.update({
+            where: { id },
+            data: {
+                name,
+                country_id: countryId,
+                state: state || null,
+            },
+        });
+        revalidatePath("/admin/boards");
+        return { success: true };
+    } catch (error) {
+        console.error("Error updating board:", error);
+        return { success: false, error: "Failed to update board" };
+    }
+}
+
 export async function updateBoardStatus(boardId: string, isActive: boolean) {
     const session = await getServerSession(authOptions);
     if (!session?.user || !isAdmin((session.user as any).role)) {

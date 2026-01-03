@@ -67,7 +67,20 @@ export async function enrollInCourse(courseId: number, institutionId?: string) {
     const userId = parseInt(session.user.id as string);
 
     try {
-        // 1. Update or Create Enrollment
+        // Step 0: Get the program_id from the course's subjects
+        const course = await prisma.course.findUnique({
+            where: { id: courseId },
+            include: {
+                subjects: {
+                    select: { program_id: true },
+                    take: 1
+                }
+            }
+        });
+
+        const programId = course?.subjects[0]?.program_id;
+
+        // 1. Update or Create Enrollment with context
         await prisma.userEnrollment.upsert({
             where: {
                 user_id_course_id: {
@@ -80,25 +93,22 @@ export async function enrollInCourse(courseId: number, institutionId?: string) {
                 course_id: courseId,
                 status: "active",
                 progress: 0,
+                institution_id: institutionId ? BigInt(institutionId) : null,
+                program_id: programId,
             },
             update: {
                 status: "active",
+                institution_id: institutionId ? BigInt(institutionId) : null,
+                program_id: programId,
             }
         });
 
-        // 2. Update Profile with Institution if provided
-        if (institutionId) {
-            await prisma.profile.upsert({
-                where: { user_id: userId },
-                create: {
-                    user_id: userId,
-                    institution_id: BigInt(institutionId),
-                },
-                update: {
-                    institution_id: BigInt(institutionId),
-                }
-            });
-        }
+        // 2. Ensure Profile exists (but we don't store board/program there anymore)
+        await prisma.profile.upsert({
+            where: { user_id: userId },
+            create: { user_id: userId },
+            update: {} // No update needed here
+        });
 
         revalidatePath("/");
         revalidatePath("/my-learning");

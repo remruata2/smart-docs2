@@ -21,7 +21,16 @@ export default async function ProfilePage() {
     const user = await prisma.user.findUnique({
         where: { id: parseInt(session.user.id) },
         include: {
-            profile: {
+            profile: true,
+            subscription: {
+                include: {
+                    plan: true
+                }
+            },
+            enrollments: {
+                where: { status: "active" },
+                orderBy: { last_accessed_at: "desc" },
+                take: 1,
                 include: {
                     institution: {
                         include: {
@@ -34,11 +43,6 @@ export default async function ProfilePage() {
                         }
                     }
                 }
-            },
-            subscription: {
-                include: {
-                    plan: true
-                }
             }
         }
     });
@@ -49,6 +53,7 @@ export default async function ProfilePage() {
 
     const profile = user.profile;
     const subscription = user.subscription;
+    const latestEnrollment = (user as any).enrollments?.[0];
 
     return (
         <div className="container mx-auto py-8 px-4 max-w-5xl">
@@ -108,23 +113,23 @@ export default async function ProfilePage() {
                                 <School className="h-5 w-5 text-indigo-600" />
                                 Academic Profile
                             </CardTitle>
-                            <CardDescription>Your current educational context</CardDescription>
+                            <CardDescription>Your current educational context (from latest enrollment)</CardDescription>
                         </CardHeader>
                         <CardContent>
-                            {profile ? (
+                            {latestEnrollment ? (
                                 <div className="grid grid-cols-1 sm:grid-cols-2 gap-6">
                                     <div className="space-y-1">
                                         <div className="flex items-center justify-between">
                                             <p className="text-sm font-medium text-gray-500">Institution</p>
                                             <ProfileEditForm
-                                                currentInstitutionId={profile.institution_id?.toString()}
-                                                currentBoardId={profile.institution?.board_id || profile.program?.board_id}
+                                                currentInstitutionId={latestEnrollment.institution_id?.toString()}
+                                                currentBoardId={latestEnrollment.institution?.board_id || latestEnrollment.program?.board_id}
                                             />
                                         </div>
                                         <div className="flex items-center gap-2">
                                             <School className="h-4 w-4 text-gray-400" />
                                             <span className="font-medium">
-                                                {profile.institution?.name || "Self-Paced / Independent"}
+                                                {latestEnrollment.institution?.name || "Self-Paced / Independent"}
                                             </span>
                                         </div>
                                     </div>
@@ -134,7 +139,7 @@ export default async function ProfilePage() {
                                         <div className="flex items-center gap-2">
                                             <BookOpen className="h-4 w-4 text-gray-400" />
                                             <span className="font-medium">
-                                                {profile.program?.name || "Not Selected"}
+                                                {latestEnrollment.program?.name || "Not Selected"}
                                             </span>
                                         </div>
                                     </div>
@@ -143,16 +148,16 @@ export default async function ProfilePage() {
                                         <p className="text-sm font-medium text-gray-500">Board</p>
                                         <div className="flex items-center gap-2">
                                             <span className="text-xs font-bold bg-gray-100 px-2 py-0.5 rounded text-gray-600">
-                                                {profile.institution?.board?.name || profile.program?.board?.name || "N/A"}
+                                                {latestEnrollment.institution?.board?.name || latestEnrollment.program?.board?.name || "N/A"}
                                             </span>
                                         </div>
                                     </div>
                                 </div>
                             ) : (
                                 <div className="text-center py-6 text-gray-500">
-                                    <p>No profile information set.</p>
-                                    <Link href="/app/onboarding">
-                                        <Button variant="link" className="mt-2">Complete Onboarding</Button>
+                                    <p>No enrollment information found.</p>
+                                    <Link href="/app/catalog">
+                                        <Button variant="link" className="mt-2">Browse Catalog</Button>
                                     </Link>
                                 </div>
                             )}

@@ -55,6 +55,22 @@ export default function TextbookGeneratorPage() {
     const [statusFilter, setStatusFilter] = useState<string>('all');
     const [classFilter, setClassFilter] = useState<string>('all');
     const [streamFilter, setStreamFilter] = useState<string>('all');
+    const [programs, setPrograms] = useState<{ id: string | number, name: string }[]>([]);
+
+    useEffect(() => {
+        async function fetchPrograms() {
+            try {
+                const res = await fetch('/api/admin/programs');
+                if (res.ok) {
+                    const data = await res.json();
+                    setPrograms(data.programs || []);
+                }
+            } catch (error) {
+                console.error('Failed to fetch programs:', error);
+            }
+        }
+        fetchPrograms();
+    }, []);
 
     const fetchTextbooks = useCallback(async () => {
         try {
@@ -154,8 +170,9 @@ export default function TextbookGeneratorPage() {
                             </SelectTrigger>
                             <SelectContent>
                                 <SelectItem value="all">All Classes</SelectItem>
-                                <SelectItem value="XI">Class XI</SelectItem>
-                                <SelectItem value="XII">Class XII</SelectItem>
+                                {programs.map(p => (
+                                    <SelectItem key={p.id} value={p.name}>{p.name}</SelectItem>
+                                ))}
                             </SelectContent>
                         </Select>
 
@@ -219,67 +236,69 @@ export default function TextbookGeneratorPage() {
                 </Card>
             )}
 
-            {/* Textbook Grid */}
+            {/* Textbook List */}
             {!loading && !error && textbooks.length > 0 && (
-                <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
-                    {textbooks.map((textbook) => (
-                        <Link
-                            key={textbook.id}
-                            href={`/admin/textbook-generator/${textbook.id}`}
-                        >
-                            <Card className="h-full hover:shadow-lg transition-shadow cursor-pointer">
-                                <CardHeader>
-                                    <div className="flex items-start justify-between">
-                                        <div className="flex-1">
-                                            <CardTitle className="line-clamp-2">{textbook.title}</CardTitle>
-                                            <CardDescription className="mt-1">
-                                                Class {textbook.class_level}
-                                                {textbook.stream && ` • ${textbook.stream}`}
-                                            </CardDescription>
+                <div className="bg-white shadow overflow-hidden sm:rounded-md">
+                    <ul className="divide-y divide-gray-200">
+                        {textbooks.map((textbook) => (
+                            <li key={textbook.id}>
+                                <Link
+                                    href={`/admin/textbook-generator/${textbook.id}`}
+                                    className="block hover:bg-gray-50 transition"
+                                >
+                                    <div className="px-4 py-5 sm:px-6">
+                                        <div className="flex items-center justify-between">
+                                            <div className="flex items-center">
+                                                <span className="text-base font-bold text-indigo-600 truncate">
+                                                    {textbook.title}
+                                                </span>
+                                                <div className="ml-3">
+                                                    {getStatusBadge(textbook.status)}
+                                                </div>
+                                            </div>
+                                            <div className="ml-2 flex-shrink-0 text-xs text-gray-400">
+                                                Updated {new Date(textbook.updated_at).toLocaleDateString()}
+                                            </div>
                                         </div>
-                                        {getStatusBadge(textbook.status)}
-                                    </div>
-                                </CardHeader>
-                                <CardContent>
-                                    {textbook.description && (
-                                        <p className="text-sm text-muted-foreground line-clamp-2 mb-4">
-                                            {textbook.description}
-                                        </p>
-                                    )}
 
-                                    <div className="space-y-2">
-                                        <div className="flex items-center justify-between text-sm">
-                                            <span className="text-muted-foreground">Progress</span>
-                                            <span className="font-medium">{textbook.progress}%</span>
+                                        <div className="mt-4 flex flex-col sm:flex-row sm:justify-between sm:items-start gap-4">
+                                            <div className="flex-1 space-y-4">
+                                                <div className="flex flex-wrap items-center gap-y-2 gap-x-6 text-sm text-gray-500">
+                                                    <div className="flex items-center">
+                                                        <span className="font-semibold text-gray-600 mr-1.5">Class:</span>
+                                                        <span className="bg-gray-50 px-2 py-0.5 rounded border border-gray-100">{textbook.class_level}</span>
+                                                    </div>
+                                                    {textbook.stream && (
+                                                        <div className="flex items-center">
+                                                            <span className="font-semibold text-gray-600 mr-1.5">Stream:</span>
+                                                            <span className="bg-blue-50 px-2 py-0.5 rounded border border-blue-100 text-blue-700">{textbook.stream}</span>
+                                                        </div>
+                                                    )}
+                                                    <div className="flex items-center">
+                                                        <span className="font-semibold text-gray-600 mr-1.5">Units:</span>
+                                                        <span className="bg-gray-50 px-2 py-0.5 rounded border border-gray-100">{textbook._count?.units || 0}</span>
+                                                    </div>
+                                                </div>
+
+                                                <div className="max-w-md">
+                                                    <div className="flex items-center justify-between text-xs mb-1.5">
+                                                        <span className="text-muted-foreground font-medium">Generation Progress</span>
+                                                        <span className="font-bold text-indigo-600">{textbook.progress}%</span>
+                                                    </div>
+                                                    <Progress value={textbook.progress} className="h-1.5" />
+                                                </div>
+                                            </div>
+
+                                            <Button variant="outline" size="sm" className="h-8 border-gray-200">
+                                                <Eye className="w-4 h-4 mr-2" />
+                                                View
+                                            </Button>
                                         </div>
-                                        <Progress value={textbook.progress} className="h-2" />
                                     </div>
-                                </CardContent>
-                                <CardFooter className="text-xs text-muted-foreground">
-                                    <div className="flex items-center justify-between w-full">
-                                        <span>
-                                            {textbook._count?.units || 0} units
-                                        </span>
-                                        <span>
-                                            Updated {new Date(textbook.updated_at).toLocaleDateString()}
-                                        </span>
-                                    </div>
-                                </CardFooter>
-                            </Card>
-                        </Link>
-                    ))}
-
-                    {/* Create New Card */}
-                    <Link href="/admin/textbook-generator/new">
-                        <Card className="h-full border-dashed hover:border-primary hover:bg-primary/5 transition-colors cursor-pointer flex items-center justify-center min-h-[200px]">
-                            <CardContent className="flex flex-col items-center justify-center text-center py-8">
-                                <div className="w-12 h-12 rounded-full bg-primary/10 flex items-center justify-center mb-4">
-                                    <Plus className="w-6 h-6 text-primary" />
-                                </div>
-                                <p className="font-medium">Create New Textbook</p>
-                            </CardContent>
-                        </Card>
-                    </Link>
+                                </Link>
+                            </li>
+                        ))}
+                    </ul>
                 </div>
             )}
         </div>

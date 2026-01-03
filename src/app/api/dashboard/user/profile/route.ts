@@ -41,6 +41,11 @@ export async function GET(request: NextRequest) {
 	try {
 		const profile = await prisma.profile.findUnique({
 			where: { user_id: userId },
+		});
+
+		// Get latest enrollment context
+		const enrollment = await prisma.userEnrollment.findFirst({
+			where: { user_id: userId, status: "active" },
 			include: {
 				program: {
 					include: {
@@ -49,9 +54,18 @@ export async function GET(request: NextRequest) {
 				},
 				institution: true,
 			},
+			orderBy: { last_accessed_at: "desc" }
 		});
 
-		return NextResponse.json({ profile: serializeBigInt(profile) });
+		return NextResponse.json({
+			profile: serializeBigInt({
+				...profile,
+				program: enrollment?.program,
+				institution: enrollment?.institution,
+				program_id: enrollment?.program_id,
+				institution_id: enrollment?.institution_id,
+			})
+		});
 	} catch (error) {
 		console.error("Error fetching profile:", error);
 		return NextResponse.json(
@@ -74,79 +88,12 @@ export async function PUT(request: NextRequest) {
 	}
 
 	try {
-		const user = await prisma.user.findUnique({
-			where: { id: userId },
-			select: { id: true },
-		});
-
-		if (!user) {
-			return NextResponse.json({ error: "User not found" }, { status: 404 });
-		}
-
-		const body = await request.json();
-		const { program_id, institution_id } = body;
-
-		if (!program_id) {
-			return NextResponse.json(
-				{ error: "program_id is required" },
-				{ status: 400 }
-			);
-		}
-
-		// Check if profile exists
-		const existingProfile = await prisma.profile.findUnique({
+		// Just ensure profile exists. Program/Institution selection now handled via Enrollment.
+		const profile = await prisma.profile.upsert({
 			where: { user_id: userId },
+			create: { user_id: userId },
+			update: {}
 		});
-
-		const parsedProgramId = Number(program_id);
-		if (!Number.isInteger(parsedProgramId)) {
-			return NextResponse.json(
-				{ error: "program_id must be an integer" },
-				{ status: 400 }
-			);
-		}
-
-		const parsedInstitutionId =
-			institution_id === undefined || institution_id === null
-				? null
-				: BigInt(institution_id);
-
-		let profile;
-		if (existingProfile) {
-			// Update existing profile
-			profile = await prisma.profile.update({
-				where: { user_id: userId },
-				data: {
-					program_id: parsedProgramId,
-					institution_id: parsedInstitutionId,
-				},
-				include: {
-					program: {
-						include: {
-							board: true,
-						},
-					},
-					institution: true,
-				},
-			});
-		} else {
-			// Create new profile
-			profile = await prisma.profile.create({
-				data: {
-					user_id: userId,
-					program_id: parsedProgramId,
-					institution_id: parsedInstitutionId,
-				},
-				include: {
-					program: {
-						include: {
-							board: true,
-						},
-					},
-					institution: true,
-				},
-			});
-		}
 
 		return NextResponse.json({ profile: serializeBigInt(profile) });
 	} catch (error) {

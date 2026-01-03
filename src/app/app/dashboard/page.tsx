@@ -17,7 +17,6 @@ export default async function DashboardPage() {
     const data = await getDashboardData();
 
     const { profile, metrics, weaknessList, resumeData, recentActivity, enrollments } = data;
-    const program = profile.program;
 
     // With Coursera model, users don't need a program - they just need enrollments
     // If no enrollments, redirect to catalog to browse courses

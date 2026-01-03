@@ -8,6 +8,7 @@ import { Label } from "@/components/ui/label";
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
 import { GraduationCap, Building2, CheckCircle2 } from "lucide-react";
 import { toast } from "sonner";
+import { enrollInCourse } from "@/app/(browse)/actions";
 
 interface Board {
     id: string;
@@ -21,11 +22,10 @@ interface Institution {
     type: string;
 }
 
-interface Program {
+interface Course {
     id: number;
-    name: string;
-    code: string | null;
-    level: string | null;
+    title: string;
+    subjects: { name: string }[];
 }
 
 export default function OnboardingPage() {
@@ -36,12 +36,12 @@ export default function OnboardingPage() {
     // Data states
     const [boards, setBoards] = useState<Board[]>([]);
     const [institutions, setInstitutions] = useState<Institution[]>([]);
-    const [programs, setPrograms] = useState<Program[]>([]);
+    const [courses, setCourses] = useState<Course[]>([]);
 
     // Selection states
     const [selectedBoard, setSelectedBoard] = useState<string>("");
     const [selectedInstitution, setSelectedInstitution] = useState<string>("");
-    const [selectedProgram, setSelectedProgram] = useState<number | null>(null);
+    const [selectedCourse, setSelectedCourse] = useState<number | null>(null);
     const [isSelfPaced, setIsSelfPaced] = useState(false);
 
     // Load boards on mount
@@ -80,29 +80,28 @@ export default function OnboardingPage() {
         loadInstitutions();
     }, [selectedBoard]);
 
-    // Load programs when institution is selected or self-paced is chosen
+    // Load courses when board is selected
     useEffect(() => {
         if (!selectedBoard) return;
-        if (!isSelfPaced && !selectedInstitution) return;
 
-        async function loadPrograms() {
+        async function loadCourses() {
             try {
                 const params = new URLSearchParams({ board_id: selectedBoard });
                 if (!isSelfPaced && selectedInstitution) {
                     params.append("institution_id", selectedInstitution);
                 }
 
-                const res = await fetch(`/api/dashboard/programs?${params}`);
+                const res = await fetch(`/api/dashboard/courses?${params.toString()}`);
                 if (res.ok) {
                     const data = await res.json();
-                    setPrograms(data.programs || []);
+                    setCourses(data.courses || []);
                 }
             } catch (error) {
-                console.error("Failed to load programs:", error);
-                toast.error("Failed to load programs");
+                console.error("Failed to load courses:", error);
+                toast.error("Failed to load courses");
             }
         }
-        loadPrograms();
+        loadCourses();
     }, [selectedBoard, selectedInstitution, isSelfPaced]);
 
     const handleNext = () => {
@@ -122,29 +121,25 @@ export default function OnboardingPage() {
     };
 
     const handleSubmit = async () => {
-        if (!selectedProgram) {
-            toast.error("Please select a program");
+        if (!selectedCourse) {
+            toast.error("Please select a course to enroll in");
             return;
         }
 
         setLoading(true);
         try {
-            const res = await fetch("/api/dashboard/user/profile", {
-                method: "PUT",
-                headers: { "Content-Type": "application/json" },
-                body: JSON.stringify({
-                    program_id: selectedProgram,
-                    institution_id: isSelfPaced ? null : selectedInstitution,
-                }),
-            });
+            const result = await enrollInCourse(
+                selectedCourse,
+                isSelfPaced ? undefined : selectedInstitution
+            );
 
-            if (!res.ok) {
-                throw new Error("Failed to update profile");
+            if (result.success) {
+                toast.success("Welcome! Your profile has been set up.");
+                router.push("/app/dashboard");
+                router.refresh();
+            } else {
+                throw new Error("Failed to enroll");
             }
-
-            toast.success("Profile updated successfully!");
-            router.push("/app/dashboard");
-            router.refresh();
         } catch (error) {
             console.error("Failed to save profile:", error);
             toast.error("Failed to save your selection. Please try again.");
@@ -260,39 +255,38 @@ export default function OnboardingPage() {
                         </div>
                     )}
 
-                    {/* Step 3: Select Program */}
+                    {/* Step 3: Select Course */}
                     {step === 3 && (
                         <div className="space-y-4">
                             <div>
-                                <h3 className="text-lg font-semibold mb-2">Select Your Program</h3>
+                                <h3 className="text-lg font-semibold mb-2">Select Your Course</h3>
                                 <p className="text-sm text-gray-600 mb-4">
-                                    Choose your class, course, or examination program
+                                    Enroll in a course to start your learning journey.
                                 </p>
                             </div>
 
                             <div className="space-y-2">
-                                <Label htmlFor="program">Program</Label>
+                                <Label htmlFor="course">Course</Label>
                                 <Select
-                                    value={selectedProgram?.toString() || ""}
-                                    onValueChange={(val) => setSelectedProgram(parseInt(val))}
+                                    value={selectedCourse?.toString() || ""}
+                                    onValueChange={(val) => setSelectedCourse(parseInt(val))}
                                 >
-                                    <SelectTrigger id="program">
-                                        <SelectValue placeholder="Select your program" />
+                                    <SelectTrigger id="course">
+                                        <SelectValue placeholder="Select a course" />
                                     </SelectTrigger>
                                     <SelectContent>
-                                        {programs.map((program) => (
-                                            <SelectItem key={program.id} value={program.id.toString()}>
-                                                {program.name}
-                                                {program.level && ` (${program.level})`}
+                                        {courses.map((course: Course) => (
+                                            <SelectItem key={course.id} value={course.id.toString()}>
+                                                {course.title}
                                             </SelectItem>
                                         ))}
                                     </SelectContent>
                                 </Select>
                             </div>
 
-                            {programs.length === 0 && (
+                            {courses.length === 0 && (
                                 <div className="text-sm text-amber-600 bg-amber-50 p-3 rounded-lg">
-                                    No programs available for this selection. Please contact your administrator.
+                                    No courses available for this selection. Please browse our catalog.
                                 </div>
                             )}
                         </div>
@@ -312,7 +306,7 @@ export default function OnboardingPage() {
                         ) : (
                             <Button
                                 onClick={handleSubmit}
-                                disabled={loading || !selectedProgram}
+                                disabled={loading || !selectedCourse}
                                 className="ml-auto"
                             >
                                 {loading ? (

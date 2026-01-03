@@ -7,13 +7,15 @@ import { UserRole } from '@/generated/prisma';
 import { Loader2, ArrowLeft, Save } from 'lucide-react';
 import { updateUserAction } from '../../actions'; // Adjusted path to actions.ts
 import { toast } from 'sonner';
+import { ImageUpload } from '@/components/ui/image-upload';
 
 export type UserEditData = {
   id: number;
   username: string;
+  name: string | null;
+  image: string | null;
   role: UserRole;
   is_active: boolean;
-  // Dates are not directly edited here but could be displayed if needed
 };
 
 interface UserEditFormProps {
@@ -23,7 +25,9 @@ interface UserEditFormProps {
 export default function UserEditForm({ user }: UserEditFormProps) {
   const [formData, setFormData] = useState({
     username: user.username,
-    password: '', // Password field is for entering a new password, not displaying the old one
+    name: user.name || '',
+    image: user.image || '',
+    password: '',
     role: user.role,
     is_active: user.is_active,
   });
@@ -35,6 +39,8 @@ export default function UserEditForm({ user }: UserEditFormProps) {
     // Re-initialize form if user prop changes (e.g., after a save and re-fetch)
     setFormData({
       username: user.username,
+      name: user.name || '',
+      image: user.image || '',
       password: '',
       role: user.role,
       is_active: user.is_active,
@@ -99,6 +105,31 @@ export default function UserEditForm({ user }: UserEditFormProps) {
             )}
             <div className="grid grid-cols-1 gap-y-6 gap-x-4 sm:grid-cols-6">
               <div className="sm:col-span-4">
+                <label htmlFor="name" className="block text-sm font-medium text-gray-700">
+                  Full Name / Display Name
+                </label>
+                <div className="mt-1">
+                  <input
+                    type="text"
+                    name="name"
+                    id="name"
+                    value={formData.name}
+                    onChange={handleInputChange}
+                    className="shadow-sm focus:ring-indigo-500 focus:border-indigo-500 block w-full text-base border-gray-300 rounded-md h-8 px-4"
+                  />
+                </div>
+              </div>
+
+              <div className="sm:col-span-4">
+                <ImageUpload
+                  value={formData.image}
+                  onChange={(url) => setFormData({ ...formData, image: url })}
+                  label="Profile Picture / Logo"
+                  description="This image will be used in the sidebar and course listings."
+                />
+              </div>
+
+              <div className="sm:col-span-4">
                 <label htmlFor="username" className="block text-sm font-medium text-gray-700">
                   Username
                 </label>
@@ -143,8 +174,10 @@ export default function UserEditForm({ user }: UserEditFormProps) {
                     onChange={handleInputChange}
                     className="shadow-sm focus:ring-indigo-500 focus:border-indigo-500 block w-full text-base border-gray-300 rounded-md h-8 px-4"
                   >
-                    <option value={UserRole.institution}>Institution</option>
+                    <option value={UserRole.student}>Student</option>
+                    <option value={UserRole.instructor}>Instructor</option>
                     <option value={UserRole.admin}>Admin</option>
+                    <option value={UserRole.institution}>Institution</option>
                   </select>
                 </div>
               </div>

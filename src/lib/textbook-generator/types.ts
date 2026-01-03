@@ -76,7 +76,7 @@ export type TextbookChapterWithImages = TextbookChapter & {
 export interface CreateTextbookInput {
   title: string;
   description?: string;
-  class_level: 'XI' | 'XII';
+  class_level: string;
   stream?: 'Arts' | 'Science' | 'Commerce' | 'Vocational' | null;
   subject_name?: string;
   board_id?: string;
@@ -110,12 +110,13 @@ export interface CreateChapterInput {
 export interface CreateSyllabusInput {
   title: string;
   description?: string;
-  class_level: 'XI' | 'XII';
+  class_level: string; // Changed from literal to string
   stream?: 'Arts' | 'Science' | 'Commerce' | null;
   subject: string;
   board?: string;
   academic_year?: string;
   raw_text?: string;
+  units?: ParsedUnit[]; // Support for manual entry
 }
 
 export interface UpdateSyllabusInput extends Partial<CreateSyllabusInput> {
@@ -124,7 +125,7 @@ export interface UpdateSyllabusInput extends Partial<CreateSyllabusInput> {
 
 // Parsed syllabus structure
 export interface ParsedSyllabus {
-  class: 'XI' | 'XII';
+  class: string; // Changed from literal to string
   stream?: 'Arts' | 'Science' | 'Commerce' | null;
   subject: string;
   units: ParsedUnit[];
@@ -280,7 +281,7 @@ export interface GenerateContentResponse {
 // Filter options for listing
 export interface TextbookFilters {
   status?: TextbookStatus;
-  class_level?: 'XI' | 'XII';
+  class_level?: string;
   stream?: 'Arts' | 'Science' | 'Commerce';
   board_id?: string;
   search?: string;

@@ -41,54 +41,64 @@ export default async function QuizHistoryPage() {
                     </CardContent>
                 </Card>
             ) : (
-                <div className="grid gap-4 md:grid-cols-2 lg:grid-cols-3">
+                <div className="space-y-4">
                     {quizzes.map((quiz) => {
                         const percentage = Math.round((quiz.score / quiz.total_points) * 100);
-                        const scoreColor = percentage >= 80 ? "text-green-600" : percentage >= 60 ? "text-yellow-600" : "text-red-600";
-                        const bgColor = percentage >= 80 ? "bg-green-50" : percentage >= 60 ? "bg-yellow-50" : "bg-red-50";
+                        const scoreColor = percentage >= 80 ? "text-green-600" : percentage >= 60 ? "text-amber-600" : "text-red-600";
+                        const bgColor = percentage >= 80 ? "bg-green-50 border-green-200" : percentage >= 60 ? "bg-amber-50 border-amber-200" : "bg-red-50 border-red-200";
 
                         return (
-                            <Card key={quiz.id} className="hover:shadow-lg transition-shadow">
-                                <CardHeader className="pb-3">
-                                    <div className="flex items-start justify-between">
-                                        <div className="flex-1">
-                                            <CardTitle className="text-base font-semibold text-gray-900 mb-1">
-                                                {quiz.title}
-                                            </CardTitle>
-                                            <div className="flex items-center gap-2 text-sm text-gray-600">
-                                                <BookOpen className="w-4 h-4" />
-                                                <span className="truncate">
-                                                    {quiz.subject.name}
-                                                    {quiz.chapter && ` • ${quiz.chapter.title}`}
-                                                </span>
+                            <Link key={quiz.id} href={`/app/practice/${quiz.id}/result`} className="block">
+                                <Card className="hover:shadow-md transition-all hover:border-indigo-200 cursor-pointer mb-4">
+                                    <CardContent className="p-4">
+                                        <div className="flex items-center gap-4">
+                                            {/* Score Badge */}
+                                            <div className={`w-16 h-16 rounded-xl ${bgColor} border flex flex-col items-center justify-center flex-shrink-0`}>
+                                                <span className={`text-xl font-bold ${scoreColor}`}>{percentage}%</span>
+                                            </div>
+
+                                            {/* Quiz Info */}
+                                            <div className="flex-1 min-w-0">
+                                                <h3 className="font-semibold text-gray-900 truncate">{quiz.title}</h3>
+                                                <div className="flex items-center gap-2 text-sm text-gray-500 mt-1">
+                                                    <BookOpen className="w-4 h-4 flex-shrink-0" />
+                                                    <span className="truncate">
+                                                        {quiz.subject.name}
+                                                        {quiz.chapter && ` • ${quiz.chapter.title}`}
+                                                    </span>
+                                                </div>
+                                            </div>
+
+                                            {/* Stats */}
+                                            <div className="hidden sm:flex items-center gap-6 text-sm text-gray-500 flex-shrink-0">
+                                                <div className="flex items-center gap-1.5">
+                                                    <Trophy className="w-4 h-4" />
+                                                    <span>{quiz.score}/{quiz.total_points}</span>
+                                                </div>
+                                                <div className="flex items-center gap-1.5">
+                                                    <Calendar className="w-4 h-4" />
+                                                    <span>{quiz.completed_at ? new Date(quiz.completed_at).toLocaleDateString() : "N/A"}</span>
+                                                </div>
+                                            </div>
+
+                                            {/* Arrow */}
+                                            <ArrowRight className="w-5 h-5 text-gray-400 flex-shrink-0" />
+                                        </div>
+
+                                        {/* Mobile Stats */}
+                                        <div className="flex sm:hidden items-center gap-4 mt-3 pt-3 border-t text-sm text-gray-500">
+                                            <div className="flex items-center gap-1.5">
+                                                <Trophy className="w-4 h-4" />
+                                                <span>{quiz.score}/{quiz.total_points} points</span>
+                                            </div>
+                                            <div className="flex items-center gap-1.5">
+                                                <Calendar className="w-4 h-4" />
+                                                <span>{quiz.completed_at ? new Date(quiz.completed_at).toLocaleDateString() : "N/A"}</span>
                                             </div>
                                         </div>
-                                        <div className={`${bgColor} ${scoreColor} rounded-full px-3 py-1 text-sm font-bold`}>
-                                            {percentage}%
-                                        </div>
-                                    </div>
-                                </CardHeader>
-                                <CardContent>
-                                    <div className="flex items-center justify-between text-sm mb-4">
-                                        <div className="flex items-center gap-2 text-gray-600">
-                                            <Trophy className="w-4 h-4" />
-                                            <span>{quiz.score} / {quiz.total_points} points</span>
-                                        </div>
-                                        <div className="flex items-center gap-2 text-gray-500">
-                                            <Calendar className="w-4 h-4" />
-                                            <span>
-                                                {quiz.completed_at ? new Date(quiz.completed_at).toLocaleDateString() : "N/A"}
-                                            </span>
-                                        </div>
-                                    </div>
-                                    <Link href={`/app/practice/${quiz.id}/result`}>
-                                        <Button variant="outline" className="w-full group">
-                                            Review Quiz
-                                            <ArrowRight className="w-4 h-4 ml-2 group-hover:translate-x-1 transition-transform" />
-                                        </Button>
-                                    </Link>
-                                </CardContent>
-                            </Card>
+                                    </CardContent>
+                                </Card>
+                            </Link>
                         );
                     })}
                 </div>

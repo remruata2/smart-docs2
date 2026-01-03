@@ -24,59 +24,72 @@ export default async function CoursesAdminPage() {
                 </Link>
             </div>
 
-            <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
-                {courses.length === 0 ? (
-                    <Card className="col-span-full border-dashed">
-                        <CardContent className="py-12 text-center text-gray-500">
+            <div className="bg-white shadow overflow-hidden sm:rounded-md">
+                <ul className="divide-y divide-gray-200">
+                    {courses.length === 0 ? (
+                        <li className="px-4 py-8 text-center text-gray-500">
                             No courses created yet. Click "New Course" to get started.
-                        </CardContent>
-                    </Card>
-                ) : (
-                    courses.map((course) => (
-                        <Card key={course.id} className="hover:shadow-md transition-shadow overflow-hidden">
-                            <CardHeader className="pb-2">
-                                <div className="flex justify-between items-start mb-2">
-                                    <Badge variant={course.is_published ? "default" : "secondary"}>
-                                        {course.is_published ? "Published" : "Draft"}
-                                    </Badge>
-                                    <Badge variant="outline">{course.board.id}</Badge>
-                                </div>
-                                <CardTitle className="text-xl">{course.title}</CardTitle>
-                            </CardHeader>
-                            <CardContent>
-                                <p className="text-gray-500 text-sm line-clamp-2 mb-4">
-                                    {course.description || "No description provided."}
-                                </p>
-
-                                <div className="flex items-center gap-4 text-sm text-gray-600 mb-6">
-                                    <div className="flex items-center gap-1.5">
-                                        <BookOpen className="h-4 w-4" />
-                                        <span>{course._count.subjects} Subjects</span>
+                        </li>
+                    ) : (
+                        courses.map((course) => (
+                            <li key={course.id}>
+                                <div className="px-4 py-5 sm:px-6">
+                                    <div className="flex items-center justify-between">
+                                        <div className="flex items-center">
+                                            <span className="text-base font-bold text-indigo-600 truncate">
+                                                {course.title}
+                                            </span>
+                                            <span className={`ml-3 px-2.5 py-0.5 inline-flex text-xs leading-4 font-semibold rounded-full border ${course.is_published ? 'bg-green-100 text-green-800 border-green-200' : 'bg-gray-100 text-gray-800 border-gray-200'}`}>
+                                                {course.is_published ? "Published" : "Draft"}
+                                            </span>
+                                        </div>
+                                        <div className="ml-2 flex-shrink-0 flex items-center gap-3">
+                                            <Link href={`/admin/courses/${course.id}`}>
+                                                <Button variant="outline" size="sm" className="h-8 border-gray-200">
+                                                    <Settings className="h-4 w-4 mr-2" />
+                                                    Edit
+                                                </Button>
+                                            </Link>
+                                            <DeleteEntityButton
+                                                entityId={course.id}
+                                                entityName={course.title}
+                                                entityType="Program"
+                                                deleteAction={deleteCourse}
+                                            />
+                                        </div>
                                     </div>
-                                    <div className="flex items-center gap-1.5">
-                                        <Users className="h-4 w-4" />
-                                        <span>{course._count.enrollments} Students</span>
+
+                                    <div className="mt-4 flex flex-col sm:flex-row sm:justify-between sm:items-center gap-4">
+                                        <div className="flex flex-wrap items-center gap-y-2 gap-x-6 text-sm text-gray-500">
+                                            <div className="flex items-center">
+                                                <span className="font-semibold text-gray-600 mr-1.5">Board:</span>
+                                                <span className="bg-gray-50 px-2 py-0.5 rounded border border-gray-100">{course.board.name}</span>
+                                            </div>
+                                            {course.description && (
+                                                <div className="flex items-center max-w-sm">
+                                                    <span className="truncate italic">"{course.description}"</span>
+                                                </div>
+                                            )}
+                                        </div>
+
+                                        <div className="flex items-center gap-3">
+                                            <div className="flex items-center px-3 py-1 bg-indigo-50 text-indigo-700 rounded-lg border border-indigo-100 shadow-sm text-sm">
+                                                <BookOpen className="w-3.5 h-3.5 mr-1.5 opacity-70" />
+                                                <span className="font-bold mr-1.5">Subjects:</span>
+                                                <span className="tabular-nums font-medium">{course._count.subjects}</span>
+                                            </div>
+                                            <div className="flex items-center px-3 py-1 bg-emerald-50 text-emerald-700 rounded-lg border border-emerald-100 shadow-sm text-sm">
+                                                <Users className="w-3.5 h-3.5 mr-1.5 opacity-70" />
+                                                <span className="font-bold mr-1.5">Students:</span>
+                                                <span className="tabular-nums font-medium">{course._count.enrollments}</span>
+                                            </div>
+                                        </div>
                                     </div>
                                 </div>
-
-                                <div className="flex gap-2">
-                                    <Link href={`/admin/courses/${course.id}`} className="flex-1">
-                                        <Button variant="outline" className="w-full">
-                                            <Settings className="h-4 w-4 mr-2" />
-                                            Edit Details
-                                        </Button>
-                                    </Link>
-                                    <DeleteEntityButton
-                                        entityId={course.id}
-                                        entityName={course.title}
-                                        entityType="Program" // Closest match or just use a generic 'Course' if I update the component
-                                        deleteAction={deleteCourse}
-                                    />
-                                </div>
-                            </CardContent>
-                        </Card>
-                    ))
-                )}
+                            </li>
+                        ))
+                    )}
+                </ul>
             </div>
         </div>
     );

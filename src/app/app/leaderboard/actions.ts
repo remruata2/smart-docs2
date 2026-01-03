@@ -28,40 +28,41 @@ export async function getLeaderboardData(
 
     const userId = parseInt(session.user.id as string);
 
-    // 1. Get User Context (Program, Board, Institution)
-    const profile = await prisma.profile.findUnique({
-        where: { user_id: userId },
+    // 1. Get current enrollment context
+    const currentEnrollment = await prisma.userEnrollment.findFirst({
+        where: {
+            user_id: userId,
+            status: "active",
+            ...(courseId ? { course_id: courseId } : {})
+        },
         include: {
-            program: {
-                include: {
-                    board: true,
-                },
-            },
+            program: { include: { board: true } },
             institution: true,
+            course: true,
             user: {
                 select: {
                     username: true,
                 },
             },
         },
+        orderBy: { last_accessed_at: "desc" }
     });
 
-    if (!profile) {
+    if (!currentEnrollment) {
         return null;
     }
 
-    const programId = profile.program_id;
-    const boardId = profile.program?.board_id;
-    const institutionId = profile.institution_id;
+    const programId = currentEnrollment.program_id;
+    const institutionId = currentEnrollment.institution_id;
+    const activeCourseId = courseId || currentEnrollment.course_id;
 
     // 2. Define Filter Conditions
     let targetUserIds: number[] = [];
 
-    if (scope === "COURSE" && courseId) {
-        // Fetch all users enrolled in this course
+    if (scope === "COURSE") {
         const enrollments = await prisma.userEnrollment.findMany({
             where: {
-                course_id: courseId,
+                course_id: activeCourseId,
                 status: "active"
             },
             select: { user_id: true }
@@ -71,45 +72,41 @@ export async function getLeaderboardData(
         if (!institutionId) {
             return null;
         }
-        // Fetch all users in this institution
-        const profiles = await prisma.profile.findMany({
-            where: { institution_id: institutionId },
+        const enrollments = await prisma.userEnrollment.findMany({
+            where: {
+                institution_id: institutionId,
+                status: "active"
+            },
             select: { user_id: true }
         });
-        targetUserIds = profiles.map(p => p.user_id);
+        targetUserIds = Array.from(new Set(enrollments.map(e => e.user_id)));
     } else {
-        // BOARD level - scoped by program for now
+        // BOARD level - scoped by program context
         if (!programId) return null;
-        const profiles = await prisma.profile.findMany({
-            where: { program_id: programId },
+        const enrollments = await prisma.userEnrollment.findMany({
+            where: {
+                program_id: programId,
+                status: "active"
+            },
             select: { user_id: true }
         });
-        targetUserIds = profiles.map(p => p.user_id);
+        targetUserIds = Array.from(new Set(enrollments.map(e => e.user_id)));
     }
 
     let entries: LeaderboardEntry[] = [];
 
     // 3. Aggregate Data based on Metric
+    // Fetch usernames for target users
+    const users = await prisma.user.findMany({
+        where: { id: { in: targetUserIds } },
+        select: {
+            id: true,
+            username: true,
+            image: true
+        }
+    });
+
     if (metric === "POINTS") {
-        // Aggregate UserPoints
-        // We need to join UserPoints with Profile to filter by Program
-        // Prisma doesn't support direct joins in groupBy easily with relations filters on the grouped table
-        // So we fetch profiles first, then their points, or use raw query for performance.
-        // For now, let's use Prisma's relation queries.
-
-        // Fetch all profiles in this scope for usernames
-        const profiles = await prisma.profile.findMany({
-            where: { user_id: { in: targetUserIds } },
-            select: {
-                user_id: true,
-                user: {
-                    select: {
-                        username: true,
-                    }
-                },
-            },
-        });
-
         const pointsAgg = await prisma.userPoints.groupBy({
             by: ['user_id'],
             where: {
@@ -120,49 +117,23 @@ export async function getLeaderboardData(
             },
         });
 
-        // Map back to entries
         const pointsMap = new Map(pointsAgg.map(p => [p.user_id, p._sum.points || 0]));
 
-        entries = profiles.map(p => ({
-            rank: 0, // Calculated later
-            userId: p.user_id,
-            username: p.user?.username || "Unknown",
-            value: pointsMap.get(p.user_id) || 0,
-            isCurrentUser: p.user_id === userId
+        entries = users.map(u => ({
+            rank: 0,
+            userId: u.id,
+            username: u.username || "Unknown",
+            avatarUrl: u.image,
+            value: pointsMap.get(u.id) || 0,
+            isCurrentUser: u.id === userId
         }));
 
     } else if (metric === "AVG_SCORE") {
-        // Aggregate Quiz Scores
-        // Average of (score / total_points) * 100
-
-        const profiles = await prisma.profile.findMany({
-            where: { user_id: { in: targetUserIds } },
-            select: {
-                user_id: true,
-                user: { select: { username: true } }
-            }
-        });
-
-        const userIds = profiles.map(p => p.user_id);
-
-        // Fetch all completed quizzes for these users
-        // We want average percentage.
-        // Prisma groupBy doesn't do complex math like avg(score/total).
-        // We might need raw query or fetch and calculate.
-        // Fetching all quizzes is heavy. 
-        // Let's fetch aggregated sums of score and total_points per user?
-        // No, sum(score)/sum(total) != avg(score/total).
-        // Example: 10/10 (100%) and 0/100 (0%) -> Avg 50%. Sum: 10/110 (9%).
-
-        // For MVP, let's fetch quizzes and calculate in memory (careful with scale).
-        // Or just use total score for now? The requirement says "average score".
-        // Let's try to be accurate.
-
         const quizzes = await prisma.quiz.findMany({
             where: {
-                user_id: { in: userIds },
+                user_id: { in: targetUserIds },
                 status: "COMPLETED",
-                total_points: { gt: 0 } // Avoid division by zero
+                total_points: { gt: 0 }
             },
             select: {
                 user_id: true,
@@ -171,26 +142,26 @@ export async function getLeaderboardData(
             }
         });
 
-        const userScores = new Map<number, { sumPct: number, count: number }>();
-
+        const userScoreSums = new Map<number, { sumPct: number, count: number }>();
         quizzes.forEach(q => {
             const pct = (q.score / q.total_points) * 100;
-            const current = userScores.get(q.user_id) || { sumPct: 0, count: 0 };
-            userScores.set(q.user_id, {
+            const current = userScoreSums.get(q.user_id) || { sumPct: 0, count: 0 };
+            userScoreSums.set(q.user_id, {
                 sumPct: current.sumPct + pct,
                 count: current.count + 1
             });
         });
 
-        entries = profiles.map(p => {
-            const stats = userScores.get(p.user_id);
+        entries = users.map(u => {
+            const stats = userScoreSums.get(u.id);
             const avg = stats && stats.count > 0 ? Math.round(stats.sumPct / stats.count) : 0;
             return {
                 rank: 0,
-                userId: p.user_id,
-                username: p.user?.username || "Unknown",
+                userId: u.id,
+                username: u.username || "Unknown",
+                avatarUrl: u.image,
                 value: avg,
-                isCurrentUser: p.user_id === userId
+                isCurrentUser: u.id === userId
             };
         });
     }
@@ -212,10 +183,11 @@ export async function getLeaderboardData(
         entries: topEntries,
         currentUserRank,
         userContext: {
-            programName: profile.program?.name,
-            boardName: profile.program?.board?.name,
-            institutionName: profile.institution?.name,
-            hasInstitution: !!profile.institution_id
+            programName: currentEnrollment.program?.name,
+            boardName: currentEnrollment.program?.board?.name,
+            institutionName: currentEnrollment.institution?.name,
+            courseTitle: currentEnrollment.course?.title,
+            hasInstitution: !!currentEnrollment.institution_id
         }
     };
 }

@@ -42,6 +42,41 @@ export async function createInstitution(formData: FormData) {
     }
 }
 
+export async function updateInstitution(institutionId: bigint, formData: FormData) {
+    const session = await getServerSession(authOptions);
+    if (!session?.user || !isAdmin((session.user as any).role)) {
+        throw new Error("Unauthorized");
+    }
+
+    const name = formData.get("name") as string;
+    const boardId = formData.get("boardId") as string;
+    const type = formData.get("type") as string;
+    const district = formData.get("district") as string;
+    const state = formData.get("state") as string;
+
+    if (!name || !boardId || !type) {
+        throw new Error("Missing required fields");
+    }
+
+    try {
+        await prisma.institution.update({
+            where: { id: institutionId },
+            data: {
+                name,
+                board_id: boardId,
+                type,
+                district: district || null,
+                state: state || null,
+            },
+        });
+        revalidatePath("/admin/institutions");
+        return { success: true };
+    } catch (error: any) {
+        console.error("Error updating institution:", error);
+        return { success: false, error: error.message || "Failed to update institution" };
+    }
+}
+
 export async function updateInstitutionStatus(institutionId: bigint, isActive: boolean) {
     const session = await getServerSession(authOptions);
     if (!session?.user || !isAdmin((session.user as any).role)) {
@@ -97,6 +132,43 @@ export async function createProgram(formData: FormData) {
     }
 }
 
+export async function updateProgram(programId: number, formData: FormData) {
+    const session = await getServerSession(authOptions);
+    if (!session?.user || !isAdmin((session.user as any).role)) {
+        throw new Error("Unauthorized");
+    }
+
+    const name = formData.get("name") as string;
+    const boardId = formData.get("boardId") as string;
+    const institutionId = formData.get("institutionId") as string;
+    const code = formData.get("code") as string;
+    const level = formData.get("level") as string;
+    const durationYears = formData.get("durationYears") as string;
+
+    if (!name || !boardId) {
+        throw new Error("Missing required fields");
+    }
+
+    try {
+        await prisma.program.update({
+            where: { id: programId },
+            data: {
+                name,
+                board_id: boardId,
+                institution_id: institutionId ? BigInt(institutionId) : null,
+                code: code || null,
+                level: level || null,
+                duration_years: durationYears ? parseInt(durationYears) : null,
+            },
+        });
+        revalidatePath("/admin/programs");
+        return { success: true };
+    } catch (error: any) {
+        console.error("Error updating program:", error);
+        return { success: false, error: error.message || "Failed to update program" };
+    }
+}
+
 export async function updateProgramStatus(programId: number, isActive: boolean) {
     const session = await getServerSession(authOptions);
     if (!session?.user || !isAdmin((session.user as any).role)) {
@@ -145,6 +217,39 @@ export async function createSubject(formData: FormData) {
     } catch (error) {
         console.error("Error creating subject:", error);
         throw error;
+    }
+}
+
+export async function updateSubject(subjectId: number, formData: FormData) {
+    const session = await getServerSession(authOptions);
+    if (!session?.user || !isAdmin((session.user as any).role)) {
+        throw new Error("Unauthorized");
+    }
+
+    const name = formData.get("name") as string;
+    const programId = formData.get("programId") as string;
+    const code = formData.get("code") as string;
+    const term = formData.get("term") as string;
+
+    if (!name || !programId) {
+        throw new Error("Missing required fields");
+    }
+
+    try {
+        await prisma.subject.update({
+            where: { id: subjectId },
+            data: {
+                name,
+                program_id: parseInt(programId),
+                code: code || null,
+                term: term || null,
+            },
+        });
+        revalidatePath("/admin/subjects");
+        return { success: true };
+    } catch (error: any) {
+        console.error("Error updating subject:", error);
+        return { success: false, error: error.message || "Failed to update subject" };
     }
 }
 

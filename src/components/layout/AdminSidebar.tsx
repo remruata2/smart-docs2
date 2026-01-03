@@ -4,6 +4,7 @@ import { useSession, signOut } from "next-auth/react";
 import Link from "next/link";
 import { usePathname } from "next/navigation";
 import { UserRole } from "@/generated/prisma";
+import Image from "next/image";
 
 interface AdminSidebarProps {
 	setSidebarOpen?: (open: boolean) => void;
@@ -24,20 +25,35 @@ export default function AdminSidebar({ setSidebarOpen }: AdminSidebarProps) {
 		<div className="flex flex-col h-screen sticky top-0 w-full bg-slate-900 shadow-xl overflow-y-auto">
 			{/* Title */}
 			<div className="flex-shrink-0 px-4 py-4 border-b border-slate-700">
-				<h1 className="text-lg font-semibold text-white">Zirna</h1>
+				<Link href="/admin" className="flex items-center">
+					<Image
+						src="/zirnalogosmall.png"
+						alt="Zirna"
+						width={100}
+						height={32}
+						className="h-8 w-auto brightness-0 invert"
+						priority
+						unoptimized
+					/>
+					<span className="ml-2 text-xs font-semibold text-slate-400 uppercase tracking-wider">Admin</span>
+				</Link>
 			</div>
 			{/* User info */}
 			<div className="flex-shrink-0 flex items-center px-4 py-4 border-b border-slate-700">
 				<div className="flex-shrink-0 group block">
 					<div className="flex items-center">
-						<div className="h-8 w-8 rounded-full bg-slate-600 flex items-center justify-center">
-							<span className="text-sm font-medium text-slate-200">
-								{session?.user.username?.charAt(0).toUpperCase() || "U"}
-							</span>
+						<div className="h-8 w-8 rounded-full bg-slate-600 flex items-center justify-center overflow-hidden">
+							{session?.user.image ? (
+								<img src={session.user.image} alt="" className="h-full w-full object-cover" />
+							) : (
+								<span className="text-sm font-medium text-slate-200">
+									{(session?.user.name || session?.user.username || "U").charAt(0).toUpperCase()}
+								</span>
+							)}
 						</div>
 						<div className="ml-3">
 							<p className="text-sm font-medium text-white">
-								{session?.user.username || "User"}
+								{session?.user.name || session?.user.username || "User"}
 							</p>
 							<p className="text-xs font-medium text-slate-400">
 								{session?.user.role}
@@ -308,6 +324,60 @@ export default function AdminSidebar({ setSidebarOpen }: AdminSidebarProps) {
 									/>
 								</svg>
 								Badges
+							</Link>
+
+							<Link
+								href="/admin/textbook-generator"
+								onClick={() => setSidebarOpen && setSidebarOpen(false)}
+								className={`${baseLinkClasses} ${pathname.startsWith("/admin/textbook-generator")
+									? activeLinkClasses
+									: inactiveLinkClasses
+									}`}
+							>
+								<svg
+									className="mr-3 h-5 w-5 text-gray-500"
+									fill="none"
+									viewBox="0 0 24 24"
+									stroke="currentColor"
+								>
+									<path
+										strokeLinecap="round"
+										strokeLinejoin="round"
+										strokeWidth={2}
+										d="M12 6.253v13m0-13C10.832 5.477 9.246 5 7.5 5S4.168 5.477 3 6.253v13C4.168 18.477 5.754 18 7.5 18s3.332.477 4.5 1.253m0-13C13.168 5.477 14.754 5 16.5 5c1.747 0 3.332.477 4.5 1.253v13C19.832 18.477 18.247 18 16.5 18c-1.746 0-3.332.477-4.5 1.253"
+									/>
+									<path
+										strokeLinecap="round"
+										strokeLinejoin="round"
+										strokeWidth={2}
+										d="M12 19l9 2-9-18-9 18 9-2zm0 0v-8"
+									/>
+								</svg>
+								Textbook Generator
+							</Link>
+
+							<Link
+								href="/admin/syllabus"
+								onClick={() => setSidebarOpen && setSidebarOpen(false)}
+								className={`${baseLinkClasses} ${pathname.startsWith("/admin/syllabus")
+									? activeLinkClasses
+									: inactiveLinkClasses
+									}`}
+							>
+								<svg
+									className="mr-3 h-5 w-5 text-gray-500"
+									fill="none"
+									viewBox="0 0 24 24"
+									stroke="currentColor"
+								>
+									<path
+										strokeLinecap="round"
+										strokeLinejoin="round"
+										strokeWidth={2}
+										d="M9 5H7a2 2 0 00-2 2v12a2 2 0 002 2h10a2 2 0 002-2V7a2 2 0 00-2-2h-2M9 5a2 2 0 002 2h2a2 2 0 002-2M9 5a2 2 0 012-2h2a2 2 0 012 2"
+									/>
+								</svg>
+								Syllabus
 							</Link>
 						</div>
 					</div>

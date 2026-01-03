@@ -32,6 +32,8 @@ export async function deleteUserAction(id: number): Promise<{ success: boolean; 
 
 export async function createUserAction(formData: {
   username: string;
+  name?: string;
+  image?: string;
   password: string;
   role: UserRole;
   is_active: boolean;
@@ -42,7 +44,7 @@ export async function createUserAction(formData: {
     return { success: false, error: 'Unauthorized' };
   }
 
-  const { username, password, role, is_active } = formData;
+  const { username, name, image, password, role, is_active } = formData;
 
   if (!username || !password) {
     return { success: false, error: 'Username and password are required.' };
@@ -51,6 +53,8 @@ export async function createUserAction(formData: {
   try {
     const newUser = await createUserService({
       username,
+      name,
+      image,
       password,
       role,
       is_active,
@@ -68,6 +72,8 @@ export async function createUserAction(formData: {
 
 export async function updateUserAction(userId: number, formData: {
   username: string;
+  name?: string;
+  image?: string;
   password?: string; // Password is optional
   role: UserRole;
   is_active: boolean;
@@ -78,7 +84,7 @@ export async function updateUserAction(userId: number, formData: {
     return { success: false, error: 'Unauthorized' };
   }
 
-  const { username, password, role, is_active } = formData;
+  const { username, name, image, password, role, is_active } = formData;
 
   if (!username) {
     return { success: false, error: 'Username is required.' };
@@ -87,10 +93,12 @@ export async function updateUserAction(userId: number, formData: {
   // Prepare update data, only include password if provided
   const updateData: {
     username: string;
+    name?: string;
+    image?: string;
     password?: string;
     role: UserRole;
     is_active: boolean;
-  } = { username, role, is_active };
+  } = { username, name, image, role, is_active };
 
   if (password && password.trim() !== '') {
     updateData.password = password;

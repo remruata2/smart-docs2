@@ -32,6 +32,7 @@ import {
 export type UserListData = {
   id: number;
   username: string;
+  name: string | null;
   role: UserRole;
   is_active: boolean | null;
   last_login: Date | null;
@@ -114,12 +115,12 @@ export default function UserListClient({ initialUsers, initialError }: UserListC
             {error}
           </div>
         )}
-        
+
         <div className={cardContainer}>
           <Table>
             <TableHeader className="bg-gray-50">
               <TableRow>
-                <TableHead className="w-[150px]">Username</TableHead>
+                <TableHead className="w-[200px]">User</TableHead>
                 <TableHead className="w-[100px]">Role</TableHead>
                 <TableHead className="w-[100px]">Status</TableHead>
                 <TableHead className="w-[150px]">Last Login</TableHead>
@@ -130,18 +131,19 @@ export default function UserListClient({ initialUsers, initialError }: UserListC
             <TableBody>
               {users.length > 0 && users.map((user) => (
                 <TableRow key={user.id}>
-                  <TableCell className="font-medium">{user.username}</TableCell>
+                  <TableCell className="font-medium">
+                    <div className="font-semibold">{user.name || user.username}</div>
+                    {user.name && <div className="text-xs text-gray-500">{user.username}</div>}
+                  </TableCell>
                   <TableCell>
-                    <span className={`inline-flex items-center px-2.5 py-0.5 rounded-full text-xs font-medium ${
-                      user.role === 'admin' ? 'bg-purple-100 text-purple-800' : 'bg-blue-100 text-blue-800'
-                    }`}>
+                    <span className={`inline-flex items-center px-2.5 py-0.5 rounded-full text-xs font-semibold border ${user.role === 'admin' ? 'bg-purple-100 text-purple-800 border-purple-200' : 'bg-blue-100 text-blue-800 border-blue-200'
+                      }`}>
                       {user.role === 'admin' ? 'Admin' : 'Staff'}
                     </span>
                   </TableCell>
                   <TableCell>
-                    <span className={`inline-flex items-center px-2.5 py-0.5 rounded-full text-xs font-medium ${
-                      user.is_active ? 'bg-green-100 text-green-800' : 'bg-red-100 text-red-800'
-                    }`}>
+                    <span className={`inline-flex items-center px-2.5 py-0.5 rounded-full text-xs font-semibold border ${user.is_active ? 'bg-green-100 text-green-800 border-green-200' : 'bg-red-100 text-red-800 border-red-200'
+                      }`}>
                       {user.is_active ? 'Active' : 'Inactive'}
                     </span>
                   </TableCell>

@@ -12,6 +12,8 @@ export async function getAllUsers() {
 			select: {
 				id: true,
 				username: true,
+				name: true,
+				image: true,
 				role: true,
 				is_active: true,
 				last_login: true,
@@ -38,6 +40,8 @@ export async function getUserById(id: number) {
 		select: {
 			id: true,
 			username: true,
+			name: true,
+			image: true,
 			role: true,
 			is_active: true,
 			last_login: true,
@@ -51,18 +55,22 @@ export async function getUserById(id: number) {
  */
 export async function createUser(data: {
 	username: string;
+	name?: string;
+	image?: string;
 	password: string;
 	role: UserRole;
 	is_active?: boolean;
 }) {
-	const { username, password, role, is_active = true } = data;
+	const { username, name, image, password, role, is_active = true } = data;
 
 	// Hash the password
 	const password_hash = await hash(password, 10);
 
-	return await db.user.create({
+	const newUser = await db.user.create({
 		data: {
 			username,
+			name,
+			image,
 			password_hash,
 			role,
 			is_active,
@@ -70,11 +78,30 @@ export async function createUser(data: {
 		select: {
 			id: true,
 			username: true,
+			name: true,
+			image: true,
 			role: true,
 			is_active: true,
 			created_at: true,
 		},
 	});
+
+	// Synchronize Instructor profile
+	if (role === 'instructor') {
+		try {
+			await db.instructor.create({
+				data: {
+					user_id: newUser.id,
+					title: 'Instructor'
+				}
+			});
+			console.log(`[USER-SERVICE] Created Instructor profile for user ${newUser.id}`);
+		} catch (error) {
+			console.error(`[USER-SERVICE] Failed to create Instructor profile:`, error);
+		}
+	}
+
+	return newUser;
 }
 
 /**
@@ -84,12 +111,14 @@ export async function updateUser(
 	id: number,
 	data: {
 		username?: string;
+		name?: string;
+		image?: string;
 		password?: string;
 		role?: UserRole;
 		is_active?: boolean;
 	}
 ) {
-	const { username, password, role, is_active } = data;
+	const { username, name, image, password, role, is_active } = data;
 
 	// Prepare update data
 	const updateData: any = {};
@@ -98,6 +127,12 @@ export async function updateUser(
 		updateData.username = username;
 	}
 
+	if (name !== undefined) {
+		updateData.name = name;
+	}
+	if (image !== undefined) {
+		updateData.image = image;
+	}
 	if (password !== undefined) {
 		updateData.password_hash = await hash(password, 10);
 	}
@@ -110,18 +145,55 @@ export async function updateUser(
 		updateData.is_active = is_active;
 	}
 
-	return await db.user.update({
+	const updatedUser = await db.user.update({
 		where: { id },
 		data: updateData,
 		select: {
 			id: true,
 			username: true,
+			name: true,
+			image: true,
 			role: true,
 			is_active: true,
 			last_login: true,
 			created_at: true,
 		},
 	});
+
+	// Synchronize Instructor profile
+	if (role as any === 'instructor') {
+		try {
+			// Upsert to ensure it exists
+			await db.instructor.upsert({
+				where: { user_id: id },
+				update: {}, // No updates needed if it exists
+				create: {
+					user_id: id,
+					title: 'Instructor'
+				}
+			});
+			console.log(`[USER-SERVICE] Ensured Instructor profile exists for user ${id}`);
+		} catch (error) {
+			console.error(`[USER-SERVICE] Failed to ensure Instructor profile:`, error);
+		}
+	} else if (role !== undefined && (role as any) !== 'instructor') {
+		// If role changed FROM instructor, we could delete it, but only if it has no courses
+		try {
+			const instructor = await db.instructor.findUnique({
+				where: { user_id: id },
+				include: { _count: { select: { courses: true } } }
+			});
+
+			if (instructor && instructor._count.courses === 0) {
+				await db.instructor.delete({ where: { id: instructor.id } });
+				console.log(`[USER-SERVICE] Deleted unneeded Instructor profile for user ${id}`);
+			}
+		} catch (error) {
+			console.error(`[USER-SERVICE] Failed to cleanup Instructor profile:`, error);
+		}
+	}
+
+	return updatedUser;
 }
 
 /**

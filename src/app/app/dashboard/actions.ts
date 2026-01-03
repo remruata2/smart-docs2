@@ -14,33 +14,46 @@ export async function getDashboardData() {
 
     const userId = parseInt(session.user.id as string);
 
-    // 1. Fetch Profile & Program Data
-    const profile = await prisma.profile.findUnique({
-        where: { user_id: userId },
-        include: {
-            program: {
-                include: {
-                    board: { include: { country: true } },
-                    subjects: {
-                        where: { is_active: true },
-                        include: {
-                            chapters: {
-                                where: { is_active: true },
+    // 1. Fetch Profile & Active Enrollments
+    const [profile, enrollments] = await Promise.all([
+        prisma.profile.findUnique({
+            where: { user_id: userId },
+        }),
+        prisma.userEnrollment.findMany({
+            where: {
+                user_id: userId,
+                status: "active"
+            },
+            include: {
+                program: {
+                    include: {
+                        subjects: {
+                            where: { is_active: true },
+                            include: {
+                                chapters: {
+                                    where: { is_active: true },
+                                },
                             },
                         },
                     },
                 },
+                institution: true,
+                course: {
+                    include: {
+                        subjects: true
+                    }
+                }
             },
-            institution: true,
-        },
-    });
+            orderBy: { last_accessed_at: 'desc' }
+        })
+    ]);
 
     if (!profile) {
         redirect("/");
     }
 
     // 2. Fetch User Activity Data
-    const [quizzes, userPoints, enrollments] = await Promise.all([
+    const [quizzes, userPoints] = await Promise.all([
         prisma.quiz.findMany({
             where: { user_id: userId, status: "COMPLETED" },
             include: { chapter: true, subject: true },
@@ -50,29 +63,24 @@ export async function getDashboardData() {
             where: { user_id: userId },
             orderBy: { created_at: 'desc' },
             select: { created_at: true }
-        }),
-        prisma.userEnrollment.findMany({
-            where: { user_id: userId },
-            include: {
-                course: {
-                    include: {
-                        subjects: true,
-                    }
-                }
-            },
-            orderBy: { last_accessed_at: 'desc' }
         })
     ]);
 
+    const activeProgramIds = Array.from(new Set(enrollments.map(e => e.program_id).filter(Boolean))) as number[];
+
     // 3. Calculate Metrics
 
-    // A. Syllabus Completion
-    const totalChapters = profile.program?.subjects?.reduce(
-        (acc, subject) => acc + (subject.chapters?.length || 0), 0
-    ) || 0;
+    // A. Syllabus Completion (Aggregate across all enrolled programs)
+    let totalChapters = 0;
+    const enrolledSubjects: any[] = [];
 
-    // Assuming a chapter is "completed" if at least one quiz is passed (>60%) or marked complete
-    // For now, let's use unique chapters in completed quizzes as a proxy for completion
+    enrollments.forEach(e => {
+        e.program?.subjects.forEach(subject => {
+            totalChapters += subject.chapters?.length || 0;
+            enrolledSubjects.push(subject);
+        });
+    });
+
     const completedChapterIds = new Set(quizzes.map(q => q.chapter_id?.toString()).filter(Boolean));
     const completedChaptersCount = completedChapterIds.size;
     const syllabusCompletion = totalChapters > 0 ? (completedChaptersCount / totalChapters) * 100 : 0;
@@ -85,7 +93,6 @@ export async function getDashboardData() {
     const readinessScore = Math.round((quizAverage * 0.7) + (syllabusCompletion * 0.3));
 
     // D. Weakness List (Bottom 3 chapters with score < 60%)
-    // Group quizzes by chapter
     const chapterPerformance = new Map<string, { total: number, count: number, title: string, subject: string }>();
 
     quizzes.forEach(q => {
@@ -113,44 +120,29 @@ export async function getDashboardData() {
         .sort((a, b) => a.score - b.score)
         .slice(0, 3);
 
-    // E. Current Streak (Consecutive Days)
+    // E. Current Streak
     let currentStreak = 0;
     if (userPoints.length > 0) {
-        // Get all unique dates with activity
         const activityDates = Array.from(new Set(
             userPoints.map(p => new Date(p.created_at).toISOString().split('T')[0])
-        )).sort().reverse(); // Newest first
+        )).sort().reverse();
 
         const today = new Date().toISOString().split('T')[0];
         const yesterday = new Date(Date.now() - 86400000).toISOString().split('T')[0];
 
-        // Check if active today or yesterday to keep streak alive
         if (activityDates.includes(today) || activityDates.includes(yesterday)) {
             currentStreak = 1;
-            let checkDate = new Date(activityDates[0]); // Start from newest activity
-
-            // If newest is today, we check backwards from yesterday. 
-            // If newest is yesterday, we check backwards from day before yesterday.
-            // But wait, we just need to count consecutive days in the sorted list.
-
-            // Let's simplify: Iterate and check if dates are consecutive
             for (let i = 0; i < activityDates.length - 1; i++) {
                 const current = new Date(activityDates[i]);
                 const next = new Date(activityDates[i + 1]);
-
-                const diffTime = Math.abs(current.getTime() - next.getTime());
-                const diffDays = Math.ceil(diffTime / (1000 * 60 * 60 * 24));
-
-                if (diffDays === 1) {
-                    currentStreak++;
-                } else {
-                    break;
-                }
+                const diffDays = Math.ceil(Math.abs(current.getTime() - next.getTime()) / (1000 * 60 * 60 * 24));
+                if (diffDays === 1) currentStreak++;
+                else break;
             }
         }
     }
 
-    // F. Resume Learning (Last active quiz or first chapter)
+    // F. Resume Learning
     const lastQuiz = quizzes[0];
     const resumeData = lastQuiz ? {
         subject: lastQuiz.subject.name,
@@ -159,14 +151,14 @@ export async function getDashboardData() {
         quizId: lastQuiz.id
     } : null;
 
-    // G. Upcoming Exams
+    // G. Upcoming Exams (Filter by enrolled programs or global)
     const upcomingExams = await prisma.exam.findMany({
         where: {
             is_active: true,
             date: { gte: new Date() },
             OR: [
-                { program_id: profile.program_id }, // Exams for user's program
-                { program_id: null } // Global exams
+                { program_id: { in: activeProgramIds } },
+                { program_id: null }
             ]
         },
         orderBy: { date: 'asc' },
@@ -180,9 +172,8 @@ export async function getDashboardData() {
         orderBy: { earned_at: 'desc' }
     });
 
-    // I. Radar Chart Data (Subject-wise performance)
+    // I. Radar Chart Data
     const subjectPerformance = new Map<number, { total: number, count: number }>();
-
     quizzes.forEach(q => {
         if (!q.subject_id) return;
         const current = subjectPerformance.get(q.subject_id) || { total: 0, count: 0 };
@@ -193,16 +184,15 @@ export async function getDashboardData() {
         });
     });
 
-    const radarData = profile.program?.subjects?.map(sub => {
+    const radarData = enrolledSubjects.map(sub => {
         const stats = subjectPerformance.get(sub.id);
         const avgScore = stats ? Math.round(stats.total / stats.count) : 0;
-
         return {
             subject: sub.code || sub.name.substring(0, 3).toUpperCase(),
             score: avgScore,
             fullMark: 100
         };
-    }) || [];
+    }).slice(0, 6); // Limit to 6 for radar visualization
 
     return {
         profile,

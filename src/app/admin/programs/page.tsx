@@ -9,6 +9,8 @@ import ProgramStatusToggle from "./program-status-toggle";
 import FilterSelect from "@/components/admin/FilterSelect";
 import DeleteEntityButton from "@/components/admin/DeleteEntityButton";
 import { deleteProgram } from "@/app/actions/admin-extended";
+import EditProgramDialog from "./edit-program-dialog";
+import EntityActions from "@/components/admin/EntityActions";
 
 export default async function ProgramsPage({
     searchParams,
@@ -36,7 +38,7 @@ export default async function ProgramsPage({
             board: true,
             institution: true,
             _count: {
-                select: { subjects: true, profiles: true },
+                select: { subjects: true, enrollments: true },
             },
         },
         orderBy: { created_at: "desc" },
@@ -79,59 +81,69 @@ export default async function ProgramsPage({
             <div className="bg-white shadow overflow-hidden sm:rounded-md">
                 <ul className="divide-y divide-gray-200">
                     {programs.map((program) => (
-                        <li key={program.id}>
+                        <li key={program.id} className="relative group">
                             <Link
                                 href={`/admin/subjects?programId=${program.id}`}
                                 className="block hover:bg-gray-50 transition"
                             >
-                                <div className="px-4 py-4 sm:px-6">
+                                <div className="px-4 py-5 sm:px-6">
                                     <div className="flex items-center justify-between">
                                         <div className="flex items-center">
-                                            <span className="text-sm font-medium text-indigo-600 truncate">
+                                            <span className="text-base font-bold text-indigo-600 truncate">
                                                 {program.name}
                                             </span>
                                             {program.level && (
-                                                <span className="ml-2 px-2 inline-flex text-xs leading-5 font-semibold rounded-full bg-purple-100 text-purple-800">
+                                                <span className="ml-3 px-2.5 py-0.5 inline-flex text-xs leading-4 font-semibold rounded-full bg-purple-100 text-purple-800 border border-purple-200 uppercase tracking-wider">
                                                     {program.level}
                                                 </span>
                                             )}
-                                            <span className={`ml-2 px-2 inline-flex text-xs leading-5 font-semibold rounded-full ${program.is_active ? 'bg-green-100 text-green-800' : 'bg-red-100 text-red-800'}`}>
+                                            <span className={`ml-2 px-2.5 py-0.5 inline-flex text-xs leading-4 font-semibold rounded-full border ${program.is_active ? 'bg-green-100 text-green-800 border-green-200' : 'bg-red-100 text-red-800 border-red-200'}`}>
                                                 {program.is_active ? 'Active' : 'Inactive'}
                                             </span>
                                         </div>
-                                        <div className="ml-2 flex-shrink-0 flex items-center gap-2">
-                                            <ProgramStatusToggle programId={program.id} isActive={program.is_active} />
-                                            <DeleteEntityButton
-                                                entityId={program.id}
-                                                entityName={program.name}
-                                                entityType="Program"
-                                                deleteAction={deleteProgram}
-                                            />
+                                        {/* Spacer for absolute actions */}
+                                        <div className="w-40"></div>
+                                    </div>
+
+                                    <div className="mt-4 flex flex-col sm:flex-row sm:justify-between sm:items-center gap-4">
+                                        <div className="flex flex-wrap items-center gap-y-2 gap-x-6 text-sm text-gray-500">
+                                            <div className="flex items-center">
+                                                <span className="font-semibold text-gray-600 mr-1.5">Board:</span>
+                                                <span className="bg-gray-50 px-2 py-0.5 rounded border border-gray-100">{program.board.name}</span>
+                                            </div>
+                                            <div className="flex items-center">
+                                                <span className="font-semibold text-gray-600 mr-1.5">Institution:</span>
+                                                <span className={`px-2 py-0.5 rounded border ${program.institution ? 'bg-blue-50 border-blue-100 text-blue-700' : 'bg-gray-50 border-gray-100 italic'}`}>
+                                                    {program.institution?.name || "Board-level"}
+                                                </span>
+                                            </div>
+                                        </div>
+
+                                        <div className="flex items-center gap-3">
+                                            <div className="flex items-center px-3 py-1 bg-indigo-50 text-indigo-700 rounded-lg border border-indigo-100 shadow-sm text-sm">
+                                                <span className="font-bold mr-1.5">Subjects:</span>
+                                                <span className="tabular-nums font-medium">{program._count.subjects}</span>
+                                            </div>
+                                            <div className="flex items-center px-3 py-1 bg-emerald-50 text-emerald-700 rounded-lg border border-emerald-100 shadow-sm text-sm">
+                                                <span className="font-bold mr-1.5">Students:</span>
+                                                <span className="tabular-nums font-medium">{program._count.enrollments}</span>
+                                            </div>
                                         </div>
                                     </div>
                                 </div>
-                                <div className="mt-2 sm:flex sm:justify-between">
-                                    <div className="sm:flex">
-                                        <p className="flex items-center text-sm text-gray-500 mr-6">
-                                            Board: {program.board.name}
-                                        </p>
-                                        {program.institution && (
-                                            <p className="flex items-center text-sm text-gray-500 mr-6">
-                                                Institution: {program.institution.name}
-                                            </p>
-                                        )}
-                                        {!program.institution && (
-                                            <p className="flex items-center text-sm text-gray-500 mr-6 italic">
-                                                Board-level program
-                                            </p>
-                                        )}
-                                    </div>
-                                    <div className="mt-2 flex items-center text-sm text-gray-500 sm:mt-0">
-                                        <p className="mr-4">Subjects: {program._count.subjects}</p>
-                                        <p>Students: {program._count.profiles}</p>
-                                    </div>
-                                </div>
                             </Link>
+                            <div className="absolute top-5 right-4 sm:right-6">
+                                <EntityActions>
+                                    <EditProgramDialog program={program} boards={boards} institutions={institutions} />
+                                    <ProgramStatusToggle programId={program.id} isActive={program.is_active} />
+                                    <DeleteEntityButton
+                                        entityId={program.id}
+                                        entityName={program.name}
+                                        entityType="Program"
+                                        deleteAction={deleteProgram}
+                                    />
+                                </EntityActions>
+                            </div>
                         </li>
                     ))}
                     {programs.length === 0 && (

@@ -16,20 +16,20 @@ export default async function LeaderboardPage() {
 
     const userId = parseInt(session.user.id as string);
 
-    // Check if user has institution to determine default scope
-    const profile = await prisma.profile.findUnique({
-        where: { user_id: userId },
-        select: { institution_id: true }
+    // Check latest enrollment for initial scope context
+    const latestEnrollment = await prisma.userEnrollment.findFirst({
+        where: { user_id: userId, status: "active" },
+        orderBy: { last_accessed_at: "desc" }
     });
 
-    // Fetch data in parallel
+    // Fetch enrolled courses for selection
     const enrolledCourses = await prisma.userEnrollment.findMany({
         where: { user_id: userId, status: "active" },
         include: { course: { select: { id: true, title: true } } }
     });
 
-    const initialScope = enrolledCourses.length > 0 ? "COURSE" : (profile?.institution_id ? "INSTITUTION" : "BOARD");
-    const initialCourseId = enrolledCourses[0]?.course.id;
+    const initialScope = latestEnrollment ? "COURSE" : "BOARD";
+    const initialCourseId = latestEnrollment?.course_id;
 
     const [userStats, leaderboardData] = await Promise.all([
         getUserStatsAction(),

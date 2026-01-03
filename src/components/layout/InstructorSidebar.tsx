@@ -14,6 +14,7 @@ import {
     BrainCircuit
 } from "lucide-react";
 import { useState } from "react";
+import Image from "next/image";
 
 interface InstructorSidebarProps {
     setSidebarOpen?: (open: boolean) => void;
@@ -35,6 +36,7 @@ export default function InstructorSidebar({ setSidebarOpen }: InstructorSidebarP
         { name: "Overview", href: "/instructor/dashboard", icon: LayoutDashboard },
         { name: "My Courses", href: "/instructor/courses", icon: BookOpen },
         { name: "My Students", href: "/instructor/enrollments", icon: Users },
+        { name: "Settings", href: "/instructor/settings", icon: Settings },
     ];
 
     return (
@@ -50,25 +52,37 @@ export default function InstructorSidebar({ setSidebarOpen }: InstructorSidebarP
 
             <div className="flex-shrink-0 px-4 py-4 flex items-center h-16 border-b border-indigo-800">
                 {!displayCollapsed ? (
-                    <h1 className="text-xl font-bold text-white flex items-center gap-2">
-                        <BrainCircuit className="w-6 h-6" />
-                        Instructor Site
-                    </h1>
+                    <Link href="/instructor/dashboard" className="flex items-center">
+                        <Image
+                            src="/zirnalogosmall.png"
+                            alt="Zirna"
+                            width={100}
+                            height={32}
+                            className="h-8 w-auto brightness-0 invert"
+                            priority
+                            unoptimized
+                        />
+                        <span className="ml-2 text-xs font-semibold text-indigo-300 uppercase tracking-wider">Instructor</span>
+                    </Link>
                 ) : (
                     <div className="w-full flex justify-center">
-                        <BrainCircuit className="w-6 h-6 text-white" />
+                        <span className="text-xl font-bold text-white italic">Z</span>
                     </div>
                 )}
             </div>
 
             <div className="flex-shrink-0 flex items-center px-4 py-4 border-b border-indigo-800">
                 <div className="flex items-center">
-                    <div className="h-8 w-8 rounded-full bg-indigo-700 flex items-center justify-center text-white font-bold">
-                        {session?.user.username?.charAt(0).toUpperCase() || "I"}
+                    <div className="h-8 w-8 rounded-full bg-indigo-700 flex items-center justify-center text-white font-bold overflow-hidden">
+                        {session?.user.image ? (
+                            <img src={session.user.image} alt="" className="h-full w-full object-cover" />
+                        ) : (
+                            (session?.user.name || session?.user.username || "I").charAt(0).toUpperCase()
+                        )}
                     </div>
                     {!displayCollapsed && (
                         <div className="ml-3 overflow-hidden">
-                            <p className="text-sm font-medium text-white truncate">{session?.user.username}</p>
+                            <p className="text-sm font-medium text-white truncate">{session?.user.name || session?.user.username}</p>
                             <p className="text-xs font-medium text-indigo-300">Instructor</p>
                         </div>
                     )}
