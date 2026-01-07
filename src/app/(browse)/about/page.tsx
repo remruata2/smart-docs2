@@ -171,8 +171,8 @@ export default function Home() {
 					</h1>
 					<p className="text-lg md:text-xl text-gray-600 mb-6 md:mb-8 max-w-3xl mx-auto animate-fade-in-up animate-delay-200 px-2">
 						Master your exams with AI-generated quizzes, smart study materials,
-						and gamified learning. Built for students across boards, institutions,
-						and competitive exams who need results.
+						and gamified learning. Built for students across institutions
+						and competitive exams aspirants who need results.
 					</p>
 					<div className="flex flex-col sm:flex-row gap-3 sm:gap-4 justify-center animate-fade-in-up animate-delay-300 px-4 sm:px-0">
 						<Link href="/register" className="w-full sm:w-auto">
@@ -180,7 +180,7 @@ export default function Home() {
 								size="lg"
 								className="w-full sm:w-auto text-base md:text-lg px-6 md:px-8 bg-gradient-to-r from-indigo-600 to-purple-600 hover:from-indigo-700 hover:to-purple-700 transition-all duration-200 hover:scale-105 hover:shadow-xl group"
 							>
-								Start Learning Free
+								Start Learning
 								<ArrowRight className="ml-2 h-4 w-4 transition-transform duration-200 group-hover:translate-x-1" />
 							</Button>
 						</Link>
@@ -216,7 +216,7 @@ export default function Home() {
 							borderColor: "border-indigo-100 hover:border-indigo-300",
 							title: "AI-Generated Quizzes",
 							description:
-								"Practice with unlimited custom quizzes tailored to your subjects and chapters. Multiple question types including MCQs, fill-in-the-blanks, and more.",
+								"Practice with unlimited custom quizzes tailored to your subjects. Multiple question types including MCQs, fill-in-the-blanks, and more.",
 							features: [
 								"Chapter-specific questions",
 								"5 types of question formats",
@@ -246,11 +246,12 @@ export default function Home() {
 							borderColor: "border-blue-100 hover:border-blue-300",
 							title: "AI Learning Tutor",
 							description:
-								"Get personalized help from your AI tutor that breaks down complex topics into simple, easy-to-understand explanations tailored to your learning pace.",
+								"Get personalized help from your AI tutor that breaks down complex topics into simple, easy-to-understand explanations tailored to your learning pace with multilingual support.",
 							features: [
 								"Step-by-step chapter guidance",
 								"Simplified explanations",
 								"24/7 personalized assistance",
+								"Multilingual support (English, Mizo & Hindi)",
 							],
 						},
 						{
@@ -261,7 +262,7 @@ export default function Home() {
 							borderColor: "border-green-100 hover:border-green-300",
 							title: "Smart Study Materials",
 							description:
-								"Access organized content by board, institution, and program. All your textbooks and study materials in one place with AI-powered summaries.",
+								"Access organized content. All your textbooks and study materials in one place with AI-powered summaries.",
 							features: [
 								"Multi-board support (CBSE, MBSE, etc.)",
 								"Chapter-wise organization",
@@ -276,7 +277,7 @@ export default function Home() {
 							borderColor: "border-purple-100 hover:border-purple-300",
 							title: "Gamified Learning",
 							description:
-								"Earn points for every quiz, climb the leaderboards, and stay motivated with achievements. Learning made fun and engaging.",
+								"Engage in competitions, earn points, climb the leaderboards, and stay motivated with achievements. Learning made fun and engaging.",
 							features: [
 								"Points for every activity",
 								"Achievement badges",
@@ -289,12 +290,11 @@ export default function Home() {
 							iconColor: "text-orange-600",
 							bgColor: "bg-orange-100",
 							borderColor: "border-orange-100 hover:border-orange-300",
-							title: "Compete & Excel",
+							title: "Leaderboard",
 							description:
-								"See how you rank against peers in your institution and board. Friendly competition that drives excellence.",
+								"See how you rank against peers in your courses. Friendly competition that drives excellence.",
 							features: [
-								"Institution rankings",
-								"Board-wide leaderboards",
+								"Course rankings",
 								"Performance insights",
 							],
 						},

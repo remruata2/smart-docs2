@@ -29,7 +29,7 @@ export function BrowseHeader() {
                         Browse Courses
                     </Link>
                     <Link href="/about" className="text-gray-600 hover:text-gray-900 font-medium">
-                        About
+                        Features
                     </Link>
                     {session && (
                         <Link href="/my-learning" className="text-gray-600 hover:text-gray-900 font-medium">

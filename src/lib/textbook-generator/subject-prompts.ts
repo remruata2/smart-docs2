@@ -107,6 +107,13 @@ export function getSubjectInstructions(subjectName: string, classLevel: string):
    - Focus on "Exception to the Rule" cases (highly common in NEET/JEE).
    - Include "Pitfall Alerts" for common exam mistakes.
 
+6. 📐 THE "RULE OF 3" NUMERICAL LADDER:
+   - Every major formula/law MUST have 3 Numerical Problems:
+     - **Level 1 (Drill):** Direct substitution into the formula.
+     - **Level 2 (Board):** Standard board exam style problem (CBSE/MBSE).
+     - **Level 3 (Competitive):** Tricky multi-step problem (JEE/NEET style).
+   - Show complete solutions with units and significant figures.
+
 7. 📊 DERIVATIONS & CALCULATIONS:
    - Show EVERY step of any derivation. Use LaTeX for all equations.
    - Include "Numerical Practice" inside the content, not just at the end.
@@ -143,6 +150,12 @@ export function getSubjectInstructions(subjectName: string, classLevel: string):
 5. 📝 GRAMMAR FOCUS:
    - Include dedicated sections for grammar rules relevant to the chapter.
    - Provide 5 practice exercises with answers.
+
+6. 📐 THE "RULE OF 3" APPLICATION LADDER:
+   - Every grammar rule or literary concept MUST have 3 Examples:
+     - **Level 1 (Recognition):** Identify the concept in a given sentence/passage.
+     - **Level 2 (Usage):** Use the concept correctly in a sentence.
+     - **Level 3 (Creative):** Apply in original writing or complex analysis.
 `;
    }
 
@@ -180,6 +193,12 @@ export function getSubjectInstructions(subjectName: string, classLevel: string):
 
 6. 🏛️ KEY TERMS GLOSSARY:
    - Include a definitions section for important terms at the end of the chapter.
+
+7. 📐 THE "RULE OF 3" ANALYSIS LADDER:
+   - Every major concept/event MUST have 3 Practice Questions:
+     - **Level 1 (Recall):** Basic fact identification (Who, What, When, Where).
+     - **Level 2 (Explain):** Cause-effect analysis or significance explanation.
+     - **Level 3 (Evaluate):** Critical thinking, compare-contrast, or essay-style discussion.
 `;
    }
 
@@ -210,6 +229,12 @@ export function getSubjectInstructions(subjectName: string, classLevel: string):
 
 5. 💡 COMMON ERRORS:
    - Include a "Debug Corner" showing common mistakes and how to fix them.
+
+6. 📐 THE "RULE OF 3" COMPLEXITY LADDER:
+   - Every algorithm/concept MUST have 3 Code Examples:
+     - **Level 1 (Basic):** Simple, direct implementation.
+     - **Level 2 (Standard):** Typical interview/exam problem.
+     - **Level 3 (Optimized):** Edge cases, time/space optimization, or advanced variation.
 `;
    }
 
@@ -232,6 +257,12 @@ export function getSubjectInstructions(subjectName: string, classLevel: string):
 4. 📝 ASSESSMENT:
    - Include a mix of objective and subjective questions.
    - Provide rubrics for project-based assessments where applicable.
+
+5. 📐 THE "RULE OF 3" PRACTICE LADDER:
+   - Every major concept MUST have 3 Practice Activities:
+     - **Level 1 (Basic):** Simple recall or identification.
+     - **Level 2 (Application):** Hands-on activity or practical exercise.
+     - **Level 3 (Creative):** Project or extended response requiring synthesis.
 `;
 }
 

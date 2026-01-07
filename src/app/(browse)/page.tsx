@@ -14,7 +14,7 @@ export default async function HomePage() {
     return (
         <div className="min-h-screen bg-white">
             {/* Hero Section */}
-            <div className="bg-gradient-to-br from-indigo-900 via-indigo-800 to-purple-900 text-white py-20 px-4 md:px-8">
+            <div className="bg-gradient-to-br from-indigo-900 via-indigo-800 to-purple-900 text-white py-10 px-4 md:px-8">
                 <div className="max-w-7xl mx-auto flex flex-col md:flex-row items-center justify-between gap-12">
                     <div className="space-y-6 flex-1 text-center md:text-left">
                         <div className="inline-flex items-center gap-2 px-4 py-2 rounded-full bg-white/10 border border-white/20 text-white/90 text-sm font-medium backdrop-blur-sm">

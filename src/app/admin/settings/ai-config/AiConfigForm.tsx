@@ -11,7 +11,7 @@ import { Card, CardContent, CardHeader, CardTitle, CardDescription } from "@/com
 
 const schema = z.object({
   searchLimit: z
-    .number({ invalid_type_error: "Search limit must be a number" })
+    .number({ message: "Search limit must be a number" })
     .int()
     .min(1, "Minimum is 1")
     .max(200, "Maximum is 200"),

@@ -41,7 +41,7 @@ export const IMAGE_MODEL_OPTIONS = [
 ] as const;
 
 export const CHAT_MODEL_OPTIONS = [
-    { value: 'gemini-3-flash-preview', label: 'Gemini 3 Flash Preview (Best Quality)' },
+    { value: 'gemini-3-pro-preview', label: 'Gemini 3 Pro (Best Quality)' },
     { value: 'gemini-2.5-pro', label: 'Gemini 2.5 Pro' },
     { value: 'gemini-2.5-flash', label: 'Gemini 2.5 Flash (Fast)' },
     { value: 'gemini-2.0-flash', label: 'Gemini 2.0 Flash' },
