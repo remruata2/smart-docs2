@@ -4,7 +4,10 @@ import Link from "next/link";
 import { Card, CardContent } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
 import { Badge } from "@/components/ui/badge";
-import { BookOpen, MessageSquare, ArrowLeft, FileText, Brain, GraduationCap, Sparkles } from "lucide-react";
+import { BookOpen, MessageSquare, ArrowLeft, FileText, Brain, GraduationCap, Sparkles, Lock } from "lucide-react";
+import { getTrialAccess } from "@/lib/trial-access";
+import { TrialBadge, LockedChapterBadge } from "@/components/trial";
+import { cn } from "@/lib/utils";
 
 export default async function ChaptersPage({
     searchParams,
@@ -37,16 +40,25 @@ export default async function ChaptersPage({
         ? `${textbookData.textbook.stream || "General"} • ${textbookData.textbook.class_level}`
         : `${subjectData?.subjectInfo.program.name} • ${subjectData?.subjectInfo.board.name}`;
 
+    const enrollment = textbookData?.enrollment || subjectData?.enrollment;
+    const course = enrollment?.course;
+    const trialAccess = getTrialAccess(enrollment || null, course || null);
+
     return (
         <div className="container mx-auto px-4 py-8 max-w-5xl">
             {/* Header */}
             <div className="mb-10">
-                <Link href="/app/subjects">
-                    <Button variant="ghost" size="sm" className="mb-6 hover:bg-white hover:shadow-sm transition-all border border-transparent hover:border-gray-100">
-                        <ArrowLeft className="h-4 w-4 mr-2" />
-                        Back to My Learning
-                    </Button>
-                </Link>
+                <div className="flex items-center justify-between mb-6">
+                    <Link href="/app/subjects">
+                        <Button variant="ghost" size="sm" className="hover:bg-white hover:shadow-sm transition-all border border-transparent hover:border-gray-100">
+                            <ArrowLeft className="h-4 w-4 mr-2" />
+                            Back to My Learning
+                        </Button>
+                    </Link>
+
+                    {/* Trial Status Badge */}
+                    <TrialBadge daysRemaining={trialAccess.trialDaysRemaining} />
+                </div>
 
                 <div className="flex flex-col md:flex-row md:items-center justify-between gap-6">
                     <div className="flex items-start gap-5">
@@ -90,6 +102,7 @@ export default async function ChaptersPage({
                                         chapter={chapter}
                                         isNewTextbook={true}
                                         textbookId={textbookId}
+                                        trialAccess={trialAccess}
                                     />
                                 ))}
                             </div>
@@ -105,6 +118,7 @@ export default async function ChaptersPage({
                             chapter={chapter}
                             isNewTextbook={false}
                             subjectId={subjectId}
+                            trialAccess={trialAccess}
                         />
                     ))}
                 </div>
@@ -113,17 +127,22 @@ export default async function ChaptersPage({
     );
 }
 
-function ChapterRow({ chapter, isNewTextbook, textbookId, subjectId }: any) {
+function ChapterRow({ chapter, isNewTextbook, textbookId, subjectId, trialAccess }: any) {
     const viewUrl = `/app/study/${chapter.id}`;
+    const chapterNum = chapter.order || chapter.chapter_number || 1;
+    const isLocked = trialAccess.isTrialActive && chapterNum > 1;
 
     return (
-        <Card className="group hover:shadow-xl transition-all duration-300 border-gray-100 overflow-hidden bg-white">
+        <Card className={cn(
+            "group hover:shadow-xl transition-all duration-300 border-gray-100 overflow-hidden bg-white",
+            isLocked && "opacity-80"
+        )}>
             <CardContent className="p-0">
                 <div className="flex flex-col md:flex-row md:items-center">
                     {/* Chapter Number/Indicator */}
                     <div className="w-full md:w-20 bg-gray-50 flex items-center justify-center p-4 md:py-8 border-b md:border-b-0 md:border-r border-gray-100 group-hover:bg-indigo-50 transition-colors">
                         <span className="text-2xl font-black text-gray-300 group-hover:text-indigo-200 transition-colors">
-                            {chapter.order || chapter.chapter_number}
+                            {chapterNum}
                         </span>
                     </div>
 
@@ -131,9 +150,12 @@ function ChapterRow({ chapter, isNewTextbook, textbookId, subjectId }: any) {
                     <div className="flex-1 p-6">
                         <div className="flex flex-col md:flex-row md:items-center justify-between gap-4">
                             <div className="flex-1">
-                                <h3 className="text-xl font-bold text-gray-900 mb-1 group-hover:text-indigo-600 transition-colors">
-                                    {chapter.title}
-                                </h3>
+                                <div className="flex items-center gap-3 mb-1">
+                                    <h3 className="text-xl font-bold text-gray-900 group-hover:text-indigo-600 transition-colors">
+                                        {chapter.title}
+                                    </h3>
+                                    {isLocked && <LockedChapterBadge />}
+                                </div>
                                 <div className="flex items-center gap-4 text-xs font-bold text-gray-400 uppercase tracking-wider">
                                     <div className="flex items-center gap-1.5">
                                         <BookOpen className="h-3.5 w-3.5" />
@@ -147,20 +169,41 @@ function ChapterRow({ chapter, isNewTextbook, textbookId, subjectId }: any) {
                             </div>
 
                             <div className="flex flex-wrap items-center gap-3">
-                                <Link href={viewUrl} className="flex-1 md:flex-initial">
-                                    <Button className="w-full bg-indigo-600 hover:bg-indigo-700 text-white font-bold px-6 shadow-md shadow-indigo-100">
-                                        <Sparkles className="h-4 w-4 mr-2" />
+                                <Link href={isLocked ? "#" : viewUrl} className="flex-1 md:flex-initial">
+                                    <Button
+                                        disabled={isLocked}
+                                        className={cn(
+                                            "w-full bg-indigo-600 hover:bg-indigo-700 text-white font-bold px-6 shadow-md shadow-indigo-100",
+                                            isLocked && "opacity-50 cursor-not-allowed bg-gray-400"
+                                        )}
+                                    >
+                                        {isLocked && <Lock className="h-4 w-4 mr-2" />}
+                                        {!isLocked && <Sparkles className="h-4 w-4 mr-2" />}
                                         Study Hub
                                     </Button>
                                 </Link>
-                                <Link href={`/app/practice?subjectId=${subjectId || chapter.subject_id}&chapterId=${chapter.id}`} className="flex-1 md:flex-initial">
-                                    <Button variant="outline" className="w-full border-green-200 hover:border-green-300 hover:bg-green-50 text-green-700 font-bold px-6">
+                                <Link href={isLocked ? "#" : `/app/practice?subjectId=${subjectId || chapter.subject_id}&chapterId=${chapter.id}`} className="flex-1 md:flex-initial">
+                                    <Button
+                                        variant="outline"
+                                        disabled={isLocked}
+                                        className={cn(
+                                            "w-full border-green-200 hover:border-green-300 hover:bg-green-50 text-green-700 font-bold px-6",
+                                            isLocked && "opacity-50 cursor-not-allowed border-gray-200 text-gray-400"
+                                        )}
+                                    >
                                         <Brain className="h-4 w-4 mr-2" />
                                         Practice
                                     </Button>
                                 </Link>
-                                <Link href={`/app/chat?chapterId=${chapter.id}${textbookId ? `&textbookId=${textbookId}` : `&subjectId=${subjectId}`}`} className="flex-1 md:flex-initial">
-                                    <Button variant="outline" className="w-full border-gray-200 hover:border-indigo-200 hover:text-indigo-600 hover:bg-indigo-50 font-bold px-4">
+                                <Link href={isLocked ? "#" : `/app/chat?chapterId=${chapter.id}${textbookId ? `&textbookId=${textbookId}` : `&subjectId=${subjectId}`}`} className="flex-1 md:flex-initial">
+                                    <Button
+                                        variant="outline"
+                                        disabled={isLocked}
+                                        className={cn(
+                                            "w-full border-gray-200 hover:border-indigo-200 hover:text-indigo-600 hover:bg-indigo-50 font-bold px-4",
+                                            isLocked && "opacity-50 cursor-not-allowed text-gray-400"
+                                        )}
+                                    >
                                         <MessageSquare className="h-4 w-4 mr-2" />
                                         Ask AI
                                     </Button>

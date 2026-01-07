@@ -6,6 +6,7 @@ import { prisma } from "@/lib/prisma";
 import { generateQuiz, gradeQuiz, QuizGenerationConfig } from "@/lib/ai-service-enhanced";
 import { QuestionType, QuizStatus } from "@/generated/prisma";
 import { quizCache, CacheKeys } from "@/lib/quiz-cache";
+import { checkAIFeatureAccess } from "@/lib/trial-access";
 
 /**
  * Get chapter context with caching
@@ -160,6 +161,14 @@ export async function generateQuizAction(
         throw new Error("Unauthorized");
     }
     const userId = parseInt(session.user.id as string);
+
+    // Check trial access for AI features
+    if (chapterId) {
+        const access = await checkAIFeatureAccess(userId, chapterId, prisma);
+        if (!access.allowed) {
+            throw new Error(access.reason || "Trial access restricted");
+        }
+    }
 
     try {
         let quizTitle = "";

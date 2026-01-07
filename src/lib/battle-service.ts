@@ -76,6 +76,7 @@ export class BattleService {
                 quiz: {
                     select: {
                         title: true,
+                        chapter_id: true,
                         questions: {
                             select: { id: true, points: true }
                         }
@@ -129,6 +130,7 @@ export class BattleService {
                 quiz: {
                     select: {
                         title: true,
+                        chapter_id: true,
                         questions: true
                     }
                 }

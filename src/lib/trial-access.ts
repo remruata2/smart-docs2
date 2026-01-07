@@ -266,3 +266,102 @@ export async function checkAIFeatureAccess(
     // Default allow if we somehow get here
     return { allowed: true };
 }
+
+/**
+ * Check if user can access a specific chapter (all features including textbook content)
+ * During trial, only Chapter 1 is accessible. All other chapters are completely locked.
+ */
+export async function checkChapterAccess(
+    userId: number,
+    chapterId: bigint | number,
+    prisma: any
+): Promise<{ allowed: boolean; reason?: string; trialDaysRemaining?: number }> {
+    // Get chapter with course info
+    const chapter = await prisma.chapter.findUnique({
+        where: { id: BigInt(chapterId) },
+        select: {
+            chapter_number: true,
+            order: true,
+            subject: {
+                select: {
+                    courses: {
+                        select: {
+                            id: true,
+                            is_free: true,
+                        }
+                    }
+                }
+            }
+        }
+    });
+
+    if (!chapter) {
+        return { allowed: false, reason: 'Chapter not found.' };
+    }
+
+    // Get the courses this chapter belongs to
+    const courses = chapter.subject?.courses || [];
+
+    // If no courses or all courses are free, allow access
+    if (courses.length === 0 || courses.every((c: any) => c.is_free)) {
+        return { allowed: true };
+    }
+
+    // Check user enrollment for each paid course
+    for (const course of courses) {
+        if (course.is_free) continue;
+
+        const enrollment = await prisma.userEnrollment.findUnique({
+            where: {
+                user_id_course_id: {
+                    user_id: userId,
+                    course_id: course.id,
+                }
+            },
+            select: {
+                is_paid: true,
+                trial_ends_at: true,
+            }
+        });
+
+        if (!enrollment) {
+            return {
+                allowed: false,
+                reason: 'You need to enroll in this course to access this chapter.'
+            };
+        }
+
+        const accessResult = getTrialAccess(enrollment, { is_free: false });
+
+        // Full access (paid)
+        if (accessResult.hasFullAccess) {
+            return { allowed: true };
+        }
+
+        // Trial active - check chapter number
+        if (accessResult.isTrialActive) {
+            const chapterNum = chapter.order || chapter.chapter_number || 1;
+            if (chapterNum <= 1) {
+                return {
+                    allowed: true,
+                    trialDaysRemaining: accessResult.trialDaysRemaining || undefined
+                };
+            } else {
+                return {
+                    allowed: false,
+                    reason: `Chapter ${chapterNum} requires a paid subscription. During trial, only Chapter 1 is available.`,
+                    trialDaysRemaining: accessResult.trialDaysRemaining || undefined
+                };
+            }
+        }
+
+        // Trial expired
+        return {
+            allowed: false,
+            reason: 'Your trial has expired. Please upgrade to continue accessing this course.',
+        };
+    }
+
+    // Default allow if we somehow get here
+    return { allowed: true };
+}

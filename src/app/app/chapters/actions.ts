@@ -29,6 +29,14 @@ export async function getChaptersForSubject(subjectId: number) {
 					some: { id: subjectId }
 				}
 			}
+		},
+		include: {
+			course: {
+				select: {
+					id: true,
+					is_free: true
+				}
+			}
 		}
 	});
 
@@ -86,6 +94,7 @@ export async function getChaptersForSubject(subjectId: number) {
 			program: subject.program,
 			board: subject.program.board,
 		},
+		enrollment,
 	};
 }
 

@@ -17,6 +17,8 @@ import { trackUsage } from "@/lib/usage-tracking";
 import { UsageType } from "@/generated/prisma";
 import { generateChatImage, detectImageGenerationRequest, inferImageType } from "@/lib/chat-image-generator";
 import { checkImageGenerationLimit, IMAGE_GENERATION_DAILY_LIMIT } from "@/lib/image-generation-limits";
+import { prisma } from "@/lib/prisma";
+import { checkAIFeatureAccess } from "@/lib/trial-access";
 
 export async function POST(request: NextRequest) {
 	try {
@@ -64,6 +66,21 @@ export async function POST(request: NextRequest) {
 		const body = await request.json();
 		const { message, provider, model, keyId, stream, boardId, subjectId, chapterId } = body;
 		let conversationHistory = body.conversationHistory;
+
+		// Check trial access for AI features
+		if (chapterId) {
+			const access = await checkAIFeatureAccess(userId, chapterId, prisma);
+			if (!access.allowed) {
+				return NextResponse.json(
+					{
+						error: access.reason || "Trial access restricted",
+						trialRestricted: true,
+						trialDaysRemaining: access.trialDaysRemaining
+					},
+					{ status: 403 }
+				);
+			}
+		}
 
 		if (!message || typeof message !== "string") {
 			return NextResponse.json(
