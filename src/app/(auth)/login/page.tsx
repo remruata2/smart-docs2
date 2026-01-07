@@ -173,8 +173,8 @@ export default function LoginPage() {
 									<Brain className="w-6 h-6" />
 								</div>
 								<div>
-									<h3 className="font-semibold text-lg mb-1">AI-Generated Quizzes</h3>
-									<p className="text-white/80 text-sm">Practice with custom quizzes tailored to your subjects and chapters</p>
+									<h3 className="font-semibold text-lg mb-1">AI Mock Tests</h3>
+									<p className="text-white/80 text-sm">Practice with custom mock tests tailored to your subjects and chapters</p>
 								</div>
 							</div>
 
