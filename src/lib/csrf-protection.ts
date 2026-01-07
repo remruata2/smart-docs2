@@ -12,6 +12,17 @@ function getAllowedOrigins(): string[] {
     // Add NEXTAUTH_URL if set
     if (process.env.NEXTAUTH_URL) {
         origins.push(process.env.NEXTAUTH_URL);
+        // Automatically add www variant or non-www variant
+        const url = new URL(process.env.NEXTAUTH_URL);
+        if (url.hostname.startsWith("www.")) {
+            // Add non-www version
+            url.hostname = url.hostname.replace("www.", "");
+            origins.push(url.origin);
+        } else {
+            // Add www version
+            url.hostname = "www." + url.hostname;
+            origins.push(url.origin);
+        }
     }
 
     // Add custom allowed origins
