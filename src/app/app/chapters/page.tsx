@@ -35,10 +35,10 @@ export default async function ChaptersPage({
         redirect("/app/subjects");
     }
 
-    const title = textbookData?.textbook.title || subjectData?.subjectInfo.subject.name;
+    const title = textbookData?.textbook.title || subjectData?.subjectInfo?.subject?.name || "Chapters";
     const subtitle = textbookData
         ? `${textbookData.textbook.stream || "General"} • ${textbookData.textbook.class_level}`
-        : `${subjectData?.subjectInfo.program.name} • ${subjectData?.subjectInfo.board.name}`;
+        : `${subjectData?.subjectInfo?.program?.name || ""} • ${subjectData?.subjectInfo?.board?.name || ""}`;
 
     const enrollment = textbookData?.enrollment || subjectData?.enrollment;
     const course = enrollment?.course;
