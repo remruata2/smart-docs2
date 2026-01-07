@@ -281,7 +281,6 @@ export async function checkChapterAccess(
         where: { id: BigInt(chapterId) },
         select: {
             chapter_number: true,
-            order: true,
             subject: {
                 select: {
                     courses: {
@@ -340,7 +339,7 @@ export async function checkChapterAccess(
 
         // Trial active - check chapter number
         if (accessResult.isTrialActive) {
-            const chapterNum = chapter.order || chapter.chapter_number || 1;
+            const chapterNum = chapter.chapter_number || 1;
             if (chapterNum <= 1) {
                 return {
                     allowed: true,

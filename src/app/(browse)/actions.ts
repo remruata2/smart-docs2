@@ -65,7 +65,7 @@ export async function getCatalogData(query?: string) {
 /**
  * Enroll in a course - requires authentication
  */
-export async function enrollInCourse(courseId: number, institutionId?: string) {
+export async function enrollInCourse(courseId: number, institutionId?: string, isPaidEnrollment: boolean = false) {
     const session = await getServerSession(authOptions);
 
     if (!session?.user?.id) {
@@ -90,8 +90,21 @@ export async function enrollInCourse(courseId: number, institutionId?: string) {
         const programId = course?.subjects[0]?.program_id;
         const isPaidCourse = course && !course.is_free;
 
-        // Calculate trial end date for paid courses (3 days from now)
-        const trialEndsAt = isPaidCourse ? new Date(Date.now() + 3 * 24 * 60 * 60 * 1000) : null;
+        // Calculate trial end date:
+        // - If explicit paid enrollment: NO trial end date (null)
+        // - If free enrollment on paid course: 3 days from now
+        // - If free course: null
+        let trialEndsAt: Date | null = null;
+        let isPaidStatus = false;
+
+        if (isPaidEnrollment) {
+            isPaidStatus = true;
+            trialEndsAt = null;
+        } else if (isPaidCourse) {
+            // Start Trial
+            isPaidStatus = false;
+            trialEndsAt = new Date(Date.now() + 3 * 24 * 60 * 60 * 1000);
+        }
 
         // 1. Update or Create Enrollment with context and trial info
         await prisma.userEnrollment.upsert({
@@ -108,23 +121,21 @@ export async function enrollInCourse(courseId: number, institutionId?: string) {
                 progress: 0,
                 institution_id: institutionId ? BigInt(institutionId) : null,
                 program_id: programId,
-                is_paid: false,
+                is_paid: isPaidStatus,
                 trial_ends_at: trialEndsAt,
             },
             update: {
                 status: "active",
                 institution_id: institutionId ? BigInt(institutionId) : null,
                 program_id: programId,
-                // Don't reset trial or payment status on re-enrollment
+                // Only update payment status if this IS a paid enrollment
+                ...(isPaidEnrollment ? {
+                    is_paid: true,
+                    trial_ends_at: null,
+                } : {})
             }
         });
 
-        // 2. Ensure Profile exists (but we don't store board/program there anymore)
-        await prisma.profile.upsert({
-            where: { user_id: userId },
-            create: { user_id: userId },
-            update: {} // No update needed here
-        });
 
         revalidatePath("/");
         revalidatePath("/my-courses");

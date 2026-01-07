@@ -4,6 +4,10 @@ import { getServerSession } from "next-auth";
 import { authOptions } from "@/lib/auth-options";
 import { prisma } from "@/lib/prisma";
 
+import { checkChapterAccess } from "@/lib/trial-access";
+
+// ... imports
+
 export async function getChaptersForSubject(subjectId: number) {
 	const session = await getServerSession(authOptions);
 
@@ -63,7 +67,7 @@ export async function getChaptersForSubject(subjectId: number) {
 	});
 
 	// Fetch chapters for this subject
-	const chapters = await prisma.chapter.findMany({
+	const chaptersData = await prisma.chapter.findMany({
 		where: {
 			subject_id: subjectId,
 			is_active: true,
@@ -86,6 +90,15 @@ export async function getChaptersForSubject(subjectId: number) {
 		},
 		orderBy: [{ chapter_number: "asc" }, { title: "asc" }],
 	});
+
+	// Calculate lock status for each chapter
+	const chapters = await Promise.all(chaptersData.map(async (chapter) => {
+		const access = await checkChapterAccess(userId, Number(chapter.id), prisma);
+		return {
+			...chapter,
+			isLocked: !access.allowed
+		};
+	}));
 
 	return {
 		chapters,

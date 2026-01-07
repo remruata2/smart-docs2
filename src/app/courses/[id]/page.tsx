@@ -102,12 +102,36 @@ export default async function CourseDetailsPage({
                             </div>
 
                             {course.isEnrolled ? (
-                                <Link href="/app/subjects" className="block">
-                                    <Button className="w-full bg-emerald-600 hover:bg-emerald-700 py-6">
-                                        <CheckCircle2 className="w-5 h-5 mr-2" />
-                                        Continue Learning
-                                    </Button>
-                                </Link>
+                                <div className="space-y-3">
+                                    <Link href="/app/subjects" className="block">
+                                        <Button className={`w-full py-4 h-auto whitespace-normal font-bold text-lg shadow-lg transition-all active:scale-95 ${course.enrollmentStatus === 'trial'
+                                            ? "bg-indigo-600 hover:bg-indigo-700 shadow-indigo-500/20"
+                                            : "bg-emerald-600 hover:bg-emerald-700 shadow-emerald-500/20"
+                                            }`}>
+                                            <CheckCircle2 className="w-6 h-6 mr-3 shrink-0" />
+                                            <div className="flex flex-col items-start bg-transparent">
+                                                <span className="leading-tight">Continue Learning</span>
+                                                {course.enrollmentStatus === 'trial' && (
+                                                    <span className="text-xs font-medium opacity-90 leading-tight block mt-0.5">
+                                                        Trial Mode Active
+                                                    </span>
+                                                )}
+                                            </div>
+                                        </Button>
+                                    </Link>
+
+                                    {/* Show Upgrade Button for Trial Users */}
+                                    {course.enrollmentStatus === 'trial' && !course.is_free && (
+                                        <EnrollmentButton
+                                            courseId={course.id}
+                                            courseTitle={course.title}
+                                            isFree={false}
+                                            price={course.price || undefined}
+                                            currency={course.currency}
+                                            upgradeMode={true}
+                                        />
+                                    )}
+                                </div>
                             ) : course.isAuthenticated ? (
                                 <EnrollmentButton
                                     courseId={course.id}
@@ -118,7 +142,7 @@ export default async function CourseDetailsPage({
                                 />
                             ) : (
                                 <Link href={`/login?callbackUrl=/courses/${course.id}`} className="block">
-                                    <Button className="w-full bg-indigo-600 hover:bg-indigo-700 py-6">
+                                    <Button className="w-full bg-indigo-600 hover:bg-indigo-700 py-6 font-bold text-lg shadow-indigo-500/20 shadow-lg transition-all active:scale-95">
                                         Sign In to Enroll
                                     </Button>
                                 </Link>

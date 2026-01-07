@@ -32,8 +32,8 @@ export async function verifyCoursePurchase(data: {
     // For now, we trust the verification and proceed to enrollment
 
     // 3. Enroll the user
-    // We reuse the existing enrollment logic
-    const result = await enrollInCourse(courseId);
+    // We reuse the existing enrollment logic but explicitly mark it as paid
+    const result = await enrollInCourse(courseId, undefined, true);
 
     if (result.success) {
         revalidatePath("/app/catalog");

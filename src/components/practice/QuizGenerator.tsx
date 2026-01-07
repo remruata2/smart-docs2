@@ -158,8 +158,16 @@ export function QuizGenerator({
                                 </SelectTrigger>
                                 <SelectContent>
                                     {chapters.map(c => (
-                                        <SelectItem key={c.id} value={c.id.toString()} className="text-base py-3">
-                                            {c.chapter_number ? `Ch ${c.chapter_number}: ` : ""}{c.title}
+                                        <SelectItem
+                                            key={c.id}
+                                            value={c.id.toString()}
+                                            disabled={c.isLocked}
+                                            className="text-base py-3"
+                                        >
+                                            {c.isLocked && <span className="mr-2">🔒</span>}
+                                            {c.chapter_number ? `Ch ${c.chapter_number}: ` : ""}
+                                            {c.title}
+                                            {c.isLocked && <span className="ml-2 text-xs text-muted-foreground">(Upgrade to Unlock)</span>}
                                         </SelectItem>
                                     ))}
                                 </SelectContent>

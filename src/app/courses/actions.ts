@@ -36,13 +36,19 @@ export async function getCourseDetails(courseId: number) {
             ...(userId ? {
                 enrollments: {
                     where: { user_id: userId },
-                    select: { id: true }
+                    select: {
+                        id: true,
+                        is_paid: true,
+                        trial_ends_at: true
+                    }
                 }
             } : {})
         }
     });
 
     if (!course) return null;
+
+    const enrollment = userId && (course as any).enrollments?.length > 0 ? (course as any).enrollments[0] : null;
 
     // Serialize the entire course including included relations
     return {
@@ -68,7 +74,8 @@ export async function getCourseDetails(courseId: number) {
                 chapter_number: chapter.chapter_number,
             }))
         })),
-        isEnrolled: userId ? (course as any).enrollments?.length > 0 : false,
+        isEnrolled: !!enrollment,
+        enrollmentStatus: enrollment ? (enrollment.is_paid ? 'paid' : 'trial') : 'none',
         isAuthenticated: !!userId
     };
 }

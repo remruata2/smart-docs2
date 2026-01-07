@@ -29,12 +29,13 @@ export function EnrollmentButton({
     isFree,
     price,
     currency = "INR",
-}: EnrollmentButtonProps) {
-    const [loading, setLoading] = useState(false);
+    upgradeMode = false,
+}: EnrollmentButtonProps & { upgradeMode?: boolean }) {
+    const [loadingAction, setLoadingAction] = useState<"free" | "paid" | null>(null);
     const router = useRouter();
 
     const handleFreeEnroll = async () => {
-        setLoading(true);
+        setLoadingAction("free");
         try {
             const result = await enrollInCourse(courseId);
             if (result.success) {
@@ -46,12 +47,12 @@ export function EnrollmentButton({
             toast.error("Failed to enroll in course");
             console.error(error);
         } finally {
-            setLoading(false);
+            setLoadingAction(null);
         }
     };
 
     const handlePaidEnroll = async () => {
-        setLoading(true);
+        setLoadingAction("paid");
         try {
             // 1. Create order
             const res = await fetch("/api/courses/checkout/razorpay", {
@@ -77,7 +78,7 @@ export function EnrollmentButton({
                 order_id: orderData.orderId,
                 handler: async function (response: any) {
                     try {
-                        setLoading(true);
+                        setLoadingAction("paid");
                         const verifyResult = await verifyCoursePurchase({
                             courseId,
                             razorpayOrderId: response.razorpay_order_id,
@@ -93,7 +94,7 @@ export function EnrollmentButton({
                     } catch (error: any) {
                         toast.error(error.message || "Payment verification failed");
                     } finally {
-                        setLoading(false);
+                        setLoadingAction(null);
                     }
                 },
                 prefill: orderData.prefill,
@@ -102,7 +103,7 @@ export function EnrollmentButton({
                 },
                 modal: {
                     ondismiss: function () {
-                        setLoading(false);
+                        setLoadingAction(null);
                     }
                 }
             };
@@ -110,13 +111,13 @@ export function EnrollmentButton({
             const rzp = new window.Razorpay(options);
             rzp.on('payment.failed', function (response: any) {
                 toast.error(response.error.description || "Payment failed");
-                setLoading(false);
+                setLoadingAction(null);
             });
             rzp.open();
 
         } catch (error: any) {
             toast.error(error.message || "Failed to initiate payment");
-            setLoading(false);
+            setLoadingAction(null);
         }
     };
 
@@ -126,30 +127,46 @@ export function EnrollmentButton({
                 id="razorpay-checkout-js"
                 src="https://checkout.razorpay.com/v1/checkout.js"
             />
-            <Button
-                onClick={isFree ? handleFreeEnroll : handlePaidEnroll}
-                disabled={loading}
-                className={`w-full py-5 text-base font-bold transition-all active:scale-95 shadow-lg ${isFree
-                        ? "bg-indigo-600 hover:bg-indigo-700 text-white shadow-indigo-500/20"
-                        : "bg-emerald-600 hover:bg-emerald-700 text-white shadow-emerald-500/20"
-                    }`}
-            >
-                {loading ? (
-                    <>
-                        <Loader2 className="mr-2 h-4 w-4 animate-spin" />
-                        {isFree ? "Enrolling..." : "Processing..."}
-                    </>
-                ) : (
-                    <>
-                        {isFree ? (
-                            <CheckCircle2 className="mr-2 h-4 w-4" />
+            <div className="flex flex-col gap-3 w-full">
+                {/* 1. Free Course / Trial Option - Hidden in Upgrade Mode */}
+                {!upgradeMode && (
+                    <Button
+                        onClick={handleFreeEnroll}
+                        disabled={loadingAction !== null}
+                        className={`w-full py-6 text-base font-bold transition-all active:scale-95 shadow-lg ${isFree
+                            ? "bg-indigo-600 hover:bg-indigo-700 text-white shadow-indigo-500/20"
+                            : "bg-indigo-600 hover:bg-indigo-700 text-white shadow-indigo-500/20"
+                            }`}
+                    >
+                        {loadingAction === "free" ? (
+                            <Loader2 className="mr-2 h-4 w-4 animate-spin" />
                         ) : (
-                            <CreditCard className="mr-2 h-4 w-4" />
+                            <CheckCircle2 className="mr-2 h-4 w-4" />
                         )}
-                        {isFree ? "Enroll Now" : `Buy Now - ${currency} ${price}`}
-                    </>
+                        {isFree ? "Enroll Now" : "Start 3 Days Trial"}
+                    </Button>
                 )}
-            </Button>
+
+                {/* 2. Paid Option (Only for paid courses) */}
+                {!isFree && (
+                    <Button
+                        onClick={handlePaidEnroll}
+                        disabled={loadingAction !== null}
+                        variant={upgradeMode ? "default" : "outline"} // Highlight as primary in upgrade mode
+                        className={`w-full py-4 h-auto whitespace-normal text-base font-bold active:scale-95 ${upgradeMode
+                            ? "bg-emerald-600 hover:bg-emerald-700 text-white shadow-emerald-500/20 shadow-lg border-2 border-emerald-600"
+                            : "border-2 border-emerald-600 text-emerald-700 hover:bg-emerald-50"
+                            }`}
+                    >
+                        {loadingAction === "paid" ? (
+                            <Loader2 className="mr-2 h-4 w-4 animate-spin shrink-0" />
+                        ) : (
+                            <CreditCard className="mr-2 h-4 w-4 shrink-0" />
+                        )}
+                        <span>{upgradeMode ? `Upgrade Now - ${currency} ${price}` : `Buy Now - ${currency} ${price}`}</span>
+                    </Button>
+                )}
+            </div>
         </>
     );
 }
