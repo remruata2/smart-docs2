@@ -207,23 +207,20 @@ function ChatPageContent() {
 
 	// Auto-scroll to bottom when new messages arrive
 	// Auto-scroll to bottom when new messages arrive
+	// Auto-scroll to bottom when new messages arrive or conversation changes
 	useEffect(() => {
 		const scrollContainer = messagesEndRef.current?.parentElement;
 		if (!scrollContainer) return;
 
-		// Check if user is near bottom (within 100px)
-		const isNearBottom =
-			scrollContainer.scrollHeight -
-			scrollContainer.scrollTop -
-			scrollContainer.clientHeight <
-			100;
+		// Always scroll to bottom when messages change to ensure latest content is visible
+		// This fixes the issue where opening a chat showed the top instead of bottom
+		messagesEndRef.current?.scrollIntoView({ behavior: "auto" });
 
-		// Always scroll if it's a new message (length changed) or if we're already near bottom
-		// Use 'auto' (instant) behavior to prevent bouncing during streaming
-		if (isNearBottom) {
-			messagesEndRef.current?.scrollIntoView({ behavior: "auto" });
-		}
-	}, [messages]);
+		// Double check scroll check scroll after a small delay to handle any layout shifts (images, etc)
+		setTimeout(() => {
+			messagesEndRef.current?.scrollIntoView({ behavior: "auto", block: "end" });
+		}, 300);
+	}, [messages, currentConversationId]);
 
 	// Focus input on mount
 	useEffect(() => {
@@ -401,7 +398,7 @@ function ChatPageContent() {
 				router.push(`?${params.toString()}`);
 			}
 
-			toast.success(`Loaded: ${conversation.title}`);
+			// toast.success(`Loaded: ${conversation.title}`);
 		} catch (error) {
 			console.error("Error loading conversation:", error);
 			toast.error("Failed to load conversation");
@@ -879,7 +876,7 @@ function ChatPageContent() {
 	};
 
 	return (
-		<div className="flex h-full overflow-hidden">
+		<div className="flex h-[calc(100vh-4rem)] overflow-hidden">
 			{/* Main Chat Area */}
 			<div className="flex-1 flex flex-col overflow-hidden bg-gray-50/50 dark:bg-gray-900/50 h-full">
 				<div className="flex-1 flex flex-col overflow-hidden min-h-0">
@@ -916,7 +913,7 @@ function ChatPageContent() {
 					</div>
 
 					{/* Messages Area */}
-					<div className="flex-1 overflow-y-auto p-4 space-y-6 scroll-smooth">
+					<div className="flex-1 overflow-y-auto p-4 space-y-6">
 						{messages.length === 0 ? (
 							<div className="h-full flex flex-col items-center justify-center text-center p-8 animate-in fade-in zoom-in duration-500">
 								<div className="w-24 h-24 bg-primary/5 rounded-3xl flex items-center justify-center mb-6 shadow-inner">
@@ -1258,8 +1255,8 @@ function ChatPageContent() {
 					</div>
 
 					{/* Input Area */}
-					<div className="border-t bg-white dark:bg-gray-900 p-4">
-						<div className="max-w-4xl mx-auto space-y-4">
+					<div className="border-t bg-white dark:bg-gray-900 p-2">
+						<div className="max-w-4xl mx-auto space-y-2">
 							{/* Filters */}
 							<div className="flex flex-wrap items-center gap-3">
 								{currentConversationId && (
@@ -1319,15 +1316,16 @@ function ChatPageContent() {
 											No chapters found
 										</option>
 									) : (
-										chapters.map((c) => (
-											<option key={c.id} value={c.id} disabled={c.isLocked}>
-												{c.isLocked ? "🔒 " : ""}
-												{c.chapter_number ? `${c.chapter_number}. ` : ""}
-												{c.title}
-												{c.isLocked ? " (Upgrade)" : ""}
-											</option>
-										))
+										<option value="" disabled>Select Chapter</option>
 									)}
+									{chapters.map((c) => (
+										<option key={c.id} value={c.id} disabled={c.isLocked}>
+											{c.isLocked ? "🔒 " : ""}
+											{c.chapter_number ? `${c.chapter_number}. ` : ""}
+											{c.title}
+											{c.isLocked ? " (Upgrade)" : ""}
+										</option>
+									))}
 								</select>
 							</div>
 
@@ -1370,7 +1368,7 @@ function ChatPageContent() {
 								</Button>
 							</div>
 							<div className="flex justify-between items-center px-1">
-								<p className="text-xs text-muted-foreground">
+								<p className="text-[10px] text-muted-foreground">
 									AI can make mistakes. Please verify important information.
 								</p>
 								{lastResponseMeta && (
