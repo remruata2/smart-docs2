@@ -27,6 +27,7 @@ const nextConfig: NextConfig = {
 		serverActions: {
 			// Increase body size limit to 500MB for file uploads
 			bodySizeLimit: "500mb",
+			allowedOrigins: ["zirna.io", "www.zirna.io"],
 		},
 		// Optimize package imports - reduces build time
 		optimizePackageImports: [

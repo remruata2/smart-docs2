@@ -49,7 +49,7 @@ export default async function CourseDetailsPage({
                                 {course.title}
                             </h1>
                             {course.description && (
-                                <p className="text-lg text-white/80 leading-relaxed">
+                                <p className="text-lg text-white/80 leading-relaxed whitespace-pre-wrap">
                                     {course.description}
                                 </p>
                             )}
