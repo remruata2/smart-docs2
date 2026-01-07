@@ -14,11 +14,11 @@ if (!supabaseUrl || !supabaseServiceRoleKey) {
 export const supabaseAdmin =
 	supabaseUrl && supabaseServiceRoleKey
 		? createClient(supabaseUrl, supabaseServiceRoleKey, {
-				auth: {
-					autoRefreshToken: false,
-					persistSession: false,
-				},
-		  })
+			auth: {
+				autoRefreshToken: false,
+				persistSession: false,
+			},
+		})
 		: null;
 
 /**
@@ -97,8 +97,7 @@ export async function validateSupabaseStorage(
 		}
 
 		console.log(
-			`[SUPABASE-VALIDATION] Successfully connected. Found ${
-				buckets?.length || 0
+			`[SUPABASE-VALIDATION] Successfully connected. Found ${buckets?.length || 0
 			} buckets`
 		);
 		const availableBuckets = buckets?.map((b) => b.name) || [];
@@ -109,9 +108,8 @@ export async function validateSupabaseStorage(
 			buckets?.some((bucket) => bucket.name === bucketName) || false;
 
 		if (!bucketExists) {
-			const error = `Bucket '${bucketName}' does not exist. Available buckets: ${
-				availableBuckets.join(", ") || "none"
-			}`;
+			const error = `Bucket '${bucketName}' does not exist. Available buckets: ${availableBuckets.join(", ") || "none"
+				}`;
 			console.error(`[SUPABASE-VALIDATION] ${error}`);
 			return {
 				connected: true,
@@ -130,13 +128,15 @@ export async function validateSupabaseStorage(
 		);
 
 		// Test write access with a small test file
-		const testPath = `_test_connection_${Date.now()}.txt`;
-		const testContent = new Blob(["connection test"], { type: "text/plain" });
+		const isPdfBucket = bucketName.toLowerCase().includes("pdf");
+		const testPath = `_test_connection_${Date.now()}.${isPdfBucket ? "pdf" : "txt"}`;
+		const contentType = isPdfBucket ? "application/pdf" : "text/plain";
+		const testContent = new Blob(["connection test"], { type: contentType });
 
 		const { error: uploadError } = await supabaseAdmin.storage
 			.from(bucketName)
 			.upload(testPath, testContent, {
-				contentType: "text/plain",
+				contentType: contentType,
 				upsert: true,
 			});
 

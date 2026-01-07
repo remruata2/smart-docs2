@@ -3901,9 +3901,12 @@ Remember: You are testing students' knowledge of ${config.subject}, not their ab
 
 
 		// Model fallback strategy
-		// Priority: 1. Requested model (if any), 2. Admin-configured models, 3. .env fallback
+		// Priority: 1. Requested model (if any), 2. High Quality Default (3.0 Flash), 3. Admin-configured models, 4. .env fallback
 		const modelsToTry: string[] = [];
 		if (opts.model) modelsToTry.push(opts.model);
+
+		// Prefer Gemini 3 Flash for quizzes (better reasoning for educational content)
+		modelsToTry.push("gemini-3-flash-preview");
 
 		// Add admin-configured models
 		const dbModels = await getActiveModelNames("gemini");

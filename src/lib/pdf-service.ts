@@ -23,10 +23,10 @@ export async function uploadChapterPdf(
 
     if (!validation.bucketExists) {
         console.log(`[PDF-SERVICE] Bucket '${BUCKET_NAME}' missing. Attempting to create...`);
-        
+
         const { error: createError } = await supabaseAdmin!.storage.createBucket(BUCKET_NAME, {
             public: true,
-            fileSizeLimit: 52428800, // 50MB
+            fileSizeLimit: 524288000, // 500MB
             allowedMimeTypes: ['application/pdf']
         });
 
