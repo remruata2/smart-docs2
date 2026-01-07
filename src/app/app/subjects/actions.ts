@@ -4,7 +4,7 @@ import { getServerSession } from "next-auth";
 import { authOptions } from "@/lib/auth-options";
 import { prisma } from "@/lib/prisma";
 
-export async function getSubjectsForUserProgram(courseId?: number) {
+export async function getSubjectsForUserProgram(courseId?: number, includeMastery: boolean = true) {
     const session = await getServerSession(authOptions);
 
     if (!session?.user?.id) {
@@ -47,6 +47,31 @@ export async function getSubjectsForUserProgram(courseId?: number) {
             last_accessed_at: "desc",
         },
     });
+
+    // If mastery calculation is not needed, return early with simplified data
+    if (!includeMastery) {
+        // Get program info from the current context
+        const contextEnrollment = courseId
+            ? enrollments.find(e => e.course_id === courseId)
+            : enrollments[0];
+
+        const programInfo = contextEnrollment?.course?.subjects[0]?.program ? {
+            program: contextEnrollment.course.subjects[0].program,
+            board: contextEnrollment.course.subjects[0].program.board,
+        } : null;
+
+        return {
+            enrollments: enrollments.map(e => ({
+                ...e,
+                course: {
+                    ...e.course,
+                    price: e.course.price ? Number(e.course.price) : 0,
+                    subjects: e.course.subjects.map(s => ({ ...s, mastery: 0 }))
+                }
+            })),
+            programInfo,
+        };
+    }
 
     // Calculate mastery for each enrollment based on quiz scores
     // Mastery is calculated at the course level in the DB, but we want to show it per subject in the UI

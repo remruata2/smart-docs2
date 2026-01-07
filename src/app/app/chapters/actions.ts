@@ -4,7 +4,7 @@ import { getServerSession } from "next-auth";
 import { authOptions } from "@/lib/auth-options";
 import { prisma } from "@/lib/prisma";
 
-import { checkChapterAccess } from "@/lib/trial-access";
+import { checkChapterAccess, getTrialAccess } from "@/lib/trial-access";
 
 // ... imports
 
@@ -12,101 +12,93 @@ export async function getChaptersForSubject(subjectId: number) {
 	const session = await getServerSession(authOptions);
 
 	if (!session?.user?.id) {
-		console.log("[getChaptersForSubject] No session user id");
 		return null;
 	}
 
 	const userId = parseInt(session.user.id as string);
 
-	// Fetch user profile
-	const profile = await prisma.profile.findUnique({
-		where: { user_id: userId },
-	});
-
-	// Security check: ensure user is enrolled in a course that contains this subject
-	const enrollment = await prisma.userEnrollment.findFirst({
-		where: {
-			user_id: userId,
-			status: "active",
-			course: {
-				subjects: {
-					some: { id: subjectId }
+	// Fetch chapters and minimal enrollment info in parallel
+	const [chaptersData, enrollment] = await Promise.all([
+		// Fetch chapters for this subject
+		prisma.chapter.findMany({
+			where: {
+				subject_id: subjectId,
+				is_active: true,
+			},
+			select: {
+				id: true,
+				title: true,
+				chapter_number: true,
+				subject: {
+					select: {
+						id: true,
+						name: true,
+						program: {
+							select: {
+								id: true,
+								name: true,
+								board: { select: { id: true, name: true } }
+							}
+						}
+					}
+				},
+				_count: {
+					select: { chunks: true }
 				}
+			},
+			orderBy: [{ chapter_number: "asc" }, { title: "asc" }],
+		}),
+		// Minimal enrollment lookup - just for trial status
+		prisma.userEnrollment.findFirst({
+			where: {
+				user_id: userId,
+				status: "active",
+				course: { subjects: { some: { id: subjectId } } }
+			},
+			select: {
+				id: true,
+				is_paid: true,
+				trial_ends_at: true,
+				course: { select: { is_free: true } }
 			}
-		},
-		include: {
-			course: {
-				select: {
-					id: true,
-					is_free: true
-				}
-			}
-		}
-	});
+		})
+	]);
 
-	if (!enrollment) {
-		console.log(`[getChaptersForSubject] No enrollment found for user ${userId} and subject ${subjectId}`);
-		return null;
+	if (!enrollment || chaptersData.length === 0) {
+		return { chapters: [], subjectInfo: null, enrollment: null };
 	}
 
-	// Fetch subject details for return
-	const subject = await prisma.subject.findUnique({
-		where: { id: subjectId },
-		include: { program: { include: { board: true } } }
-	});
-
-	if (!subject) {
-		console.log(`[getChaptersForSubject] Subject ${subjectId} not found`);
-		return null;
-	}
-
-	// Update last accessed time
-	await prisma.userEnrollment.update({
-		where: { id: enrollment.id },
-		data: { last_accessed_at: new Date() }
-	});
-
-	// Fetch chapters for this subject
-	const chaptersData = await prisma.chapter.findMany({
-		where: {
-			subject_id: subjectId,
-			is_active: true,
-		},
-		include: {
-			subject: {
-				include: {
-					program: {
-						include: {
-							board: true,
-						},
-					},
-				},
-			},
-			_count: {
-				select: {
-					chunks: true,
-				},
-			},
-		},
-		orderBy: [{ chapter_number: "asc" }, { title: "asc" }],
-	});
+	// Calculate trial access status
+	const accessResult = getTrialAccess(enrollment, enrollment.course);
 
 	// Calculate lock status for each chapter
-	const chapters = await Promise.all(chaptersData.map(async (chapter) => {
-		const access = await checkChapterAccess(userId, Number(chapter.id), prisma);
-		return {
-			...chapter,
-			isLocked: !access.allowed
-		};
-	}));
+	const chapters = chaptersData.map((chapter) => {
+		let isLocked = false;
+
+		if (!accessResult.hasFullAccess) {
+			if (accessResult.isTrialActive) {
+				isLocked = (chapter.chapter_number || 1) > 1;
+			} else {
+				isLocked = true;
+			}
+		}
+
+		return { ...chapter, isLocked };
+	});
+
+	// Update last_accessed in background (non-blocking)
+	prisma.userEnrollment.update({
+		where: { id: enrollment.id },
+		data: { last_accessed_at: new Date() }
+	}).catch(() => { });
 
 	return {
 		chapters,
-		subjectInfo: {
-			subject,
-			program: subject.program,
-			board: subject.program.board,
-		},
+		subjectInfo: chaptersData[0]?.subject ? {
+			subject: chaptersData[0].subject,
+			program: chaptersData[0].subject.program,
+			board: chaptersData[0].subject.program.board,
+		} : null,
 		enrollment,
 	};
 }

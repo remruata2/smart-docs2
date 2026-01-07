@@ -13,35 +13,46 @@ import { getSubjectsForUserProgram } from "@/app/app/subjects/actions";
 import { getChaptersForSubject } from "@/app/app/chapters/actions";
 import { generateQuizAction } from "@/app/app/practice/actions";
 
-export function BattleLobby() {
+interface BattleLobbyProps {
+    initialSubjects?: any[];
+}
+
+export function BattleLobby({ initialSubjects = [] }: BattleLobbyProps) {
     const router = useRouter();
     const [joinCode, setJoinCode] = useState("");
     const [loading, setLoading] = useState(false);
 
     // Selection state
-    const [subjects, setSubjects] = useState<any[]>([]);
+    const [subjects, setSubjects] = useState<any[]>(initialSubjects);
     const [chapters, setChapters] = useState<any[]>([]);
     const [selectedSubject, setSelectedSubject] = useState<string>("");
     const [selectedChapter, setSelectedChapter] = useState<string>("");
 
     useEffect(() => {
-        // Fetch subjects on mount
-        getSubjectsForUserProgram().then(data => {
-            if (data && data.enrollments) {
-                // Flatten subjects from all course enrollments
-                const allSubjects = data.enrollments.flatMap(e => e.course.subjects);
-                setSubjects(allSubjects);
-            }
-        }).catch(console.error);
-    }, []);
+        // Only fetch if no initial subjects provided
+        if (initialSubjects.length === 0) {
+            getSubjectsForUserProgram().then(data => {
+                if (data && data.enrollments) {
+                    // Flatten subjects from all course enrollments
+                    const allSubjects = data.enrollments.flatMap(e => e.course.subjects);
+                    setSubjects(allSubjects);
+                }
+            }).catch(console.error);
+        }
+    }, [initialSubjects]);
 
     useEffect(() => {
         if (selectedSubject) {
             // Fetch chapters when subject changes
             getChaptersForSubject(parseInt(selectedSubject)).then(data => {
-                if (data && data.chapters) {
+                if (data && data.chapters && data.chapters.length > 0) {
                     setChapters(data.chapters);
-                    setSelectedChapter(""); // Reset chapter
+                    // Auto-select first available (unlocked) chapter
+                    const firstUnlocked = data.chapters.find((c: any) => !c.isLocked);
+                    setSelectedChapter(firstUnlocked ? firstUnlocked.id.toString() : data.chapters[0].id.toString());
+                } else {
+                    setChapters([]);
+                    setSelectedChapter("");
                 }
             }).catch(console.error);
         } else {

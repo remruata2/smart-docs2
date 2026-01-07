@@ -13,17 +13,21 @@ import { generateQuizAction } from "@/app/app/practice/actions";
 import { getSubjectsForUserProgram } from "@/app/app/subjects/actions";
 import { getChaptersForSubject } from "@/app/app/chapters/actions";
 
-export function QuizGenerator({
-    initialSubjectId,
-    initialChapterId
-}: {
+export interface QuizGeneratorProps {
     initialSubjectId?: string;
     initialChapterId?: string;
-}) {
+    initialSubjects?: any[];
+}
+
+export function QuizGenerator({
+    initialSubjectId,
+    initialChapterId,
+    initialSubjects = []
+}: QuizGeneratorProps) {
     const router = useRouter();
     const [loading, setLoading] = useState(false);
     const [currentStep, setCurrentStep] = useState(1);
-    const [subjects, setSubjects] = useState<any[]>([]);
+    const [subjects, setSubjects] = useState<any[]>(initialSubjects);
     const [chapters, setChapters] = useState<any[]>([]);
 
     const [selectedSubject, setSelectedSubject] = useState<string>(initialSubjectId || "");
@@ -33,20 +37,22 @@ export function QuizGenerator({
     const [questionTypes, setQuestionTypes] = useState<string[]>(["MCQ"]);
 
     useEffect(() => {
-        // Fetch subjects on mount
-        getSubjectsForUserProgram().then(data => {
-            if (data && data.enrollments && data.enrollments.length > 0) {
-                // Flatten subjects from all course enrollments
-                const allSubjects = data.enrollments.flatMap(e => e.course.subjects);
-                setSubjects(allSubjects);
+        // Only fetch if subjects not provided
+        if (initialSubjects.length === 0) {
+            getSubjectsForUserProgram().then(data => {
+                if (data && data.enrollments) {
+                    // Flatten subjects from all course enrollments
+                    const allSubjects = data.enrollments.flatMap(e => e.course.subjects);
+                    setSubjects(allSubjects);
 
-                // Preselect first subject only if no initialSubjectId provided
-                if (!initialSubjectId && allSubjects.length > 0) {
-                    setSelectedSubject(allSubjects[0].id.toString());
+                    // Preselect first subject only if no initialSubjectId provided
+                    if (!initialSubjectId && allSubjects.length > 0) {
+                        setSelectedSubject(allSubjects[0].id.toString());
+                    }
                 }
-            }
-        }).catch(console.error);
-    }, [initialSubjectId]);
+            }).catch(console.error);
+        }
+    }, [initialSubjects, initialSubjectId]);
 
     useEffect(() => {
         if (selectedSubject) {
