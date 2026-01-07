@@ -32,6 +32,7 @@ export default async function ProfilePage() {
                 orderBy: { last_accessed_at: "desc" },
                 take: 1,
                 include: {
+                    course: true,
                     institution: {
                         include: {
                             board: true
@@ -54,6 +55,39 @@ export default async function ProfilePage() {
     const profile = user.profile;
     const subscription = user.subscription;
     const latestEnrollment = (user as any).enrollments?.[0];
+
+    // Helper for trial access
+    const getTrialInfo = () => {
+        if (!latestEnrollment || !latestEnrollment.course) return null;
+
+        // Simple logic mirroring lib/trial-access if we don't want to import constraints
+        // Or better, just implement simple check since we have fields
+        const isFree = latestEnrollment.course.is_free;
+        const isPaid = latestEnrollment.is_paid;
+        const trialEndsAt = latestEnrollment.trial_ends_at ? new Date(latestEnrollment.trial_ends_at) : null;
+        const now = new Date();
+
+        if (isFree) return { type: 'free', label: 'Free Course' };
+        if (isPaid) return { type: 'paid', label: 'Full Access' };
+
+        if (trialEndsAt && trialEndsAt > now) {
+            const diffTime = Math.abs(trialEndsAt.getTime() - now.getTime());
+            const diffDays = Math.ceil(diffTime / (1000 * 60 * 60 * 24));
+            const diffHours = Math.ceil(diffTime / (1000 * 60 * 60));
+
+            return {
+                type: 'trial',
+                label: 'Trial Active',
+                daysLeft: diffDays,
+                hoursLeft: diffHours,
+                endsAt: trialEndsAt
+            };
+        }
+
+        return { type: 'expired', label: 'Trial Expired' };
+    };
+
+    const courseStatus = getTrialInfo();
 
     return (
         <div className="container mx-auto py-8 px-4 max-w-5xl">
@@ -106,146 +140,128 @@ export default async function ProfilePage() {
                 </Card>
 
                 <div className="md:col-span-2 space-y-6">
-                    {/* Academic Profile */}
+                    {/* Current Enrollment / Course Info */}
                     <Card>
                         <CardHeader>
                             <CardTitle className="text-lg flex items-center gap-2">
-                                <School className="h-5 w-5 text-indigo-600" />
-                                Academic Profile
+                                <BookOpen className="h-5 w-5 text-indigo-600" />
+                                Current Enrollment
                             </CardTitle>
-                            <CardDescription>Your current educational context (from latest enrollment)</CardDescription>
+                            <CardDescription>Your active learning path</CardDescription>
                         </CardHeader>
                         <CardContent>
-                            {latestEnrollment ? (
-                                <div className="grid grid-cols-1 sm:grid-cols-2 gap-6">
-                                    <div className="space-y-1">
-                                        <div className="flex items-center justify-between">
-                                            <p className="text-sm font-medium text-gray-500">Institution</p>
-                                            <ProfileEditForm
-                                                currentInstitutionId={latestEnrollment.institution_id?.toString()}
-                                                currentBoardId={latestEnrollment.institution?.board_id || latestEnrollment.program?.board_id}
-                                            />
+                            {latestEnrollment && latestEnrollment.course ? (
+                                <div className="space-y-4">
+                                    <div className="flex justify-between items-start">
+                                        <div>
+                                            <h3 className="text-xl font-bold text-gray-900">{latestEnrollment.course.title}</h3>
+                                            <p className="text-gray-500 text-sm mt-1">
+                                                {latestEnrollment.institution?.name || latestEnrollment.program?.name || "Independent Study"}
+                                            </p>
                                         </div>
-                                        <div className="flex items-center gap-2">
-                                            <School className="h-4 w-4 text-gray-400" />
-                                            <span className="font-medium">
-                                                {latestEnrollment.institution?.name || "Self-Paced / Independent"}
-                                            </span>
-                                        </div>
+                                        {courseStatus?.type === 'trial' && (
+                                            <Badge variant="outline" className="border-orange-200 bg-orange-50 text-orange-700 animate-pulse">
+                                                Trial Mode
+                                            </Badge>
+                                        )}
+                                        {courseStatus?.type === 'paid' && (
+                                            <Badge className="bg-green-100 text-green-700 hover:bg-green-100 border-green-200">
+                                                Full Access
+                                            </Badge>
+                                        )}
                                     </div>
 
-                                    <div className="space-y-1">
-                                        <p className="text-sm font-medium text-gray-500">Program / Class</p>
-                                        <div className="flex items-center gap-2">
-                                            <BookOpen className="h-4 w-4 text-gray-400" />
-                                            <span className="font-medium">
-                                                {latestEnrollment.program?.name || "Not Selected"}
-                                            </span>
+                                    {/* Trial Status Details */}
+                                    {courseStatus?.type === 'trial' && (
+                                        <div className="bg-orange-50 border border-orange-100 rounded-lg p-4 flex items-center gap-3">
+                                            <div className="bg-white p-2 rounded-full shadow-sm">
+                                                <Calendar className="h-5 w-5 text-orange-500" />
+                                            </div>
+                                            <div>
+                                                <p className="font-medium text-orange-900">
+                                                    {courseStatus.daysLeft && courseStatus.daysLeft > 1
+                                                        ? `${courseStatus.daysLeft} Days Remaining`
+                                                        : `${courseStatus.hoursLeft} Hours Remaining`
+                                                    }
+                                                </p>
+                                                <p className="text-xs text-orange-700">
+                                                    Your trial ends on {format(courseStatus.endsAt!, 'MMM d, h:mm a')}
+                                                </p>
+                                            </div>
+                                            <Link href={`/courses/${latestEnrollment.course.id}`} className="ml-auto">
+                                                <Button size="sm" className="bg-orange-600 hover:bg-orange-700 text-white border-none">
+                                                    Upgrade Now
+                                                </Button>
+                                            </Link>
                                         </div>
-                                    </div>
+                                    )}
 
-                                    <div className="space-y-1">
-                                        <p className="text-sm font-medium text-gray-500">Board</p>
-                                        <div className="flex items-center gap-2">
-                                            <span className="text-xs font-bold bg-gray-100 px-2 py-0.5 rounded text-gray-600">
-                                                {latestEnrollment.institution?.board?.name || latestEnrollment.program?.board?.name || "N/A"}
-                                            </span>
+                                    {courseStatus?.type === 'expired' && (
+                                        <div className="bg-red-50 border border-red-100 rounded-lg p-4 flex items-center justify-between">
+                                            <div className="flex items-center gap-3">
+                                                <div className="bg-white p-2 rounded-full shadow-sm">
+                                                    <CreditCard className="h-5 w-5 text-red-500" />
+                                                </div>
+                                                <div>
+                                                    <p className="font-medium text-red-900">Trial Expired</p>
+                                                    <p className="text-xs text-red-700">Please upgrade to continue learning.</p>
+                                                </div>
+                                            </div>
+                                            <Link href={`/courses/${latestEnrollment.course.id}`}>
+                                                <Button size="sm" variant="destructive">
+                                                    Upgrade
+                                                </Button>
+                                            </Link>
                                         </div>
-                                    </div>
+                                    )}
                                 </div>
                             ) : (
-                                <div className="text-center py-6 text-gray-500">
-                                    <p>No enrollment information found.</p>
+                                <div className="text-center py-8">
+                                    <p className="text-gray-500 mb-4">You are not enrolled in any course yet.</p>
                                     <Link href="/app/catalog">
-                                        <Button variant="link" className="mt-2">Browse Catalog</Button>
+                                        <Button>Browse Catalog</Button>
                                     </Link>
                                 </div>
                             )}
                         </CardContent>
                     </Card>
 
-                    {/* Subscription Details */}
-                    <Card>
-                        <CardHeader className="flex flex-row items-center justify-between">
-                            <div>
-                                <CardTitle className="text-lg flex items-center gap-2">
-                                    <CreditCard className="h-5 w-5 text-indigo-600" />
-                                    Subscription
-                                </CardTitle>
-                                <CardDescription>Current plan and billing info</CardDescription>
-                            </div>
-                            {subscription?.status === 'active' && (
-                                <Badge className="bg-green-100 text-green-800 hover:bg-green-100 border-green-200">
-                                    Active
-                                </Badge>
-                            )}
-                        </CardHeader>
-                        <CardContent>
-                            {subscription ? (
-                                <div className="space-y-6">
-                                    <div className="flex justify-between items-start p-4 bg-indigo-50 rounded-lg border border-indigo-100">
-                                        <div>
-                                            <h3 className="font-bold text-lg text-indigo-900">
-                                                {subscription.plan.display_name}
-                                            </h3>
-                                            <p className="text-indigo-700 text-sm mt-1">
-                                                {subscription.billing_cycle === 'monthly'
-                                                    ? `₹${subscription.plan.price_monthly}/month`
-                                                    : `₹${subscription.plan.price_yearly}/year`}
-                                            </p>
-                                        </div>
-                                    </div>
-
-                                    <div className="grid grid-cols-1 sm:grid-cols-2 gap-4 text-sm">
-                                        <div className="flex justify-between py-2 border-b">
-                                            <span className="text-gray-500">Status</span>
-                                            <span className="font-medium capitalize">{subscription.status}</span>
-                                        </div>
-                                        <div className="flex justify-between py-2 border-b">
-                                            <span className="text-gray-500">Billing Cycle</span>
-                                            <span className="font-medium capitalize">{subscription.billing_cycle}</span>
-                                        </div>
-                                        <div className="flex justify-between py-2 border-b">
-                                            <span className="text-gray-500">Current Period Start</span>
-                                            <span className="font-medium">
-                                                {format(new Date(subscription.current_period_start), 'MMM d, yyyy')}
-                                            </span>
-                                        </div>
-                                        <div className="flex justify-between py-2 border-b">
-                                            <span className="text-gray-500">Renews On</span>
-                                            <span className="font-medium">
-                                                {format(new Date(subscription.current_period_end), 'MMM d, yyyy')}
-                                            </span>
-                                        </div>
-                                    </div>
-
-                                    {subscription.cancel_at_period_end && (
-                                        <div className="bg-yellow-50 text-yellow-800 p-3 rounded-md text-sm border border-yellow-200">
-                                            Your subscription will end on {format(new Date(subscription.current_period_end), 'MMM d, yyyy')}.
-                                        </div>
-                                    )}
-                                </div>
-                            ) : (
-                                <div className="text-center py-8 bg-gray-50 rounded-lg border border-dashed border-gray-200">
-                                    <p className="text-gray-500">You are currently on the Free Plan</p>
-                                </div>
-                            )}
-                        </CardContent>
-                    </Card>
-
-                    {/* Account Actions */}
+                    {/* Subscription / Plan Info */}
                     <Card>
                         <CardHeader>
                             <CardTitle className="text-lg flex items-center gap-2">
-                                Account Actions
+                                <CreditCard className="h-5 w-5 text-indigo-600" />
+                                Plan Details
                             </CardTitle>
                         </CardHeader>
                         <CardContent>
-                            <div className="flex flex-col sm:flex-row gap-4">
-                                <ProfileActions />
-                            </div>
+                            {subscription ? (
+                                <div className="flex items-center justify-between p-4 bg-gray-50 rounded-lg border border-gray-100">
+                                    <div>
+                                        <p className="font-medium text-gray-900">{subscription.plan.display_name}</p>
+                                        <p className="text-sm text-gray-500 capitalize">{subscription.billing_cycle} Billing</p>
+                                    </div>
+                                    <Badge variant="secondary" className="bg-green-100 text-green-800">
+                                        Active
+                                    </Badge>
+                                </div>
+                            ) : (
+                                <div className="flex items-center justify-between p-4 bg-gray-50 rounded-lg border border-gray-100">
+                                    <div>
+                                        <p className="font-medium text-gray-900">Basic Plan</p>
+                                        <p className="text-sm text-gray-500">Free Tier</p>
+                                    </div>
+                                    <Badge variant="outline">No Active Subscription</Badge>
+                                </div>
+                            )}
+
+                            {/* Account Actions moved here or kept below? User didn't explicitly say to remove it but "just show his user info...". keeping it is safer for logout functionality */}
                         </CardContent>
                     </Card>
+
+                    <div className="flex justify-end">
+                        <ProfileActions />
+                    </div>
                 </div>
             </div>
         </div>

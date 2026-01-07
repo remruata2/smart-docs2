@@ -6,12 +6,13 @@ import { Input } from "@/components/ui/input";
 import {
 	MessageSquarePlus,
 	MessageSquare,
-	Search,
 	Pin,
 	Trash2,
 	Edit2,
 	MoreVertical,
 	Loader2,
+	List,
+	History,
 } from "lucide-react";
 import {
 	DropdownMenu,
@@ -20,17 +21,8 @@ import {
 	DropdownMenuTrigger,
 } from "@/components/ui/dropdown-menu";
 import { toast } from "sonner";
-import {
-	AlertDialog,
-	AlertDialogAction,
-	AlertDialogCancel,
-	AlertDialogContent,
-	AlertDialogDescription,
-	AlertDialogFooter,
-	AlertDialogHeader,
-	AlertDialogTitle,
-} from "@/components/ui/alert-dialog";
 import { useRouter, useSearchParams } from "next/navigation";
+import ConversationHistoryModal from "@/components/chat/ConversationHistoryModal";
 
 interface Conversation {
 	id: number;
@@ -42,11 +34,6 @@ interface Conversation {
 	isPinned: boolean;
 	isArchived: boolean;
 	lastMessage: string | null;
-}
-
-interface ConversationGroup {
-	label: string;
-	conversations: Conversation[];
 }
 
 interface ConversationListProps {
@@ -64,20 +51,15 @@ export default function ConversationList({
 }: ConversationListProps) {
 	const router = useRouter();
 	const [conversations, setConversations] = useState<Conversation[]>([]);
-	const [searchQuery, setSearchQuery] = useState("");
 	const [isLoading, setIsLoading] = useState(true);
 	const [editingId, setEditingId] = useState<number | null>(null);
 	const [editTitle, setEditTitle] = useState("");
-	// State for Clear All dialog only
-	const [clearAllDialogOpen, setClearAllDialogOpen] = useState(false);
+	const [isHistoryModalOpen, setIsHistoryModalOpen] = useState(false);
 
 	// Load conversations
 	const loadConversations = async () => {
 		try {
-			const params = new URLSearchParams();
-			if (searchQuery) params.append("search", searchQuery);
-
-			const response = await fetch(`${basePath}?${params}`);
+			const response = await fetch(`${basePath}`);
 			if (!response.ok) throw new Error("Failed to load conversations");
 
 			const data = await response.json();
@@ -92,49 +74,10 @@ export default function ConversationList({
 
 	useEffect(() => {
 		loadConversations();
-	}, [searchQuery, refreshTrigger]);
-
-	// Group conversations by date
-	const groupConversations = (): ConversationGroup[] => {
-		const now = new Date();
-		const today = new Date(now.getFullYear(), now.getMonth(), now.getDate());
-		const yesterday = new Date(today);
-		yesterday.setDate(yesterday.getDate() - 1);
-		const last7Days = new Date(today);
-		last7Days.setDate(last7Days.getDate() - 7);
-
-		const groups: ConversationGroup[] = [
-			{ label: "Pinned", conversations: [] },
-			{ label: "Today", conversations: [] },
-			{ label: "Yesterday", conversations: [] },
-			{ label: "Last 7 Days", conversations: [] },
-			{ label: "Older", conversations: [] },
-		];
-
-		conversations.forEach((conv) => {
-			if (conv.isPinned) {
-				groups[0].conversations.push(conv);
-				return;
-			}
-
-			const convDate = new Date(conv.lastMessageAt || conv.updatedAt);
-			if (convDate >= today) {
-				groups[1].conversations.push(conv);
-			} else if (convDate >= yesterday) {
-				groups[2].conversations.push(conv);
-			} else if (convDate >= last7Days) {
-				groups[3].conversations.push(conv);
-			} else {
-				groups[4].conversations.push(conv);
-			}
-		});
-
-		return groups.filter((group) => group.conversations.length > 0);
-	};
+	}, [refreshTrigger]);
 
 	const handleNewConversation = async () => {
 		router.push("/app/chat");
-		// Ideally we would trigger a refresh or reset state here
 	};
 
 	const handleSelectConversation = (id: number) => {
@@ -164,16 +107,9 @@ export default function ConversationList({
 		}
 	};
 
-	const searchParams = useSearchParams();
-	const currentIdParam = searchParams.get("id");
-	const currentConversationId = currentIdParam ? parseInt(currentIdParam) : null;
-
 	// Delete conversation
 	const deleteConversation = async (id: number) => {
-		if (!window.confirm("Are you sure you want to delete this conversation? This action cannot be undone.")) {
-			return;
-		}
-
+		// Note: Most deletion will happen in modal now, but keeping this helper
 		try {
 			const response = await fetch(`${basePath}/${id}`, {
 				method: "DELETE",
@@ -182,13 +118,13 @@ export default function ConversationList({
 			if (!response.ok) throw new Error("Failed to delete conversation");
 
 			toast.success("Conversation deleted");
+			loadConversations();
 
-			// If we deleted the current conversation, redirect to new chat
-			if (currentConversationId === id) {
+			// If deleting current, redirect
+			const currentId = searchParams.get("id");
+			if (currentId && parseInt(currentId) === id) {
 				router.push("/app/chat");
 			}
-
-			loadConversations();
 		} catch (error) {
 			console.error("Error deleting conversation:", error);
 			toast.error("Failed to delete conversation");
@@ -231,15 +167,19 @@ export default function ConversationList({
 			const data = await response.json();
 			toast.success(data.message || "All conversations deleted");
 			loadConversations();
+			router.push("/app/chat");
 		} catch (error) {
 			console.error("Error deleting all conversations:", error);
 			toast.error("Failed to delete all conversations");
-		} finally {
-			setClearAllDialogOpen(false);
 		}
 	};
 
-	const groupedConversations = groupConversations();
+	const searchParams = useSearchParams();
+	const currentIdParam = searchParams.get("id");
+	const currentConversationId = currentIdParam ? parseInt(currentIdParam) : null;
+
+	// Show only 5 recent conversations in sidebar
+	const recentConversations = conversations.slice(0, 5);
 
 	return (
 		<div className="flex flex-col h-full">
@@ -262,194 +202,172 @@ export default function ConversationList({
 
 			{!isCollapsed && (
 				<>
-					{/* Search */}
-					<div className="px-2 pb-2">
-						<div className="relative">
-							<Search className="absolute left-2 top-1/2 transform -translate-y-1/2 h-3 w-3 text-white/50" />
-							<Input
-								type="text"
-								placeholder="Search..."
-								value={searchQuery}
-								onChange={(e) => setSearchQuery(e.target.value)}
-								className="pl-7 h-8 text-xs bg-white/10 border border-white/10 text-white placeholder:text-white/50 focus-visible:ring-white/30 focus-visible:ring-1"
-							/>
-						</div>
-					</div>
-
-					{/* Conversation List */}
+					{/* Recent List */}
 					<div className="flex-1 overflow-y-auto px-2 custom-scrollbar">
 						{isLoading ? (
 							<div className="flex items-center justify-center h-20">
 								<Loader2 className="h-4 w-4 animate-spin text-white/50" />
 							</div>
-						) : groupedConversations.length === 0 ? (
+						) : recentConversations.length === 0 ? (
 							<div className="p-4 text-center text-white/50 text-md">
 								No conversations yet.
 							</div>
 						) : (
-							groupedConversations.map((group) => (
-								<div key={group.label} className="mb-3">
-									<div className="px-2 py-1 text-[10px] font-semibold text-white/60 uppercase tracking-wider">
-										{group.label}
-									</div>
-									<div className="space-y-0.5">
-										{group.conversations.map((conv) => (
-											<div
-												key={conv.id}
-												className="group relative rounded-md transition-colors hover:bg-white/10"
-											>
-												{editingId === conv.id ? (
-													<div className="p-1">
-														<Input
-															value={editTitle}
-															onChange={(e) => setEditTitle(e.target.value)}
-															onBlur={() =>
-																renameConversation(conv.id, editTitle)
+							<div className="mb-3">
+								<div className="px-2 py-1 text-[10px] font-semibold text-white/60 uppercase tracking-wider flex justify-between items-center">
+									<span>Conversation History</span>
+								</div>
+								<div className="space-y-0.5">
+									{recentConversations.map((conv) => (
+										<div
+											key={conv.id}
+											className={`group relative rounded-md transition-colors ${currentConversationId === conv.id ? "bg-white/20" : "hover:bg-white/10"
+												}`}
+										>
+											{editingId === conv.id ? (
+												<div className="p-1">
+													<Input
+														value={editTitle}
+														onChange={(e) => setEditTitle(e.target.value)}
+														onBlur={() => renameConversation(conv.id, editTitle)}
+														onKeyDown={(e) => {
+															if (e.key === "Enter") renameConversation(conv.id, editTitle);
+															else if (e.key === "Escape") {
+																setEditingId(null);
+																setEditTitle("");
 															}
-															onKeyDown={(e) => {
-																if (e.key === "Enter") {
-																	renameConversation(conv.id, editTitle);
-																} else if (e.key === "Escape") {
-																	setEditingId(null);
-																	setEditTitle("");
-																}
-															}}
-															autoFocus
-															className="h-6 text-sm bg-white text-gray-900"
-														/>
-													</div>
-												) : (
-													<>
-														<button
-															onClick={() => handleSelectConversation(conv.id)}
-															className="w-full text-left px-2 py-1.5 pr-6"
-														>
-															<div className="flex items-center gap-2">
-																{conv.isPinned && (
-																	<Pin className="h-3 w-3 text-white/70 flex-shrink-0" />
-																)}
-																<div className="flex-1 min-w-0">
-																	<div className="text-sm font-medium text-white truncate group-hover:text-white">
-																		{conv.title}
-																	</div>
+														}}
+														autoFocus
+														className="h-6 text-sm bg-white text-gray-900"
+													/>
+												</div>
+											) : (
+												<>
+													<button
+														onClick={() => handleSelectConversation(conv.id)}
+														className="w-full text-left px-2 py-1.5 pr-6"
+													>
+														<div className="flex items-center gap-2">
+															{conv.isPinned && (
+																<Pin className="h-3 w-3 text-white/70 flex-shrink-0" />
+															)}
+															<div className="flex-1 min-w-0">
+																<div className="text-sm font-medium text-white truncate group-hover:text-white">
+																	{conv.title}
 																</div>
 															</div>
-														</button>
-
-														{/* Actions dropdown */}
-														<div className="absolute right-1 top-1 opacity-0 group-hover:opacity-100 transition-opacity">
-															<DropdownMenu>
-																<DropdownMenuTrigger asChild>
-																	<Button
-																		variant="ghost"
-																		size="icon"
-																		className="h-5 w-5 text-white/50 hover:text-white hover:bg-white/20"
-																	>
-																		<MoreVertical className="h-3 w-3" />
-																	</Button>
-																</DropdownMenuTrigger>
-																<DropdownMenuContent
-																	align="end"
-																	className="w-32 bg-white border border-gray-200 text-gray-800"
-																>
-																	<DropdownMenuItem
-																		onClick={() => {
-																			setEditingId(conv.id);
-																			setEditTitle(conv.title);
-																		}}
-																		className="text-xs focus:bg-gray-100 focus:text-gray-900"
-																	>
-																		<Edit2 className="h-3 w-3 mr-2" />
-																		Rename
-																	</DropdownMenuItem>
-																	<DropdownMenuItem
-																		onClick={() =>
-																			togglePin(conv.id, conv.isPinned)
-																		}
-																		className="text-xs focus:bg-gray-100 focus:text-gray-900"
-																	>
-																		<Pin className="h-3 w-3 mr-2" />
-																		{conv.isPinned ? "Unpin" : "Pin"}
-																	</DropdownMenuItem>
-																	<DropdownMenuItem
-																		onClick={() => deleteConversation(conv.id)}
-																		className="text-xs text-red-500 focus:bg-gray-100 focus:text-red-600"
-																	>
-																		<Trash2 className="h-3 w-3 mr-2" />
-																		Delete
-																	</DropdownMenuItem>
-																</DropdownMenuContent>
-															</DropdownMenu>
 														</div>
-													</>
-												)}
-											</div>
-										))}
-									</div>
+													</button>
+
+													{/* Actions */}
+													<div className="absolute right-1 top-1 opacity-0 group-hover:opacity-100 transition-opacity">
+														<DropdownMenu>
+															<DropdownMenuTrigger asChild>
+																<Button
+																	variant="ghost"
+																	size="icon"
+																	className="h-5 w-5 text-white/50 hover:text-white hover:bg-white/20"
+																>
+																	<MoreVertical className="h-3 w-3" />
+																</Button>
+															</DropdownMenuTrigger>
+															<DropdownMenuContent
+																align="end"
+																className="w-32 bg-white border border-gray-200 text-gray-800"
+															>
+																<DropdownMenuItem
+																	onClick={() => {
+																		setEditingId(conv.id);
+																		setEditTitle(conv.title);
+																	}}
+																	className="text-xs focus:bg-gray-100 focus:text-gray-900"
+																>
+																	<Edit2 className="h-3 w-3 mr-2" />
+																	Rename
+																</DropdownMenuItem>
+																<DropdownMenuItem
+																	onClick={() => togglePin(conv.id, conv.isPinned)}
+																	className="text-xs focus:bg-gray-100 focus:text-gray-900"
+																>
+																	<Pin className="h-3 w-3 mr-2" />
+																	{conv.isPinned ? "Unpin" : "Pin"}
+																</DropdownMenuItem>
+															</DropdownMenuContent>
+														</DropdownMenu>
+													</div>
+												</>
+											)}
+										</div>
+									))}
 								</div>
-							))
+							</div>
 						)}
 					</div>
 				</>
 			)}
 
-			{/* Collapsed State - Show Icons Only */}
+			{/* Collapsed State */}
 			{isCollapsed && (
 				<div className="flex-1 flex flex-col items-center py-2 gap-2 overflow-y-auto custom-scrollbar">
-					{conversations.slice(0, 10).map((conv) => (
+					{recentConversations.map((conv) => (
 						<button
 							key={conv.id}
 							onClick={() => handleSelectConversation(conv.id)}
-							className="w-8 h-8 rounded-md flex items-center justify-center transition-colors hover:bg-white/20 text-white/70 hover:text-white"
+							className={`w-8 h-8 rounded-md flex items-center justify-center transition-colors hover:bg-white/20 text-white/70 hover:text-white ${currentConversationId === conv.id ? "bg-white/20 text-white" : ""
+								}`}
 							title={conv.title}
 						>
 							<MessageSquare className="h-4 w-4" />
 						</button>
 					))}
+					{conversations.length > 5 && (
+						<button
+							onClick={() => {
+								if (onSelectConversation) {
+									// If in mobile mode, maybe expand
+								}
+								setIsHistoryModalOpen(true);
+							}}
+							className="w-8 h-8 rounded-md flex items-center justify-center hover:bg-white/20 text-white/70 border border-white/20 border-dashed"
+							title="Show all conversations"
+						>
+							<List className="h-4 w-4" />
+						</button>
+					)}
 				</div>
 			)}
 
-			{/* Clear All Conversations Button */}
+			{/* All History Button */}
 			{!isCollapsed && conversations.length > 0 && (
 				<div className="p-2 border-t border-white/10">
 					<Button
 						variant="ghost"
 						size="sm"
-						className="w-full text-xs text-red-300 hover:text-red-200 hover:bg-red-500/20 justify-start px-2"
-						onClick={() => setClearAllDialogOpen(true)}
+						className="w-full text-xs text-white/70 hover:text-white hover:bg-white/10 justify-between px-2"
+						onClick={() => setIsHistoryModalOpen(true)}
 					>
-						<Trash2 className="h-3 w-3 mr-2" />
-						Clear History
+						<span className="flex items-center">
+							<List className="h-3 w-3 mr-2" />
+							Show all conversations
+						</span>
+						<span className="bg-white/10 text-white text-[10px] px-1.5 py-0.5 rounded-full">
+							{conversations.length}
+						</span>
 					</Button>
 				</div>
 			)}
 
-			{/* Clear All Confirmation Dialog */}
-			<AlertDialog
-				open={clearAllDialogOpen}
-				onOpenChange={setClearAllDialogOpen}
-			>
-				<AlertDialogContent>
-					<AlertDialogHeader>
-						<AlertDialogTitle>Delete All Conversations?</AlertDialogTitle>
-						<AlertDialogDescription>
-							This will permanently delete all {conversations.length}{" "}
-							conversation
-							{conversations.length !== 1 ? "s" : ""} and all their messages.
-							This action cannot be undone.
-						</AlertDialogDescription>
-					</AlertDialogHeader>
-					<AlertDialogFooter>
-						<AlertDialogCancel>Cancel</AlertDialogCancel>
-						<AlertDialogAction
-							onClick={deleteAllConversations}
-							className="bg-red-600 hover:bg-red-700"
-						>
-							Delete All
-						</AlertDialogAction>
-					</AlertDialogFooter>
-				</AlertDialogContent>
-			</AlertDialog>
+			<ConversationHistoryModal
+				isOpen={isHistoryModalOpen}
+				onClose={() => setIsHistoryModalOpen(false)}
+				conversations={conversations}
+				onSelectConversation={handleSelectConversation}
+				onDeleteConversation={deleteConversation}
+				onRenameConversation={renameConversation}
+				onTogglePin={togglePin}
+				onClearAllConversations={deleteAllConversations}
+				currentConversationId={currentConversationId}
+			/>
 		</div>
 	);
 }
