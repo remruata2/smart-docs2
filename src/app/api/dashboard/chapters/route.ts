@@ -39,6 +39,7 @@ export async function GET(req: NextRequest) {
 				id: c.id.toString(),
 				title: c.title,
 				chapter_number: c.chapter_number,
+				isLocked: c.isLocked,
 			})),
 		});
 	} catch (error) {

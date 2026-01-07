@@ -203,8 +203,15 @@ export function BattleLobby() {
                                                 </SelectTrigger>
                                                 <SelectContent className="bg-slate-900 border-slate-800 text-slate-100">
                                                     {chapters.map((c) => (
-                                                        <SelectItem key={c.id} value={c.id.toString()} className="focus:bg-slate-800 focus:text-white">
+                                                        <SelectItem
+                                                            key={c.id}
+                                                            value={c.id.toString()}
+                                                            disabled={c.isLocked}
+                                                            className="focus:bg-slate-800 focus:text-white"
+                                                        >
+                                                            {c.isLocked && <span className="mr-2">🔒</span>}
                                                             {c.chapter_number ? `Ch ${c.chapter_number}: ` : ""}{c.title}
+                                                            {c.isLocked && <span className="ml-2 text-xs text-yellow-500/80">(Upgrade)</span>}
                                                         </SelectItem>
                                                     ))}
                                                 </SelectContent>
@@ -325,8 +332,15 @@ export function BattleLobby() {
                                         </SelectTrigger>
                                         <SelectContent className="bg-slate-900 border-slate-800 text-slate-100">
                                             {chapters.map((c) => (
-                                                <SelectItem key={c.id} value={c.id.toString()} className="focus:bg-slate-800 focus:text-white">
+                                                <SelectItem
+                                                    key={c.id}
+                                                    value={c.id.toString()}
+                                                    disabled={c.isLocked}
+                                                    className="focus:bg-slate-800 focus:text-white"
+                                                >
+                                                    {c.isLocked && <span className="mr-2">🔒</span>}
                                                     {c.chapter_number ? `Ch ${c.chapter_number}: ` : ""}{c.title}
+                                                    {c.isLocked && <span className="ml-2 text-xs text-yellow-500/80">(Upgrade)</span>}
                                                 </SelectItem>
                                             ))}
                                         </SelectContent>

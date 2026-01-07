@@ -69,7 +69,7 @@ function ChatPageContent() {
 	const [selectedSubjectName, setSelectedSubjectName] = useState<string>("");
 
 	const [chapters, setChapters] = useState<
-		Array<{ id: string; title: string; chapter_number: number | null }>
+		Array<{ id: string; title: string; chapter_number: number | null; isLocked?: boolean }>
 	>([]);
 	const [chaptersLoading, setChaptersLoading] = useState<boolean>(false);
 	const [selectedChapterId, setSelectedChapterId] = useState<string | null>(
@@ -1320,9 +1320,11 @@ function ChatPageContent() {
 										</option>
 									) : (
 										chapters.map((c) => (
-											<option key={c.id} value={c.id}>
+											<option key={c.id} value={c.id} disabled={c.isLocked}>
+												{c.isLocked ? "🔒 " : ""}
 												{c.chapter_number ? `${c.chapter_number}. ` : ""}
 												{c.title}
+												{c.isLocked ? " (Upgrade)" : ""}
 											</option>
 										))
 									)}
