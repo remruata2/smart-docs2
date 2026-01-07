@@ -86,10 +86,10 @@ export default function ChapterIngestForm({
             return;
         }
 
-        const maxSize = 100 * 1024 * 1024;
+        const maxSize = 500 * 1024 * 1024;
         const oversizedFiles = Array.from(files).filter(f => f.size > maxSize);
         if (oversizedFiles.length > 0) {
-            toast.error(`${oversizedFiles.length} file(s) too large. Maximum size is 100MB.`);
+            toast.error(`${oversizedFiles.length} file(s) too large. Maximum size is 500MB.`);
             e.target.value = "";
             return;
         }
@@ -380,7 +380,7 @@ export default function ChapterIngestForm({
                             className="block w-full text-sm text-gray-500 file:mr-4 file:py-2 file:px-4 file:rounded-full file:border-0 file:text-sm file:font-semibold file:bg-indigo-50 file:text-indigo-700 hover:file:bg-indigo-100 disabled:opacity-50"
                         />
                         <p className="mt-1 text-xs text-gray-500">
-                            Upload up to 5 PDF files (max 100MB each).
+                            Upload up to 5 PDF files (max 500MB each).
                         </p>
                     </div>
 

@@ -93,11 +93,11 @@ export function QuizGenerator({
                 questionTypes as any
             );
 
-            toast.success("Quiz generated successfully! 🎉");
+            toast.success("Mock Test generated successfully! 🎉");
             router.push(`/app/practice/${quiz.id}`);
         } catch (error) {
             console.error(error);
-            toast.error("Failed to generate quiz. Please try again.");
+            toast.error("Failed to generate mock test. Please try again.");
         } finally {
             setLoading(false);
         }
@@ -116,7 +116,7 @@ export function QuizGenerator({
 
     const steps = [
         { number: 1, title: "Select Topic", description: "Choose subject & chapter" },
-        { number: 2, title: "Set Difficulty", description: "Configure quiz settings" },
+        { number: 2, title: "Set Difficulty", description: "Configure test settings" },
         { number: 3, title: "Question Types", description: "Pick question formats" },
         { number: 4, title: "Review & Start", description: "Confirm and begin" },
     ];
@@ -289,7 +289,7 @@ export function QuizGenerator({
                     <div className="space-y-4">
                         <div className="text-center mb-4">
                             <h3 className="text-xl font-bold mb-1">🎉 Ready to Start!</h3>
-                            <p className="text-sm text-muted-foreground">Review your quiz settings below</p>
+                            <p className="text-sm text-muted-foreground">Review your test settings below</p>
                         </div>
 
                         <div className="space-y-3 bg-muted/30 rounded-lg p-4">
@@ -333,7 +333,7 @@ export function QuizGenerator({
                         Practice & Exam Prep
                     </h1>
                     <p className="text-sm md:text-lg text-muted-foreground">
-                        Generate AI-powered quizzes to test your knowledge and earn points! 🎯
+                        Generate AI-powered mock tests to test your knowledge and earn points! 🎯
                     </p>
                 </div>
             )}
@@ -344,7 +344,7 @@ export function QuizGenerator({
                             <BrainCircuit className="w-6 h-6" />
                         </div>
                         <div className="flex-1">
-                            <CardTitle className="text-xl md:text-2xl">Generate Practice Quiz</CardTitle>
+                            <CardTitle className="text-xl md:text-2xl">Generate Mock Test</CardTitle>
                             <CardDescription className="text-xs md:text-sm">Step {currentStep} of 4 - {steps[currentStep - 1].description}</CardDescription>
                         </div>
                     </div>
@@ -422,7 +422,7 @@ export function QuizGenerator({
                                     </>
                                 ) : (
                                     <>
-                                        Start Quiz
+                                        Start Test
                                         <ChevronRight className="ml-2 h-5 w-5" />
                                     </>
                                 )}

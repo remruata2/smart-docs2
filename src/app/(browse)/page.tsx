@@ -1,9 +1,7 @@
 import { getCatalogData, enrollInCourse } from "./actions";
-import { CourseEnrollmentDialog } from "@/components/catalog/CourseEnrollmentDialog";
-import { Card, CardContent, CardFooter, CardHeader, CardTitle } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
 import { Badge } from "@/components/ui/badge";
-import { BookOpen, Search, GraduationCap, Clock, CheckCircle2, Star, Users, ArrowRight } from "lucide-react";
+import { BookOpen, GraduationCap, CheckCircle2, Star, ArrowRight, Trophy, Bot, ClipboardList, MousePointerClick } from "lucide-react";
 import Image from "next/image";
 import Link from "next/link";
 
@@ -11,12 +9,22 @@ export default async function HomePage() {
     const data = await getCatalogData();
     const { courses, isAuthenticated } = data;
 
+    // Sort courses: enrolled first, then by created_at
+    const sortedCourses = [...courses].sort((a, b) => {
+        if (a.isEnrolled && !b.isEnrolled) return -1;
+        if (!a.isEnrolled && b.isEnrolled) return 1;
+        return 0;
+    });
+
+    // Limit to 8 courses for homepage
+    const displayCourses = sortedCourses.slice(0, 8);
+
     return (
         <div className="min-h-screen bg-white">
             {/* Hero Section */}
-            <div className="bg-gradient-to-br from-indigo-900 via-indigo-800 to-purple-900 text-white py-10 px-4 md:px-8">
+            <div className="bg-gradient-to-br from-indigo-900 via-indigo-800 to-purple-900 text-white py-10 px-3 md:px-8">
                 <div className="max-w-7xl mx-auto flex flex-col md:flex-row items-center justify-between gap-12">
-                    <div className="space-y-6 flex-1 text-center md:text-left">
+                    <div className="space-y-4 flex-1 text-center md:text-left">
                         <div className="inline-flex items-center gap-2 px-4 py-2 rounded-full bg-white/10 border border-white/20 text-white/90 text-sm font-medium backdrop-blur-sm">
                             <Star className="w-4 h-4 fill-current text-yellow-400" />
                             <span>AI-Powered Learning Platform</span>
@@ -28,13 +36,7 @@ export default async function HomePage() {
                             Explore comprehensive courses tailored for competitive exams.
                             Enroll, learn at your pace, and excel with AI tutoring.
                         </p>
-                        <div className="flex flex-wrap justify-center md:justify-start gap-6 pt-4">
-                            <div className="flex items-center gap-2">
-                                <div className="p-2 bg-white/10 rounded-full">
-                                    <Users className="w-5 h-5 text-blue-300" />
-                                </div>
-                                <span className="text-sm font-medium">10,000+ Students</span>
-                            </div>
+                        <div className="flex flex-wrap justify-center md:justify-start gap-4 pt-4">
                             <div className="flex items-center gap-2">
                                 <div className="p-2 bg-white/10 rounded-full">
                                     <CheckCircle2 className="w-5 h-5 text-green-300" />
@@ -43,7 +45,25 @@ export default async function HomePage() {
                             </div>
                             <div className="flex items-center gap-2">
                                 <div className="p-2 bg-white/10 rounded-full">
-                                    <BookOpen className="w-5 h-5 text-purple-300" />
+                                    <MousePointerClick className="w-5 h-5 text-pink-300" />
+                                </div>
+                                <span className="text-sm font-medium">Highly Interactive</span>
+                            </div>
+                            <div className="flex items-center gap-2">
+                                <div className="p-2 bg-white/10 rounded-full">
+                                    <ClipboardList className="w-5 h-5 text-blue-300" />
+                                </div>
+                                <span className="text-sm font-medium">Mock Test</span>
+                            </div>
+                            <div className="flex items-center gap-2">
+                                <div className="p-2 bg-white/10 rounded-full">
+                                    <Trophy className="w-5 h-5 text-yellow-300" />
+                                </div>
+                                <span className="text-sm font-medium">Gamified</span>
+                            </div>
+                            <div className="flex items-center gap-2">
+                                <div className="p-2 bg-white/10 rounded-full">
+                                    <Bot className="w-5 h-5 text-purple-300" />
                                 </div>
                                 <span className="text-sm font-medium">AI Tutor</span>
                             </div>
@@ -63,31 +83,39 @@ export default async function HomePage() {
             </div>
 
             {/* Main Catalog */}
-            <main className="max-w-7xl mx-auto p-4 md:p-8 -mt-8">
-                {/* Search Box */}
-                <div className="bg-white rounded-2xl shadow-xl border border-gray-100 p-6 mb-12">
-                    <div className="relative">
-                        <Search className="absolute left-4 top-1/2 -translate-y-1/2 w-5 h-5 text-gray-400" />
-                        <input
-                            type="text"
-                            placeholder="Search for courses, subjects, or topics..."
-                            className="w-full pl-12 pr-4 py-4 rounded-xl border border-gray-200 focus:ring-2 focus:ring-indigo-500 focus:border-transparent outline-none transition-all text-lg"
-                        />
-                    </div>
-                </div>
-
+            <main className="max-w-7xl mx-auto px-4 md:px-8 py-4 md:py-6">
                 {/* Section Header */}
-                <div className="mb-8">
-                    <h2 className="text-3xl font-bold text-gray-900">Featured Courses</h2>
-                    <p className="text-gray-500 mt-2">Pick a course and start your learning journey today.</p>
+                <div className="flex items-center justify-between mb-6">
+                    <div>
+                        <h2 className="text-3xl font-bold text-gray-900">Courses</h2>
+                        <p className="text-gray-500 mt-2">Pick a course and start your learning journey today.</p>
+                    </div>
+                    <Link href="/courses">
+                        <Button variant="outline" className="hidden sm:flex items-center gap-2">
+                            All Courses
+                            <ArrowRight className="w-4 h-4" />
+                        </Button>
+                    </Link>
                 </div>
 
                 {/* Course Grid */}
-                <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-8">
-                    {courses.map((course) => (
+                <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-5">
+                    {displayCourses.map((course) => (
                         <CourseCard key={course.id} course={course} isAuthenticated={isAuthenticated} />
                     ))}
                 </div>
+
+                {/* Mobile All Courses Button */}
+                {courses.length > 8 && (
+                    <div className="mt-8 text-center sm:hidden">
+                        <Link href="/courses">
+                            <Button variant="outline" className="w-full">
+                                View All {courses.length} Courses
+                                <ArrowRight className="w-4 h-4 ml-2" />
+                            </Button>
+                        </Link>
+                    </div>
+                )}
 
                 {courses.length === 0 && (
                     <div className="text-center py-24 bg-gray-50 rounded-2xl border-2 border-dashed border-gray-200">
@@ -105,83 +133,75 @@ export default async function HomePage() {
 
 function CourseCard({ course, isAuthenticated }: { course: any; isAuthenticated: boolean }) {
     return (
-        <div className="group bg-white rounded-2xl border border-gray-200 overflow-hidden hover:shadow-2xl hover:-translate-y-1 transition-all duration-300 flex flex-col h-full">
-            {/* Thumbnail */}
-            <div className="relative aspect-video overflow-hidden bg-gray-100">
-                {course.thumbnail_url ? (
-                    <Image
-                        src={course.thumbnail_url}
-                        alt={course.title}
-                        fill
-                        className="object-cover group-hover:scale-105 transition-transform duration-500"
-                    />
-                ) : (
-                    <div className="absolute inset-0 flex items-center justify-center bg-gradient-to-br from-indigo-500 to-purple-600">
-                        <GraduationCap className="w-12 h-12 text-white/50" />
-                    </div>
-                )}
-                <div className="absolute top-3 left-3 flex gap-2">
-                    <Badge className="bg-white/90 text-gray-900 backdrop-blur shadow-sm hover:bg-white border-none font-semibold">
-                        {course.board_id}
-                    </Badge>
-                </div>
-            </div>
-
-            {/* Content */}
-            <div className="p-5 flex-1 flex flex-col">
-                <div className="mb-2">
-                    <h3 className="text-lg font-bold text-gray-900 leading-tight group-hover:text-indigo-600 transition-colors line-clamp-2">
-                        {course.title}
-                    </h3>
-                </div>
-
-                <div className="text-sm text-gray-500 mb-4 line-clamp-2">
-                    {course.description}
-                </div>
-
-                <div className="flex flex-wrap gap-1.5 mb-4">
-                    {course.subjects.slice(0, 3).map((subject: any) => (
-                        <Badge key={subject.id} variant="secondary" className="text-[10px] px-2 py-0.5 bg-gray-100">
-                            {subject.name}
-                        </Badge>
-                    ))}
-                    {course.subjects.length > 3 && (
-                        <Badge variant="secondary" className="text-[10px] px-2 py-0.5 bg-gray-100">
-                            +{course.subjects.length - 3} more
-                        </Badge>
+        <Link href={`/courses/${course.id}`} className="block h-full">
+            <div className="group bg-white rounded-2xl border border-gray-200 overflow-hidden hover:shadow-2xl hover:-translate-y-1 transition-all duration-300 flex flex-col h-full">
+                {/* Thumbnail */}
+                <div className="relative aspect-video overflow-hidden bg-gray-100">
+                    {course.thumbnail_url ? (
+                        <Image
+                            src={course.thumbnail_url}
+                            alt={course.title}
+                            fill
+                            className="object-cover group-hover:scale-105 transition-transform duration-500"
+                        />
+                    ) : (
+                        <div className="absolute inset-0 flex items-center justify-center bg-gradient-to-br from-indigo-500 to-purple-600">
+                            <GraduationCap className="w-12 h-12 text-white/50" />
+                        </div>
                     )}
-                </div>
-
-                <div className="flex items-center gap-4 mt-auto pt-4 text-sm text-gray-500 border-t border-gray-100">
-                    <div className="flex items-center gap-1.5">
-                        <BookOpen className="w-4 h-4" />
-                        <span>{course.subjects.length} Subjects</span>
+                    <div className="absolute top-3 left-3 flex gap-2">
+                        <Badge className="bg-white/90 text-gray-900 backdrop-blur shadow-sm hover:bg-white border-none font-semibold">
+                            {course.board_id}
+                        </Badge>
                     </div>
                 </div>
-            </div>
 
-            {/* Footer */}
-            <div className="p-5 pt-0">
-                {course.isEnrolled ? (
-                    <Link href={`/app/subjects?courseId=${course.id}`} className="w-full block">
+                {/* Content */}
+                <div className="p-4 flex-1 flex flex-col">
+                    <div className="mb-3">
+                        <h3 className="text-lg font-bold text-gray-900 leading-tight group-hover:text-indigo-600 transition-colors line-clamp-2">
+                            {course.title}
+                        </h3>
+                    </div>
+
+                    <div className="flex flex-wrap gap-1.5 mb-3">
+                        {course.subjects.slice(0, 3).map((subject: any) => (
+                            <Badge key={subject.id} variant="secondary" className="text-[10px] px-2 py-0.5 bg-gray-100">
+                                {subject.name}
+                            </Badge>
+                        ))}
+                        {course.subjects.length > 3 && (
+                            <Badge variant="secondary" className="text-[10px] px-2 py-0.5 bg-gray-100">
+                                +{course.subjects.length - 3} more
+                            </Badge>
+                        )}
+                    </div>
+
+                    <div className="flex items-center justify-between mt-auto pt-3 text-sm text-gray-500 border-t border-gray-100">
+                        <div className="flex items-center gap-1.5">
+                            <BookOpen className="w-4 h-4" />
+                            <span>{course.subjects.length} Subjects</span>
+                        </div>
+                        <div className="flex items-center gap-1.5">
+                            <span>{course.subjects.reduce((acc: number, s: any) => acc + (s._count?.chapters || 0), 0)} Chapters</span>
+                        </div>
+                    </div>
+                </div>
+
+                {/* Footer */}
+                <div className="p-5 pt-0">
+                    {course.isEnrolled ? (
                         <Button className="w-full bg-emerald-50 text-emerald-700 hover:bg-emerald-100 border-emerald-200 py-5" variant="outline">
                             <CheckCircle2 className="w-4 h-4 mr-2" />
                             Continue Learning
                         </Button>
-                    </Link>
-                ) : isAuthenticated ? (
-                    <CourseEnrollmentDialog
-                        courseId={course.id}
-                        courseTitle={course.title}
-                    />
-                ) : (
-                    <Link href={`/login?callbackUrl=/`} className="w-full block">
-                        <Button className="w-full bg-indigo-600 hover:bg-indigo-700 text-white shadow-lg shadow-indigo-500/20 py-5 text-base font-bold">
-                            Sign Up to Enroll
+                    ) : (
+                        <Button className={`w-full py-5 text-base font-bold ${course.is_free ? 'bg-indigo-600 hover:bg-indigo-700 text-white' : 'bg-emerald-600 hover:bg-emerald-700 text-white'}`}>
+                            {course.is_free ? 'View Course' : `${course.currency} ${course.price}`}
                         </Button>
-                    </Link>
-                )}
+                    )}
+                </div>
             </div>
-        </div>
+        </Link>
     );
 }

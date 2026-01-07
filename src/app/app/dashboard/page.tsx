@@ -97,7 +97,7 @@ export default async function DashboardPage() {
                                     <div className="bg-indigo-600 h-2 rounded-full" style={{ width: `${metrics.syllabusCompletion}%` }} />
                                 </div>
                                 <div className="flex items-center justify-between pt-2">
-                                    <span className="text-sm text-gray-500">Quiz Average</span>
+                                    <span className="text-sm text-gray-500">Test Average</span>
                                     <span className="font-bold text-gray-900">{metrics.quizAverage}%</span>
                                 </div>
                                 <div className="w-full bg-gray-100 rounded-full h-2">

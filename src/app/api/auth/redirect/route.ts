@@ -37,7 +37,7 @@ export async function GET() {
 
     if (enrollmentCount > 0) {
         // User has courses, go to My Learning
-        return NextResponse.json({ redirect: "/my-learning" });
+        return NextResponse.json({ redirect: "/my-courses" });
     } else {
         // No courses yet, go to catalog to browse
         return NextResponse.json({ redirect: "/" });

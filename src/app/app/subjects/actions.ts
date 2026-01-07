@@ -82,6 +82,7 @@ export async function getSubjectsForUserProgram(courseId?: number) {
             ...enrollment,
             course: {
                 ...enrollment.course,
+                price: enrollment.course.price ? Number(enrollment.course.price) : 0,
                 subjects: subjectsWithMastery
             }
         };

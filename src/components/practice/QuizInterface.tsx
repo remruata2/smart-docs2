@@ -209,14 +209,14 @@ export function QuizInterface({ quiz }: { quiz: Quiz }) {
         try {
             const result = await submitQuizAction(quiz.id, answers);
             if (!toastShownRef.current) {
-                toast.success(`Quiz submitted! Score: ${result.score}/${result.totalPoints}`);
+                toast.success(`Test submitted! Score: ${result.score}/${result.totalPoints}`);
                 toastShownRef.current = true;
             }
             router.push(`/app/practice/${quiz.id}/result`);
         } catch (error) {
             console.error(error);
             if (!toastShownRef.current) {
-                toast.error("Failed to submit quiz. Please try again.");
+                toast.error("Failed to submit test. Please try again.");
             }
             setSubmitting(false);
         }
@@ -506,7 +506,7 @@ export function QuizInterface({ quiz }: { quiz: Quiz }) {
                                     </>
                                 ) : (
                                     <>
-                                        Submit Quiz
+                                        Submit Test
                                         <CheckCircle2 className="ml-2 h-5 w-5 md:h-6 md:w-6" />
                                     </>
                                 )}

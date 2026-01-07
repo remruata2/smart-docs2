@@ -7,6 +7,10 @@ import { ensureWorkerFile } from "@/lib/pdf-worker-cache";
 export const runtime = "nodejs";
 export const maxDuration = 300; // 5 minutes
 
+// Route segment config for increased body size limit (500MB for textbook uploads)
+export const fetchCache = 'force-no-store';
+export const dynamic = 'force-dynamic';
+
 // Polyfill DOMMatrix for Node.js (required by react-pdf/pdfjs-dist)
 // Must be set at module level before any imports that use it
 if (typeof globalThis.DOMMatrix === "undefined") {
@@ -27,7 +31,7 @@ if (typeof globalThis.DOMMatrix === "undefined") {
 		e = 0;
 		f = 0;
 	} as any;
-	
+
 	// Set on both globalThis and global for compatibility
 	globalThis.DOMMatrix = DOMMatrixPolyfill;
 	if (typeof global !== "undefined") {
@@ -192,9 +196,8 @@ export async function POST(req: NextRequest) {
 		console.error("Error extracting PDF text:", error);
 		return NextResponse.json(
 			{
-				error: `Failed to extract text from PDF: ${
-					error instanceof Error ? error.message : "Unknown error"
-				}`,
+				error: `Failed to extract text from PDF: ${error instanceof Error ? error.message : "Unknown error"
+					}`,
 			},
 			{ status: 500 }
 		);

@@ -3,7 +3,7 @@ import { Card, CardContent, CardFooter, CardHeader, CardTitle } from "@/componen
 import { Button } from "@/components/ui/button";
 import { Badge } from "@/components/ui/badge";
 import { BookOpen, Search, GraduationCap, Clock, CheckCircle2, Star, Users } from "lucide-react";
-import { CourseEnrollmentDialog } from "@/components/catalog/CourseEnrollmentDialog";
+import { EnrollmentButton } from "@/components/catalog/EnrollmentButton";
 import Image from "next/image";
 import Link from "next/link";
 import { redirect } from "next/navigation";
@@ -91,72 +91,71 @@ export default async function CatalogPage() {
 
 function CourseCard({ course }: { course: any }) {
     return (
-        <div className="group bg-white rounded-xl border border-gray-200 overflow-hidden hover:shadow-2xl hover:-translate-y-1 transition-all duration-300 flex flex-col h-full">
-            {/* Thumbnail */}
-            <div className="relative aspect-video overflow-hidden bg-gray-100">
-                {course.thumbnail_url ? (
-                    <Image
-                        src={course.thumbnail_url}
-                        alt={course.title}
-                        fill
-                        className="object-cover group-hover:scale-105 transition-transform duration-500"
-                    />
-                ) : (
-                    <div className="absolute inset-0 flex items-center justify-center bg-gradient-to-br from-blue-500 to-indigo-600">
-                        <GraduationCap className="w-12 h-12 text-white/50" />
-                    </div>
-                )}
-                <div className="absolute top-3 left-3 flex gap-2">
-                    <Badge className="bg-white/90 text-gray-900 backdrop-blur shadow-sm hover:bg-white border-none">
-                        {course.board_id}
-                    </Badge>
-                </div>
-            </div>
-
-            {/* Content */}
-            <div className="p-5 flex-1 flex flex-col">
-                <div className="mb-2">
-                    <h3 className="text-lg font-bold text-gray-900 leading-tight group-hover:text-blue-600 transition-colors line-clamp-2">
-                        {course.title}
-                    </h3>
-                </div>
-
-                <div className="text-sm text-gray-500 mb-4 line-clamp-2">
-                    {course.description}
-                </div>
-
-                <div className="flex flex-wrap gap-2 mb-4">
-                    {course.subjects.map((subject: any) => (
-                        <Badge key={subject.id} variant="secondary" className="text-[10px] px-2 py-0">
-                            {subject.name}
+        <Link href={`/courses/${course.id}`} className="block h-full">
+            <div className="group bg-white rounded-xl border border-gray-200 overflow-hidden hover:shadow-2xl hover:-translate-y-1 transition-all duration-300 flex flex-col h-full">
+                {/* Thumbnail */}
+                <div className="relative aspect-video overflow-hidden bg-gray-100">
+                    {course.thumbnail_url ? (
+                        <Image
+                            src={course.thumbnail_url}
+                            alt={course.title}
+                            fill
+                            className="object-cover group-hover:scale-105 transition-transform duration-500"
+                        />
+                    ) : (
+                        <div className="absolute inset-0 flex items-center justify-center bg-gradient-to-br from-blue-500 to-indigo-600">
+                            <GraduationCap className="w-12 h-12 text-white/50" />
+                        </div>
+                    )}
+                    <div className="absolute top-3 left-3 flex gap-2">
+                        <Badge className="bg-white/90 text-gray-900 backdrop-blur shadow-sm hover:bg-white border-none">
+                            {course.board_id}
                         </Badge>
-                    ))}
-                </div>
-
-                <div className="flex items-center gap-4 mt-auto pt-4 text-sm text-gray-500">
-                    <div className="flex items-center gap-1.5">
-                        <BookOpen className="w-4 h-4" />
-                        <span>{course.subjects.length} Subjects</span>
                     </div>
                 </div>
-            </div>
 
-            {/* Footer */}
-            <CardFooter className="p-5 pt-0 border-t-0">
-                {course.isEnrolled ? (
-                    <Link href={`/app/subjects`} className="w-full">
+                {/* Content */}
+                <div className="p-5 flex-1 flex flex-col">
+                    <div className="mb-2">
+                        <h3 className="text-lg font-bold text-gray-900 leading-tight group-hover:text-blue-600 transition-colors line-clamp-2">
+                            {course.title}
+                        </h3>
+                    </div>
+
+                    <div className="text-sm text-gray-500 mb-4 line-clamp-2">
+                        {course.description}
+                    </div>
+
+                    <div className="flex flex-wrap gap-2 mb-4">
+                        {course.subjects.map((subject: any) => (
+                            <Badge key={subject.id} variant="secondary" className="text-[10px] px-2 py-0">
+                                {subject.name}
+                            </Badge>
+                        ))}
+                    </div>
+
+                    <div className="flex items-center gap-4 mt-auto pt-4 text-sm text-gray-500">
+                        <div className="flex items-center gap-1.5">
+                            <BookOpen className="w-4 h-4" />
+                            <span>{course.subjects.length} Subjects</span>
+                        </div>
+                    </div>
+                </div>
+
+                {/* Footer */}
+                <CardFooter className="p-5 pt-0 border-t-0">
+                    {course.isEnrolled ? (
                         <Button className="w-full bg-emerald-50 text-emerald-700 hover:bg-emerald-100 border-emerald-200" variant="outline">
                             <CheckCircle2 className="w-4 h-4 mr-2" />
-                            Continued Learning
+                            Continue Learning
                         </Button>
-                    </Link>
-                ) : (
-                    <CourseEnrollmentDialog
-                        courseId={course.id}
-                        courseTitle={course.title}
-                    />
-                )}
-            </CardFooter>
-        </div>
+                    ) : (
+                        <Button className={`w-full py-5 text-base font-bold ${course.is_free ? 'bg-indigo-600 hover:bg-indigo-700 text-white' : 'bg-emerald-600 hover:bg-emerald-700 text-white'}`}>
+                            {course.is_free ? 'View Course' : `${course.currency} ${course.price}`}
+                        </Button>
+                    )}
+                </CardFooter>
+            </div>
+        </Link>
     );
 }

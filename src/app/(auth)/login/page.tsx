@@ -44,7 +44,7 @@ export default function LoginPage() {
 					router.replace(data.redirect || "/");
 				} catch {
 					// Fallback: admin to /admin, others to my-learning
-					const destination = userRole === "admin" ? "/admin" : "/my-learning";
+					const destination = userRole === "admin" ? "/admin" : "/my-courses";
 					router.replace(destination);
 				}
 			}
@@ -82,9 +82,9 @@ export default function LoginPage() {
 				try {
 					const res = await fetch("/api/auth/redirect");
 					const data = await res.json();
-					router.replace(data.redirect || "/my-learning");
+					router.replace(data.redirect || "/my-courses");
 				} catch {
-					router.replace("/my-learning");
+					router.replace("/my-courses");
 				}
 			}
 		} catch (err) {
@@ -292,7 +292,7 @@ export default function LoginPage() {
 									type="button"
 									variant="outline"
 									className="w-full h-12 border-2 hover:bg-gray-50 hover:border-gray-300 transition-all duration-200 font-semibold"
-									onClick={() => signIn("google", { callbackUrl: "/my-learning" })}
+									onClick={() => signIn("google", { callbackUrl: "/my-courses" })}
 									disabled={isFormDisabled}
 								>
 									<FcGoogle className="mr-2 h-5 w-5" />

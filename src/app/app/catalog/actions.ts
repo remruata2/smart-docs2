@@ -45,6 +45,9 @@ export async function getCatalogData() {
     return {
         courses: courses.map(c => ({
             ...c,
+            price: c.price?.toString() || null,
+            created_at: c.created_at.toISOString(),
+            updated_at: c.updated_at.toISOString(),
             isEnrolled: c.enrollments.length > 0
         }))
     };

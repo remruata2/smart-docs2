@@ -4,7 +4,7 @@ import { db } from "@/lib/db";
 import { revalidatePath } from "next/cache";
 
 export async function getCourses() {
-    return await db.course.findMany({
+    const courses = await db.course.findMany({
         include: {
             board: true,
             instructor: {
@@ -21,16 +21,32 @@ export async function getCourses() {
             created_at: "desc",
         },
     });
+
+    return courses.map(course => ({
+        ...course,
+        price: course.price?.toString() || null,
+        created_at: course.created_at.toISOString(),
+        updated_at: course.updated_at.toISOString(),
+    }));
 }
 
 export async function getCourseById(id: number) {
-    return await db.course.findUnique({
+    const course = await db.course.findUnique({
         where: { id },
         include: {
             subjects: true,
             instructor: true,
         },
     });
+
+    if (!course) return null;
+
+    return {
+        ...course,
+        price: course.price?.toString() || null,
+        created_at: course.created_at.toISOString(),
+        updated_at: course.updated_at.toISOString(),
+    };
 }
 
 export async function getInstructorsForCourse() {

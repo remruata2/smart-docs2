@@ -186,12 +186,12 @@ export default function UserSidebar({ setSidebarOpen }: UserSidebarProps) {
 						? "bg-white/20 text-white shadow-sm"
 						: "text-white/70 hover:bg-white/10 hover:text-white"
 						} ${displayCollapsed ? "justify-center px-0" : ""}`}
-					title={displayCollapsed ? "Quiz History" : ""}
+					title={displayCollapsed ? "Test History" : ""}
 				>
 					<History
 						className={`${displayCollapsed ? "h-5 w-5" : "mr-3 h-5 w-5"}`}
 					/>
-					{!displayCollapsed && "Quiz History"}
+					{!displayCollapsed && "Test History"}
 				</Link>
 
 				<Link

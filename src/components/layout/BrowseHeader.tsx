@@ -3,7 +3,7 @@
 import Link from "next/link";
 import { useSession } from "next-auth/react";
 import { Button } from "@/components/ui/button";
-import { BrainCircuit, BookOpen, User } from "lucide-react";
+import { BookOpen, User } from "lucide-react";
 import Image from "next/image";
 
 export function BrowseHeader() {
@@ -12,28 +12,31 @@ export function BrowseHeader() {
     return (
         <header className="border-b bg-white/80 backdrop-blur-sm sticky top-0 z-50">
             <div className="container mx-auto px-4 py-4 flex items-center justify-between">
-                <Link href="/" className="animate-fade-in">
+                <Link href="/" className="flex flex-col items-center group">
                     <Image
                         src="/zirnalogosmall.png"
                         alt="Zirna"
                         width={120}
                         height={40}
-                        className="h-8 md:h-10 w-auto"
+                        className="h-8 md:h-10 w-auto object-contain"
                         priority
                         unoptimized
                     />
+                    <span className="text-[10px] md:text-xs font-medium italic text-black leading-tight tracking-tight mt-1 whitespace-nowrap transition-opacity">
+                        "Bridging Knowledge Gaps with Innovation"
+                    </span>
                 </Link>
 
                 <nav className="hidden md:flex items-center gap-6">
-                    <Link href="/" className="text-gray-600 hover:text-gray-900 font-medium">
+                    <Link href="/courses" className="text-gray-600 hover:text-gray-900 font-medium">
                         Browse Courses
                     </Link>
-                    <Link href="/about" className="text-gray-600 hover:text-gray-900 font-medium">
+                    <Link href="/features" className="text-gray-600 hover:text-gray-900 font-medium">
                         Features
                     </Link>
                     {session && (
-                        <Link href="/my-learning" className="text-gray-600 hover:text-gray-900 font-medium">
-                            My Learning
+                        <Link href="/my-courses" className="text-gray-600 hover:text-gray-900 font-medium">
+                            My Courses
                         </Link>
                     )}
                 </nav>
@@ -41,10 +44,10 @@ export function BrowseHeader() {
                 <div className="flex items-center gap-3">
                     {session ? (
                         <>
-                            <Link href="/my-learning">
+                            <Link href="/my-courses">
                                 <Button variant="ghost" size="sm" className="hidden md:flex">
                                     <BookOpen className="h-4 w-4 mr-2" />
-                                    My Learning
+                                    My Courses
                                 </Button>
                             </Link>
                             <Link href="/app/profile">

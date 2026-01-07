@@ -9,7 +9,7 @@ import { redirect } from "next/navigation";
 /**
  * Get catalog data - works for both authenticated and unauthenticated users
  */
-export async function getCatalogData() {
+export async function getCatalogData(query?: string) {
     const session = await getServerSession(authOptions);
     const userId = session?.user?.id ? parseInt(session.user.id as string) : null;
 
@@ -17,6 +17,12 @@ export async function getCatalogData() {
     const courses = await prisma.course.findMany({
         where: {
             is_published: true,
+            ...(query ? {
+                OR: [
+                    { title: { contains: query, mode: 'insensitive' } },
+                    { description: { contains: query, mode: 'insensitive' } }
+                ]
+            } : {})
         },
         include: {
             subjects: {
@@ -47,6 +53,9 @@ export async function getCatalogData() {
     return {
         courses: courses.map(c => ({
             ...c,
+            price: c.price?.toString() || null,
+            created_at: c.created_at.toISOString(),
+            updated_at: c.updated_at.toISOString(),
             isEnrolled: userId ? (c as any).enrollments?.length > 0 : false
         })),
         isAuthenticated: !!userId
@@ -79,8 +88,12 @@ export async function enrollInCourse(courseId: number, institutionId?: string) {
         });
 
         const programId = course?.subjects[0]?.program_id;
+        const isPaidCourse = course && !course.is_free;
 
-        // 1. Update or Create Enrollment with context
+        // Calculate trial end date for paid courses (3 days from now)
+        const trialEndsAt = isPaidCourse ? new Date(Date.now() + 3 * 24 * 60 * 60 * 1000) : null;
+
+        // 1. Update or Create Enrollment with context and trial info
         await prisma.userEnrollment.upsert({
             where: {
                 user_id_course_id: {
@@ -95,11 +108,14 @@ export async function enrollInCourse(courseId: number, institutionId?: string) {
                 progress: 0,
                 institution_id: institutionId ? BigInt(institutionId) : null,
                 program_id: programId,
+                is_paid: false,
+                trial_ends_at: trialEndsAt,
             },
             update: {
                 status: "active",
                 institution_id: institutionId ? BigInt(institutionId) : null,
                 program_id: programId,
+                // Don't reset trial or payment status on re-enrollment
             }
         });
 
@@ -111,7 +127,7 @@ export async function enrollInCourse(courseId: number, institutionId?: string) {
         });
 
         revalidatePath("/");
-        revalidatePath("/my-learning");
+        revalidatePath("/my-courses");
         revalidatePath("/app/catalog");
         revalidatePath("/app/subjects");
 
@@ -189,6 +205,12 @@ export async function getMyLearningData() {
 
         return {
             ...enrollment,
+            course: {
+                ...enrollment.course,
+                price: enrollment.course.price?.toString() || null,
+                created_at: enrollment.course.created_at.toISOString(),
+                updated_at: enrollment.course.updated_at.toISOString(),
+            },
             progress: totalMastery // Reuse progress field for mastery score
         };
     }));

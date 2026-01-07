@@ -11,7 +11,7 @@ export default async function MyLearningPage() {
     const data = await getMyLearningData();
 
     if (!data) {
-        redirect("/login?callbackUrl=/my-learning");
+        redirect("/login?callbackUrl=/my-courses");
     }
 
     const { enrollments } = data;
@@ -23,7 +23,7 @@ export default async function MyLearningPage() {
                 <div className="max-w-7xl mx-auto px-4 md:px-8 py-8">
                     <div className="flex items-center justify-between">
                         <div>
-                            <h1 className="text-3xl font-bold text-gray-900">My Learning</h1>
+                            <h1 className="text-3xl font-bold text-gray-900">My Courses</h1>
                             <p className="text-gray-500 mt-1">Continue where you left off</p>
                         </div>
                         <Link href="/">
@@ -44,7 +44,7 @@ export default async function MyLearningPage() {
                         </div>
                         <h3 className="text-xl font-bold text-gray-900 mb-2">No courses yet</h3>
                         <p className="text-gray-500 mb-6 max-w-md mx-auto">
-                            You haven't enrolled in any courses. Browse our catalog and start learning today!
+                            You haven't enrolled in any courses yet. Browse our catalog and start learning today!
                         </p>
                         <Link href="/">
                             <Button size="lg" className="bg-indigo-600 hover:bg-indigo-700">

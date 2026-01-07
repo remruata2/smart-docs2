@@ -14,8 +14,8 @@ const geistMono = Geist_Mono({
 });
 
 export const metadata: Metadata = {
-	title: "Zirna",
-	description: "Zirna",
+	title: "Zirna IO",
+	description: "Zirna IO",
 };
 
 export default function RootLayout({

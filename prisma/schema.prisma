@@ -131,6 +131,11 @@ model UserEnrollment {
   enrolled_at      DateTime  @default(now()) @db.Timestamptz(6)
   completed_at     DateTime? @db.Timestamptz(6)
 
+  // Trial & Payment fields
+  is_paid       Boolean   @default(false) // Has user purchased the course?
+  trial_ends_at DateTime? @db.Timestamptz(6) // When trial expires (null for free courses)
+  payment_id    String?   @db.VarChar(255) // Razorpay payment reference
+
   // Enrollment context
   institution_id BigInt?
   program_id     Int?
@@ -201,7 +206,7 @@ model Conversation {
   chapter_id      BigInt?
   messages        ConversationMessage[]
   user            user                  @relation(fields: [user_id], references: [id], onDelete: Cascade)
-  subject         Subject?              @relation(fields: [subject_id], references: [id])
+  subject         Subject?              @relation(fields: [subject_id], references: [id], onDelete: Cascade)
   chapter         Chapter?              @relation(fields: [chapter_id], references: [id])
 
   @@index([user_id, updated_at(sort: Desc)], map: "idx_conversations_user_updated")
@@ -469,7 +474,7 @@ model Chapter {
   parsed_at         DateTime?
   pdf_url           String?
 
-  subject           Subject           @relation(fields: [subject_id], references: [id])
+  subject           Subject           @relation(fields: [subject_id], references: [id], onDelete: Cascade)
   chunks            ChapterChunk[]
   quizzes           Quiz[]
   study_materials   StudyMaterial?
@@ -619,7 +624,7 @@ model Quiz {
   completed_at DateTime?
 
   user    user     @relation(fields: [user_id], references: [id], onDelete: Cascade)
-  subject Subject  @relation(fields: [subject_id], references: [id])
+  subject Subject  @relation(fields: [subject_id], references: [id], onDelete: Cascade)
   chapter Chapter? @relation(fields: [chapter_id], references: [id])
 
   questions QuizQuestion[]
@@ -782,8 +787,8 @@ model LearningSession {
   created_at    DateTime @default(now())
   updated_at    DateTime @updatedAt
 
-  user    user    @relation(fields: [user_id], references: [id])
-  chapter Chapter @relation(fields: [chapter_id], references: [id])
+  user    user    @relation(fields: [user_id], references: [id], onDelete: Cascade)
+  chapter Chapter @relation(fields: [chapter_id], references: [id], onDelete: Cascade)
 
   @@index([user_id, chapter_id])
   @@map("learning_sessions")
@@ -814,7 +819,7 @@ model Battle {
   // Settings snapshot
   settings Json? // { timePerQuestion: 15, ... }
 
-  quiz    Quiz @relation(fields: [quiz_id], references: [id])
+  quiz    Quiz @relation(fields: [quiz_id], references: [id], onDelete: Cascade)
   creator user @relation(fields: [created_by], references: [id])
 
   participants BattleParticipant[]
@@ -957,7 +962,7 @@ model Textbook {
 
   // Relations
   creator         user                    @relation("TextbookCreator", fields: [created_by], references: [id])
-  subject         Subject?                @relation(fields: [subject_id], references: [id])
+  subject         Subject?                @relation(fields: [subject_id], references: [id], onDelete: Cascade)
   units           TextbookUnit[]
   generation_jobs TextbookGenerationJob[]
 

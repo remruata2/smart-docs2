@@ -2,7 +2,7 @@ import { BrowseHeader } from "@/components/layout/BrowseHeader";
 import { Footer } from "@/components/Footer";
 import { Toaster } from "@/components/ui/sonner";
 
-export default function BrowseLayout({
+export default async function BrowseLayout({
     children,
 }: {
     children: React.ReactNode;

@@ -22,9 +22,11 @@ const nextConfig: NextConfig = {
 	transpilePackages: [],
 	// Experimental features
 	experimental: {
+		// Increase proxy client body size for large file uploads (e.g., textbooks) - Next.js 16
+		proxyClientMaxBodySize: '500mb',
 		serverActions: {
-			// Increase body size limit to 50MB for file uploads
-			bodySizeLimit: "50mb",
+			// Increase body size limit to 500MB for file uploads
+			bodySizeLimit: "500mb",
 		},
 		// Optimize package imports - reduces build time
 		optimizePackageImports: [
