@@ -3,7 +3,7 @@
 import { useState, useRef, useEffect } from "react";
 import { useSearchParams, useRouter } from "next/navigation";
 import { Button } from "@/components/ui/button";
-import { Input } from "@/components/ui/input";
+import { Textarea } from "@/components/ui/textarea";
 import { Badge } from "@/components/ui/badge";
 import {
 	Loader2,
@@ -26,7 +26,6 @@ import rehypeKatex from "rehype-katex";
 import "katex/dist/katex.min.css";
 import { SmartChart } from "@/components/dashboard/SmartChart";
 import { ResponseTranslator } from "@/components/chat/ResponseTranslator";
-import { translateContent } from "./actions";
 
 export default function DashboardChatPage() {
 	return (
@@ -876,7 +875,7 @@ function ChatPageContent() {
 	};
 
 	return (
-		<div className="flex h-[calc(100vh-4rem)] overflow-hidden">
+		<div className="flex h-[calc(100vh-4rem)] lg:h-screen overflow-hidden -mb-16 lg:mb-0 pb-4">
 			{/* Main Chat Area */}
 			<div className="flex-1 flex flex-col overflow-hidden bg-gray-50/50 dark:bg-gray-900/50 h-full">
 				<div className="flex-1 flex flex-col overflow-hidden min-h-0">
@@ -1255,10 +1254,10 @@ function ChatPageContent() {
 					</div>
 
 					{/* Input Area */}
-					<div className="border-t bg-white dark:bg-gray-900 p-2">
-						<div className="max-w-4xl mx-auto space-y-2">
+					<div className="border-t bg-white dark:bg-gray-900 px-2 pt-2 pb-1">
+						<div className="max-w-4xl mx-auto space-y-1">
 							{/* Filters */}
-							<div className="flex flex-wrap items-center gap-3">
+							<div className="flex flex-wrap items-center gap-2">
 								{currentConversationId && (
 									<div className="w-full text-xs text-amber-600 bg-amber-50 px-2 py-1 rounded border border-amber-200 mb-1 flex items-center gap-1">
 										<span>🔒 Context locked to this conversation. Start a new chat to change.</span>
@@ -1332,10 +1331,24 @@ function ChatPageContent() {
 							{/* Input Box */}
 							<div className="relative flex items-end gap-2 bg-white dark:bg-gray-800 border rounded-xl shadow-sm focus-within:ring-2 focus-within:ring-primary/20 focus-within:border-primary transition-all p-2">
 								<div className="flex-1">
-									<Input
-										ref={inputRef}
+									<Textarea
+										ref={(el: HTMLTextAreaElement | null) => {
+											// Combined ref for internal use and auto-resize
+											if (el) {
+												inputRef.current = el as unknown as HTMLInputElement; // Type casting for compatibility
+												// Auto-resize logic on mount/ref update
+												el.style.height = "auto";
+												el.style.height = `${Math.min(el.scrollHeight, 128)}px`;
+											}
+										}}
 										value={inputMessage}
-										onChange={(e) => setInputMessage(e.target.value)}
+										onChange={(e: React.ChangeEvent<HTMLTextAreaElement>) => {
+											setInputMessage(e.target.value);
+											// Auto-resize on change
+											const target = e.target as HTMLTextAreaElement;
+											target.style.height = "auto";
+											target.style.height = `${Math.min(target.scrollHeight, 128)}px`;
+										}}
 										onKeyDown={handleKeyPress}
 										placeholder={
 											selectedChapterId
@@ -1345,8 +1358,9 @@ function ChatPageContent() {
 												)}...`
 												: "Select a chapter to start chatting..."
 										}
-										className="border-0 focus-visible:ring-0 px-3 py-2 h-auto max-h-32 min-h-[44px] resize-none bg-transparent"
+										className="border-0 focus-visible:ring-0 px-3 py-2 min-h-[50px] max-h-32 resize-none bg-transparent shadow-none"
 										disabled={isLoading || !selectedChapterId}
+										rows={2} // Default to 2 lines height
 									/>
 								</div>
 								<Button
@@ -1355,7 +1369,7 @@ function ChatPageContent() {
 										isLoading || !inputMessage.trim() || !selectedChapterId
 									}
 									size="icon"
-									className={`h-10 w-10 rounded-lg transition-all duration-200 ${inputMessage.trim() && !isLoading && selectedChapterId
+									className={`h-10 w-10 rounded-lg transition-all duration-200 mb-0.5 ${inputMessage.trim() && !isLoading && selectedChapterId
 										? "bg-primary hover:bg-primary/90 text-primary-foreground shadow-md hover:shadow-lg scale-100"
 										: "bg-gray-100 text-gray-400 scale-95"
 										}`}
