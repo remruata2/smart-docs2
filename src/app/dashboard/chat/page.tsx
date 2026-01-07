@@ -7,26 +7,23 @@ import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Badge } from "@/components/ui/badge";
-import { Alert, AlertDescription } from "@/components/ui/alert";
 import {
 	Loader2,
 	Send,
 	Bot,
 	User,
 	FileText,
-	AlertCircle,
 	MessageSquare,
 	ExternalLink,
 	Copy,
 	Check,
-	FileDown,
 } from "lucide-react";
 // PDF generation removed - using text export instead
 import { toast } from "sonner";
 import { ChatMessage } from "@/lib/ai-service-enhanced";
 import ReactMarkdown from "react-markdown";
 import remarkGfm from "remark-gfm";
-import ConversationSidebar from "@/components/ConversationSidebar";
+import ConversationList from "@/components/ConversationList";
 import { SmartChart } from "@/components/dashboard/SmartChart";
 
 interface ChatSource {
@@ -108,9 +105,9 @@ function DashboardChatPageContent() {
 					list.length > 0
 						? list
 						: [
-								{ name: "gemini-2.5-pro", label: "Gemini 2.5 Pro" },
-								{ name: "gemini-2.5-flash", label: "Gemini 2.5 Flash" },
-						  ];
+							{ name: "gemini-2.5-pro", label: "Gemini 2.5 Pro" },
+							{ name: "gemini-2.5-flash", label: "Gemini 2.5 Flash" },
+						];
 				setModels(finalModels);
 				// If current model not in list, set to first available
 				if (
@@ -486,7 +483,7 @@ function DashboardChatPageContent() {
 					if (response.status === 429) {
 						toast.error(
 							errorData.error ||
-								"You are making requests too quickly. Please wait and try again."
+							"You are making requests too quickly. Please wait and try again."
 						);
 						// Remove the placeholder message
 						setMessages((prev) =>
@@ -559,9 +556,9 @@ function DashboardChatPageContent() {
 									prev.map((msg) =>
 										msg.id === assistantMessageId
 											? {
-													...msg,
-													content: data.progress || "Processing...",
-											  }
+												...msg,
+												content: data.progress || "Processing...",
+											}
 											: msg
 									)
 								);
@@ -810,13 +807,17 @@ function DashboardChatPageContent() {
 	return (
 		<div className="flex h-screen overflow-hidden">
 			{/* Sidebar */}
-			<ConversationSidebar
-				currentConversationId={currentConversationId}
-				onSelectConversation={loadConversation}
-				onNewConversation={startNewConversation}
-				refreshTrigger={sidebarRefreshTrigger}
-				basePath="/api/dashboard/conversations"
-			/>
+			{/* Sidebar */}
+			<div className="w-64 bg-gray-900 border-r border-gray-800 flex-shrink-0 hidden md:block">
+				<ConversationList
+					isCollapsed={false}
+					selectedId={currentConversationId}
+					onSelectConversation={loadConversation}
+					onNewConversation={startNewConversation}
+					refreshTrigger={sidebarRefreshTrigger}
+					basePath="/api/dashboard/conversations"
+				/>
+			</div>
 
 			{/* Main Chat Area */}
 			<div className="flex-1 flex flex-col overflow-hidden bg-gray-50/50 dark:bg-gray-900/50">
@@ -900,16 +901,14 @@ function DashboardChatPageContent() {
 								{messages.map((msg) => (
 									<div
 										key={msg.id}
-										className={`flex gap-4 ${
-											msg.role === "assistant" ? "bg-transparent" : ""
-										} animate-in slide-in-from-bottom-2 duration-300`}
+										className={`flex gap-4 ${msg.role === "assistant" ? "bg-transparent" : ""
+											} animate-in slide-in-from-bottom-2 duration-300`}
 									>
 										<div
-											className={`w-8 h-8 rounded-full flex items-center justify-center flex-shrink-0 mt-1 shadow-sm ${
-												msg.role === "assistant"
-													? "bg-primary text-primary-foreground ring-2 ring-primary/20"
-													: "bg-gray-200 dark:bg-gray-700 text-gray-600 dark:text-gray-300"
-											}`}
+											className={`w-8 h-8 rounded-full flex items-center justify-center flex-shrink-0 mt-1 shadow-sm ${msg.role === "assistant"
+												? "bg-primary text-primary-foreground ring-2 ring-primary/20"
+												: "bg-gray-200 dark:bg-gray-700 text-gray-600 dark:text-gray-300"
+												}`}
 										>
 											{msg.role === "assistant" ? (
 												<Bot className="h-5 w-5" />
@@ -966,19 +965,18 @@ function DashboardChatPageContent() {
 											)}
 
 											<div
-												className={`prose prose-sm max-w-none dark:prose-invert ${
-													msg.role === "user"
-														? "bg-white dark:bg-gray-800 p-4 rounded-2xl rounded-tl-none shadow-sm border border-gray-100 dark:border-gray-700"
-														: ""
-												}`}
+												className={`prose prose-sm max-w-none dark:prose-invert ${msg.role === "user"
+													? "bg-white dark:bg-gray-800 p-4 rounded-2xl rounded-tl-none shadow-sm border border-gray-100 dark:border-gray-700"
+													: ""
+													}`}
 											>
 												{msg.role === "assistant" ? (
 													<>
 														{/* Show loading indicator for placeholder and progress messages */}
 														{msg.content.includes("Analyzing your question") ||
-														msg.content.includes("Generating response") ||
-														msg.content.includes("Processing") ||
-														msg.content.includes("Synthesizing") ? (
+															msg.content.includes("Generating response") ||
+															msg.content.includes("Processing") ||
+															msg.content.includes("Synthesizing") ? (
 															<div className="flex items-center gap-2 text-gray-600 dark:text-gray-400">
 																<Loader2 className="h-4 w-4 animate-spin" />
 																<span>{msg.content}</span>
@@ -1130,7 +1128,7 @@ function DashboardChatPageContent() {
 																						<p className="text-xs font-medium text-gray-900 dark:text-gray-100 truncate group-hover:text-primary transition-colors">
 																							{truncateTitle(
 																								source.title ||
-																									"Untitled Document"
+																								"Untitled Document"
 																							)}
 																						</p>
 																						<div className="flex items-center gap-2 mt-1">

@@ -25,7 +25,7 @@ import { toast } from "sonner";
 import { ChatMessage } from "@/lib/ai-service-enhanced";
 import ReactMarkdown from "react-markdown";
 import remarkGfm from "remark-gfm";
-import ConversationSidebar from "@/components/ConversationSidebar";
+import ConversationList from "@/components/ConversationList";
 
 interface ChatSource {
 	id: number;
@@ -1001,12 +1001,17 @@ export default function AdminChatPage() {
 	return (
 		<div className="flex h-full">
 			{/* Conversation Sidebar */}
-			<ConversationSidebar
-				currentConversationId={currentConversationId}
-				onSelectConversation={loadConversation}
-				onNewConversation={startNewConversation}
-				refreshTrigger={sidebarRefreshTrigger}
-			/>
+			{/* Conversation Sidebar */}
+			<div className="w-64 bg-gray-900 border-r border-gray-800 flex-shrink-0">
+				<ConversationList
+					isCollapsed={false}
+					selectedId={currentConversationId}
+					onSelectConversation={loadConversation}
+					onNewConversation={startNewConversation}
+					refreshTrigger={sidebarRefreshTrigger}
+					basePath="/api/admin/conversations"
+				/>
+			</div>
 
 			{/* Main Chat Area */}
 			<div className="flex-1 p-2 overflow-hidden">
@@ -1115,20 +1120,20 @@ export default function AdminChatPage() {
 										<div
 											key={message.id}
 											className={`flex gap-3 ${message.role === "user"
-													? "justify-end"
-													: "justify-start"
+												? "justify-end"
+												: "justify-start"
 												}`}
 										>
 											<div
 												className={`flex gap-3 max-w-[90%] ${message.role === "user"
-														? "flex-row-reverse"
-														: "flex-row"
+													? "flex-row-reverse"
+													: "flex-row"
 													}`}
 											>
 												<div
 													className={`flex h-8 w-8 shrink-0 select-none items-center justify-center rounded-full ${message.role === "user"
-															? "bg-blue-500 text-white"
-															: "bg-gray-200 text-gray-700"
+														? "bg-blue-500 text-white"
+														: "bg-gray-200 text-gray-700"
 														}`}
 												>
 													{message.role === "user" ? (
@@ -1139,8 +1144,8 @@ export default function AdminChatPage() {
 												</div>
 												<div
 													className={`rounded-lg px-4 py-2 break-words ${message.role === "user"
-															? "bg-blue-500 text-white"
-															: "bg-gray-100 text-gray-900"
+														? "bg-blue-500 text-white"
+														: "bg-gray-100 text-gray-900"
 														}`}
 												>
 													<div className="text-sm break-words prose prose-sm max-w-none">
@@ -1293,8 +1298,8 @@ export default function AdminChatPage() {
 													</div>
 													<div
 														className={`text-xs mt-1 flex items-center gap-2 ${message.role === "user"
-																? "text-blue-100"
-																: "text-gray-500"
+															? "text-blue-100"
+															: "text-gray-500"
 															}`}
 													>
 														<span>{formatTimestamp(message.timestamp)}</span>

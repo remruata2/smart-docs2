@@ -39,15 +39,19 @@ interface Conversation {
 interface ConversationListProps {
 	isCollapsed: boolean;
 	onSelectConversation?: (id: number) => void;
+	onNewConversation?: () => void;
 	basePath?: string;
 	refreshTrigger?: number;
+	selectedId?: number | null;
 }
 
 export default function ConversationList({
 	isCollapsed,
 	onSelectConversation,
+	onNewConversation,
 	basePath = "/api/dashboard/conversations",
 	refreshTrigger = 0,
+	selectedId,
 }: ConversationListProps) {
 	const router = useRouter();
 	const [conversations, setConversations] = useState<Conversation[]>([]);
@@ -77,7 +81,11 @@ export default function ConversationList({
 	}, [refreshTrigger]);
 
 	const handleNewConversation = async () => {
-		router.push("/app/chat");
+		if (onNewConversation) {
+			onNewConversation();
+		} else {
+			router.push("/app/chat");
+		}
 	};
 
 	const handleSelectConversation = (id: number) => {
@@ -176,7 +184,7 @@ export default function ConversationList({
 
 	const searchParams = useSearchParams();
 	const currentIdParam = searchParams.get("id");
-	const currentConversationId = currentIdParam ? parseInt(currentIdParam) : null;
+	const currentConversationId = selectedId !== undefined ? selectedId : (currentIdParam ? parseInt(currentIdParam) : null);
 
 	// Show only 5 recent conversations in sidebar
 	const recentConversations = conversations.slice(0, 5);
