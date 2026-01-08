@@ -297,9 +297,13 @@ export async function generateChapterPDF(
     // Wrap browser launch in a timeout to catch hangs (common on servers without Chrome)
     let browser;
     try {
+      // Only set explicit path on Linux (Ubuntu servers), macOS uses Puppeteer's bundled Chromium
+      const isLinux = process.platform === 'linux';
+      const executablePath = process.env.PUPPETEER_EXECUTABLE_PATH || (isLinux ? '/usr/bin/chromium-browser' : undefined);
+
       const launchPromise = puppeteer.launch({
         headless: true,
-        executablePath: process.env.PUPPETEER_EXECUTABLE_PATH || '/usr/bin/chromium-browser',
+        ...(executablePath && { executablePath }),
         args: [
           '--no-sandbox',
           '--disable-setuid-sandbox',
