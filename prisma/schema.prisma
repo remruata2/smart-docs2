@@ -866,6 +866,10 @@ model Syllabus {
   subject       String  @db.VarChar(255)
   academic_year String? @db.VarChar(20)
 
+  // Exam Category for textbook generation prompts
+  // Values: academic_board, engineering, medical, government_prelims, government_mains, banking, university, general
+  exam_category String? @default("academic_board") @db.VarChar(50)
+
   // Content
   raw_text String? @db.Text
 

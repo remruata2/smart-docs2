@@ -47,6 +47,7 @@ export default function CreateSyllabusPage() {
         class_level: '',
         custom_class_level: '',
         stream: '',
+        exam_category: 'academic_board', // Default to board exams
         academic_year: '2024-2025',
         board: 'MBSE',
         raw_text: ''
@@ -257,6 +258,30 @@ export default function CreateSyllabusPage() {
                                         <SelectItem value="Commerce">Commerce</SelectItem>
                                     </SelectContent>
                                 </Select>
+                            </div>
+                            <div className="space-y-2">
+                                <Label htmlFor="exam_category">Exam Category *</Label>
+                                <Select
+                                    value={formData.exam_category}
+                                    onValueChange={(val) => handleSelectChange('exam_category', val)}
+                                >
+                                    <SelectTrigger>
+                                        <SelectValue placeholder="Select Exam Category" />
+                                    </SelectTrigger>
+                                    <SelectContent>
+                                        <SelectItem value="academic_board">Academic (Board Exams - CBSE/MBSE)</SelectItem>
+                                        <SelectItem value="engineering">Engineering (JEE Main/Advanced)</SelectItem>
+                                        <SelectItem value="medical">Medical (NEET)</SelectItem>
+                                        <SelectItem value="government_prelims">Government Prelims (UPSC/MPSC/SSC)</SelectItem>
+                                        <SelectItem value="government_mains">Government Mains (UPSC/State)</SelectItem>
+                                        <SelectItem value="banking">Banking & Finance (IBPS/SBI)</SelectItem>
+                                        <SelectItem value="university">University/College</SelectItem>
+                                        <SelectItem value="general">General Purpose</SelectItem>
+                                    </SelectContent>
+                                </Select>
+                                <p className="text-xs text-muted-foreground">
+                                    This determines the content style, question patterns, and exam tips.
+                                </p>
                             </div>
                         </div>
                         <div className="mt-4 space-y-2">

@@ -115,6 +115,7 @@ export interface CreateSyllabusInput {
   subject: string;
   board?: string;
   academic_year?: string;
+  exam_category?: string; // Exam category for textbook generation prompts
   raw_text?: string;
   units?: ParsedUnit[]; // Support for manual entry
 }
@@ -142,10 +143,15 @@ export interface ParsedChapter {
   subtopics: string[];
 }
 
+// Import exam category type
+import type { ExamCategory } from './exam-prompts';
+export type { ExamCategory };
+
 // Generation options
 export interface ChapterGenerationOptions {
   includeExamHighlights: boolean;
-  examTypes: ('NEET' | 'JEE' | 'CUET')[];
+  examCategory?: ExamCategory; // Primary exam category (auto-detected or manual)
+  examTypes?: string[]; // Specific exams within the category (e.g., ['JEE Main', 'JEE Advanced'])
   difficulty: 'basic' | 'intermediate' | 'advanced';
   thinkingLevel: 'low' | 'high';
   customPrompt?: string; // Optional extra prompt from admin
@@ -165,7 +171,7 @@ export interface GeneratedMCQ {
   correctAnswer: number; // Index of correct option
   explanation: string;
   difficulty: 'easy' | 'medium' | 'hard';
-  examRelevance?: ('NEET' | 'JEE' | 'CUET')[];
+  examRelevance?: string[]; // Dynamic exam types (e.g., ['UPSC Prelims', 'MPSC'])
 }
 
 export interface GeneratedShortAnswer {
@@ -202,7 +208,7 @@ export interface ChapterContentGenerationRequest {
 export interface GeneratedChapterContent {
   markdown_content: string;
   exam_highlights?: {
-    exam_type: 'NEET' | 'JEE' | 'CUET';
+    exam_type: string; // Dynamic exam type (e.g., 'UPSC Prelims', 'JEE Main', 'NEET')
     key_points: string[];
     expected_questions: string[];
   }[];

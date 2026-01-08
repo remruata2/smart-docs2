@@ -2,13 +2,69 @@
  * Subject-Specific Prompt Instructions
  * 
  * Returns tailored instructions based on the subject to prevent context pollution.
+ * Now also integrates with exam category for exam-aware Rule of 3 levels.
  * - Math: Python plots for precision, proofs, Rule of 3
  * - Science: Virtual Labs, diagrams, mnemonics
  * - Humanities: Case studies, narratives, primary sources
  */
 
-export function getSubjectInstructions(subjectName: string, classLevel: string): string {
+import type { ExamCategory } from './exam-prompts';
+
+/**
+ * Get Rule of 3 level labels based on exam category
+ * This makes the difficulty progression relevant to the target exam
+ */
+function getRule3Levels(examCategory?: ExamCategory): { level1: string; level2: string; level3: string } {
+   switch (examCategory) {
+      case 'engineering':
+         return {
+            level1: 'JEE Main Level (Direct Application)',
+            level2: 'JEE Main+ (Multi-step Problem)',
+            level3: 'JEE Advanced (Multi-concept + Traps)'
+         };
+      case 'medical':
+         return {
+            level1: 'NCERT Direct (Definition-based)',
+            level2: 'NEET Standard (Application)',
+            level3: 'NEET High-Yield (Exceptions + Tricky)'
+         };
+      case 'government_prelims':
+         return {
+            level1: 'Factual Recall (Direct Statement)',
+            level2: 'Application (Multi-statement MCQ)',
+            level3: 'Elimination Required (Tricky Options)'
+         };
+      case 'government_mains':
+         return {
+            level1: '150-Word Answer (Basic Coverage)',
+            level2: '250-Word Answer (With Examples)',
+            level3: 'Essay Level (Multi-dimensional Analysis)'
+         };
+      case 'banking':
+         return {
+            level1: 'Speed Drill (30 seconds)',
+            level2: 'Standard (45 seconds)',
+            level3: 'DI/Puzzle Based (60+ seconds)'
+         };
+      case 'university':
+         return {
+            level1: '2-Mark (Short Answer)',
+            level2: '5-Mark (Descriptive)',
+            level3: '10-Mark (Essay/Numerical)'
+         };
+      case 'academic_board':
+      default:
+         return {
+            level1: 'Board Level (Drill/Direct)',
+            level2: 'CBSE Standard (Word Problem)',
+            level3: 'Competitive (JEE/NEET Style)'
+         };
+   }
+}
+
+export function getSubjectInstructions(subjectName: string, classLevel: string, examCategory?: ExamCategory): string {
    const normalizedSubject = subjectName.toLowerCase();
+   const r3 = getRule3Levels(examCategory);
 
    // 🧮 MATHEMATICS: Precision, Python Plots, Proofs
    if (
@@ -45,9 +101,9 @@ export function getSubjectInstructions(subjectName: string, classLevel: string):
 
 3. 📐 THE "RULE OF 3" EXAMPLES:
    - Every major formula MUST have 3 Solved Examples:
-     - **Level 1 (Drill):** Direct formula application.
-     - **Level 2 (Board):** Standard word problem (CBSE/MBSE style).
-     - **Level 3 (Competitive):** Tricky application (JEE/NEET style).
+     - **Level 1:** ${r3.level1}
+     - **Level 2:** ${r3.level2}
+     - **Level 3:** ${r3.level3}
 
 4. 📜 THEORETICAL RIGOR:
    - If the syllabus mentions "Proof", you MUST provide the formal mathematical proof in a callout block.
@@ -109,9 +165,9 @@ export function getSubjectInstructions(subjectName: string, classLevel: string):
 
 6. 📐 THE "RULE OF 3" NUMERICAL LADDER:
    - Every major formula/law MUST have 3 Numerical Problems:
-     - **Level 1 (Drill):** Direct substitution into the formula.
-     - **Level 2 (Board):** Standard board exam style problem (CBSE/MBSE).
-     - **Level 3 (Competitive):** Tricky multi-step problem (JEE/NEET style).
+     - **Level 1:** ${r3.level1}
+     - **Level 2:** ${r3.level2}
+     - **Level 3:** ${r3.level3}
    - Show complete solutions with units and significant figures.
 
 7. 📊 DERIVATIONS & CALCULATIONS:
@@ -153,9 +209,9 @@ export function getSubjectInstructions(subjectName: string, classLevel: string):
 
 6. 📐 THE "RULE OF 3" APPLICATION LADDER:
    - Every grammar rule or literary concept MUST have 3 Examples:
-     - **Level 1 (Recognition):** Identify the concept in a given sentence/passage.
-     - **Level 2 (Usage):** Use the concept correctly in a sentence.
-     - **Level 3 (Creative):** Apply in original writing or complex analysis.
+     - **Level 1:** ${r3.level1}
+     - **Level 2:** ${r3.level2}
+     - **Level 3:** ${r3.level3}
 `;
    }
 
@@ -196,9 +252,9 @@ export function getSubjectInstructions(subjectName: string, classLevel: string):
 
 7. 📐 THE "RULE OF 3" ANALYSIS LADDER:
    - Every major concept/event MUST have 3 Practice Questions:
-     - **Level 1 (Recall):** Basic fact identification (Who, What, When, Where).
-     - **Level 2 (Explain):** Cause-effect analysis or significance explanation.
-     - **Level 3 (Evaluate):** Critical thinking, compare-contrast, or essay-style discussion.
+     - **Level 1:** ${r3.level1}
+     - **Level 2:** ${r3.level2}
+     - **Level 3:** ${r3.level3}
 `;
    }
 
@@ -210,31 +266,30 @@ export function getSubjectInstructions(subjectName: string, classLevel: string):
       normalizedSubject.includes('it')
    ) {
       return `
-*** SUBJECT-SPECIFIC INSTRUCTIONS: COMPUTER SCIENCE ***
+*** SUBJECT-SPECIFIC INSTRUCTIONS: COMPUTER SCIENCE & IT ***
 
-1. 💻 CODE EXAMPLES:
-   - Include complete, runnable code snippets for every programming concept.
-   - Use proper syntax highlighting with language tags (python, java, cpp).
-   - Show input, code, and expected output.
+1. 💻 CODE & VISUALIZATION:
+   - **Side-by-Side:** When teaching HTML/CSS or UI concepts, you MUST describe the code and then immediately describe or provide an [IMAGE: description] of the **Rendered Output**.
+   - **Syntax Highlighting:** Always use specific language blocks (e.g., \`\`\`html, \`\`\`python).
 
-2. 🔍 DRY RUN TRACES:
-   - For algorithms, include step-by-step dry run tables showing variable states.
+2. 🛠️ PRACTICAL SKILLS (MANDATORY):
+   - Include a "Hacker's Corner" or "Pro Tip" section.
+   - Teach **Keyboard Shortcuts** (Ctrl+C, Ctrl+V, Alt+Tab).
+   - Teach **Search Operators** (site:, filetype:).
+   - Teach **VS Code / Tooling** tricks.
 
-3. 🖼️ VISUALS:
-   - Use [IMAGE: description] for flowcharts, data structure diagrams, and architecture visuals.
-   - Do NOT use python-plot for CS diagrams.
+3. 🖼️ SYSTEM ARCHITECTURE:
+   - Use Analogies for Hardware (CPU=Brain, RAM=Workbench, HDD=Warehouse).
+   - Use Flowcharts for Algorithms.
 
 4. ⚡ COMPLEXITY ANALYSIS:
-   - For every algorithm, include Time and Space complexity with explanation.
+   - For every major algorithm, include Time/Space complexity.
 
-5. 💡 COMMON ERRORS:
-   - Include a "Debug Corner" showing common mistakes and how to fix them.
-
-6. 📐 THE "RULE OF 3" COMPLEXITY LADDER:
+5. 📐 THE "RULE OF 3" COMPLEXITY LADDER:
    - Every algorithm/concept MUST have 3 Code Examples:
-     - **Level 1 (Basic):** Simple, direct implementation.
-     - **Level 2 (Standard):** Typical interview/exam problem.
-     - **Level 3 (Optimized):** Edge cases, time/space optimization, or advanced variation.
+     - **Level 1:** ${r3.level1}
+     - **Level 2:** ${r3.level2}
+     - **Level 3:** ${r3.level3}
 `;
    }
 
@@ -260,9 +315,9 @@ export function getSubjectInstructions(subjectName: string, classLevel: string):
 
 5. 📐 THE "RULE OF 3" PRACTICE LADDER:
    - Every major concept MUST have 3 Practice Activities:
-     - **Level 1 (Basic):** Simple recall or identification.
-     - **Level 2 (Application):** Hands-on activity or practical exercise.
-     - **Level 3 (Creative):** Project or extended response requiring synthesis.
+     - **Level 1:** ${r3.level1}
+     - **Level 2:** ${r3.level2}
+     - **Level 3:** ${r3.level3}
 `;
 }
 
@@ -303,15 +358,13 @@ export function getUniversalInstructions(): string {
    - **"Competitive Corner"**: Shortcuts, tricks, or advanced tips for JEE/NEET/CUET.
 
 5. � EXERCISES (END OF CHAPTER - MANDATORY):
-   - At the END of the chapter, include a dedicated "## Exercises" section with:
-     - **MCQs (10-15 questions)**: Multiple choice with 4 options, include answer key at end
-     - **Short Answer Questions (5-8)**: 2-3 mark questions requiring brief explanations
-     - **Long Answer Questions (3-5)**: 5-6 mark questions requiring detailed answers
-     - **Numerical Problems (3-5)**: For Science/Math, include calculation-based problems with answers
-     - **HOTS (Higher Order Thinking Skills) (2-3)**: Application-based or analytical questions
-   - Format each question clearly with question number
-   - Include difficulty level tags: (Easy), (Medium), (Hard)
-   - Provide **Answer Key** at the very end for self-assessment
+   - **CRITICAL**: Do NOT write the exercises in the markdown body.
+   - You MUST populate the JSON fields \`mcqs\`, \`short_answers\`, and \`long_answers\` with high-quality questions.
+   - The system will automatically append them to the chapter in a standardized format.
+   - **Task**: Generate extensive practice material in the JSON arrays:
+     - **MCQs**: As requested by exam config (15-50 questions).
+     - **Short/Long Answers**: As requested.
+     - **HOTS**: Include difficult application questions.
 
 6. 📄 FORMATTING STANDARDS:
    - Use Markdown headers: ## for main sections, ### for subsections.
