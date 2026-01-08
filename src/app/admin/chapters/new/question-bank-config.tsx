@@ -9,9 +9,9 @@ export interface QuestionBankConfigState {
 }
 
 const DEFAULT_CONFIG: QuestionBankConfigState = {
-    easy: { MCQ: 20, TRUE_FALSE: 20, FILL_IN_BLANK: 20, SHORT_ANSWER: 10, LONG_ANSWER: 10 },
-    medium: { MCQ: 20, TRUE_FALSE: 20, FILL_IN_BLANK: 20, SHORT_ANSWER: 10, LONG_ANSWER: 10 },
-    hard: { MCQ: 15, TRUE_FALSE: 15, FILL_IN_BLANK: 10, SHORT_ANSWER: 10, LONG_ANSWER: 10 },
+    easy: { MCQ: 30, TRUE_FALSE: 30, FILL_IN_BLANK: 30, SHORT_ANSWER: 10, LONG_ANSWER: 10 },
+    medium: { MCQ: 30, TRUE_FALSE: 30, FILL_IN_BLANK: 30, SHORT_ANSWER: 10, LONG_ANSWER: 10 },
+    hard: { MCQ: 20, TRUE_FALSE: 20, FILL_IN_BLANK: 20, SHORT_ANSWER: 10, LONG_ANSWER: 10 },
 };
 
 export function QuestionBankConfig({
