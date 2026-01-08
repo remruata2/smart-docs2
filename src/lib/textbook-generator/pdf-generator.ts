@@ -279,22 +279,29 @@ export async function generateChapterPDF(
     const html = await markdownToHtml(content, chapter.title, chapter.chapter_number);
 
     // Generate PDF using Puppeteer
+    console.log(`[PDF-GEN] Launching Puppeteer...`);
     const puppeteer = await getPuppeteer();
+    console.log(`[PDF-GEN] Puppeteer loaded, launching browser...`);
     const browser = await puppeteer.launch({
       headless: true,
       args: ['--no-sandbox', '--disable-setuid-sandbox'],
     });
+    console.log(`[PDF-GEN] Browser launched, creating page...`);
 
     const page = await browser.newPage();
+    console.log(`[PDF-GEN] Setting HTML content...`);
     await page.setContent(html, { waitUntil: 'networkidle0' });
 
+    console.log(`[PDF-GEN] Generating PDF buffer...`);
     const pdfBuffer = await page.pdf({
       format: 'A4',
       printBackground: true,
       margin: { top: '2cm', right: '2cm', bottom: '2cm', left: '2cm' },
     });
+    console.log(`[PDF-GEN] PDF buffer created (${pdfBuffer.length} bytes), closing browser...`);
 
     await browser.close();
+    console.log(`[PDF-GEN] Browser closed, uploading to Supabase...`);
 
     // Upload to Supabase
     if (!supabaseAdmin) {

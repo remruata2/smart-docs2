@@ -106,8 +106,14 @@ export async function POST(request: NextRequest, { params }: RouteParams) {
                 // 4. Generate PDF
                 if (generatePdf) {
                     console.log(`[API] Generating PDF for chapter ${chapterIdNum}...`);
-                    await generateChapterPDF(chapterIdNum);
-                    console.log(`[API] PDF generation completed for chapter ${chapterIdNum}`);
+                    const pdfResult = await generateChapterPDF(chapterIdNum);
+                    if (pdfResult.success) {
+                        console.log(`[API] PDF generation completed for chapter ${chapterIdNum}: ${pdfResult.result.pdf_url}`);
+                    } else {
+                        console.error(`[API] PDF generation FAILED for chapter ${chapterIdNum}: ${pdfResult.error}`);
+                        // Don't throw - allow chapter to still be marked as COMPLETED
+                        // The PDF can be regenerated later
+                    }
                 }
 
                 // 5. Mark Chapter as COMPLETED
