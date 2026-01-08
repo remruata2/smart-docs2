@@ -3,7 +3,7 @@
 import { useState, useTransition, useEffect } from "react";
 import { useRouter } from "next/navigation";
 import { toast } from "sonner";
-import { Wand2, Sparkles, Loader2, Trash2, FileSearch } from "lucide-react";
+import { Wand2, Sparkles, Loader2, Trash2, FileSearch, Zap } from "lucide-react";
 import { Button } from "@/components/ui/button";
 
 interface ChapterListClientProps {
@@ -128,6 +128,26 @@ export default function ChapterListClient({ chapters, onDelete }: ChapterListCli
                 router.refresh();
             } catch (error: any) {
                 toast.error(error.message || "Failed to delete chapter");
+            }
+        });
+    };
+
+    const handleClearCache = async (id: string, title: string) => {
+        if (!confirm(`Clear AI response cache for chapter "${title}"?`)) return;
+
+        startTransition(async () => {
+            try {
+                const response = await fetch(`/api/admin/chapters/${id}/cache`, {
+                    method: 'DELETE',
+                });
+                const data = await response.json();
+                if (data.success) {
+                    toast.success(`Cleared ${data.entriesCleared} entries for "${title}"`);
+                } else {
+                    toast.error("Failed to clear cache");
+                }
+            } catch (error) {
+                toast.error("Error clearing cache");
             }
         });
     };
@@ -275,6 +295,20 @@ export default function ChapterListClient({ chapters, onDelete }: ChapterListCli
                                                 className="h-8 border-red-200 text-red-700 hover:bg-red-50 hover:text-red-800"
                                             >
                                                 <Trash2 className="w-4 h-4" />
+                                            </Button>
+
+                                            <Button
+                                                variant="outline"
+                                                size="sm"
+                                                onClick={(e) => {
+                                                    e.stopPropagation();
+                                                    handleClearCache(chapter.id.toString(), chapter.title);
+                                                }}
+                                                disabled={isPending}
+                                                className="h-8 border-yellow-200 text-yellow-700 hover:bg-yellow-50 hover:text-yellow-800"
+                                                title="Clear AI Cache"
+                                            >
+                                                <Zap className="w-4 h-4" />
                                             </Button>
                                         </div>
                                     </div>

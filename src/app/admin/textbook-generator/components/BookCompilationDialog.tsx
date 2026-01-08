@@ -21,13 +21,15 @@ interface BookCompilationDialogProps {
     completedChapters: number;
     totalChapters: number;
     onCompile: (options: any) => Promise<void>;
+    trigger?: React.ReactNode;
 }
 
 export function BookCompilationDialog({
     textbookId,
     completedChapters,
     totalChapters,
-    onCompile
+    onCompile,
+    trigger
 }: BookCompilationDialogProps) {
     const [open, setOpen] = useState(false);
     const [loading, setLoading] = useState(false);
@@ -56,10 +58,12 @@ export function BookCompilationDialog({
     return (
         <Dialog open={open} onOpenChange={setOpen}>
             <DialogTrigger asChild>
-                <Button className="gap-2" disabled={!isReady}>
-                    <Book className="w-4 h-4" />
-                    Compile Book PDF
-                </Button>
+                {trigger || (
+                    <Button className="gap-2" disabled={!isReady}>
+                        <Book className="w-4 h-4" />
+                        Compile Book PDF
+                    </Button>
+                )}
             </DialogTrigger>
             <DialogContent>
                 <DialogHeader>

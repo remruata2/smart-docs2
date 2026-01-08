@@ -32,7 +32,10 @@ export default async function StudyMaterialsPage({
         include: {
             subject: { select: { id: true, name: true } }
         },
+        // Include pdf_url for textbook viewer
     });
+    // Explicitly select pdf_url (it's on the Chapter model)
+    const chapterWithPdf = chapter ? { ...chapter, pdf_url: chapter.pdf_url } : null;
 
     if (!chapter) {
         redirect("/app/subjects");
@@ -121,6 +124,7 @@ export default async function StudyMaterialsPage({
             <StudyMaterialsClient
                 materials={materials}
                 chapterId={chapterId}
+                pdfUrl={chapter.pdf_url || undefined}
             />
         </div>
     );

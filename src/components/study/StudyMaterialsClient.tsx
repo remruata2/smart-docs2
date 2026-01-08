@@ -5,7 +5,8 @@ import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { FlashcardViewer } from "./FlashcardViewer";
 import { VideoGallery } from "./VideoGallery";
-import { BookOpen, Video, FileText, Sparkles, Brain } from "lucide-react";
+import { SecurePdfViewer } from "./SecurePdfViewer";
+import { BookOpen, Video, FileText, Sparkles, Brain, BookMarked } from "lucide-react";
 import ReactMarkdown from "react-markdown";
 import remarkMath from "remark-math";
 import rehypeKatex from "rehype-katex";
@@ -15,9 +16,10 @@ import { GenerateStudyMaterialsButton } from "./GenerateStudyMaterialsButton";
 interface StudyMaterialsClientProps {
     materials: any;
     chapterId: string;
+    pdfUrl?: string;
 }
 
-export function StudyMaterialsClient({ materials, chapterId }: StudyMaterialsClientProps) {
+export function StudyMaterialsClient({ materials, chapterId, pdfUrl }: StudyMaterialsClientProps) {
 
     const [activeTab, setActiveTab] = useState("summary");
 
@@ -78,6 +80,15 @@ export function StudyMaterialsClient({ materials, chapterId }: StudyMaterialsCli
                                 <Video className="w-5 h-5" />
                                 Videos
                             </TabsTrigger>
+                            {pdfUrl && (
+                                <TabsTrigger
+                                    value="textbook"
+                                    className="px-6 py-3 rounded-lg data-[state=active]:bg-indigo-600 data-[state=active]:text-white data-[state=active]:shadow-lg transition-all duration-200 gap-2 text-base font-medium cursor-pointer"
+                                >
+                                    <BookMarked className="w-5 h-5" />
+                                    Textbook
+                                </TabsTrigger>
+                            )}
                         </>
                     )}
                 </TabsList>
@@ -168,6 +179,12 @@ export function StudyMaterialsClient({ materials, chapterId }: StudyMaterialsCli
                     </Card>
                 )}
             </TabsContent>
+
+            {pdfUrl && (
+                <TabsContent value="textbook" className="mt-0 outline-none">
+                    <SecurePdfViewer pdfUrl={pdfUrl} />
+                </TabsContent>
+            )}
         </Tabs>
     );
 }

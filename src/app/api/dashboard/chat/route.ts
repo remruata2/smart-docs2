@@ -19,6 +19,7 @@ import { generateChatImage, detectImageGenerationRequest, inferImageType } from 
 import { checkImageGenerationLimit, IMAGE_GENERATION_DAILY_LIMIT } from "@/lib/image-generation-limits";
 import { prisma } from "@/lib/prisma";
 import { checkAIFeatureAccess } from "@/lib/trial-access";
+import { updateCachedResponseImages } from "@/lib/response-cache";
 
 export async function POST(request: NextRequest) {
 	try {
@@ -186,6 +187,7 @@ export async function POST(request: NextRequest) {
 						let sources: any[] = [];
 						let tokenCount: any = {};
 						let chartData: any = null;
+						let cacheKey: string | null = null;
 
 						// Accumulate full text to detect image generation requests
 						let fullResponseText = "";
@@ -206,6 +208,9 @@ export async function POST(request: NextRequest) {
 									analysisUsed: chunk.analysisUsed,
 									stats: chunk.stats,
 								};
+								if (chunk.cacheKey) {
+									cacheKey = chunk.cacheKey;
+								}
 								// Send metadata event
 								const data = JSON.stringify({ type: "metadata", ...metadata });
 								controller.enqueue(encoder.encode(`data: ${data}\n\n`));
@@ -283,6 +288,15 @@ export async function POST(request: NextRequest) {
 											});
 											controller.enqueue(encoder.encode(`data: ${imageData}\n\n`));
 											console.log(`[IMAGE-GEN] Successfully generated image: ${imageResult.imageUrl}`);
+
+											// Update cache with the generated image
+											if (cacheKey) {
+												console.log(`[CACHE] Updating cache key ${cacheKey} with image`);
+												// Run in background, don't await
+												updateCachedResponseImages(cacheKey, [imageResult.imageUrl]).catch(err =>
+													console.error("[CACHE] Failed to update cache with image:", err)
+												);
+											}
 										} else {
 											console.error(`[IMAGE-GEN] Failed to generate image: ${imageResult.error}`);
 											// Send error but don't fail the whole request

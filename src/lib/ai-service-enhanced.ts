@@ -9,6 +9,11 @@ import { HybridSearchService } from "./hybrid-search";
 import { getSettingInt, getSettingString } from "@/lib/app-settings";
 import { processChunkedAnalyticalQuery } from "./chunked-processing";
 import { ChartSchema } from "@/lib/chart-schema";
+import {
+	generateCacheKey,
+	getCachedResponse,
+	setCachedResponse,
+} from "@/lib/response-cache";
 import { generateObject } from "ai";
 import { createGoogleGenerativeAI } from "@ai-sdk/google";
 import { z } from "zod";
@@ -2821,6 +2826,7 @@ export async function* processChatMessageEnhancedStream(
 		stats?: any;
 		progress?: string;
 		chartData?: any;
+		cacheKey?: string;
 	},
 	void,
 	unknown
@@ -2832,6 +2838,7 @@ export async function* processChatMessageEnhancedStream(
 	let analysisInputTokens = 0;
 	let analysisOutputTokens = 0;
 	let analysis: any = null;
+	let semanticCacheKey: string | undefined;
 
 	try {
 		analysis = await analyzeQueryForSearch(question, conversationHistory, opts);
@@ -2868,6 +2875,53 @@ export async function* processChatMessageEnhancedStream(
 	} catch (error) {
 		console.error("[CHAT ANALYSIS] Query analysis failed:", error);
 		queryForSearch = question;
+	}
+
+	// 1. CHECK CACHE - Use analysis result for semantic key
+	if (analysisUsed) {
+		try {
+			const cacheKey = generateCacheKey({
+				coreSearchTerms: analysis.coreSearchTerms,
+				queryType: analysis.queryType,
+				chapterId: filters?.chapterId,
+				subjectId: filters?.subjectId,
+			});
+			semanticCacheKey = cacheKey; // Store for later usage (e.g. image caching)
+
+			const cachedResponse = await getCachedResponse(cacheKey);
+
+			if (cachedResponse) {
+				console.log("[CHAT CACHE] Using cached response");
+				// Yield metadata
+				yield {
+					type: "metadata",
+					analysisUsed: true,
+					queryType: analysis.queryType,
+					searchQuery: queryForSearch,
+				};
+
+				// Yield full text immediately
+				yield { type: "token", text: cachedResponse.text };
+
+				// Yield cached images if any
+				if (cachedResponse.images && cachedResponse.images.length > 0) {
+					const imageMarkdown = cachedResponse.images.map(url => `\n\n![Generated Image](${url})`).join("");
+					yield { type: "token", text: imageMarkdown };
+				}
+
+				// Yield done with cached tokens
+				yield {
+					type: "done",
+					tokenCount: {
+						input: cachedResponse.inputTokens,
+						output: cachedResponse.outputTokens,
+					},
+				};
+				return;
+			}
+		} catch (error) {
+			console.error("[CHAT CACHE] Error checking cache:", error);
+		}
 	}
 
 	// Search for relevant records
@@ -2995,6 +3049,7 @@ export async function* processChatMessageEnhancedStream(
 		queryType,
 		analysisUsed,
 		stats: searchStats,
+		cacheKey: semanticCacheKey,
 	};
 
 	// Check if we need chunked processing for large analytical queries
@@ -3149,6 +3204,35 @@ export async function* processChatMessageEnhancedStream(
 		} catch (error) {
 			console.error("[CHAT PROCESSING] Streaming error:", error);
 			throw error;
+		}
+	}
+
+	// 2. STORE IN CACHE - If analysis was used and we have a response
+	if (analysisUsed && fullResponseText && fullResponseText.length > 50) {
+		try {
+			const cacheKey = generateCacheKey({
+				coreSearchTerms: analysis.coreSearchTerms,
+				queryType: analysis.queryType,
+				chapterId: filters?.chapterId,
+				subjectId: filters?.subjectId,
+			});
+
+			// Don't await cache storage to avoid blocking the user
+			setCachedResponse(cacheKey, {
+				queryType: analysis.queryType,
+				question: question,
+				chapterId: filters?.chapterId,
+				subjectId: filters?.subjectId,
+				response: {
+					text: fullResponseText,
+					inputTokens: aiInputTokens,
+					outputTokens: aiOutputTokens,
+				},
+			}).catch((err) =>
+				console.error("[CACHE] Background storage failed:", err)
+			);
+		} catch (error) {
+			console.error("[CACHE] Error preparing storage:", error);
 		}
 	}
 

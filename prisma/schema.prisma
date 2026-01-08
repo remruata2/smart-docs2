@@ -266,6 +266,28 @@ model AiModel {
   @@map("ai_models")
 }
 
+/// Cache for AI chat responses to reduce API calls
+model AiResponseCache {
+  id            Int       @id @default(autoincrement())
+  cache_key     String    @unique @db.VarChar(255)
+  query_type    String    @db.VarChar(50)
+  chapter_id    BigInt?
+  subject_id    BigInt?
+  question      String    @db.Text
+  response_text String    @db.Text
+  input_tokens  Int
+  output_tokens Int
+  images        String[]  @default([])
+  hit_count     Int       @default(1)
+  created_at    DateTime  @default(now()) @db.Timestamptz(6)
+  expires_at    DateTime  @db.Timestamptz(6)
+
+  @@index([expires_at], map: "idx_ai_response_cache_expires")
+  @@index([chapter_id], map: "idx_ai_response_cache_chapter")
+  @@index([subject_id], map: "idx_ai_response_cache_subject")
+  @@map("ai_response_cache")
+}
+
 model app_settings {
   key        String    @id
   value      String

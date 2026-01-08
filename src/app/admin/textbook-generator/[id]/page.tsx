@@ -22,8 +22,16 @@ import {
     Clock,
     ChevronRight,
     Sparkles,
-    Eye
+    Eye,
+    Square,
+    History,
 } from 'lucide-react';
+import {
+    DropdownMenu,
+    DropdownMenuContent,
+    DropdownMenuItem,
+    DropdownMenuTrigger,
+} from "@/components/ui/dropdown-menu";
 import { Button } from '@/components/ui/button';
 import { Badge } from '@/components/ui/badge';
 import { Progress } from '@/components/ui/progress';
@@ -89,6 +97,7 @@ export default function TextbookDetailPage({ params }: PageProps) {
     const [loading, setLoading] = useState(true);
     const [error, setError] = useState<string | null>(null);
     const [deleting, setDeleting] = useState(false);
+    const [generatingChapterIds, setGeneratingChapterIds] = useState<number[]>([]);
 
     // Status helpers
     const totalChapters = textbook?.units?.reduce((acc, unit) => acc + unit.chapters.length, 0) || 0;
@@ -117,19 +126,37 @@ export default function TextbookDetailPage({ params }: PageProps) {
         fetchTextbook();
     }, [fetchTextbook]);
 
-    // Polling for generating chapters
+    // Polling for generating chapters - OPTIMIZED: only fetch status of generating chapters
     useEffect(() => {
         if (!textbook) return;
 
-        const isGenerating = textbook.units?.some(u =>
-            u.chapters.some(c => c.status === 'GENERATING')
-        );
+        // Collect IDs of generating chapters
+        const generatingChapterIds = textbook.units?.flatMap(u =>
+            u.chapters.filter(c => c.status === 'GENERATING').map(c => c.id)
+        ) || [];
 
-        if (isGenerating) {
-            const interval = setInterval(fetchTextbook, 5000);
-            return () => clearInterval(interval);
-        }
-    }, [textbook, fetchTextbook]);
+        if (generatingChapterIds.length === 0) return;
+
+        const pollChapterStatuses = async () => {
+            for (const chapterId of generatingChapterIds) {
+                try {
+                    const res = await fetch(
+                        `/api/admin/textbook-generator/textbooks/${resolvedParams.id}/chapters/${chapterId}/status`
+                    );
+                    if (res.ok) {
+                        const data = await res.json();
+                        // Only update if status changed
+                        updateChapterData(chapterId, data.chapter);
+                    }
+                } catch (err) {
+                    console.error(`Failed to poll chapter ${chapterId}:`, err);
+                }
+            }
+        };
+
+        const interval = setInterval(pollChapterStatuses, 5000);
+        return () => clearInterval(interval);
+    }, [textbook, resolvedParams.id, generatingChapterIds, fetchTextbook]);
 
     const handleDelete = async () => {
         try {
@@ -153,6 +180,7 @@ export default function TextbookDetailPage({ params }: PageProps) {
 
             // Optimistic update
             updateChapterStatus(chapterId, 'GENERATING');
+            setGeneratingChapterIds(prev => [...prev, chapterId]);
 
             const res = await fetch(
                 `/api/admin/textbook-generator/textbooks/${resolvedParams.id}/chapters/${chapterId}/generate`,
@@ -177,6 +205,7 @@ export default function TextbookDetailPage({ params }: PageProps) {
                 toast.success('Chapter generated successfully!');
                 // Update local state with new chapter data
                 updateChapterData(chapterId, data.chapter);
+                setGeneratingChapterIds(prev => prev.filter(id => id !== chapterId));
             }
 
             // Refresh full stats
@@ -186,6 +215,59 @@ export default function TextbookDetailPage({ params }: PageProps) {
             console.error(err);
             toast.error(err instanceof Error ? err.message : 'Generation failed');
             updateChapterStatus(chapterId, 'FAILED');
+            setGeneratingChapterIds(prev => prev.filter(id => id !== chapterId));
+        }
+    };
+
+    const handleStopGeneration = async (chapterId: number) => {
+        try {
+            toast.info('Stopping generation...');
+            const response = await fetch(`/api/admin/textbook-generator/textbooks/${resolvedParams.id}/chapters/${chapterId}/stop`, {
+                method: 'POST',
+            });
+
+            if (!response.ok) {
+                const data = await response.json();
+                throw new Error(data.error || 'Failed to stop generation');
+            }
+
+            toast.success("Generation Stopped", {
+                description: "The chapter generation has been stopped.",
+            });
+
+            // Update local state immediately
+            updateChapterData(chapterId, { status: 'PENDING' });
+            // Remove from generating list
+            setGeneratingChapterIds(prev => prev.filter(id => id !== chapterId));
+
+        } catch (error) {
+            console.error('Error stopping generation:', error);
+            toast.error("Failed to stop generation", {
+                description: error instanceof Error ? error.message : 'An unknown error occurred.',
+            });
+        }
+    };
+
+
+
+    const handleClearAllCache = async () => {
+        if (!confirm("Are you sure you want to clear ALL AI response cache? This will affect all chapters.")) return;
+        try {
+            const response = await fetch(`/api/admin/cache`, {
+                method: 'DELETE',
+            });
+            const data = await response.json();
+            if (data.success) {
+                toast.success("Global Cache Cleared", {
+                    description: `Cleared ${data.entriesCleared} cache entries globally.`,
+                });
+            } else {
+                throw new Error(data.error || 'Failed to clear global cache');
+            }
+        } catch (error) {
+            toast.error("Failed to clear global cache", {
+                description: error instanceof Error ? error.message : 'An unknown error occurred.',
+            });
         }
     };
 
@@ -379,7 +461,24 @@ export default function TextbookDetailPage({ params }: PageProps) {
                                 </Button>
                             </Link>
                         )}
-                        <p className="text-sm text-muted-foreground ml-auto">
+                        <div className="flex gap-2 ml-auto">
+                            <Button variant="outline" onClick={handleClearAllCache} className="gap-2">
+                                <History className="w-4 h-4" /> Clear All Cache
+                            </Button>
+                            <BookCompilationDialog
+                                textbookId={textbook.id}
+                                completedChapters={completedChapters}
+                                totalChapters={totalChapters}
+                                onCompile={handleCompileBook}
+                                trigger={
+                                    <Button variant="outline" className="gap-2">
+                                        <BookText className="w-4 h-4" />
+                                        Compile Full Book
+                                    </Button>
+                                }
+                            />
+                        </div>
+                        <p className="text-sm text-muted-foreground">
                             Last updated: {new Date(textbook.updated_at).toLocaleDateString()}
                         </p>
                     </div>
@@ -488,7 +587,19 @@ export default function TextbookDetailPage({ params }: PageProps) {
                                                             </div>
                                                         </div>
 
-                                                        <div className="flex items-center gap-2 opacity-0 group-hover:opacity-100 transition-opacity">
+                                                        <div className={`flex items-center gap-2 ${chapter.status === 'GENERATING' ? 'opacity-100' : 'opacity-0 group-hover:opacity-100'} transition-opacity`}>
+                                                            {chapter.status === 'GENERATING' && (
+                                                                <Button
+                                                                    size="sm"
+                                                                    variant="destructive"
+                                                                    className="gap-2"
+                                                                    onClick={() => handleStopGeneration(chapter.id)}
+                                                                >
+                                                                    <Square className="w-3 h-3" />
+                                                                    Stop
+                                                                </Button>
+                                                            )}
+
                                                             {chapter.content && (
                                                                 <ChapterContentDialog
                                                                     chapter={chapter}
@@ -509,16 +620,18 @@ export default function TextbookDetailPage({ params }: PageProps) {
                                                                 </a>
                                                             )}
 
-                                                            <ChapterGenerationDialog
-                                                                chapter={chapter}
-                                                                onGenerate={(options) => handleGenerateChapter(chapter.id, options)}
-                                                                trigger={
-                                                                    <Button size="sm" variant={chapter.status === 'COMPLETED' ? "outline" : "default"} className="gap-2">
-                                                                        <Sparkles className="w-3 h-3" />
-                                                                        {chapter.status === 'COMPLETED' ? 'Regenerate' : 'Generate'}
-                                                                    </Button>
-                                                                }
-                                                            />
+                                                            {chapter.status !== 'GENERATING' && (
+                                                                <ChapterGenerationDialog
+                                                                    chapter={chapter}
+                                                                    onGenerate={(options) => handleGenerateChapter(chapter.id, options)}
+                                                                    trigger={
+                                                                        <Button size="sm" variant={chapter.status === 'COMPLETED' ? "outline" : "default"} className="gap-2">
+                                                                            <Sparkles className="w-3 h-3" />
+                                                                            {chapter.status === 'COMPLETED' ? 'Regenerate' : 'Generate'}
+                                                                        </Button>
+                                                                    }
+                                                                />
+                                                            )}
                                                         </div>
                                                     </div>
                                                 );

@@ -6,6 +6,7 @@ import { getServerSession } from "next-auth";
 import { authOptions } from "@/lib/auth-options";
 import { isAdmin } from "@/lib/auth";
 import { supabaseAdmin } from "@/lib/supabase";
+import { clearChapterCache } from "@/lib/response-cache";
 
 export async function deleteChapters(chapterIds: string[]) {
     const session = await getServerSession(authOptions);
@@ -47,7 +48,12 @@ export async function deleteChapters(chapterIds: string[]) {
             }
         }
 
-        // 4. Delete chapters (cascading will handle chunks and pages in DB)
+        // 4. Clear cache for these chapters
+        for (const id of ids) {
+            await clearChapterCache(id);
+        }
+
+        // 5. Delete chapters (cascading will handle chunks and pages in DB)
         await prisma.chapter.deleteMany({
             where: {
                 id: { in: ids }
