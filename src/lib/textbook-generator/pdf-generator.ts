@@ -293,10 +293,35 @@ export async function generateChapterPDF(
     console.log(`[PDF-GEN] Launching Puppeteer...`);
     const puppeteer = await getPuppeteer();
     console.log(`[PDF-GEN] Puppeteer loaded, launching browser...`);
-    const browser = await puppeteer.launch({
-      headless: true,
-      args: ['--no-sandbox', '--disable-setuid-sandbox'],
-    });
+
+    // Wrap browser launch in a timeout to catch hangs (common on servers without Chrome)
+    let browser;
+    try {
+      const launchPromise = puppeteer.launch({
+        headless: true,
+        args: [
+          '--no-sandbox',
+          '--disable-setuid-sandbox',
+          '--disable-dev-shm-usage', // Overcome limited resource problems
+          '--disable-gpu',
+          '--single-process', // Required for some environments
+        ],
+      });
+
+      // Timeout after 30 seconds
+      const timeoutPromise = new Promise((_, reject) =>
+        setTimeout(() => reject(new Error('Browser launch timed out after 30s. Chrome/Chromium may not be installed on this server.')), 30000)
+      );
+
+      browser = await Promise.race([launchPromise, timeoutPromise]) as Awaited<ReturnType<typeof puppeteer.launch>>;
+    } catch (launchError) {
+      const errorMsg = launchError instanceof Error ? launchError.message : 'Unknown browser launch error';
+      console.error(`[PDF-GEN] BROWSER LAUNCH FAILED: ${errorMsg}`);
+      console.error(`[PDF-GEN] This usually means Chrome/Chromium is not installed on the server.`);
+      console.error(`[PDF-GEN] Run: sudo apt-get install chromium-browser OR install Chrome dependencies.`);
+      return { success: false, error: `Browser launch failed: ${errorMsg}` };
+    }
+
     console.log(`[PDF-GEN] Browser launched, creating page...`);
 
     const page = await browser.newPage();
