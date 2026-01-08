@@ -227,48 +227,59 @@ export async function generateChapterPDF(
     console.log(`[PDF-GEN] Found ${chapter.images.length} images in database`);
     console.log(`[PDF-GEN] Content has ${(content.match(/\[IMAGE:/g) || []).length} [IMAGE:] tags (after dedup)`);
 
-    for (const image of chapter.images) {
-      if (image.url && image.placement) {
+    // Fetch all images in parallel for speed
+    console.log(`[PDF-GEN] Fetching ${chapter.images.length} images in parallel...`);
+
+    const imageDataPromises = chapter.images
+      .filter(img => img.url && img.placement)
+      .map(async (image) => {
         try {
-          // Fetch the image from Supabase
-          console.log(`[PDF-GEN] Fetching image from: ${image.url}`);
-          const imageResponse = await fetch(image.url);
-
+          const imageResponse = await fetch(image.url!);
           if (!imageResponse.ok) {
-            console.error(`[PDF-GEN] Failed to fetch image: ${imageResponse.status}`);
-            continue;
+            console.error(`[PDF-GEN] Failed to fetch image ${image.id}: ${imageResponse.status}`);
+            return null;
           }
-
-          // Convert to base64
           const imageBuffer = await imageResponse.arrayBuffer();
           const base64Image = Buffer.from(imageBuffer).toString('base64');
           const mimeType = imageResponse.headers.get('content-type') || 'image/jpeg';
-          const dataUri = `data:${mimeType};base64,${base64Image}`;
-
-          // Extract the core ID from the placement field
-          // It might be "[IMAGE: diagram_xyz]" or just "diagram_xyz"
-          const coreId = image.placement
-            .replace(/\[IMAGE:\s*/i, '')
-            .replace(/\]/g, '')
-            .trim();
-
-          console.log(`[PDF-GEN] Extracted Core ID: "${coreId}"`);
-          console.log(`[PDF-GEN] Embedding as base64 (${Math.round(base64Image.length / 1024)}KB)`);
-
-          // Create a regex that matches [IMAGE: coreId] case-insensitively with flexible whitespace
-          const escapedId = coreId.replace(/[.*+?^${}()|[\]\\]/g, '\\$&');
-          const flexibleRegex = new RegExp(`\\[IMAGE:\\s*${escapedId}\\s*\\]`, 'gi');
-
-          content = content.replace(
-            flexibleRegex,
-            `<img src="${dataUri}" alt="${image.alt_text || coreId}" style="max-width: 100%; height: auto; margin: 20px 0; border-radius: 8px;" />`
-          );
+          return {
+            image,
+            base64Image,
+            mimeType,
+          };
         } catch (error) {
-          console.error(`[PDF-GEN] Error embedding image ${image.id}:`, error);
+          console.error(`[PDF-GEN] Error fetching image ${image.id}:`, error);
+          return null;
         }
-      } else {
-        console.log(`[PDF-GEN] Skipping image ${image.id}: url=${image.url}, placement=${image.placement}`);
-      }
+      });
+
+    const imageDataResults = await Promise.all(imageDataPromises);
+    const successfulImages = imageDataResults.filter(Boolean);
+    console.log(`[PDF-GEN] Successfully fetched ${successfulImages.length}/${chapter.images.length} images`);
+
+    // Now replace placeholders with the fetched images
+    for (const imageData of successfulImages) {
+      if (!imageData) continue;
+
+      const { image, base64Image, mimeType } = imageData;
+      const dataUri = `data:${mimeType};base64,${base64Image}`;
+
+      // Extract the core ID from the placement field
+      const coreId = image.placement!
+        .replace(/\[IMAGE:\s*/i, '')
+        .replace(/\]/g, '')
+        .trim();
+
+      console.log(`[PDF-GEN] Embedding image "${coreId}" (${Math.round(base64Image.length / 1024)}KB)`);
+
+      // Create a regex that matches [IMAGE: coreId] case-insensitively with flexible whitespace
+      const escapedId = coreId.replace(/[.*+?^${}()|[\]\\]/g, '\\$&');
+      const flexibleRegex = new RegExp(`\\[IMAGE:\\s*${escapedId}\\s*\\]`, 'gi');
+
+      content = content.replace(
+        flexibleRegex,
+        `<img src="${dataUri}" alt="${image.alt_text || coreId}" style="max-width: 100%; height: auto; margin: 20px 0; border-radius: 8px;" />`
+      );
     }
 
     console.log(`[PDF-GEN] After replacement, content has ${(content.match(/<img/g) || []).length} <img> tags`);

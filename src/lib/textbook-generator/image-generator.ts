@@ -282,7 +282,7 @@ export async function generateChapterImage(
 }
 
 /**
- * Generate all pending images for a chapter
+ * Generate all pending images for a chapter (in parallel batches for speed)
  */
 export async function generateChapterImages(
     chapterId: number
@@ -296,14 +296,34 @@ export async function generateChapterImages(
 
     const results = { total: images.length, success: 0, failed: 0 };
 
-    for (const image of images) {
-        const result = await generateChapterImage(image.id);
-        if (result.success) {
-            results.success++;
-        } else {
-            results.failed++;
+    if (images.length === 0) {
+        return results;
+    }
+
+    // Process images in parallel batches to avoid rate limiting
+    // Concurrency limit of 3 balances speed vs API rate limits
+    const BATCH_SIZE = 3;
+    console.log(`[IMAGE-GEN] Generating ${images.length} images in parallel batches of ${BATCH_SIZE}...`);
+
+    for (let i = 0; i < images.length; i += BATCH_SIZE) {
+        const batch = images.slice(i, i + BATCH_SIZE);
+        console.log(`[IMAGE-GEN] Processing batch ${Math.floor(i / BATCH_SIZE) + 1}/${Math.ceil(images.length / BATCH_SIZE)} (${batch.length} images)`);
+
+        // Generate batch in parallel
+        const batchResults = await Promise.allSettled(
+            batch.map(image => generateChapterImage(image.id))
+        );
+
+        // Count results
+        for (const result of batchResults) {
+            if (result.status === 'fulfilled' && result.value.success) {
+                results.success++;
+            } else {
+                results.failed++;
+            }
         }
     }
 
+    console.log(`[IMAGE-GEN] Completed: ${results.success} succeeded, ${results.failed} failed out of ${results.total}`);
     return results;
 }
