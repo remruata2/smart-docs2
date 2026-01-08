@@ -359,11 +359,6 @@ export async function analyzeQueryForSearch(
 		// Pattern matching failed - use AI analysis for complex queries
 		console.log("[QUERY ANALYSIS] Using AI analysis for complex query");
 
-		const { client, keyId } = await getGeminiClient({
-			provider: "gemini",
-			keyId: opts.keyId,
-		});
-
 		// Get model from app_settings (not priority-based aiModel table)
 		const { getChatModels, CHAT_AI_MODELS } = await import("@/lib/chat-models");
 		let analyzerModel: string = CHAT_AI_MODELS.QUERY_ANALYZER;
@@ -438,60 +433,49 @@ Respond ONLY with valid JSON.`;
 		let analysisInputTokens = 0;
 		let analysisOutputTokens = 0;
 		let lastError: any = null;
+
+		// Use retry utility
+		const { executeGeminiWithRetry } = await import("@/lib/ai-retry");
+
 		for (const modelName of attemptModels) {
 			try {
-				const model = client.getGenerativeModel({ model: modelName as string });
-				console.log(
-					`[AI] provider=gemini model=${modelName} keyId=${keyId ?? "env-fallback"
-					}`
-				);
-				// Count input tokens using provider-native method
-				try {
-					const countRes: any = await model.countTokens({
-						contents: [
-							{
-								role: "user",
-								parts: [{ text: prompt }],
-							},
-						],
-					});
-					analysisInputTokens = (countRes?.totalTokens ??
-						countRes?.totalTokenCount ??
-						0) as number;
-				} catch (e) {
-					analysisInputTokens = estimateTokenCount(prompt);
-					console.warn(
-						"[QUERY ANALYSIS] countTokens failed; using heuristic",
-						e
+				const result = await executeGeminiWithRetry(async (model, keyInfo) => {
+					console.log(`[AI-ANALYSIS] Using Key: "${keyInfo.keyLabel}" (${keyInfo.keyId})`);
+					// Count input tokens
+					try {
+						const countRes: any = await model.countTokens({
+							contents: [{ role: "user", parts: [{ text: prompt }] }],
+						});
+						analysisInputTokens = (countRes?.totalTokens || 0);
+					} catch (e) {
+						analysisInputTokens = estimateTokenCount(prompt);
+					}
+
+					const genResult = await withTimeout(
+						model.generateContent(prompt),
+						AI_API_TIMEOUT,
+						"Query analysis AI call"
 					);
-				}
-				const result = await withTimeout(
-					model.generateContent(prompt),
-					AI_API_TIMEOUT,
-					"Query analysis AI call"
-				);
-				const response = await result.response;
-				text = response.text().trim();
-				// Capture output tokens from usage metadata if available
-				const usage: any = (response as any)?.usageMetadata;
-				analysisOutputTokens = (usage?.candidatesTokenCount ??
-					usage?.totalTokenCount ??
-					estimateTokenCount(text)) as number;
-				if (keyId) await recordKeyUsage(keyId, true);
+					const response = await genResult.response;
+					const t = response.text().trim();
+
+					// Capture tokens
+					const usage: any = (response as any)?.usageMetadata;
+					analysisOutputTokens = (usage?.candidatesTokenCount || estimateTokenCount(t));
+
+					return t;
+				}, {
+					modelName: modelName as string,
+					logLabel: "QUERY ANALYSIS"
+				});
+
+				text = result.result;
 				lastError = null;
 				break;
 			} catch (e: any) {
 				lastError = e;
-				if (keyId) await recordKeyUsage(keyId, false);
 				const errorMsg = e?.message || String(e);
-				if (errorMsg.includes("timed out")) {
-					console.warn(
-						`[AI] Query analysis timeout after ${AI_API_TIMEOUT / 1000
-						}s with model: ${modelName}`
-					);
-				} else {
-					console.warn(`[AI] model attempt failed: ${modelName}`, e);
-				}
+				console.warn(`[AI] model attempt failed: ${modelName}`, e);
 				continue;
 			}
 		}
@@ -1529,58 +1513,83 @@ Answer:`;
 			const fallbackModel = process.env.GEMINI_DEFAULT_MODEL || "gemini-2.0-flash";
 			const modelName = opts.model || dbModels[0] || fallbackModel;
 
-			const { apiKey } = await getProviderApiKey({ provider: "gemini" });
-			const keyToUse = apiKey || process.env.GEMINI_API_KEY;
+			let attempts = 0;
+			const maxAttempts = 3;
+			const usedKeyIds: number[] = [];
 
-			if (!keyToUse) {
-				throw new Error("No Gemini API key configured for chart generation");
-			}
+			while (true) {
+				attempts++;
+				const { apiKey, keyId, keyLabel } = await getProviderApiKey({ provider: "gemini", excludeKeyIds: usedKeyIds });
+				const currentLabel = keyLabel || (apiKey ? "Unknown DB Key" : "ENV Variable");
+				console.log(`[CHART] Using Key: "${currentLabel}" (${keyId})`);
+				const keyToUse = apiKey || process.env.GEMINI_API_KEY;
 
-			const google = createGoogleGenerativeAI({
-				apiKey: keyToUse,
-			});
+				if (!keyToUse) {
+					throw new Error("No Gemini API key configured for chart generation");
+				}
 
-			// @ts-ignore - Type instantiation is excessively deep
-			const { object } = await generateObject({
-				model: google(modelName),
-				schema: ChartSchema,
-				prompt: `
-You are a data visualization expert.
-Context:
-${context}
+				const google = createGoogleGenerativeAI({
+					apiKey: keyToUse,
+				});
 
-Conversation History:
-${historyContext}
-
-User Query: ${question}
-
-Generate a chart configuration based on the user's query and the provided context.
-If the data is not sufficient to create a chart, create a chart with empty data and a title indicating "Insufficient Data".
-Ensure the data is cleaned (remove currency symbols, handle missing values).
-`,
-			});
-
-			let parsedData: any = object.data;
-			if (typeof object.data === "string") {
 				try {
-					parsedData = JSON.parse(object.data);
-				} catch (e) {
-					console.error("Failed to parse chart data string:", e);
-					parsedData = [];
+					// @ts-ignore - Type instantiation is excessively deep
+					const { object } = await generateObject({
+						model: google(modelName),
+						schema: ChartSchema,
+						prompt: `
+            You are a data visualization expert.
+            Context:
+            ${context}
+            
+            Conversation History:
+            ${historyContext}
+            
+            User Query: ${question}
+            
+            Generate a chart configuration based on the user's query and the provided context.
+            If the data is not sufficient to create a chart, create a chart with empty data and a title indicating "Insufficient Data".
+            Ensure the data is cleaned (remove currency symbols, handle missing values).
+            `,
+					});
+
+					let parsedData: any = object.data;
+					if (typeof object.data === "string") {
+						try {
+							parsedData = JSON.parse(object.data);
+						} catch (e) {
+							console.error("Failed to parse chart data string:", e);
+							parsedData = [];
+						}
+					}
+
+					if (keyId) await recordKeyUsage(keyId, true);
+
+					const chartConfig = { ...object, data: parsedData };
+					console.log(
+						"[CHART] Generated chart config:",
+						JSON.stringify(chartConfig, null, 2)
+					);
+					return {
+						text: `Here is the ${object.type} chart you requested based on the data.`,
+						inputTokens: 0, // Estimate or track if possible
+						outputTokens: 0,
+						chartData: chartConfig,
+					};
+				} catch (error: any) {
+					if (keyId) await recordKeyUsage(keyId, false);
+
+					const errorMsg = error.message || String(error);
+					const isRateLimit = errorMsg.includes('429') || error.status === 429;
+
+					if (isRateLimit && attempts < maxAttempts) {
+						console.warn(`[CHART] Key ${keyId} rate limited. Rotating...`);
+						if (keyId) usedKeyIds.push(keyId);
+						continue;
+					}
+					throw error;
 				}
 			}
-
-			const chartConfig = { ...object, data: parsedData };
-			console.log(
-				"[CHART] Generated chart config:",
-				JSON.stringify(chartConfig, null, 2)
-			);
-			return {
-				text: `Here is the ${object.type} chart you requested based on the data.`,
-				inputTokens: 0, // Estimate or track if possible
-				outputTokens: 0,
-				chartData: chartConfig,
-			};
 		} catch (error) {
 			console.error("[CHART] Failed to generate chart:", error);
 			console.error(
@@ -1596,51 +1605,52 @@ Ensure the data is cleaned (remove currency symbols, handle missing values).
 	let lastError: any = null;
 	for (const modelName of attemptModels) {
 		try {
-			console.log(
-				`[AI-GEN] Sending request to Gemini API, model=${modelName}, prompt size: ${prompt.length} characters`
-			);
-			const apiCallTiming = timeStart("Gemini API Call");
-			const model = client.getGenerativeModel({ model: modelName as string });
-			// Use Gemini native token counter for input tokens
-			let inputTokens = 0;
-			try {
-				const countRes: any = await model.countTokens({
-					contents: [
-						{
-							role: "user",
-							parts: [{ text: prompt }],
-						},
-					],
-				});
-				inputTokens = (countRes?.totalTokens ??
-					countRes?.totalTokenCount ??
-					0) as number;
-			} catch (e) {
-				// Fallback to heuristic only if countTokens fails
-				inputTokens = estimateTokenCount(prompt);
-				console.warn("[AI-GEN] countTokens failed; using heuristic", e);
-			}
-			const result = await withTimeout(
-				model.generateContent(prompt),
-				AI_API_TIMEOUT,
-				`AI response generation (${modelName})`
-			);
-			const response = await result.response;
-			const text = response.text();
-			timeEnd("Gemini API Call", apiCallTiming);
+			// Ensure retry utility is available
+			const { executeGeminiWithRetry } = await import("@/lib/ai-retry");
 
-			// Prefer usage metadata from Gemini for output tokens
-			const usage: any = (response as any)?.usageMetadata;
-			const outputTokens = (usage?.candidatesTokenCount ??
-				usage?.totalTokenCount ??
-				estimateTokenCount(text)) as number;
+			const result = await executeGeminiWithRetry(async (model, keyInfo) => {
+				console.log(
+					`[AI-GEN] Sending request to Gemini API, model=${modelName}, prompt size: ${prompt.length} characters`
+				);
+				console.log(`[AI-GEN] Using Key: "${keyInfo.keyLabel}" (${keyInfo.keyId})`);
+				const apiCallTiming = timeStart("Gemini API Call");
 
-			devLog("AI response generated successfully", {
-				inputTokens,
-				outputTokens,
-				modelName,
+				// Use Gemini native token counter for input tokens
+				let inputTokens = 0;
+				try {
+					const countRes: any = await model.countTokens({
+						contents: [{ role: "user", parts: [{ text: prompt }] }],
+					});
+					inputTokens = (countRes?.totalTokens || 0);
+				} catch (e) {
+					// Fallback to heuristic only if countTokens fails
+					console.warn("[AI-GEN] Input token counting failed, using heuristic:", e);
+					inputTokens = estimateTokenCount(prompt);
+				}
+
+				const genResult = await withTimeout(
+					model.generateContent(prompt),
+					AI_API_TIMEOUT,
+					`AI response generation (${modelName})`
+				);
+
+				const response = await genResult.response;
+				const text = response.text();
+
+				// Capture output tokens
+				const usage: any = (response as any)?.usageMetadata;
+				const outputTokens = (usage?.candidatesTokenCount || estimateTokenCount(text));
+
+				timeEnd("Gemini API Call", apiCallTiming);
+
+				return { text, inputTokens, outputTokens };
+			}, {
+				modelName: modelName as string,
+				logLabel: "AI-GEN"
 			});
-			if (keyId) await recordKeyUsage(keyId, true);
+
+			const { text, inputTokens, outputTokens } = result.result;
+			// Key usage recorded by utility
 
 			return {
 				text: text,
@@ -1649,7 +1659,7 @@ Ensure the data is cleaned (remove currency symbols, handle missing values).
 			};
 		} catch (error: any) {
 			lastError = error;
-			if (keyId) await recordKeyUsage(keyId, false);
+			// Key usage already recorded by executeGeminiWithRetry
 			const errorMsg = error?.message || String(error);
 			if (errorMsg.includes("timed out")) {
 				console.warn(
@@ -3795,25 +3805,8 @@ export async function generateQuiz(
 	opts: { model?: string; keyId?: number; board?: string; level?: string } = {}
 ) {
 	try {
-		const { client, keyId } = await getGeminiClient({
-			provider: "gemini",
-			keyId: opts.keyId,
-		});
-
-		// Note: We use the Vercel AI SDK's generateObject which needs a provider instance
-		// We'll reuse the key from getGeminiClient but we need to instantiate the provider
-		const { apiKey } = await getProviderApiKey({
-			provider: "gemini",
-			keyId: opts.keyId,
-		});
-		// Fallback to environment variable if no key found in database
-		const keyToUse = apiKey || process.env.GEMINI_API_KEY;
-		if (!keyToUse) {
-			throw new Error(
-				"No Gemini API key found. Add a key in admin settings or set GEMINI_API_KEY."
-			);
-		}
-		const google = createGoogleGenerativeAI({ apiKey: keyToUse });
+		// Helper to delay
+		const delay = (ms: number) => new Promise(resolve => setTimeout(resolve, ms));
 
 		// Calculate question type distribution
 		const typeDistribution = config.questionTypes.map((type, idx) => {
@@ -3922,72 +3915,110 @@ Remember: You are testing students' knowledge of ${config.subject}, not their ab
 		let lastError;
 
 		for (const modelName of uniqueModels) {
-			try {
-				console.log(`[AI-QUIZ] Attempting to generate quiz with model: ${modelName}`);
+			let attempts = 0;
+			const maxAttempts = 3;
+			const usedKeyIds: number[] = [];
 
-				const resultPromise = generateObject({
-					model: google(modelName),
-					schema: QuizSchema,
-					prompt: prompt,
+			while (true) {
+				attempts++;
+
+				// keyId variable scope needs to be managed carefully 
+				// We'll assign it from the fetch
+				const { apiKey, keyId: currentKeyId, keyLabel } = await getProviderApiKey({
+					provider: "gemini",
+					keyId: opts.keyId,
+					excludeKeyIds: usedKeyIds,
 				});
+				const keyToUse = apiKey || process.env.GEMINI_API_KEY;
+				const currentLabel = keyLabel || (apiKey ? "Unknown DB Key" : "ENV Variable");
 
-				const result = await Promise.race([
-					resultPromise,
-					new Promise((_, reject) =>
-						setTimeout(() => reject(new Error("Quiz generation timed out after 90 seconds")), 90000)
-					)
-				]) as typeof resultPromise extends Promise<infer T> ? T : never;
-
-				console.log(`[AI-QUIZ] Successfully generated quiz with ${result.object.questions.length} questions`);
-
-				// Normalize points based on question type (AI sometimes ignores this)
-				result.object.questions = result.object.questions.map(q => {
-					let correctPoints = 1; // default
-					switch (q.question_type) {
-						case "MCQ":
-						case "TRUE_FALSE":
-						case "FILL_IN_BLANK":
-							correctPoints = 1;
-							break;
-						case "SHORT_ANSWER":
-							correctPoints = 2;
-							break;
-						case "LONG_ANSWER":
-							correctPoints = 5;
-							break;
-					}
-
-					if (q.points !== correctPoints) {
-						console.log(`[AI-QUIZ] Correcting points for ${q.question_type}: ${q.points} → ${correctPoints}`);
-					}
-
-					return { ...q, points: correctPoints };
-				});
-
-				if (keyId) await recordKeyUsage(keyId, true);
-				return result.object;
-
-			} catch (error: any) {
-				console.warn(`[AI-QUIZ] Failed with model ${modelName}: ${error.message}`);
-				lastError = error;
-
-				// If it's not a quota/availability issue (e.g. schema validation), maybe we shouldn't retry?
-				// But for now, let's assume most errors are model-related and try the next one.
-				// Specifically check for 429 (Resource Exhausted) or 404 (Not Found)
-				const isRetryable =
-					error.message.includes("429") ||
-					error.message.includes("404") ||
-					error.message.includes("quota") ||
-					error.message.includes("not found") ||
-					error.message.includes("overloaded");
-
-				if (!isRetryable && opts.model) {
-					// If user specified a specific model and it failed with non-retryable, throw immediately
-					throw error;
+				if (!keyToUse) {
+					// If no key available at all, break inner loop to let outer loop fail or continue
+					lastError = new Error("No Gemini API key available");
+					break;
 				}
 
-				// Continue to next model
-			}
+				const google = createGoogleGenerativeAI({ apiKey: keyToUse });
+
+				try {
+					console.log(`[AI-QUIZ] Attempting to generate quiz with model: ${modelName} (Key: "${currentLabel}" ID: ${currentKeyId || 'ENV'})`);
+
+					const resultPromise = generateObject({
+						model: google(modelName),
+						schema: QuizSchema,
+						prompt: prompt,
+					});
+
+					const result = await Promise.race([
+						resultPromise,
+						new Promise((_, reject) =>
+							setTimeout(() => reject(new Error("Quiz generation timed out after 90 seconds")), 90000)
+						)
+					]) as typeof resultPromise extends Promise<infer T> ? T : never;
+
+					console.log(`[AI-QUIZ] Successfully generated quiz with ${result.object.questions.length} questions`);
+
+					// Normalize points based on question type (AI sometimes ignores this)
+					result.object.questions = result.object.questions.map(q => {
+						let correctPoints = 1; // default
+						switch (q.question_type) {
+							case "MCQ":
+							case "TRUE_FALSE":
+							case "FILL_IN_BLANK":
+								correctPoints = 1;
+								break;
+							case "SHORT_ANSWER":
+								correctPoints = 2;
+								break;
+							case "LONG_ANSWER":
+								correctPoints = 5;
+								break;
+						}
+
+						if (q.points !== correctPoints) {
+							console.log(`[AI-QUIZ] Correcting points for ${q.question_type}: ${q.points} → ${correctPoints}`);
+						}
+
+						return { ...q, points: correctPoints };
+					});
+
+					if (currentKeyId) await recordKeyUsage(currentKeyId, true);
+					return result.object; // SUCCESS - Return immediately
+
+				} catch (error: any) {
+					if (currentKeyId) await recordKeyUsage(currentKeyId, false);
+
+					console.warn(`[AI-QUIZ] Failed with model ${modelName} key ${currentKeyId}: ${error.message}`);
+					lastError = error;
+
+					const errorMsg = error.message || String(error);
+					// Check for rate limit
+					const isRateLimit =
+						errorMsg.includes("429") ||
+						errorMsg.includes("quota") ||
+						errorMsg.includes("overloaded");
+
+					if (isRateLimit && attempts < maxAttempts) {
+						console.warn(`[AI-QUIZ] Rate limit hit. Rotating key...`);
+						if (currentKeyId) usedKeyIds.push(currentKeyId);
+						await delay(500);
+						continue; // RETRY with new key
+					}
+
+					// Check for retryable model errors (404, etc)
+					const isModelRetryable =
+						errorMsg.includes("404") ||
+						errorMsg.includes("not found");
+
+					if (!isRateLimit && !isModelRetryable && opts.model) {
+						// Non-retryable error on requested model
+						throw error;
+					}
+
+					// Break inner loop to try next Model
+					break;
+				}
+			} // End While
 		}
 
 		// If we get here, all models failed
@@ -4018,55 +4049,76 @@ export async function gradeQuiz(
 			return [];
 		}
 
-		const { client, keyId } = await getGeminiClient({
-			provider: "gemini",
-			keyId: opts.keyId,
-		});
-
 		// Use priority: 1) opts.model, 2) admin-configured models, 3) .env fallback
 		const dbModels = await getActiveModelNames("gemini");
 		const fallbackModel = process.env.GEMINI_DEFAULT_MODEL || "gemini-2.0-flash";
 		const modelName = opts.model || dbModels[0] || fallbackModel;
-		const { apiKey } = await getProviderApiKey({
-			provider: "gemini",
-			keyId: opts.keyId,
-		});
-		// Fallback to environment variable if no key found in database
-		const keyToUse = apiKey || process.env.GEMINI_API_KEY;
-		if (!keyToUse) {
-			throw new Error(
-				"No Gemini API key found. Add a key in admin settings or set GEMINI_API_KEY."
-			);
+
+		let attempts = 0;
+		const maxAttempts = 3;
+		const usedKeyIds: number[] = [];
+
+		while (true) {
+			attempts++;
+			const { apiKey, keyId, keyLabel } = await getProviderApiKey({
+				provider: "gemini",
+				keyId: opts.keyId,
+				excludeKeyIds: usedKeyIds,
+			});
+			// Fallback to environment variable if no key found in database
+			const keyToUse = apiKey || process.env.GEMINI_API_KEY;
+			const currentLabel = keyLabel || (apiKey ? "Unknown DB Key" : "ENV Variable");
+
+			if (!keyToUse) {
+				throw new Error(
+					"No Gemini API key found. Add a key in admin settings or set GEMINI_API_KEY."
+				);
+			}
+			console.log(`[AI-GRADE] Grading batch with Key: "${currentLabel}" (${keyId || 'ENV'})`);
+			const google = createGoogleGenerativeAI({ apiKey: keyToUse });
+
+			const GradingSchema = z.object({
+				grades: z.array(
+					z.object({
+						question_text: z.string(),
+						is_correct: z.boolean(),
+						score_percentage: z.number().min(0).max(100),
+						feedback: z.string(),
+					})
+				),
+			});
+
+			const prompt = `Grade the following student answers based on the model answer.
+            
+            Questions:
+            ${JSON.stringify(subjectiveQuestions, null, 2)}
+            
+            Provide a score (0-100) and feedback for each. Be lenient on phrasing but strict on factual accuracy.`;
+
+			try {
+				const result = await generateObject({
+					model: google(modelName),
+					schema: GradingSchema,
+					prompt: prompt,
+				});
+
+				if (keyId) await recordKeyUsage(keyId, true);
+
+				return result.object.grades;
+			} catch (error: any) {
+				if (keyId) await recordKeyUsage(keyId, false);
+
+				const errorMsg = error.message || String(error);
+				const isRateLimit = errorMsg.includes('429') || error.status === 429;
+
+				if (isRateLimit && attempts < maxAttempts) {
+					console.warn(`[GRADE] Key ${keyId} rate limited. Rotating...`);
+					if (keyId) usedKeyIds.push(keyId);
+					continue;
+				}
+				throw error;
+			}
 		}
-		const google = createGoogleGenerativeAI({ apiKey: keyToUse });
-
-		const GradingSchema = z.object({
-			grades: z.array(
-				z.object({
-					question_text: z.string(),
-					is_correct: z.boolean(),
-					score_percentage: z.number().min(0).max(100),
-					feedback: z.string(),
-				})
-			),
-		});
-
-		const prompt = `Grade the following student answers based on the model answer.
-        
-        Questions:
-        ${JSON.stringify(subjectiveQuestions, null, 2)}
-        
-        Provide a score (0-100) and feedback for each. Be lenient on phrasing but strict on factual accuracy.`;
-
-		const result = await generateObject({
-			model: google(modelName),
-			schema: GradingSchema,
-			prompt: prompt,
-		});
-
-		if (keyId) await recordKeyUsage(keyId, true);
-
-		return result.object.grades;
 	} catch (error) {
 		console.error("Error grading quiz:", error);
 		// Fallback: mark all as needing manual review or give full credit?

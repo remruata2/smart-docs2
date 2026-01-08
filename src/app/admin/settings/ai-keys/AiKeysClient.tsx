@@ -223,7 +223,9 @@ export default function AiKeysClient() {
     <RoleGuard requiredRole="admin">
       <div className="space-y-4">
         <div className="flex items-center justify-between">
-          <div className="text-sm text-gray-500">Keys are stored encrypted at rest. Rotate and toggle as needed.</div>
+          <div className="text-sm text-gray-500">
+            Keys are stored encrypted. <strong>Rotation Active:</strong> Multiple active keys are used in a round-robin (Round-Robin) strategy. Priority is ignored.
+          </div>
           <Button className="bg-indigo-600 hover:bg-indigo-700 text-white" onClick={openCreate}>
             <PlusCircle className="mr-2 h-4 w-4" /> Create New Key
           </Button>

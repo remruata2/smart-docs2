@@ -21,11 +21,11 @@ function getRawEncryptionKey(): Buffer {
   try {
     const buf = Buffer.from(key, "base64");
     if (buf.length === 32) return buf;
-  } catch {}
+  } catch { }
   try {
     const buf = Buffer.from(key, "hex");
     if (buf.length === 32) return buf;
-  } catch {}
+  } catch { }
   const utf = Buffer.from(key, "utf8");
   if (utf.length === 32) return utf;
 
@@ -61,25 +61,44 @@ export type KeySelection = {
   provider: AIProvider;
   keyId?: number;
   model?: string;
+  excludeKeyIds?: number[];
 };
 
-async function selectActiveKey(provider: AIProvider) {
-  // Prefer active keys with higher priority, least recently used first
-  // If none, return null to signal fallback
-  const key = await prisma.aiApiKey.findFirst({
-    where: { provider: provider as any, active: true },
-    orderBy: [
-      { priority: "desc" },
-      { last_used_at: "asc" },
-      { id: "asc" },
-    ],
+async function selectActiveKey(provider: AIProvider, excludeIds: number[] = []) {
+  // Fetch all active keys for the provider
+  const keys = await prisma.aiApiKey.findMany({
+    where: {
+      provider: provider as any,
+      active: true,
+      id: { notIn: excludeIds }
+    },
   });
-  return key;
+
+  if (keys.length === 0) return null;
+
+  // Sort in-memory: Unused (null) first, then Oldest Used
+  keys.sort((a, b) => {
+    // 1. Handle NULLs (Never used) -> Prioritize
+    if (!a.last_used_at && b.last_used_at) return -1;
+    if (a.last_used_at && !b.last_used_at) return 1;
+
+    // 2. Both null or both present
+    if (!a.last_used_at && !b.last_used_at) return a.id - b.id;
+
+    // 3. Both present -> Compare timestamps
+    const timeDiff = a.last_used_at!.getTime() - b.last_used_at!.getTime();
+    if (timeDiff !== 0) return timeDiff;
+
+    return a.id - b.id;
+  });
+
+  return keys[0];
 }
 
 export async function getProviderApiKey(opts: KeySelection): Promise<{
   apiKey: string | null;
   keyId: number | null;
+  keyLabel: string | null;
 }> {
   // If specific keyId requested, use it if active; else fall back to selection
   if (opts.keyId) {
@@ -87,15 +106,15 @@ export async function getProviderApiKey(opts: KeySelection): Promise<{
       where: { id: opts.keyId, active: true },
     });
     if (k) {
-      return { apiKey: decryptSecret(k.api_key_enc), keyId: k.id };
+      return { apiKey: decryptSecret(k.api_key_enc), keyId: k.id, keyLabel: k.label };
     }
   }
 
-  const key = await selectActiveKey(opts.provider);
+  const key = await selectActiveKey(opts.provider, opts.excludeKeyIds);
   if (key) {
-    return { apiKey: decryptSecret(key.api_key_enc), keyId: key.id };
+    return { apiKey: decryptSecret(key.api_key_enc), keyId: key.id, keyLabel: key.label };
   }
-  return { apiKey: null, keyId: null };
+  return { apiKey: null, keyId: null, keyLabel: null };
 }
 
 export async function recordKeyUsage(keyId: number, ok: boolean) {
@@ -155,7 +174,11 @@ export async function getGeminiClient(opts: KeySelection = { provider: "gemini" 
   if (opts.provider !== "gemini") {
     throw new Error("getGeminiClient only supports provider=gemini");
   }
-  const { apiKey, keyId } = await getProviderApiKey({ provider: "gemini", keyId: opts.keyId });
+  const { apiKey, keyId } = await getProviderApiKey({
+    provider: "gemini",
+    keyId: opts.keyId,
+    excludeKeyIds: opts.excludeKeyIds
+  });
   const fallback = process.env.GEMINI_API_KEY || "";
   const keyToUse = apiKey || fallback;
   if (!keyToUse) {
@@ -171,7 +194,11 @@ export async function getOpenRouterClient(opts: KeySelection = { provider: "open
   if (opts.provider !== "openai") {
     throw new Error("getOpenRouterClient only supports provider=openai");
   }
-  const { apiKey, keyId } = await getProviderApiKey({ provider: "openai", keyId: opts.keyId });
+  const { apiKey, keyId } = await getProviderApiKey({
+    provider: "openai",
+    keyId: opts.keyId,
+    excludeKeyIds: opts.excludeKeyIds
+  });
   const fallback = process.env.OPENROUTER_API_KEY || "";
   const keyToUse = apiKey || fallback;
   if (!keyToUse) {

@@ -36,96 +36,140 @@ export async function generateImage(
         imageType?: TextbookImageType;
     } = {}
 ): Promise<{ success: true; imageBase64: string; mimeType: string } | { success: false; error: string }> {
-    try {
-        const { apiKey } = await getProviderApiKey({ provider: 'gemini' });
-        const keyToUse = apiKey || process.env.GEMINI_API_KEY;
+    let attempts = 0;
+    const maxAttempts = 3;
+    const usedKeyIds: number[] = [];
+    const logLabel = "[IMAGE-GEN]";
 
-        if (!keyToUse) {
-            return { success: false, error: 'No API key configured' };
-        }
+    // Enhance prompt based on image type (do once)
+    let enhancedPrompt = prompt;
+    const imageType = options.imageType || 'ILLUSTRATION';
+    switch (imageType) {
+        case 'DIAGRAM':
+            enhancedPrompt = `Educational diagram for a textbook: ${prompt}. Clean, professional style with clear labels. White or light background, suitable for printing. No text watermarks.`;
+            break;
+        case 'CHART':
+            enhancedPrompt = `Professional chart/graph for educational textbook: ${prompt}. Clean data visualization, clear axes and labels. Suitable for Class XI/XII students.`;
+            break;
+        case 'ILLUSTRATION':
+            enhancedPrompt = `Educational illustration for school textbook: ${prompt}. Colorful but professional, age-appropriate for high school students. Clean style.`;
+            break;
+        case 'PHOTO':
+            enhancedPrompt = `High-quality educational photograph: ${prompt}. Realistic, well-lit, suitable for a textbook.`;
+            break;
+        case 'ICON':
+            enhancedPrompt = `Simple educational icon: ${prompt}. Flat design, clean lines, single color or minimal palette.`;
+            break;
+    }
 
-        // Enhance prompt based on image type
-        let enhancedPrompt = prompt;
-        const imageType = options.imageType || 'ILLUSTRATION';
+    while (true) {
+        attempts++;
+        let currentKeyId: number | null = null;
 
-        switch (imageType) {
-            case 'DIAGRAM':
-                enhancedPrompt = `Educational diagram for a textbook: ${prompt}. Clean, professional style with clear labels. White or light background, suitable for printing. No text watermarks.`;
-                break;
-            case 'CHART':
-                enhancedPrompt = `Professional chart/graph for educational textbook: ${prompt}. Clean data visualization, clear axes and labels. Suitable for Class XI/XII students.`;
-                break;
-            case 'ILLUSTRATION':
-                enhancedPrompt = `Educational illustration for school textbook: ${prompt}. Colorful but professional, age-appropriate for high school students. Clean style.`;
-                break;
-            case 'PHOTO':
-                enhancedPrompt = `High-quality educational photograph: ${prompt}. Realistic, well-lit, suitable for a textbook.`;
-                break;
-            case 'ICON':
-                enhancedPrompt = `Simple educational icon: ${prompt}. Flat design, clean lines, single color or minimal palette.`;
-                break;
-        }
+        try {
+            const { apiKey, keyId, keyLabel } = await getProviderApiKey({ provider: 'gemini', excludeKeyIds: usedKeyIds });
+            const keyToUse = apiKey || process.env.GEMINI_API_KEY;
+            const currentLabel = keyLabel || (apiKey ? "Unknown DB Key" : "ENV Variable");
+            currentKeyId = keyId;
 
-        // Use Nano Banana Pro (Gemini 3 Pro Image)
-        const { IMAGE } = await getTextbookModels();
-        const modelName = IMAGE;
-        console.log(`[IMAGE-GEN] Generating with model: ${modelName}`);
+            if (!keyToUse) {
+                return { success: false, error: 'No API key configured' };
+            }
 
-        // Correct Endpoint for Gemini 3 Pro Image: :generateContent
-        const url = `${IMAGEN_API_BASE}/${modelName}:generateContent?key=${keyToUse}`;
+            // Use Nano Banana Pro (Gemini 3 Pro Image)
+            const { IMAGE } = await getTextbookModels();
+            const modelName = IMAGE;
+            console.log(`${logLabel} Attempt ${attempts}/${maxAttempts} with model: ${modelName} (Key: "${currentLabel}" ID: ${keyId || 'ENV'})`);
 
-        const response = await fetch(url, {
-            method: 'POST',
-            headers: {
-                'Content-Type': 'application/json',
-            },
-            // Payload for Nano Banana Pro
-            body: JSON.stringify({
-                contents: [{
-                    parts: [{ text: enhancedPrompt }]
-                }],
-                generationConfig: {
-                    responseModalities: ["IMAGE"], // Request ONLY image
-                    imageConfig: {
-                        aspectRatio: options.aspectRatio || '4:3',
+            // Correct Endpoint for Gemini 3 Pro Image: :generateContent
+            const url = `${IMAGEN_API_BASE}/${modelName}:generateContent?key=${keyToUse}`;
+
+            const response = await fetch(url, {
+                method: 'POST',
+                headers: {
+                    'Content-Type': 'application/json',
+                },
+                // Payload for Nano Banana Pro
+                body: JSON.stringify({
+                    contents: [{
+                        parts: [{ text: enhancedPrompt }]
+                    }],
+                    generationConfig: {
+                        responseModalities: ["IMAGE"], // Request ONLY image
+                        imageConfig: {
+                            aspectRatio: options.aspectRatio || '4:3',
+                        }
+                    }
+                }),
+            });
+
+            if (!response.ok) {
+                const errorText = await response.text();
+                // Check usage recording (failure)
+                if (keyId) await prisma.aiApiKey.update({
+                    where: { id: keyId },
+                    data: { error_count: { increment: 1 }, last_used_at: new Date() }
+                }).catch(() => { });
+
+                // Check for 429
+                if (response.status === 429 || errorText.includes('429') || errorText.includes('RESOURCE_EXHAUSTED')) {
+                    console.warn(`${logLabel} Rate limit 429. Rotating key...`);
+                    if (keyId) usedKeyIds.push(keyId);
+                    if (attempts < maxAttempts) {
+                        await new Promise(r => setTimeout(r, 1000));
+                        continue; // Retry
                     }
                 }
-            }),
-        });
 
-        if (!response.ok) {
-            const errorText = await response.text();
-            console.error('[IMAGE-GEN] Gemini API error:', response.status, response.statusText, errorText);
-            return { success: false, error: `Image generation failed: ${response.status} ${errorText}` };
-        }
+                console.error(`${logLabel} Gemini API error:`, response.status, response.statusText, errorText);
+                return { success: false, error: `Image generation failed: ${response.status} ${errorText}` };
+            }
 
-        const data = await response.json();
+            const data = await response.json();
 
-        // Parse Gemini 3 Pro Image Response (Candidate -> Content -> Parts -> InlineData)
-        // Note: The response format for images is typically base64 in inlineData
-        const candidate = data.candidates?.[0];
-        const part = candidate?.content?.parts?.[0];
+            // Record Success
+            if (keyId) await prisma.aiApiKey.update({
+                where: { id: keyId },
+                data: { success_count: { increment: 1 }, last_used_at: new Date() }
+            }).catch(() => { });
 
-        // Handle image data
-        if (part?.inlineData?.data) {
+            // Parse Gemini 3 Pro Image Response (Candidate -> Content -> Parts -> InlineData)
+            const candidate = data.candidates?.[0];
+            const part = candidate?.content?.parts?.[0];
+
+            // Handle image data
+            if (part?.inlineData?.data) {
+                return {
+                    success: true,
+                    imageBase64: part.inlineData.data,
+                    mimeType: part.inlineData.mimeType || 'image/png',
+                };
+            } else if (part?.executableCode) {
+                return { success: false, error: 'Model returned executable code instead of image.' };
+            }
+
+            console.error(`${logLabel} Unexpected response format:`, JSON.stringify(data).substring(0, 200));
+            return { success: false, error: 'No image data found in response' };
+
+        } catch (error) {
+            console.error(`${logLabel} Error generating image:`, error);
+            // Record failure (network error etc)
+            if (currentKeyId) await prisma.aiApiKey.update({
+                where: { id: currentKeyId },
+                data: { error_count: { increment: 1 }, last_used_at: new Date() }
+            }).catch(() => { });
+
+            if (attempts < maxAttempts) {
+                // Try again?
+                if (currentKeyId) usedKeyIds.push(currentKeyId);
+                continue;
+            }
+
             return {
-                success: true,
-                imageBase64: part.inlineData.data,
-                mimeType: part.inlineData.mimeType || 'image/png',
+                success: false,
+                error: error instanceof Error ? error.message : 'Failed to generate image',
             };
-        } else if (part?.executableCode) {
-            return { success: false, error: 'Model returned executable code instead of image.' };
         }
-
-        console.error('[IMAGE-GEN] Unexpected response format:', JSON.stringify(data).substring(0, 200));
-        return { success: false, error: 'No image data found in response' };
-
-    } catch (error) {
-        console.error('[IMAGE-GEN] Error generating image:', error);
-        return {
-            success: false,
-            error: error instanceof Error ? error.message : 'Failed to generate image',
-        };
     }
 }
 

@@ -7,7 +7,7 @@
 import { z } from 'zod';
 import { generateObject } from 'ai';
 import { createGoogleGenerativeAI } from '@ai-sdk/google';
-import { getProviderApiKey } from '@/lib/ai-key-store';
+import { getProviderApiKey, recordKeyUsage } from '@/lib/ai-key-store';
 import { prisma } from '@/lib/prisma';
 import { getTextbookModels } from './models';
 import { getSettingString } from '@/lib/app-settings';
@@ -117,15 +117,7 @@ export async function generateChapterContent(
             return { success: false, error: 'Chapter not found' };
         }
 
-        // Get API key
-        const { apiKey } = await getProviderApiKey({ provider: 'gemini' });
-        const keyToUse = apiKey || process.env.GEMINI_API_KEY;
-
-        if (!keyToUse) {
-            return { success: false, error: 'No Gemini API key configured' };
-        }
-
-        const google = createGoogleGenerativeAI({ apiKey: keyToUse });
+        // API Key fetching moved to generation loop for rotation handling
 
         // Build context
         const unit = chapter.unit;
@@ -278,11 +270,59 @@ IMPORTANT: The 'placement' field in 'images_to_generate' MUST MATCH EXACTLY the 
         const { CONTENT_PRIMARY } = await getTextbookModels();
         const modelName = await getSettingString('ai.model.textbook.content_override', process.env.TEXTBOOK_GEN_CONTENT_MODEL || CONTENT_PRIMARY);
 
-        const result = await generateObject({
-            model: google(modelName),
-            schema: ChapterContentSchema,
-            prompt: prompt,
-        });
+        let result: any;
+        let attempts = 0;
+        const maxAttempts = 4; // Try up to 4 different keys
+        const usedKeyIds: number[] = [];
+
+        while (true) {
+            attempts++;
+
+            // Get API key with exclusion for failed keys
+            const { apiKey, keyId, keyLabel } = await getProviderApiKey({ provider: 'gemini', excludeKeyIds: usedKeyIds });
+            const keyToUse = apiKey || process.env.GEMINI_API_KEY;
+            const currentLabel = keyLabel || (apiKey ? "Unknown DB Key" : "ENV Variable");
+
+            if (!keyToUse) {
+                // If we ran out of keys and this isn't the first attempt, we should throw the last error
+                // But for now, just break and throw a generic error if no keys at all
+                throw new Error("No Gemini API keys available/configured");
+            }
+
+            const google = createGoogleGenerativeAI({ apiKey: keyToUse });
+
+            try {
+                console.log(`[CHAPTER-GEN] Attempt ${attempts}/${maxAttempts} using Key: "${currentLabel}" (ID: ${keyId || 'ENV'})`);
+
+                result = await generateObject({
+                    model: google(modelName),
+                    schema: ChapterContentSchema,
+                    prompt: prompt,
+                });
+
+                // Success - Record usage
+                if (keyId) await recordKeyUsage(keyId, true);
+                break; // Exit loop
+
+            } catch (error: any) {
+                // Record failure
+                if (keyId) await recordKeyUsage(keyId, false);
+
+                const errorMsg = error.message || String(error);
+                const isRateLimit = errorMsg.includes('429') || error.status === 429 || errorMsg.toLowerCase().includes('rate limit');
+
+                if (isRateLimit && attempts < maxAttempts) {
+                    console.warn(`[CHAPTER-GEN] Key ${keyId || 'ENV'} rate limited. Rotating...`);
+                    if (keyId) usedKeyIds.push(keyId);
+                    // Add small delay before retry
+                    await new Promise(r => setTimeout(r, 1000));
+                    continue;
+                }
+
+                console.error(`[CHAPTER-GEN] Generation failed on attempt ${attempts}:`, error);
+                throw error; // Non-retriable error or max attempts reached
+            }
+        }
 
         const content = result.object as GeneratedChapterContent;
 
