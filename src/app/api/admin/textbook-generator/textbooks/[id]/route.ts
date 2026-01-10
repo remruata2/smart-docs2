@@ -118,6 +118,7 @@ export async function PATCH(request: NextRequest, { params }: RouteParams) {
         if (body.author !== undefined) updateData.author = body.author?.trim() || null;
         if (body.raw_syllabus !== undefined) updateData.raw_syllabus = body.raw_syllabus?.trim() || null;
         if (body.status !== undefined) updateData.status = body.status;
+        if ((body as any).content_style !== undefined) updateData.content_style = (body as any).content_style;
 
         const textbook = await prisma.textbook.update({
             where: { id: textbookId },

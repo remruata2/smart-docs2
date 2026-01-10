@@ -210,31 +210,44 @@ TARGET EXAM CATEGORY: ${examCategoryLabel}${examTypes.length > 0 ? `\nSPECIFIC E
         // Import subject-specific prompt modules
         const { getSubjectInstructions, getUniversalInstructions } = await import('./subject-prompts');
         const subjectInstructions = getSubjectInstructions(textbook.subject_name || 'general', textbook.class_level || 'General', examCategory);
-        const universalInstructions = getUniversalInstructions();
 
-        const prompt = `You are a World-Class Educator and Textbook Author specializing in ${textbook.subject_name} for ${textbook.class_level}.
-Your goal is to create a "Super-Textbook" that covers the standard curriculum but significantly outperforms standard textbooks in clarity, depth, and exam utility.
+        // Import content style prompts
+        const { getStyleCorePrompt, getStyleUniversalInstructions, getStyleInstructions, CONTENT_STYLE_LABELS, STYLE_CONFIG } = await import('./content-styles');
+        type ContentStyleType = keyof typeof CONTENT_STYLE_LABELS;
 
-🚨 CRITICAL INSTRUCTION - CONTENT LENGTH & DEPTH 🚨
-- **TOTAL TARGET LENGTH**: 8,000 to 12,000 Words. This is a NON-NEGOTIABLE requirement.
-- **NO SUMMARIES**: Do not summarize subtopics. You must expand on every single subtopic with extreme detail.
-- **STRUCTURE**: For each major concept, you must provide:
-  1. Formal Definition
-  2. Detailed, Multi-Paragraph Explanation (How it works, Why it matters)
-  3. Real-World Analogies (e.g., Railway tracks vs Trains)
-  4. Technical Details (Protocols, Flow, Architecture)
-  5. Concrete Examples
-- **SUBTOPIC HANDLING**: You will receive a long list of subtopics. Group them logically but COVER EVERY SINGLE ONE in depth. Do not skip or gloss over any item.
+        // Use textbook content_style or default to 'academic'
+        const contentStyle = (textbook.content_style as ContentStyleType) || 'academic';
+        const contentStyleLabel = CONTENT_STYLE_LABELS[contentStyle] || 'Academic Textbook';
+        const styleConfig = STYLE_CONFIG[contentStyle];
 
-CONTEXT:
-TEXTBOOK: ${textbook.title}
-UNIT: ${unit.title}
-CHAPTER: ${chapter.chapter_number}. ${chapter.title}
-AUDIENCE: ${textbook.class_level} students preparing for ${examCategoryLabel}.
-${subtopicsText}
-${examSection}
-${contextSection}
-${customSection}
+        console.log(`[CHAPTER-GEN] Using content style: ${contentStyleLabel} (${styleConfig.minWords}-${styleConfig.maxWords} words, ${styleConfig.mcqCount} MCQs)`);
+
+        // Build prompt context for style-specific core prompt
+        const promptContext = {
+            subjectName: textbook.subject_name || 'General',
+            classLevel: textbook.class_level || 'General',
+            textbookTitle: textbook.title,
+            unitTitle: unit.title,
+            chapterNumber: chapter.chapter_number,
+            chapterTitle: chapter.title,
+            examCategoryLabel: examCategoryLabel,
+            subtopicsText: subtopicsText,
+            examSection: examSection,
+            contextSection: contextSection,
+            customSection: customSection,
+        };
+
+        // Get style-specific core prompt (replaces hardcoded academic prompt)
+        const styleCorePompt = getStyleCorePrompt(contentStyle, promptContext);
+
+        // Get style-specific instructions (additional formatting rules)
+        const styleInstructions = getStyleInstructions(contentStyle);
+
+        // Get style-specific universal instructions (or default for academic)
+        const styleUniversalInstructions = getStyleUniversalInstructions(contentStyle);
+        const universalInstructions = styleUniversalInstructions || getUniversalInstructions();
+
+        const prompt = `${styleCorePompt}
 
 ---------------------------------------------------
 ${subjectInstructions}
@@ -244,22 +257,32 @@ ${subjectInstructions}
 ${examInstructions}
 ---------------------------------------------------
 
+---------------------------------------------------
+${styleInstructions}
+---------------------------------------------------
+
 ${universalInstructions}
 
 OUTPUT FORMAT:
 Return ONLY a valid JSON object matching this schema:
 {
   "summary": "2-3 paragraphs of chapter summary",
-  "markdown_content": "Extensive technical material. Use [IMAGE: description] tags. DO NOT include the exercises here (they will be appended automatically).",
+  "markdown_content": "Content formatted according to the ${contentStyleLabel} style. Use [IMAGE: description] tags for visuals. DO NOT include the exercises here (they will be appended automatically).",
   "images_to_generate": [
-    { "description": "Highly detailed image prompt", "type": "DIAGRAM", "placement": "must_match_tag_in_content", "caption": "Optional caption" }
-  ],
-  "mcqs": [...],
-  "short_answers": [...],
-  "long_answers": [...],
+    { "description": "Detailed image prompt", "type": "DIAGRAM|CHART|MAP|TIMELINE|COMPARISON|INFOGRAPHIC", "placement": "must_match_IMAGE_tag_in_content", "caption": "Caption text" }
+  ], // Generate EXACTLY ${styleConfig.imageCount} images
+  "mcqs": [...], // Generate EXACTLY ${styleConfig.mcqCount} MCQs
+  "short_answers": [...], // Generate EXACTLY ${styleConfig.shortAnswerCount} short answer questions  
+  "long_answers": [...], // Generate EXACTLY ${styleConfig.longAnswerCount} long answer questions
   "key_concepts": ["concept1", "concept2"],
   "exam_highlights": [...]
 }
+
+🚨 QUANTITY LIMITS (MANDATORY):
+- **Images**: EXACTLY ${styleConfig.imageCount} images (not more)
+- **MCQs**: EXACTLY ${styleConfig.mcqCount} questions
+- **Short Answers**: EXACTLY ${styleConfig.shortAnswerCount} questions
+- **Long Answers**: EXACTLY ${styleConfig.longAnswerCount} questions
 
 IMPORTANT: The 'placement' field in 'images_to_generate' MUST MATCH EXACTLY the text inside the [IMAGE: ...] tag in the markdown_content. Your code relies on this exact match to inject the images.
 `;
@@ -292,7 +315,7 @@ IMPORTANT: The 'placement' field in 'images_to_generate' MUST MATCH EXACTLY the 
             const google = createGoogleGenerativeAI({ apiKey: keyToUse });
 
             try {
-                console.log(`[CHAPTER-GEN] Attempt ${attempts}/${maxAttempts} using Key: "${currentLabel}" (ID: ${keyId || 'ENV'})`);
+                console.log(`[CHAPTER - GEN] Attempt ${attempts}/${maxAttempts} using Key: "${currentLabel}" (ID: ${keyId || 'ENV'})`);
 
                 result = await generateObject({
                     model: google(modelName),

@@ -892,6 +892,12 @@ model Syllabus {
   // Values: academic_board, engineering, medical, government_prelims, government_mains, banking, university, general
   exam_category String? @default("academic_board") @db.VarChar(50)
 
+  // Syllabus Mode: "single" (default) or "multi_split" (for competitive exams)
+  syllabus_mode      String?   @default("single") @db.VarChar(20)
+  parent_syllabus_id Int?      // For split syllabi, points to parent
+  parent             Syllabus?  @relation("SyllabusSplit", fields: [parent_syllabus_id], references: [id])
+  children           Syllabus[] @relation("SyllabusSplit")
+
   // Content
   raw_text String? @db.Text
 
@@ -906,6 +912,7 @@ model Syllabus {
   units     SyllabusUnit[]
   textbooks Textbook[] // Textbooks created from this syllabus
 
+  @@index([parent_syllabus_id])
   @@map("syllabi")
 }
 
@@ -971,6 +978,9 @@ model Textbook {
 
   // Raw syllabus input (keeping for backward compat or manual override)
   raw_syllabus String? @db.Text
+
+  // Content Style for generation (academic, quick_reference, qa_practice, summary, case_study)
+  content_style String? @default("academic") @db.VarChar(30)
 
   // Status tracking
   status   TextbookStatus @default(DRAFT)
@@ -1065,10 +1075,38 @@ model TextbookChapter {
 
   unit   TextbookUnit    @relation(fields: [unit_id], references: [id], onDelete: Cascade)
   images TextbookImage[]
+  sections TextbookSection[]
 
   @@unique([unit_id, order])
   @@index([status])
   @@map("textbook_chapters")
+}
+
+/// Represents a recursive section within a chapter (Topic -> Subtopic -> Detail)
+model TextbookSection {
+  id          String   @id @default(cuid())
+  chapter_id  Int
+  parent_id   String?
+  order       Int
+  title       String   @db.VarChar(255)
+  level       Int      @default(1) // 1=Topic, 2=Subtopic, etc.
+  
+  // Content
+  content     String?  @db.Text
+  
+  // Status
+  status      ChapterGenStatus @default(PENDING)
+  
+  created_at  DateTime @default(now()) @db.Timestamptz(6)
+  updated_at  DateTime @updatedAt @db.Timestamptz(6)
+
+  chapter     TextbookChapter @relation(fields: [chapter_id], references: [id], onDelete: Cascade)
+  parent      TextbookSection? @relation("SectionHierarchy", fields: [parent_id], references: [id], onDelete: Cascade)
+  children    TextbookSection[] @relation("SectionHierarchy")
+
+  @@index([chapter_id])
+  @@index([parent_id])
+  @@map("textbook_sections")
 }
 
 /// Stores generated images/diagrams for chapters

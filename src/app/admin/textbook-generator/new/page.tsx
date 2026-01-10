@@ -34,6 +34,7 @@ import { Alert, AlertDescription } from '@/components/ui/alert';
 import { Tabs, TabsList, TabsTrigger, TabsContent } from '@/components/ui/tabs';
 import { Checkbox } from '@/components/ui/checkbox';
 import type { CreateTextbookInput, Syllabus } from '@/lib/textbook-generator/types';
+import { CONTENT_STYLE_LABELS, CONTENT_STYLE_DESCRIPTIONS, type ContentStyle } from '@/lib/textbook-generator/content-styles';
 
 export default function NewTextbookPage() {
     const router = useRouter();
@@ -47,7 +48,7 @@ export default function NewTextbookPage() {
     const [selectedSyllabusId, setSelectedSyllabusId] = useState<string>('');
     const [useSyllabusMetadata, setUseSyllabusMetadata] = useState(true);
 
-    const [formData, setFormData] = useState<CreateTextbookInput>({
+    const [formData, setFormData] = useState<CreateTextbookInput & { content_style?: string }>({
         title: '',
         description: '',
         class_level: '',
@@ -57,6 +58,7 @@ export default function NewTextbookPage() {
         academic_year: '2024-2025',
         author: '',
         raw_syllabus: '',
+        content_style: 'academic', // Default content style
     });
 
     const [programs, setPrograms] = useState<{ id: string | number, name: string }[]>([]);
@@ -352,6 +354,31 @@ export default function NewTextbookPage() {
                                         value={formData.subject_name || ''}
                                         onChange={(e) => updateField('subject_name', e.target.value)}
                                     />
+                                </div>
+
+                                {/* Content Style Dropdown */}
+                                <div className="space-y-2 col-span-2">
+                                    <Label htmlFor="content_style">Content Style</Label>
+                                    <Select
+                                        value={formData.content_style || 'academic'}
+                                        onValueChange={(v) => setFormData(prev => ({ ...prev, content_style: v }))}
+                                    >
+                                        <SelectTrigger>
+                                            <SelectValue placeholder="Select content style" />
+                                        </SelectTrigger>
+                                        <SelectContent>
+                                            {Object.entries(CONTENT_STYLE_LABELS).map(([value, label]) => (
+                                                <SelectItem key={value} value={value}>
+                                                    <div className="flex flex-col">
+                                                        <span>{label}</span>
+                                                    </div>
+                                                </SelectItem>
+                                            ))}
+                                        </SelectContent>
+                                    </Select>
+                                    <p className="text-xs text-muted-foreground">
+                                        {CONTENT_STYLE_DESCRIPTIONS[(formData.content_style || 'academic') as ContentStyle]}
+                                    </p>
                                 </div>
 
                                 <div className="grid grid-cols-2 gap-4">

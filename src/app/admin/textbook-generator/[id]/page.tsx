@@ -67,6 +67,8 @@ import { ChapterGenerationDialog } from '../components/ChapterGenerationDialog';
 import { BookCompilationDialog } from '../components/BookCompilationDialog';
 import { ChapterContentDialog } from '../components/ChapterContentDialog';
 import { toast } from 'sonner';
+import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@/components/ui/select';
+import { CONTENT_STYLE_LABELS, CONTENT_STYLE_DESCRIPTIONS, type ContentStyle } from '@/lib/textbook-generator/content-styles';
 
 const statusConfig: Record<TextbookStatus, { label: string; color: string; bgColor: string }> = {
     DRAFT: { label: 'Draft', color: 'text-gray-700', bgColor: 'bg-gray-100' },
@@ -684,7 +686,49 @@ export default function TextbookDetailPage({ params }: PageProps) {
                                 Configure generation options and metadata
                             </CardDescription>
                         </CardHeader>
-                        <CardContent className="space-y-4">
+                        <CardContent className="space-y-6">
+                            {/* Content Style - Editable */}
+                            <div className="p-4 border rounded-lg bg-primary/5 space-y-3">
+                                <div>
+                                    <p className="text-sm font-semibold">Content Style</p>
+                                    <p className="text-xs text-muted-foreground">Determines how chapter content is formatted</p>
+                                </div>
+                                <Select
+                                    value={(textbook as any).content_style || 'academic'}
+                                    onValueChange={async (value) => {
+                                        try {
+                                            const res = await fetch(`/api/admin/textbook-generator/textbooks/${textbook.id}`, {
+                                                method: 'PATCH',
+                                                headers: { 'Content-Type': 'application/json' },
+                                                body: JSON.stringify({ content_style: value })
+                                            });
+                                            if (!res.ok) throw new Error('Failed to update');
+                                            toast.success(`Content style changed to ${CONTENT_STYLE_LABELS[value as ContentStyle]}`);
+                                            fetchTextbook();
+                                        } catch (e) {
+                                            toast.error('Failed to update content style');
+                                        }
+                                    }}
+                                >
+                                    <SelectTrigger className="w-full max-w-md">
+                                        <SelectValue placeholder="Select content style" />
+                                    </SelectTrigger>
+                                    <SelectContent>
+                                        {Object.entries(CONTENT_STYLE_LABELS).map(([value, label]) => (
+                                            <SelectItem key={value} value={value}>
+                                                <div className="flex flex-col">
+                                                    <span className="font-medium">{label}</span>
+                                                    <span className="text-xs text-muted-foreground">
+                                                        {CONTENT_STYLE_DESCRIPTIONS[value as ContentStyle]}
+                                                    </span>
+                                                </div>
+                                            </SelectItem>
+                                        ))}
+                                    </SelectContent>
+                                </Select>
+                            </div>
+
+                            {/* Other settings - Read-only */}
                             <div className="grid grid-cols-2 gap-4">
                                 <div>
                                     <p className="text-sm font-medium">Board</p>

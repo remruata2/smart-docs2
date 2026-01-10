@@ -26,6 +26,7 @@ export async function createSyllabus(data: CreateSyllabusInput) {
                 board: data.board || 'MBSE',
                 academic_year: data.academic_year,
                 exam_category: data.exam_category || 'academic_board', // Default to academic board
+                syllabus_mode: data.syllabus_mode || 'single', // Default to single
                 raw_text: data.raw_text,
                 status: data.units && data.units.length > 0 ? 'PARSED' : 'DRAFT'
             }

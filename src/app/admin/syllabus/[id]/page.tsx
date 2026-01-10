@@ -46,17 +46,35 @@ export default function SyllabusDetailPage({ params }: { params: Promise<{ id: s
 
         try {
             setParsing(true);
-            toast.info('AI is analyzing the syllabus structure... This may take a minute.');
+            const isMultiSplit = (syllabus as any).syllabus_mode === 'multi_split';
+
+            if (isMultiSplit) {
+                toast.info('AI is parsing and splitting into separate syllabi... This may take a few minutes.');
+            } else {
+                toast.info('AI is analyzing the syllabus structure... This may take a minute.');
+            }
 
             const res = await fetch(`/api/admin/syllabi/${id}/parse`, {
-                method: 'POST'
+                method: 'POST',
+                headers: { 'Content-Type': 'application/json' },
+                body: JSON.stringify({
+                    stateContext: (syllabus as any).stateContext
+                })
             });
 
             const data = await res.json();
 
             if (!res.ok) throw new Error(data.error || 'Parsing failed');
 
-            toast.success('Syllabus parsed successfully!');
+            // Check if this was a split operation
+            if (data.split && data.childSyllabi && data.childSyllabi.length > 0) {
+                toast.success(`Created ${data.childSyllabi.length} separate syllabi! Check the list below.`);
+            } else if (data.splitError) {
+                toast.warning(`Parsed but splitting failed: ${data.splitError}`);
+            } else {
+                toast.success('Syllabus parsed successfully!');
+            }
+
             fetchSyllabus(); // Refresh structure
 
         } catch (error: any) {

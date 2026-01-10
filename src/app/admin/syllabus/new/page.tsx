@@ -40,6 +40,10 @@ export default function CreateSyllabusPage() {
         { title: '', chapters: [{ number: '1', title: '', subtopics: [''] }] }
     ]);
 
+    // Syllabus splitting state (for competitive exams)
+    const [syllabusMode, setSyllabusMode] = useState<'single' | 'multi_split'>('single');
+    const [stateContext, setStateContext] = useState('');
+
     const [formData, setFormData] = useState({
         title: '',
         description: '',
@@ -52,6 +56,9 @@ export default function CreateSyllabusPage() {
         board: 'MBSE',
         raw_text: ''
     });
+
+    // Check if current exam category supports splitting
+    const isCompetitiveCategory = ['government_prelims', 'government_mains', 'banking'].includes(formData.exam_category);
 
     useEffect(() => {
         async function fetchPrograms() {
@@ -145,11 +152,14 @@ export default function CreateSyllabusPage() {
         const submissionData = {
             ...formData,
             class_level: classLevel,
+            syllabus_mode: syllabusMode, // Now works for all categories
+            stateContext: stateContext || undefined, // Pass for later use during parse
             units: inputType === 'manual' ? units : undefined
         };
 
         try {
             setLoading(true);
+
             const res = await fetch('/api/admin/syllabi', {
                 method: 'POST',
                 headers: { 'Content-Type': 'application/json' },
@@ -162,8 +172,14 @@ export default function CreateSyllabusPage() {
                 throw new Error(data.error || 'Failed to create syllabus');
             }
 
-            toast.success('Syllabus created successfully');
-            router.push(`/admin/syllabus/${data.syllabus.id}`);
+            const syllabusId = data.syllabus.id;
+
+            if (syllabusMode === 'multi_split') {
+                toast.success('Syllabus created! Click "Parse" to split into separate subjects.');
+            } else {
+                toast.success('Syllabus created successfully');
+            }
+            router.push(`/admin/syllabus/${syllabusId}`);
 
         } catch (error: any) {
             toast.error(error.message);
@@ -282,6 +298,60 @@ export default function CreateSyllabusPage() {
                                 <p className="text-xs text-muted-foreground">
                                     This determines the content style, question patterns, and exam tips.
                                 </p>
+                            </div>
+
+                            {/* Syllabus Mode Toggle - Available for all exam categories */}
+                            <div className="col-span-2 space-y-3 p-4 bg-amber-50 dark:bg-amber-950/20 rounded-lg border border-amber-200 dark:border-amber-800">
+                                <Label className="text-amber-800 dark:text-amber-200 font-medium">
+                                    Syllabus Mode
+                                </Label>
+                                <div className="space-y-2">
+                                    <label className="flex items-start gap-3 cursor-pointer">
+                                        <input
+                                            type="radio"
+                                            name="syllabusMode"
+                                            value="single"
+                                            checked={syllabusMode === 'single'}
+                                            onChange={() => setSyllabusMode('single')}
+                                            className="mt-1"
+                                        />
+                                        <div>
+                                            <span className="font-medium">Single Subject</span>
+                                            <p className="text-xs text-muted-foreground">Standard mode - creates one syllabus from your input</p>
+                                        </div>
+                                    </label>
+                                    <label className="flex items-start gap-3 cursor-pointer">
+                                        <input
+                                            type="radio"
+                                            name="syllabusMode"
+                                            value="multi_split"
+                                            checked={syllabusMode === 'multi_split'}
+                                            onChange={() => setSyllabusMode('multi_split')}
+                                            className="mt-1"
+                                        />
+                                        <div>
+                                            <span className="font-medium">Multi-Subject (Split & Expand)</span>
+                                            <p className="text-xs text-muted-foreground">
+                                                Each major topic becomes its own syllabus with AI-generated chapters and subtopics.
+                                                Ideal for UPSC/MPSC/SSC syllabi like &quot;General Knowledge&quot;.
+                                            </p>
+                                        </div>
+                                    </label>
+                                </div>
+                                {syllabusMode === 'multi_split' && (
+                                    <div className="mt-3 space-y-2">
+                                        <Label htmlFor="stateContext">State Context (Optional)</Label>
+                                        <Input
+                                            id="stateContext"
+                                            placeholder="e.g., Mizoram - for state-specific content"
+                                            value={stateContext}
+                                            onChange={(e) => setStateContext(e.target.value)}
+                                        />
+                                        <p className="text-xs text-muted-foreground">
+                                            If specified, AI will include state-specific content (history, geography, current affairs).
+                                        </p>
+                                    </div>
+                                )}
                             </div>
                         </div>
                         <div className="mt-4 space-y-2">

@@ -116,6 +116,7 @@ export interface CreateSyllabusInput {
   board?: string;
   academic_year?: string;
   exam_category?: string; // Exam category for textbook generation prompts
+  syllabus_mode?: 'single' | 'multi_split'; // For competitive exams
   raw_text?: string;
   units?: ParsedUnit[]; // Support for manual entry
 }
