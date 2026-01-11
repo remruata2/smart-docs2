@@ -18,7 +18,7 @@ export async function convertFileWithDocling(filePath: string): Promise<DoclingP
         formData.append('file', fs.createReadStream(filePath));
 
         // 2. Call your local Python microservice
-        const response = await fetch('http://localhost:8000/convert', {
+        const response = await fetch('http://127.0.0.1:8000/convert', {
             method: 'POST',
             body: formData as any,
             headers: formData.getHeaders(),
