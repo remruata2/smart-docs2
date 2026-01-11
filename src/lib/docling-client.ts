@@ -1,5 +1,5 @@
+```typescript
 import fs from 'fs';
-import FormData from 'form-data';
 import path from 'path';
 
 export interface DoclingPage {
@@ -13,22 +13,26 @@ export interface DoclingPage {
 
 export async function convertFileWithDocling(filePath: string): Promise<DoclingPage[]> {
     try {
-        // 1. Prepare the file for upload
+        // 1. Prepare the file for upload using standard FormData and Blob
+        // This is much more reliable with global fetch than the legacy form-data package
+        const fileBuffer = fs.readFileSync(filePath);
+        const fileName = path.basename(filePath);
+        const blob = new Blob([fileBuffer], { type: 'application/pdf' });
+        
         const formData = new FormData();
-        formData.append('file', fs.createReadStream(filePath), {
-            filename: path.basename(filePath),
-            contentType: 'application/pdf',
-        });
+        formData.append('file', blob, fileName);
 
         // 2. Call your local Python microservice
+        // IMPORTANT: We do NOT set headers manually. Fetch will automatically set 
+        // the multipart Content-Type with the correct boundary.
         const response = await fetch('http://127.0.0.1:8000/convert', {
             method: 'POST',
-            body: formData as any,
-            headers: formData.getHeaders(),
+            body: formData,
         });
 
         if (!response.ok) {
-            throw new Error(`Conversion failed: ${response.statusText}`);
+            const errorText = await response.text();
+            throw new Error(`Conversion failed: ${ response.statusText } (${ errorText })`);
         }
 
         // 3. Get the structured result
