@@ -45,6 +45,8 @@ async def convert_document(file: UploadFile = File(...)):
     """
     temp_file_path = None
     try:
+        logger.info(f"Received conversion request for file: {file.filename}, content_type: {file.content_type}")
+        
         # Create a temporary file
         with tempfile.NamedTemporaryFile(delete=False, suffix=".pdf") as tmp:
             shutil.copyfileobj(file.file, tmp)
