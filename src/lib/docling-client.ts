@@ -1,4 +1,3 @@
-```typescript
 import fs from 'fs';
 import path from 'path';
 
@@ -18,7 +17,7 @@ export async function convertFileWithDocling(filePath: string): Promise<DoclingP
         const fileBuffer = fs.readFileSync(filePath);
         const fileName = path.basename(filePath);
         const blob = new Blob([fileBuffer], { type: 'application/pdf' });
-        
+
         const formData = new FormData();
         formData.append('file', blob, fileName);
 
@@ -32,7 +31,7 @@ export async function convertFileWithDocling(filePath: string): Promise<DoclingP
 
         if (!response.ok) {
             const errorText = await response.text();
-            throw new Error(`Conversion failed: ${ response.statusText } (${ errorText })`);
+            throw new Error(`Conversion failed: ${response.statusText} (${errorText})`);
         }
 
         // 3. Get the structured result
