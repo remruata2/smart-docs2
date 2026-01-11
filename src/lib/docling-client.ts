@@ -2,15 +2,22 @@ import fs from 'fs';
 import FormData from 'form-data';
 
 
-export async function convertFileWithDocling(filePath: string): Promise<string | null> {
+export interface DoclingPage {
+    page: number;
+    text: string;
+    md: string;
+    width?: number;
+    height?: number;
+    items?: any[];
+}
+
+export async function convertFileWithDocling(filePath: string): Promise<DoclingPage[]> {
     try {
         // 1. Prepare the file for upload
         const formData = new FormData();
         formData.append('file', fs.createReadStream(filePath));
 
         // 2. Call your local Python microservice
-        // Note: We use 'any' for headers because of type mismatch between form-data and node-fetch versions in some environments
-        // but generally formData.getHeaders() works.
         const response = await fetch('http://localhost:8000/convert', {
             method: 'POST',
             body: formData as any,
@@ -21,12 +28,14 @@ export async function convertFileWithDocling(filePath: string): Promise<string |
             throw new Error(`Conversion failed: ${response.statusText}`);
         }
 
-        // 3. Get the Markdown result
-        const data = await response.json() as { markdown: string };
-        return data.markdown;
+        // 3. Get the structured result
+        const data = await response.json() as { markdown: string; pages: DoclingPage[] };
+
+        // Return pages array to match LlamaParse behavior
+        return data.pages || [];
 
     } catch (error) {
         console.error("Docling conversion error:", error);
-        return null;
+        throw error; // Throw so the caller knows it failed
     }
 }

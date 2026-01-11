@@ -170,3 +170,6 @@ test_similarity.js
 
 # Prisma generated files
 src/generated/prisma/
+
+# Python virtual environment
+venv/

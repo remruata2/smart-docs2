@@ -1,0 +1,24 @@
+[Unit]
+Description=Docling PDF Parser Service
+After=network.target
+
+[Service]
+# Replace 'ubuntu' with your actual username if different
+User=ubuntu
+Group=ubuntu
+
+# Adjust this path to where you clone your repo
+WorkingDirectory=/home/ubuntu/ai-exam-prep
+
+# Path to the virtual environment python we created
+ExecStart=/home/ubuntu/ai-exam-prep/venv/bin/uvicorn docling_server:app --host 0.0.0.0 --port 8000
+
+# Restart automatically if it crashes
+Restart=always
+RestartSec=5
+
+# Environment variables if needed
+# Environment=SOME_VAR=value
+
+[Install]
+WantedBy=multi-user.target

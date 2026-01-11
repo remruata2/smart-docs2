@@ -127,14 +127,13 @@ export async function processChapterBackground(job: ChapterProcessingJob) {
 		);
 		await writeFile(tempFilePath, pdfBuffer);
 
-		// 2. Run LlamaParse for high-quality parsing
-		console.log(`[BG-PROCESSOR] Running LlamaParse...`);
-		const parser = new LlamaParseDocumentParser();
+		// 2. Run Docling (Local) for high-quality parsing
+		console.log(`[BG-PROCESSOR] Running Docling...`);
+		const { convertFileWithDocling } = await import("./docling-client");
 
-		// We pass the whole file to LlamaParse because splitting PDFs before parsing 
-		// can be tricky with some libraries, and LlamaParse handles whole docs well.
-		// We will filter the pages afterwards.
-		const parseResult = await parser.parseFile(tempFilePath);
+		// We pass the whole file to Docling.
+		// convertFileWithDocling returns the pages array directly, matching LlamaParse structure
+		const parseResult = await convertFileWithDocling(tempFilePath);
 
 		// parseFile returns the pages array directly, not an object with pages property
 		if (
@@ -142,7 +141,7 @@ export async function processChapterBackground(job: ChapterProcessingJob) {
 			!Array.isArray(parseResult) ||
 			parseResult.length === 0
 		) {
-			throw new Error("LlamaParse returned no pages");
+			throw new Error("Docling returned no pages");
 		}
 
 		// Filter pages based on chapter range if provided, otherwise use all pages

@@ -121,31 +121,39 @@ export async function POST(req: NextRequest) {
       }
     }
 
-    if (parserType === "docling") {
-      // Use Docling parser
+    if (parserType === "docling" || true) { // Force Docling as default for now
+      // Use Docling parser (Local)
       const { convertFileWithDocling } = await import("@/lib/docling-client");
-      const doclingContent = await convertFileWithDocling(tempFilePath);
+      const result = await convertFileWithDocling(tempFilePath);
 
-      if (!doclingContent) {
-        throw new Error("Docling parsing failed to return content");
+      if (!result || result.length === 0) {
+        throw new Error("Docling parsing failed to return pages");
       }
-      content = doclingContent;
-      console.log("[PARSE-DOCUMENT] Document parsed successfully with Docling");
+
+      pages = result;
+      // Use markdown format
+      // DoclingPage has 'md' field
+      content = result.map((page: any) => page.md || page.text).join("\n\n");
+      console.log(`[PARSE-DOCUMENT] Parsed ${pages.length} pages with Docling`);
+
     } else {
-      // Default to LlamaParse
-      const parser = new LlamaParseDocumentParser();
-      const result = await parser.parseFile(tempFilePath);
+      // Dead code path for LlamaParse (kept for reference if needed, or delete)
+      /*
+     // Default to LlamaParse
+     const parser = new LlamaParseDocumentParser();
+     const result = await parser.parseFile(tempFilePath);
 
-      if (Array.isArray(result)) {
-        // Handle JSON output
-        pages = result;
-        // Use markdown format, fallback to text if markdown is not available
-        content = result.map((page: any) => page.md || page.text).join("\n\n");
-        console.log(`[PARSE-DOCUMENT] Parsed ${pages.length} pages with LlamaParse`);
-      } else {
-        // Fallback for string output
-        content = result;
-      }
+     if (Array.isArray(result)) {
+       // Handle JSON output
+       pages = result;
+       // Use markdown format, fallback to text if markdown is not available
+       content = result.map((page: any) => page.md || page.text).join("\n\n");
+       console.log(`[PARSE-DOCUMENT] Parsed ${pages.length} pages with LlamaParse`);
+     } else {
+       // Fallback for string output
+       content = result;
+     }
+     */
     }
 
     // Track file upload usage

@@ -34,34 +34,50 @@ export async function processFileParsing(
 		let pages: any[] = [];
 		let content = "";
 
-		if (parserType === "docling") {
+		if (parserType === "docling" || true) { // Force Docling default
 			const { convertFileWithDocling } = await import("@/lib/docling-client");
-			const doclingContent = await convertFileWithDocling(filePath);
-			if (!doclingContent) {
-				throw new Error("Docling parsing failed to return content");
-			}
-			content = doclingContent;
-		} else {
-			// Default to LlamaParse
-			const parser = new LlamaParseDocumentParser();
-			const result = await parser.parseFile(filePath);
+			const result = await convertFileWithDocling(filePath);
 
-			if (Array.isArray(result)) {
-				pages = result;
-				// Accumulate text from all pages with page separators for better context
-				content = result
-					.map((page: any, index: number) => {
-						const pageContent = page.md || page.text || "";
-						const pageNumber = page.pageNumber || (index + 1);
-						return pageContent.trim()
-							? `--- Page ${pageNumber} ---\n\n${pageContent.trim()}`
-							: "";
-					})
-					.filter((pageText: string) => pageText.length > 0)
-					.join("\n\n");
-			} else {
-				content = result;
+			if (!result || result.length === 0) {
+				throw new Error("Docling parsing failed to return pages");
 			}
+
+			pages = result; // DoclingPage[] is compatible with the expected structure
+
+			// Accumulate text from all pages with page separators for better context
+			content = result
+				.map((page: any, index: number) => {
+					const pageContent = page.md || page.text || "";
+					const pageNumber = page.page || (index + 1);
+					return pageContent.trim()
+						? `--- Page ${pageNumber} ---\n\n${pageContent.trim()}`
+						: "";
+				})
+				.filter((pageText: string) => pageText.length > 0)
+				.join("\n\n");
+		} else {
+			/*
+		   // Default to LlamaParse
+		   const parser = new LlamaParseDocumentParser();
+		   const result = await parser.parseFile(filePath);
+
+		   if (Array.isArray(result)) {
+			   pages = result;
+			   // Accumulate text from all pages with page separators for better context
+			   content = result
+				   .map((page: any, index: number) => {
+					   const pageContent = page.md || page.text || "";
+					   const pageNumber = page.pageNumber || (index + 1);
+					   return pageContent.trim()
+						   ? `--- Page ${pageNumber} ---\n\n${pageContent.trim()}`
+						   : "";
+				   })
+				   .filter((pageText: string) => pageText.length > 0)
+				   .join("\n\n");
+		   } else {
+			   content = result;
+		   }
+		   */
 		}
 
 		console.log(`[FILE-PARSING] Parsed ${pages.length} pages for file ${fileId}`);
@@ -69,7 +85,7 @@ export async function processFileParsing(
 		// 2. Generate page images (if PDF)
 		const publicDir = path.join(process.cwd(), "public", "files", String(fileId));
 		let imagesGenerated = false;
-		
+
 		// Ensure directory doesn't already exist (clean up any leftover files from previous attempts)
 		if (existsSync(publicDir)) {
 			console.log(`[FILE-PARSING] Image directory already exists for file ${fileId}, cleaning up...`);
@@ -142,7 +158,7 @@ export async function processFileParsing(
 				const pageNumber = i + 1;
 				// Only set image_url if images were generated
 				const imageUrl = imagesGenerated ? `/files/${fileId}/page-${pageNumber}.jpg` : null;
-				
+
 				return prisma.documentPage.create({
 					data: {
 						file_id: fileId,
@@ -169,14 +185,14 @@ export async function processFileParsing(
 			const y = bbox.y ?? 0;
 			const w = bbox.w ?? 1;
 			const h = bbox.h ?? 1;
-			
+
 			// Ensure dimensions are valid (greater than 0)
 			if (actualPageWidth <= 0 || actualPageHeight <= 0) {
 				console.warn(`[FILE-PARSING] Invalid page dimensions: ${actualPageWidth}x${actualPageHeight}, using defaults`);
 				actualPageWidth = 595;
 				actualPageHeight = 842;
 			}
-			
+
 			return [
 				Math.max(0, Math.min(1, x / actualPageWidth)),
 				Math.max(0, Math.min(1, y / actualPageHeight)),
@@ -214,7 +230,7 @@ export async function processFileParsing(
 					if (item.bBox && typeof item.bBox === 'object') {
 						// Validate bbox structure
 						if (typeof item.bBox.x === 'number' && typeof item.bBox.y === 'number' &&
-						    typeof item.bBox.w === 'number' && typeof item.bBox.h === 'number') {
+							typeof item.bBox.w === 'number' && typeof item.bBox.h === 'number') {
 							const bbox = convertBBoxToPercentages(item.bBox, pageWidth, pageHeight);
 							const textSnippet = text.trim().substring(0, 200);
 							layoutItemsArray.push({
@@ -305,22 +321,22 @@ export async function processFileParsing(
 		return { success: true };
 	} catch (error) {
 		console.error(`[FILE-PARSING] Error parsing file ${fileId}:`, error);
-		
+
 		// Extract user-friendly error message
 		let errorMessage = "Unknown error during parsing";
 		if (error instanceof Error) {
 			errorMessage = error.message;
-			
+
 			// Check for LlamaParse credit limit error
-			if ((error as any).isCreditLimit || 
-			    error.message.includes("credit limit") ||
-			    error.message.includes("exceeded the maximum number of credits")) {
+			if ((error as any).isCreditLimit ||
+				error.message.includes("credit limit") ||
+				error.message.includes("exceeded the maximum number of credits")) {
 				errorMessage = "LlamaParse API credit limit exceeded. Please upgrade your LlamaParse plan or wait for credits to reset.";
 			} else if (error.message.includes("returned no documents")) {
 				// Check if the underlying error was a credit limit
 				const errorString = JSON.stringify(error);
 				if (errorString.includes("exceeded the maximum number of credits") ||
-				    errorString.includes("credits for your plan")) {
+					errorString.includes("credits for your plan")) {
 					errorMessage = "LlamaParse API credit limit exceeded. Please upgrade your LlamaParse plan or wait for credits to reset.";
 				}
 			}
