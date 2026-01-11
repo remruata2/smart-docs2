@@ -11,7 +11,7 @@ Group=ubuntu
 WorkingDirectory=/home/ubuntu/ai-exam-prep
 
 # Path to the virtual environment python we created
-ExecStart=/home/ubuntu/ai-exam-prep/venv/bin/uvicorn docling_server:app --host 0.0.0.0 --port 8000
+ExecStart=/home/ubuntu/ai-exam-prep/.venv/bin/uvicorn docling_server:app --host 0.0.0.0 --port 8000
 
 # Restart automatically if it crashes
 Restart=always

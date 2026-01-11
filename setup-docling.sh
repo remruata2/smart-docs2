@@ -18,8 +18,8 @@ sudo apt-get install -y python3-venv python3-pip libgl1-mesa-glx
 echo "🐍 Setting up Python environment..."
 cd $APP_DIR
 
-if [ ! -d "venv" ]; then
-    python3 -m venv venv
+if [ ! -d ".venv" ]; then
+    python3 -m venv .venv
     echo "Created virtual environment."
 else
     echo "Virtual environment already exists."
@@ -27,8 +27,8 @@ fi
 
 # 3. Install Python Libraries
 echo "⬇️ Installing Python packages (this may take a few minutes)..."
-./venv/bin/pip install --upgrade pip
-./venv/bin/pip install docling fastapi uvicorn python-multipart
+./.venv/bin/pip install --upgrade pip
+./.venv/bin/pip install docling fastapi uvicorn python-multipart
 
 # 4. Setup Systemd Service
 echo "⚙️ Configuring Systemd service..."
@@ -40,7 +40,7 @@ CURRENT_DIR=$(pwd)
 sed -i "s|User=ubuntu|User=$CURRENT_USER|g" docling-service.service
 sed -i "s|Group=ubuntu|Group=$CURRENT_USER|g" docling-service.service
 sed -i "s|WorkingDirectory=/home/ubuntu/ai-exam-prep|WorkingDirectory=$CURRENT_DIR|g" docling-service.service
-sed -i "s|ExecStart=/home/ubuntu/ai-exam-prep/venv/bin/uvicorn|ExecStart=$CURRENT_DIR/venv/bin/uvicorn|g" docling-service.service
+sed -i "s|ExecStart=/home/ubuntu/ai-exam-prep/venv/bin/uvicorn|ExecStart=$CURRENT_DIR/.venv/bin/uvicorn|g" docling-service.service
 
 # Copy to systemd directory
 sudo cp docling-service.service /etc/systemd/system/$SERVICE_NAME.service
