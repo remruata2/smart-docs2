@@ -173,3 +173,4 @@ src/generated/prisma/
 
 # Python virtual environment
 venv/
+.venv/
