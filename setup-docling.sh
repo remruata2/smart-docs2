@@ -40,7 +40,7 @@ CURRENT_DIR=$(pwd)
 sed -i "s|User=ubuntu|User=$CURRENT_USER|g" docling-service.service
 sed -i "s|Group=ubuntu|Group=$CURRENT_USER|g" docling-service.service
 sed -i "s|WorkingDirectory=/home/ubuntu/ai-exam-prep|WorkingDirectory=$CURRENT_DIR|g" docling-service.service
-sed -i "s|ExecStart=/home/ubuntu/ai-exam-prep/venv/bin/uvicorn|ExecStart=$CURRENT_DIR/.venv/bin/uvicorn|g" docling-service.service
+sed -i "s|ExecStart=/home/ubuntu/ai-exam-prep/.venv/bin/uvicorn|ExecStart=$CURRENT_DIR/.venv/bin/uvicorn|g" docling-service.service
 
 # Copy to systemd directory
 sudo cp docling-service.service /etc/systemd/system/$SERVICE_NAME.service
