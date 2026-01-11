@@ -1,6 +1,6 @@
 import fs from 'fs';
 import FormData from 'form-data';
-
+import path from 'path';
 
 export interface DoclingPage {
     page: number;
@@ -15,7 +15,10 @@ export async function convertFileWithDocling(filePath: string): Promise<DoclingP
     try {
         // 1. Prepare the file for upload
         const formData = new FormData();
-        formData.append('file', fs.createReadStream(filePath));
+        formData.append('file', fs.createReadStream(filePath), {
+            filename: path.basename(filePath),
+            contentType: 'application/pdf',
+        });
 
         // 2. Call your local Python microservice
         const response = await fetch('http://127.0.0.1:8000/convert', {
