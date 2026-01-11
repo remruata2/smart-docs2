@@ -4,7 +4,7 @@ import tempfile
 import uvicorn
 from fastapi import FastAPI, UploadFile, File, Form, HTTPException
 from fastapi.middleware.cors import CORSMiddleware
-from docling.document_converter import DocumentConverter
+from docling.document_converter import DocumentConverter, PdfFormatOption
 from docling.datamodel.base_models import InputFormat
 from docling.datamodel.pipeline_options import PdfPipelineOptions
 from pathlib import Path
@@ -33,7 +33,7 @@ pipeline_options.do_table_structure = True
 
 doc_converter = DocumentConverter(
     format_options={
-        InputFormat.PDF: pipeline_options
+        InputFormat.PDF: PdfFormatOption(pipeline_options=pipeline_options)
     }
 )
 
