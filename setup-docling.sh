@@ -1,11 +1,10 @@
-#!/bin/bash
-
 # Docling Production Setup Script
 # Run this on your Azure Ubuntu server
 
 set -e # Exit on error
 
-APP_DIR="/home/ubuntu/ai-exam-prep" # Change this if your app is elsewhere
+# Use the current directory where the script is run
+APP_DIR=$(pwd)
 SERVICE_NAME="docling-service"
 
 echo "🚀 Starting Docling Setup..."
