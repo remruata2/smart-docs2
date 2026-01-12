@@ -7,6 +7,7 @@
  * - Q&A Practice: Question-answer format, heavy MCQs
  * - Summary: Ultra-condensed key points
  * - Case Study: Real-world scenarios, application-focused
+ * - Aptitude Drill: Speed-focused practice with shortcuts and time estimates
  */
 
 export const CONTENT_STYLES = [
@@ -15,6 +16,7 @@ export const CONTENT_STYLES = [
     'qa_practice',
     'summary',
     'case_study',
+    'aptitude_drill',
 ] as const;
 
 export type ContentStyle = typeof CONTENT_STYLES[number];
@@ -26,6 +28,7 @@ export const CONTENT_STYLE_LABELS: Record<ContentStyle, string> = {
     qa_practice: 'Q&A Practice',
     summary: 'Summary Notes',
     case_study: 'Case Study',
+    aptitude_drill: 'Aptitude Drill',
 };
 
 // Descriptions for UI
@@ -35,6 +38,7 @@ export const CONTENT_STYLE_DESCRIPTIONS: Record<ContentStyle, string> = {
     qa_practice: 'Question-answer format with heavy MCQs - ideal for revision and practice',
     summary: 'Ultra-condensed key points only - ideal for last-minute revision',
     case_study: 'Real-world scenarios, application-focused - ideal for management, law',
+    aptitude_drill: 'Speed-focused practice with shortcuts, time estimates, multiple approaches - ideal for aptitude tests',
 };
 
 // Style-specific configuration
@@ -45,7 +49,7 @@ export interface StyleConfig {
     shortAnswerCount: number;
     longAnswerCount: number;
     imageCount: number;
-    format: 'narrative' | 'bullet' | 'qa' | 'condensed' | 'scenario';
+    format: 'narrative' | 'bullet' | 'qa' | 'condensed' | 'scenario' | 'drill';
 }
 
 export const STYLE_CONFIG: Record<ContentStyle, StyleConfig> = {
@@ -94,6 +98,15 @@ export const STYLE_CONFIG: Record<ContentStyle, StyleConfig> = {
         imageCount: 5,
         format: 'scenario',
     },
+    aptitude_drill: {
+        minWords: 4000,
+        maxWords: 6000,
+        mcqCount: 60, // Heavy MCQ for speed practice
+        shortAnswerCount: 0, // Pure objective
+        longAnswerCount: 0, // Pure objective
+        imageCount: 0, // No images, pure problem solving
+        format: 'drill',
+    },
 };
 
 /**
@@ -111,6 +124,8 @@ export function getStyleInstructions(style: ContentStyle): string {
             return getSummaryInstructions();
         case 'case_study':
             return getCaseStudyInstructions();
+        case 'aptitude_drill':
+            return getAptitudeDrillInstructions();
         default:
             return getAcademicStyleInstructions();
     }
@@ -148,6 +163,8 @@ export function getStyleCorePrompt(
             return getSummaryCorePrompt(config, context);
         case 'case_study':
             return getCaseStudyCorePrompt(config, context);
+        case 'aptitude_drill':
+            return getAptitudeDrillCorePrompt(config, context);
         case 'academic':
         default:
             return getAcademicCorePrompt(config, context);
@@ -168,6 +185,8 @@ export function getStyleUniversalInstructions(style: ContentStyle): string {
             return getSummaryUniversalInstructions();
         case 'case_study':
             return getCaseStudyUniversalInstructions();
+        case 'aptitude_drill':
+            return getAptitudeDrillUniversalInstructions();
         case 'academic':
         default:
             // Return empty - use the default from subject-prompts.ts
@@ -709,5 +728,133 @@ function getCaseStudyUniversalInstructions(): string {
    - Include flowcharts for decision processes
    - Use infographics for case summaries
    - Add timeline visuals for case sequences
+`;
+}
+
+// ============================================
+// APTITUDE DRILL STYLE
+// ============================================
+function getAptitudeDrillCorePrompt(config: StyleConfig, ctx: any): string {
+    return `You are an Expert Aptitude Test Coach specializing in competitive exam preparation.
+Your goal is to create a SPEED-FOCUSED PRACTICE CHAPTER that trains students to solve problems quickly and accurately.
+
+🚨 CRITICAL INSTRUCTION - APTITUDE DRILL FORMAT 🚨
+- **PRIMARY FORMAT**: Problem → Multiple Approaches → Shortcut → Answer.
+- **NO LONG EXPLANATIONS**: Every concept intro should be MAX 2 lines.
+- **SPEED FOCUS**: Tag every problem with estimated time (⏱️ 30s / 60s / 90s).
+- **MULTIPLE APPROACHES**: Show at least 2 methods for each problem type.
+- **SHORTCUT EMPHASIS**: Highlight Vedic Math, mental math, and elimination techniques.
+- **CONTENT LENGTH**: ${config.minWords} to ${config.maxWords} Words total.
+
+CONTENT STRUCTURE:
+1. **Concept Formula Card** - 1-2 lines with the core formula/rule (no explanation)
+2. **Speed Drill Problems** - Categorized by difficulty and time:
+   - ⏱️ **30-Second Drills** (10-15 problems)
+   - ⏱️ **60-Second Drills** (10-15 problems)
+   - ⏱️ **90-Second Drills** (5-10 problems)
+3. **Shortcut Techniques** - Named shortcuts (e.g., "Railway Method", "Fraction Trick")
+4. **Pattern Recognition** - Common question patterns and how to spot them
+5. **Trap Alert** - Common mistakes and how to avoid them
+6. **Answer Key with Approaches** - Show 2+ solution methods for harder problems
+
+CONTEXT:
+TEXTBOOK: ${ctx.textbookTitle}
+UNIT: ${ctx.unitTitle}
+CHAPTER: ${ctx.chapterNumber}. ${ctx.chapterTitle}
+AUDIENCE: ${ctx.classLevel} students preparing for ${ctx.examCategoryLabel}.
+${ctx.subtopicsText}
+${ctx.examSection}
+${ctx.contextSection}
+${ctx.customSection}`;
+}
+
+function getAptitudeDrillInstructions(): string {
+    return `
+## CONTENT STYLE: APTITUDE DRILL
+
+FORMAT REQUIREMENTS:
+1. **Problem-First**: Start with problems, not explanations
+2. **Time Tags**: Every problem must have ⏱️ time estimate
+3. **Multiple Approaches**: Show 2+ solution methods for each problem type
+4. **Shortcut Names**: Give names to techniques (e.g., "The 11% Trick")
+5. **Difficulty Ladder**: Easy (30s) → Medium (60s) → Hard (90s)
+6. **Pattern Boxes**: "Spot the Pattern" callouts
+7. **Trap Alerts**: "⚠️ Common Mistake" warnings
+8. **Answer Grid**: Quick answer lookup at the end
+9. **Mental Math Emphasis**: "No Calculator" techniques
+10. **Speed Tips**: "Pro Tip: Solve in 20 seconds" callouts
+
+TONE: Fast-paced, practical, exam-focused. Write as if coaching a student before their test.
+
+EXAMPLE FORMAT:
+### Topic: Percentage Increase/Decrease
+
+**📋 Formula Card:**
+- Increase: New = Original × (1 + r/100)
+- Decrease: New = Original × (1 - r/100)
+
+---
+
+**⏱️ 30-SECOND DRILL**
+
+**Q1.** A price increases by 20%. Find the new price if original is ₹500.
+**Answer:** ₹600
+**Shortcut:** 20% of 500 = 100, so 500 + 100 = 600
+
+---
+
+**Q2.** [⏱️ 60s] If a number is first increased by 25% and then decreased by 20%, what is the net change?
+**Answer:** 0% (No change)
+**Approach 1 (Long):** 100 → 125 → 100
+**Approach 2 (Shortcut):** +25% × -20% = -5% + 5% cancels = 0%
+**Pattern:** "Successive percentage" always use multiplication formula.
+
+---
+
+**⚠️ TRAP ALERT:**
+- DON'T add/subtract percentages directly!
+- 20% increase + 10% decrease ≠ 10% increase
+`;
+}
+
+function getAptitudeDrillUniversalInstructions(): string {
+    return `
+*** UNIVERSAL INSTRUCTIONS: APTITUDE DRILL STYLE ***
+
+1. ⚡ SPEED IS EVERYTHING:
+   - Every problem MUST have a time tag: ⏱️ 30s / 60s / 90s
+   - Include "Solve in X seconds" challenges
+   - Emphasize mental calculation over written steps
+
+2. 🎯 MULTIPLE APPROACHES (MANDATORY):
+   - Show at least 2 solution methods for every problem type
+   - Label approaches: "Long Method" vs "Shortcut"
+   - Highlight the fastest approach with ⭐
+
+3. 🧮 SHORTCUT TECHNIQUES:
+   - Name your shortcuts (e.g., "The 11's Rule", "Complement Method")
+   - Create memorable abbreviations and acronyms
+   - Show Vedic Math techniques where applicable
+
+4. 📊 PROBLEM QUANTITY:
+   - Generate ${STYLE_CONFIG.aptitude_drill.mcqCount}+ MCQs
+   - Distribute: 40% Easy (30s), 40% Medium (60s), 20% Hard (90s)
+   - NO short/long answer questions (pure objective)
+
+5. ⚠️ PATTERN RECOGNITION:
+   - Include "Spot the Pattern" sections
+   - Show "Question Fingerprints" (how to identify question type instantly)
+   - Teach elimination strategies
+
+6. 🚫 WHAT TO AVOID:
+   - NO long paragraphs of explanation
+   - NO images or diagrams (pure calculation focus)
+   - NO subjective questions
+   - NO derivations or proofs
+   - Keep formula introductions to 1-2 lines MAX
+
+7. 📝 ANSWER KEY FORMAT:
+   - Provide answer grid at the end
+   - Include "Quick Solve" hints for each answer
 `;
 }
