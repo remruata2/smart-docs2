@@ -226,7 +226,17 @@ ${stylesNeedingFullExamPrompt.includes(contentStyle) ? `- Mark important formula
 
         // Import subject-specific prompt modules
         const { getSubjectInstructions, getUniversalInstructions } = await import('./subject-prompts');
-        const subjectInstructions = getSubjectInstructions(textbook.subject_name || 'general', textbook.class_level || 'General', examCategory);
+
+        // CRITICAL FIX: Subject instructions (Rule of 3 examples, Virtual Labs, etc.) are designed for Academic style.
+        // For non-academic styles, they conflict with the format (e.g., Q&A wants only questions, Summary wants brevity).
+        // We only include them for styles that need deep explanations.
+        let subjectInstructions = '';
+        if (stylesNeedingFullExamPrompt.includes(contentStyle)) {
+            subjectInstructions = getSubjectInstructions(textbook.subject_name || 'general', textbook.class_level || 'General', examCategory);
+        } else {
+            console.log(`[CHAPTER-GEN] Suppressing subject instructions for style: ${contentStyle} to prevent format conflict.`);
+            subjectInstructions = `SUBJECT: ${textbook.subject_name || 'General'}\n(Keep content relevant to this subject, but STRICTLY follow the ${contentStyle} format. DO NOT add long explanations or examples unless asked in a question.)`;
+        }
 
         // Import content style prompts
         const { getStyleCorePrompt, getStyleUniversalInstructions, getStyleInstructions, CONTENT_STYLE_LABELS, STYLE_CONFIG } = await import('./content-styles');
@@ -260,9 +270,20 @@ ${stylesNeedingFullExamPrompt.includes(contentStyle) ? `- Mark important formula
         // Get style-specific instructions (additional formatting rules)
         const styleInstructions = getStyleInstructions(contentStyle);
 
-        // Get style-specific universal instructions (or default for academic)
+        // Get style-specific universal instructions
+        // CRITICAL FIX: For non-academic styles, we MUST use the style-specific universal instructions.
+        // The default getUniversalInstructions() contains textbook-oriented rules like "2-3 paragraphs per concept"
+        // and "8000-12000 words" which completely override the format of Q&A, Summary, etc.
         const styleUniversalInstructions = getStyleUniversalInstructions(contentStyle);
-        const universalInstructions = styleUniversalInstructions || getUniversalInstructions();
+        let universalInstructions = '';
+        if (stylesNeedingFullExamPrompt.includes(contentStyle)) {
+            // For academic/case_study, use the detailed universal instructions
+            universalInstructions = styleUniversalInstructions || getUniversalInstructions();
+        } else {
+            // For Q&A, Summary, Quick Reference: ONLY use the style-specific universal instructions
+            // If none exist, use a minimal fallback that doesn't mandate narrative depth
+            universalInstructions = styleUniversalInstructions || `\n*** UNIVERSAL INSTRUCTIONS ***\n- Follow the ${contentStyleLabel} format strictly.\n- Do NOT add extra explanations beyond what is required by the format.\n`;
+        }
 
         const prompt = `${styleCorePompt}
 
