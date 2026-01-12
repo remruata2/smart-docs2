@@ -753,26 +753,50 @@ function getCaseStudyUniversalInstructions(): string {
 // ============================================
 function getAptitudeDrillCorePrompt(config: StyleConfig, ctx: any): string {
     return `You are an Expert Aptitude Test Coach specializing in competitive exam preparation.
-Your goal is to create a SPEED-FOCUSED PRACTICE CHAPTER that trains students to solve problems quickly and accurately.
+Your goal is to create a MASSIVE QUESTION BANK organized by speed tiers.
 
 🚨 CRITICAL INSTRUCTION - APTITUDE DRILL FORMAT 🚨
-- **PRIMARY FORMAT**: Problem → Multiple Approaches → Shortcut → Answer.
-- **NO LONG EXPLANATIONS**: Every concept intro should be MAX 2 lines.
-- **SPEED FOCUS**: Tag every problem with estimated time (⏱️ 30s / 60s / 90s).
-- **MULTIPLE APPROACHES**: Show at least 2 methods for each problem type.
-- **SHORTCUT EMPHASIS**: Highlight Vedic Math, mental math, and elimination techniques.
-- **CONTENT LENGTH**: ${config.minWords} to ${config.maxWords} Words total.
+
+**THIS IS A QUESTION BANK, NOT A TEXTBOOK.**
+
+- **NO LONG EXPLANATIONS** - Maximum 1-2 lines per concept intro
+- **QUESTIONS ARE THE CONTENT** - 90% of the chapter should be Q&A
+- **EVERY QUESTION** must have: Time Tag + Question + Answer + Shortcut
+
+📊 **MANDATORY QUESTION QUANTITIES**:
+- **⏱️ 30-Second Speed Drill**: MINIMUM 15 questions
+- **⏱️ 60-Second Standard Drill**: MINIMUM 15 questions  
+- **⏱️ 90-Second Challenge Drill**: MINIMUM 10 questions
+- **TOTAL**: At least 40 questions per chapter (inline in markdown)
+- **JSON MCQs**: ${config.mcqCount} additional MCQs in the JSON output
+
+📝 **QUESTION FORMAT (STRICT)**:
+Each question MUST follow this exact format:
+
+**Q1. [⏱️ 30s]** Question text here?
+
+A) Option one
+B) Option two
+C) Option three
+D) Option four
+
+**Answer:** B
+**Shortcut:** One-line method to solve quickly.
+
+---
+
+🚫 **NEVER** put options on a single line like "A) ... B) ... C) ... D) ..."
+🚫 **NEVER** use [IMAGE:] tags - use \`\`\`figure-spec\`\`\` JSON blocks for figures
+🚫 **NEVER** write long paragraphs explaining concepts
 
 CONTENT STRUCTURE:
-1. **Concept Formula Card** - 1-2 lines with the core formula/rule (no explanation)
-2. **Speed Drill Problems** - Categorized by difficulty and time:
-   - ⏱️ **30-Second Drills** (10-15 problems)
-   - ⏱️ **60-Second Drills** (10-15 problems)
-   - ⏱️ **90-Second Drills** (5-10 problems)
-3. **Shortcut Techniques** - Named shortcuts (e.g., "Railway Method", "Fraction Trick")
-4. **Pattern Recognition** - Common question patterns and how to spot them
-5. **Trap Alert** - Common mistakes and how to avoid them
-6. **Answer Key with Approaches** - Show 2+ solution methods for harder problems
+1. **📋 Formula Card** (2-3 lines MAX with key formulas)
+2. **⏱️ 30-SECOND SPEED DRILL** (15+ questions - easy, direct application)
+3. **⏱️ 60-SECOND STANDARD DRILL** (15+ questions - multi-step)
+4. **⏱️ 90-SECOND CHALLENGE DRILL** (10+ questions - tricky/multi-concept)
+5. **⚡ SHORTCUT TECHNIQUES** (Named techniques with examples)
+6. **⚠️ TRAP ALERT** (Common mistakes)
+7. **📊 ANSWER KEY** (Quick reference grid)
 
 CONTEXT:
 TEXTBOOK: ${ctx.textbookTitle}
@@ -785,67 +809,41 @@ ${ctx.contextSection}
 ${ctx.customSection}`;
 }
 
+
 function getAptitudeDrillInstructions(): string {
     return `
-## CONTENT STYLE: APTITUDE DRILL
+## CONTENT STYLE: APTITUDE DRILL (QUESTION BANK)
 
-FORMAT REQUIREMENTS:
-1. **Problem-First**: Start with problems, not explanations
-2. **Time Tags**: Every problem must have ⏱️ time estimate
-3. **Multiple Approaches**: Show 2+ solution methods for each problem type
-4. **Shortcut Names**: Give names to techniques (e.g., "The 11% Trick")
-5. **Difficulty Ladder**: Easy (30s) → Medium (60s) → Hard (90s)
-6. **Pattern Boxes**: "Spot the Pattern" callouts
-7. **Trap Alerts**: "⚠️ Common Mistake" warnings
-8. **Answer Grid**: Quick answer lookup at the end
-9. **Mental Math Emphasis**: "No Calculator" techniques
-10. **Speed Tips**: "Pro Tip: Solve in 20 seconds" callouts
+🎯 **THIS IS A QUESTION BANK** - 90% of content should be Q&A, not explanations.
 
-🚨 CRITICAL MCQ FORMATTING (MANDATORY):
-- Each option MUST be on its OWN LINE
-- Use this EXACT format:
-  **Q1. [⏱️ 30s]** Question text here?
-  
-  A) Option one
-  B) Option two
-  C) Option three
-  D) Option four
-  
-  **Answer:** B
-  **Shortcut:** Quick method explanation.
+📊 **MINIMUM QUESTION COUNTS**:
+- 30-Second Drill: 15+ questions
+- 60-Second Drill: 15+ questions
+- 90-Second Drill: 10+ questions
+- Total Inline: 40+ questions
 
-- NEVER put all options on a single line like "A) ... B) ... C) ... D) ..."
+📝 **QUESTION FORMAT (MANDATORY)**:
+\`\`\`
+**Q1. [⏱️ 30s]** Question text?
 
-TONE: Fast-paced, practical, exam-focused. Write as if coaching a student before their test.
+A) Option one
+B) Option two  
+C) Option three
+D) Option four
 
-EXAMPLE FORMAT:
-### Topic: Percentage Increase/Decrease
-
-**📋 Formula Card:**
-- Increase: New = Original × (1 + r/100)
-- Decrease: New = Original × (1 - r/100)
+**Answer:** B
+**Shortcut:** Quick method.
 
 ---
+\`\`\`
 
-**⏱️ 30-SECOND DRILL**
+🚫 **VIOLATIONS THAT WILL FAIL**:
+- Putting options on a single line: "A) ... B) ... C) ... D) ..." ❌
+- Using [IMAGE:] tags (use \`\`\`figure-spec\`\`\` JSON instead) ❌
+- Writing long paragraphs of explanation ❌
+- Only 2-3 questions per drill section ❌
 
-**Q1.** A price increases by 20%. Find the new price if original is ₹500.
-**Answer:** ₹600
-**Shortcut:** 20% of 500 = 100, so 500 + 100 = 600
-
----
-
-**Q2.** [⏱️ 60s] If a number is first increased by 25% and then decreased by 20%, what is the net change?
-**Answer:** 0% (No change)
-**Approach 1 (Long):** 100 → 125 → 100
-**Approach 2 (Shortcut):** +25% × -20% = -5% + 5% cancels = 0%
-**Pattern:** "Successive percentage" always use multiplication formula.
-
----
-
-**⚠️ TRAP ALERT:**
-- DON'T add/subtract percentages directly!
-- 20% increase + 10% decrease ≠ 10% increase
+TONE: Fast-paced, exam-focused, like coaching before a test.
 `;
 }
 
