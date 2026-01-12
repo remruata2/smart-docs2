@@ -73,7 +73,7 @@ export const STYLE_CONFIG: Record<ContentStyle, StyleConfig> = {
         mcqCount: 50,
         shortAnswerCount: 10,
         longAnswerCount: 5,
-        imageCount: 3,
+        imageCount: 0, // No images for pure Q&A format
         format: 'qa',
     },
     summary: {
