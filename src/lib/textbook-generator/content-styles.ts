@@ -878,19 +878,42 @@ function getAptitudeDrillUniversalInstructions(): string {
    - Show "Question Fingerprints" (how to identify question type instantly)
    - Teach elimination strategies
 
-6. �️ WHEN TO USE IMAGES:
-   - **Figure Series**: Use [IMAGE: figure_series_1] for pattern questions
-   - **Data Interpretation**: Use [IMAGE: di_chart_1] for charts/graphs/tables
-   - **Non-Verbal Reasoning**: Use for mirror images, paper folding, etc.
-   - **Venn Diagrams**: Use for set-based reasoning problems
-   - Keep images SIMPLE and EXAM-LIKE (black and white, clean lines)
-   - DO NOT use images for pure calculation questions (percentages, averages, etc.)
+6. 🖼️ FIGURE GENERATION (For Visual Questions):
+   For figure-based questions (shapes, patterns, sequences), use this JSON format:
+   
+   \`\`\`figure-spec
+   {
+     "type": "series",
+     "figures": [
+       {"shape": "circle", "fill": "black"},
+       {"shape": "square", "fill": "black"},
+       {"shape": "triangle", "fill": "black"},
+       {"shape": "question_mark"}
+     ]
+   }
+   \`\`\`
+   
+   **Available shapes**: circle, square, triangle, pentagon, hexagon, star, arrow, diamond, cross, plus, question_mark
+   **Shape options**: 
+   - fill: "black" | "white" | "gray" | "none"
+   - rotation: 0-360 (degrees)
+   - innerShape: any shape (for nested shapes)
+   - dots: 1-6 (dots inside shape)
+   - lines: 1-4 (lines inside shape)
+   
+   **Pattern types**:
+   - "series": Shape sequence (A → B → C → ?)
+   - "rotation": Same shape rotated progressively
+   - "odd_one_out": Find the different shape
+   - "grid": 3x3 pattern matrix
+
+   **DO NOT** use [IMAGE:] tags. Use the JSON figure-spec format above.
+   For pure calculation questions (percentages, averages), DO NOT use any figures.
 
 7. 🚫 WHAT TO AVOID:
    - NO long paragraphs of explanation
    - NO subjective questions
    - NO derivations or proofs
-   - Keep formula introductions to 1-2 lines MAX
 
 8. 📝 ANSWER KEY FORMAT:
    - Provide answer grid at the end

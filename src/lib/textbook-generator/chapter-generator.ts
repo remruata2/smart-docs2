@@ -11,6 +11,7 @@ import { getProviderApiKey, recordKeyUsage } from '@/lib/ai-key-store';
 import { prisma } from '@/lib/prisma';
 import { getTextbookModels } from './models';
 import { getSettingString } from '@/lib/app-settings';
+import { generateFigureSVG, svgToDataUrl, type FigureSpec } from './svg-figure-generator';
 import type {
     ChapterGenerationOptions,
     GeneratedChapterContent,
@@ -18,6 +19,44 @@ import type {
     TextbookUnit,
     Textbook
 } from './types';
+
+/**
+ * Process figure-spec code blocks in markdown and replace with SVG images
+ * Used for aptitude drill content with visual pattern questions
+ */
+async function processFigureSpecs(markdown: string): Promise<string> {
+    // Regex to find ```figure-spec ... ``` blocks
+    const figureSpecRegex = /```figure-spec\s*([\s\S]*?)```/g;
+
+    let processedMarkdown = markdown;
+    let match;
+    let figureCount = 0;
+
+    while ((match = figureSpecRegex.exec(markdown)) !== null) {
+        const jsonSpec = match[1].trim();
+
+        try {
+            const spec = JSON.parse(jsonSpec) as FigureSpec;
+            const svg = generateFigureSVG(spec);
+            const dataUrl = svgToDataUrl(svg);
+
+            // Replace the code block with an inline image
+            const imageMarkdown = `![Figure ${++figureCount}](${dataUrl})`;
+            processedMarkdown = processedMarkdown.replace(match[0], imageMarkdown);
+
+            console.log(`[CHAPTER-GEN] Generated SVG figure ${figureCount} from spec`);
+        } catch (error) {
+            console.error(`[CHAPTER-GEN] Failed to process figure-spec:`, error);
+            // Leave the original block if parsing fails
+        }
+    }
+
+    if (figureCount > 0) {
+        console.log(`[CHAPTER-GEN] Processed ${figureCount} figure-spec blocks`);
+    }
+
+    return processedMarkdown;
+}
 
 // Zod schema for chapter content output
 const ChapterContentSchema = z.object({
@@ -418,6 +457,12 @@ IMPORTANT: The 'placement' field in 'images_to_generate' MUST MATCH EXACTLY the 
 
         if (hasAssessment) {
             content.markdown_content += assessmentMarkdown;
+        }
+
+        // Process figure-spec blocks (for aptitude drill content)
+        // These are JSON specs that get converted to SVG images inline
+        if (contentStyle === 'aptitude_drill') {
+            content.markdown_content = await processFigureSpecs(content.markdown_content);
         }
 
         console.log(`[CHAPTER-GEN] Successfully generated content for: ${chapter.title}`);
