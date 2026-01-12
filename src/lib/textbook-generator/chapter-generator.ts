@@ -90,7 +90,7 @@ const ChapterContentSchema = z.object({
         description: z.string().describe('Detailed, specific description for AI image generation. Include colors, layout, labels, and key elements to show.'),
         placement: z.string().describe('Where in the chapter this image should appear (e.g., "After introduction to photosynthesis", "Before the practice questions")'),
         caption: z.string().optional().describe('Caption text to display below the image'),
-    })).min(3).describe('Educational images/diagrams for this chapter. Generate as many as the content requires (typically 5-15 for comprehensive coverage). Let relevancy guide quantity, not arbitrary limits.'),
+    })).describe('Educational images/diagrams for this chapter. Generate as many as the content requires (typically 5-15 for comprehensive coverage). Let relevancy guide quantity, not arbitrary limits.'),
     mcqs: z.array(z.object({
         question: z.string(),
         options: z.array(z.string()).length(4),
@@ -624,6 +624,9 @@ export async function saveChapterContent(
                     }
                 }
             }
+
+            console.log(`[CHAPTER-GEN] Final content size: ${Math.round(markdownWithPlots.length / 1024)}KB`);
+            console.log(`[CHAPTER-GEN] MCQ Count: ${content.mcqs?.length || 0}`);
 
             // 1. Update Chapter Content
             await tx.textbookChapter.update({

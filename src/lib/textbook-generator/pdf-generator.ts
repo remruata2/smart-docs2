@@ -232,8 +232,9 @@ export async function generateChapterPDF(
 
     const imageDataPromises = chapter.images
       .filter(img => img.url && img.placement)
-      .map(async (image) => {
+      .map(async (image, idx) => {
         try {
+          console.log(`[PDF-GEN] [${idx + 1}/${chapter.images.length}] Fetching image: ${image.url}`);
           const imageResponse = await fetch(image.url!);
           if (!imageResponse.ok) {
             console.error(`[PDF-GEN] Failed to fetch image ${image.id}: ${imageResponse.status}`);
@@ -330,8 +331,13 @@ export async function generateChapterPDF(
     console.log(`[PDF-GEN] Browser launched, creating page...`);
 
     const page = await browser.newPage();
-    console.log(`[PDF-GEN] Setting HTML content...`);
-    await page.setContent(html, { waitUntil: 'networkidle0' });
+    console.log(`[PDF-GEN] Setting HTML content (Size: ${Math.round(html.length / 1024)}KB)...`);
+
+    // Increased timeout to 60s for large aptitude content with many SVGs
+    await page.setContent(html, {
+      waitUntil: 'networkidle0',
+      timeout: 60000
+    });
 
     console.log(`[PDF-GEN] Generating PDF buffer...`);
     const pdfBuffer = await page.pdf({

@@ -145,10 +145,14 @@ export async function POST(request: NextRequest, { params }: RouteParams) {
                 console.log(`[API] Background generation completed for chapter ${chapterIdNum}`);
 
             } catch (error) {
-                console.error('[API] Background generation failed:', error);
+                const errorMessage = error instanceof Error ? error.message : 'Unknown generation error';
+                console.error('[API] Background generation failed:', errorMessage);
                 await prisma.textbookChapter.update({
                     where: { id: chapterIdNum },
-                    data: { status: 'FAILED' },
+                    data: {
+                        status: 'FAILED',
+                        generation_error: errorMessage
+                    },
                 });
             }
         })();
