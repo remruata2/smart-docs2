@@ -187,14 +187,31 @@ export async function generateChapterContent(
         console.log(`[CHAPTER-GEN] Using exam category: ${examCategoryLabel} (from ${syllabusExamCategory ? 'syllabus' : options.examCategory ? 'options' : 'default'})`);
 
         // Get exam-specific instructions
-        const examInstructions = getExamInstructions(examCategory, examTypes);
+        // Get exam-specific instructions
+        // CRITICAL FIX: Only include full exam instructions for "Academic" and "Case Study" styles.
+        // For "Q&A", "Summary", and "Quick Reference", the detailed exam instructions (which often demand 
+        // narrative depth, specific interlinkages, and paragraph structures) CONFLICT with the strict formatting 
+        // rules of those styles. 
+        // We still pass the Exam Label in the context, but we suppress the detailed structural prompt.
+
+        const stylesNeedingFullExamPrompt: ContentStyleType[] = ['academic', 'case_study'];
+        // Use textbook content_style or default to 'academic'
+        const contentStyle = (textbook.content_style as ContentStyleType) || 'academic';
+
+        let examInstructions = '';
+
+        if (stylesNeedingFullExamPrompt.includes(contentStyle)) {
+            examInstructions = getExamInstructions(examCategory, examTypes);
+        } else {
+            console.log(`[CHAPTER-GEN] Suppressing detailed exam prompt for style: ${contentStyle} to prevent format conflict.`);
+            // Minimal context so they still know it's for UPSC/JEE, but without the structural demands
+            examInstructions = `TARGET EXAM: ${examCategoryLabel}\n(Keep content relevant to this exam, but STRICTLY follow the ${contentStyle} format defined below.)`;
+        }
 
         const examSection = options.includeExamHighlights
             ? `\n\nEXAM CONTEXT:
 TARGET EXAM CATEGORY: ${examCategoryLabel}${examTypes.length > 0 ? `\nSPECIFIC EXAMS: ${examTypes.join(', ')}` : ''}
-- Mark important formulas and concepts likely to appear in exams
-- Include "Exam Tips" boxes with frequently asked question types
-- Highlight previous year question patterns`
+${stylesNeedingFullExamPrompt.includes(contentStyle) ? `- Mark important formulas and concepts likely to appear in exams\n- Include "Exam Tips" boxes with frequently asked question types\n- Highlight previous year question patterns` : ''}`
             : '';
 
         // Custom prompt from admin

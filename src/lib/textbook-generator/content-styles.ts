@@ -392,14 +392,15 @@ Your goal is to create a PRACTICE-FOCUSED chapter where content is presented pri
 
 🚨 CRITICAL INSTRUCTION - Q&A FORMAT 🚨
 - **PRIMARY FORMAT**: Present content as Questions and Answers, not as narrative text.
+- **NO TEXTBOOK NARRATIVES**: Do NOT write long explanations or "covering the topic" paragraphs.
 - **MCQ HEAVY**: Generate ${config.mcqCount}+ Multiple Choice Questions with detailed explanations.
 - **ANSWER EXPLANATIONS**: Every answer MUST have a detailed explanation.
 - **DIFFICULTY TAGGING**: Tag each question as [Easy], [Medium], or [Hard].
 - **CONTENT LENGTH**: ${config.minWords} to ${config.maxWords} Words total.
 
 CONTENT STRUCTURE:
-1. **Concept Snapshot** - Brief 1-2 paragraph intro to the topic
-2. **Question Bank by Subtopic** - Questions organized by subtopic
+1. **Concept Snapshot** - ULTRA-BRIEF 1-paragraph intro (max 50 words) just to set context.
+2. **Question Bank by Subtopic** - The core content. Organize strictly by questions.
    - MCQs with 4 options and explanation
    - Short Answer Questions (2-3 marks)
    - Long Answer Questions (5-10 marks)
