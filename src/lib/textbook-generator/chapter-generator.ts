@@ -233,7 +233,7 @@ ${stylesNeedingFullExamPrompt.includes(contentStyle) ? `- Mark important formula
         type ContentStyleType = keyof typeof CONTENT_STYLE_LABELS;
 
         // Use textbook content_style or default to 'academic'
-        const contentStyle = (textbook.content_style as ContentStyleType) || 'academic';
+        // const contentStyle = (textbook.content_style as ContentStyleType) || 'academic'; // Already declared above
         const contentStyleLabel = CONTENT_STYLE_LABELS[contentStyle] || 'Academic Textbook';
         const styleConfig = STYLE_CONFIG[contentStyle];
 
