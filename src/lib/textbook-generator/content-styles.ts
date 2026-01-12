@@ -101,7 +101,7 @@ export const STYLE_CONFIG: Record<ContentStyle, StyleConfig> = {
     aptitude_drill: {
         minWords: 4000,
         maxWords: 6000,
-        mcqCount: 60, // Heavy MCQ for speed practice
+        mcqCount: 0, // All MCQs are inline in markdown, not in JSON
         shortAnswerCount: 0, // Pure objective
         longAnswerCount: 0, // Pure objective
         imageCount: 20, // Generous - SVG figures are free to generate
@@ -763,12 +763,12 @@ Your goal is to create a MASSIVE QUESTION BANK organized by speed tiers.
 - **QUESTIONS ARE THE CONTENT** - 90% of the chapter should be Q&A
 - **EVERY QUESTION** must have: Time Tag + Question + Answer + Shortcut
 
-📊 **MANDATORY QUESTION QUANTITIES**:
-- **⏱️ 30-Second Speed Drill**: MINIMUM 15 questions
-- **⏱️ 60-Second Standard Drill**: MINIMUM 15 questions  
-- **⏱️ 90-Second Challenge Drill**: MINIMUM 10 questions
-- **TOTAL**: At least 40 questions per chapter (inline in markdown)
-- **JSON MCQs**: ${config.mcqCount} additional MCQs in the JSON output
+📊 **MANDATORY QUESTION QUANTITIES (60 INLINE MCQs)**:
+- **⏱️ 30-Second Speed Drill**: 20 MCQs
+- **⏱️ 60-Second Standard Drill**: 25 MCQs  
+- **⏱️ 90-Second Challenge Drill**: 15 MCQs
+- **TOTAL**: 60 inline MCQs in the markdown content
+- **NO JSON MCQs** - all questions are inline in the content
 
 📝 **QUESTION FORMAT (STRICT)**:
 Each question MUST follow this exact format:
@@ -816,11 +816,11 @@ function getAptitudeDrillInstructions(): string {
 
 🎯 **THIS IS A QUESTION BANK** - 90% of content should be Q&A, not explanations.
 
-📊 **MINIMUM QUESTION COUNTS**:
-- 30-Second Drill: 15+ questions
-- 60-Second Drill: 15+ questions
-- 90-Second Drill: 10+ questions
-- Total Inline: 40+ questions
+📊 **MINIMUM QUESTION COUNTS (60 INLINE MCQs)**:
+- 30-Second Drill: 20 MCQs
+- 60-Second Drill: 25 MCQs
+- 90-Second Drill: 15 MCQs
+- Total Inline: 60 MCQs
 
 📝 **QUESTION FORMAT (MANDATORY)**:
 \`\`\`
