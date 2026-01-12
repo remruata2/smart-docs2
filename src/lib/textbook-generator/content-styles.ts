@@ -104,7 +104,7 @@ export const STYLE_CONFIG: Record<ContentStyle, StyleConfig> = {
         mcqCount: 0, // All MCQs are inline in markdown, not in JSON
         shortAnswerCount: 0, // Pure objective
         longAnswerCount: 0, // Pure objective
-        imageCount: 20, // Generous - SVG figures are free to generate
+        imageCount: 0, // Disable Gemini images - we use programmatic SVGs instead
         format: 'drill',
     },
 };
