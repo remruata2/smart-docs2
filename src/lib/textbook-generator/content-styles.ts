@@ -453,21 +453,38 @@ FORMAT REQUIREMENTS:
 9. **Time Estimates**: Suggest time to solve each question type
 10. **Topic Tags**: Tag each question with relevant subtopic
 
+🚨 CRITICAL MCQ FORMATTING (MANDATORY):
+- Each option MUST be on its OWN LINE
+- Use this EXACT format:
+  **Q1. [MCQ - Easy]** Question text here?
+  
+  A) Option one
+  B) Option two
+  C) Option three
+  D) Option four
+  
+  **Answer:** B
+  **Explanation:** Explanation text here.
+
+- NEVER put all options on a single line like "A) ... B) ... C) ... D) ..."
+
 TONE: Practice-oriented, exam-focused. Write as if preparing a question bank.
 
 EXAMPLE FORMAT:
 ### Topic: Fundamental Rights
 
 **Q1. [MCQ - Medium]** Which of the following is NOT a Fundamental Right?
+
 A) Right to Equality
-B) Right to Property ✓
+B) Right to Property
 C) Right to Freedom
 D) Right against Exploitation
 
-**Explanation**: Right to Property was removed as a Fundamental Right by the 44th Amendment (1978). It is now a legal right under Article 300A.
+**Answer:** B
+**Explanation:** Right to Property was removed as a Fundamental Right by the 44th Amendment (1978). It is now a legal right under Article 300A.
 
 **Q2. [Short Answer - Easy]** Define 'Right to Constitutional Remedies'.
-**Answer**: Article 32 gives citizens the right to approach the Supreme Court directly for enforcement of Fundamental Rights. Dr. Ambedkar called it the "heart and soul" of the Constitution.
+**Answer:** Article 32 gives citizens the right to approach the Supreme Court directly for enforcement of Fundamental Rights. Dr. Ambedkar called it the "heart and soul" of the Constitution.
 `;
 }
 
@@ -783,6 +800,21 @@ FORMAT REQUIREMENTS:
 8. **Answer Grid**: Quick answer lookup at the end
 9. **Mental Math Emphasis**: "No Calculator" techniques
 10. **Speed Tips**: "Pro Tip: Solve in 20 seconds" callouts
+
+🚨 CRITICAL MCQ FORMATTING (MANDATORY):
+- Each option MUST be on its OWN LINE
+- Use this EXACT format:
+  **Q1. [⏱️ 30s]** Question text here?
+  
+  A) Option one
+  B) Option two
+  C) Option three
+  D) Option four
+  
+  **Answer:** B
+  **Shortcut:** Quick method explanation.
+
+- NEVER put all options on a single line like "A) ... B) ... C) ... D) ..."
 
 TONE: Fast-paced, practical, exam-focused. Write as if coaching a student before their test.
 
