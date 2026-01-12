@@ -97,6 +97,19 @@ const ChapterContentSchema = z.object({
         correctAnswer: z.number().min(0).max(3),
         explanation: z.string(),
         difficulty: z.enum(['easy', 'medium', 'hard']),
+        figureSpec: z.object({
+            type: z.enum(['series', 'rotation', 'odd_one_out', 'grid']),
+            figures: z.array(z.object({
+                shape: z.enum(['circle', 'square', 'triangle', 'pentagon', 'hexagon', 'star', 'arrow', 'diamond', 'cross', 'plus', 'question_mark']),
+                fill: z.enum(['black', 'white', 'gray', 'none']).optional(),
+                rotation: z.number().optional(),
+                innerShape: z.enum(['circle', 'square', 'triangle', 'pentagon', 'hexagon', 'star', 'arrow', 'diamond', 'cross', 'plus', 'question_mark']).optional(),
+                innerFill: z.enum(['black', 'white', 'gray', 'none']).optional(),
+                dots: z.number().optional(),
+                lines: z.number().optional(),
+            })),
+            columns: z.number().optional(),
+        }).optional().describe('For figure-based aptitude questions - generates SVG shapes'),
     })).optional().describe('Multiple choice questions for practice'),
     short_answers: z.array(z.object({
         question: z.string(),
@@ -434,9 +447,22 @@ IMPORTANT: The 'placement' field in 'images_to_generate' MUST MATCH EXACTLY the 
         if (content.mcqs && content.mcqs.length > 0) {
             hasAssessment = true;
             assessmentMarkdown += '\n### Multiple Choice Questions\n';
-            assessmentMarkdown += content.mcqs.map((q, i) =>
-                `${i + 1}. ${q.question}\n\n${q.options.map((opt, oi) => `    ${String.fromCharCode(65 + oi)}. ${opt}`).join('\n')}\n   > **Answer:** ${String.fromCharCode(65 + q.correctAnswer)} — ${q.explanation}`
-            ).join('\n\n');
+            assessmentMarkdown += content.mcqs.map((q, i) => {
+                // Generate SVG figure if figureSpec is provided (for aptitude questions)
+                let figureImage = '';
+                if (q.figureSpec) {
+                    try {
+                        const svg = generateFigureSVG(q.figureSpec as FigureSpec);
+                        const dataUrl = svgToDataUrl(svg);
+                        figureImage = `\n\n![Figure for Q${i + 1}](${dataUrl})\n\n`;
+                        console.log(`[CHAPTER-GEN] Generated SVG figure for MCQ ${i + 1}`);
+                    } catch (error) {
+                        console.error(`[CHAPTER-GEN] Failed to generate figure for MCQ ${i + 1}:`, error);
+                    }
+                }
+
+                return `${i + 1}. ${q.question}${figureImage}\n\n${q.options.map((opt, oi) => `    ${String.fromCharCode(65 + oi)}. ${opt}`).join('\n')}\n   > **Answer:** ${String.fromCharCode(65 + q.correctAnswer)} — ${q.explanation}`;
+            }).join('\n\n');
         }
 
         if (content.short_answers && content.short_answers.length > 0) {

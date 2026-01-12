@@ -173,6 +173,19 @@ export interface GeneratedMCQ {
   explanation: string;
   difficulty: 'easy' | 'medium' | 'hard';
   examRelevance?: string[]; // Dynamic exam types (e.g., ['UPSC Prelims', 'MPSC'])
+  figureSpec?: {
+    type: 'series' | 'rotation' | 'odd_one_out' | 'grid';
+    figures: {
+      shape: 'circle' | 'square' | 'triangle' | 'pentagon' | 'hexagon' | 'star' | 'arrow' | 'diamond' | 'cross' | 'plus' | 'question_mark';
+      fill?: 'black' | 'white' | 'gray' | 'none';
+      rotation?: number;
+      innerShape?: 'circle' | 'square' | 'triangle' | 'pentagon' | 'hexagon' | 'star' | 'arrow' | 'diamond' | 'cross' | 'plus' | 'question_mark';
+      innerFill?: 'black' | 'white' | 'gray' | 'none';
+      dots?: number;
+      lines?: number;
+    }[];
+    columns?: number;
+  };
 }
 
 export interface GeneratedShortAnswer {
