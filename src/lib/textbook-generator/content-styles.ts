@@ -104,7 +104,7 @@ export const STYLE_CONFIG: Record<ContentStyle, StyleConfig> = {
         mcqCount: 60, // Heavy MCQ for speed practice
         shortAnswerCount: 0, // Pure objective
         longAnswerCount: 0, // Pure objective
-        imageCount: 5, // For figure series, DI charts, Venn diagrams
+        imageCount: 20, // Generous - SVG figures are free to generate
         format: 'drill',
     },
 };
