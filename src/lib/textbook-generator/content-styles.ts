@@ -104,7 +104,7 @@ export const STYLE_CONFIG: Record<ContentStyle, StyleConfig> = {
         mcqCount: 60, // Heavy MCQ for speed practice
         shortAnswerCount: 0, // Pure objective
         longAnswerCount: 0, // Pure objective
-        imageCount: 0, // No images, pure problem solving
+        imageCount: 5, // For figure series, DI charts, Venn diagrams
         format: 'drill',
     },
 };
@@ -878,14 +878,21 @@ function getAptitudeDrillUniversalInstructions(): string {
    - Show "Question Fingerprints" (how to identify question type instantly)
    - Teach elimination strategies
 
-6. 🚫 WHAT TO AVOID:
+6. �️ WHEN TO USE IMAGES:
+   - **Figure Series**: Use [IMAGE: figure_series_1] for pattern questions
+   - **Data Interpretation**: Use [IMAGE: di_chart_1] for charts/graphs/tables
+   - **Non-Verbal Reasoning**: Use for mirror images, paper folding, etc.
+   - **Venn Diagrams**: Use for set-based reasoning problems
+   - Keep images SIMPLE and EXAM-LIKE (black and white, clean lines)
+   - DO NOT use images for pure calculation questions (percentages, averages, etc.)
+
+7. 🚫 WHAT TO AVOID:
    - NO long paragraphs of explanation
-   - NO images or diagrams (pure calculation focus)
    - NO subjective questions
    - NO derivations or proofs
    - Keep formula introductions to 1-2 lines MAX
 
-7. 📝 ANSWER KEY FORMAT:
+8. 📝 ANSWER KEY FORMAT:
    - Provide answer grid at the end
    - Include "Quick Solve" hints for each answer
 `;
