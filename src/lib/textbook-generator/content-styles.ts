@@ -908,6 +908,9 @@ function getAptitudeDrillUniversalInstructions(): string {
    **DO NOT** use [IMAGE:] tags. Use the JSON figure-spec format above.
    For pure calculation questions (percentages, averages), DO NOT use any figures.
 
+   **ANSWER FIGURES**:
+   For visual pattern questions, you MUST also include a figure-spec in the Answer/Explanation section showing the correct solution pattern (the completed series/grid) so the student can visualize why it is correct.
+
 7. 🚫 WHAT TO AVOID:
    - NO long paragraphs of explanation
    - NO subjective questions
