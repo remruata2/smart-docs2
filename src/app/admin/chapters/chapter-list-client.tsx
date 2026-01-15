@@ -9,9 +9,15 @@ import { Button } from "@/components/ui/button";
 interface ChapterListClientProps {
     chapters: any[];
     onDelete: (ids: string[]) => Promise<void>;
+    pagination: {
+        currentPage: number;
+        pageSize: number;
+        totalCount: number;
+        totalPages: number;
+    };
 }
 
-export default function ChapterListClient({ chapters, onDelete }: ChapterListClientProps) {
+export default function ChapterListClient({ chapters, onDelete, pagination }: ChapterListClientProps) {
     const [selectedIds, setSelectedIds] = useState<Set<string>>(new Set());
     const [isPending, startTransition] = useTransition();
     const router = useRouter();
@@ -388,6 +394,95 @@ export default function ChapterListClient({ chapters, onDelete }: ChapterListCli
                         <li className="px-4 py-4 text-center text-gray-500">No chapters found.</li>
                     )}
                 </ul>
+            </div>
+
+            {/* Pagination Controls */}
+            <div className="mt-6 flex items-center justify-between bg-white px-4 py-3 rounded-lg shadow">
+                <div className="flex items-center gap-2 text-sm text-gray-700">
+                    <span>Showing</span>
+                    <span className="font-semibold">{((pagination.currentPage - 1) * pagination.pageSize) + 1}</span>
+                    <span>to</span>
+                    <span className="font-semibold">{Math.min(pagination.currentPage * pagination.pageSize, pagination.totalCount)}</span>
+                    <span>of</span>
+                    <span className="font-semibold">{pagination.totalCount}</span>
+                    <span>chapters</span>
+                </div>
+
+                <div className="flex items-center gap-2">
+                    {/* Page size selector */}
+                    <select
+                        value={pagination.pageSize}
+                        onChange={(e) => {
+                            const params = new URLSearchParams(window.location.search);
+                            params.set('pageSize', e.target.value);
+                            params.set('page', '1'); // Reset to page 1 on page size change
+                            window.location.search = params.toString();
+                        }}
+                        className="border border-gray-300 rounded px-2 py-1 text-sm"
+                    >
+                        <option value="25">25 per page</option>
+                        <option value="50">50 per page</option>
+                        <option value="100">100 per page</option>
+                    </select>
+
+                    {/* Pagination buttons */}
+                    <button
+                        onClick={() => {
+                            const params = new URLSearchParams(window.location.search);
+                            params.set('page', String(pagination.currentPage - 1));
+                            window.location.search = params.toString();
+                        }}
+                        disabled={pagination.currentPage <= 1}
+                        className="px-3 py-1 border border-gray-300 rounded hover:bg-gray-50 disabled:opacity-50 disabled:cursor-not-allowed text-sm"
+                    >
+                        Previous
+                    </button>
+
+                    <div className="flex items-center gap-1">
+                        {Array.from({ length: Math.min(5, pagination.totalPages) }, (_, i) => {
+                            // Show first, last, current, and neighboring pages
+                            let pageNum: number;
+                            if (pagination.totalPages <= 5) {
+                                pageNum = i + 1;
+                            } else if (pagination.currentPage <= 3) {
+                                pageNum = i + 1;
+                            } else if (pagination.currentPage >= pagination.totalPages - 2) {
+                                pageNum = pagination.totalPages - 4 + i;
+                            } else {
+                                pageNum = pagination.currentPage - 2 + i;
+                            }
+
+                            return (
+                                <button
+                                    key={pageNum}
+                                    onClick={() => {
+                                        const params = new URLSearchParams(window.location.search);
+                                        params.set('page', String(pageNum));
+                                        window.location.search = params.toString();
+                                    }}
+                                    className={`px-3 py-1 border rounded text-sm ${pageNum === pagination.currentPage
+                                            ? 'bg-indigo-600 text-white border-indigo-600'
+                                            : 'border-gray-300 hover:bg-gray-50'
+                                        }`}
+                                >
+                                    {pageNum}
+                                </button>
+                            );
+                        })}
+                    </div>
+
+                    <button
+                        onClick={() => {
+                            const params = new URLSearchParams(window.location.search);
+                            params.set('page', String(pagination.currentPage + 1));
+                            window.location.search = params.toString();
+                        }}
+                        disabled={pagination.currentPage >= pagination.totalPages}
+                        className="px-3 py-1 border border-gray-300 rounded hover:bg-gray-50 disabled:opacity-50 disabled:cursor-not-allowed text-sm"
+                    >
+                        Next
+                    </button>
+                </div>
             </div>
         </div>
     );
