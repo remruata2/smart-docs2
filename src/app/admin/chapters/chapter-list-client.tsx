@@ -368,24 +368,17 @@ export default function ChapterListClient({ chapters, onDelete, pagination }: Ch
                                             </div>
                                         </div>
 
+                                        {/* Status badges removed chunks/pages count for performance */}
                                         <div className="flex items-center gap-3">
-                                            <div className="flex items-center px-3 py-1 bg-indigo-50 text-indigo-700 rounded-lg border border-indigo-100 shadow-sm text-sm">
-                                                <span className="font-bold mr-1.5">Chunks:</span>
-                                                <span className="tabular-nums font-medium">{chapter._count.chunks}</span>
-                                            </div>
-                                            <div className="flex items-center px-3 py-1 bg-emerald-50 text-emerald-700 rounded-lg border border-emerald-100 shadow-sm text-sm">
-                                                <span className="font-bold mr-1.5">Pages:</span>
-                                                <span className="tabular-nums font-medium">{chapter._count.pages}</span>
-                                            </div>
                                         </div>
-                                    </div>
 
-                                    {chapter.processing_status === 'FAILED' && chapter.error_message && (
-                                        <div className="mt-3 text-xs text-red-600 bg-red-50 border border-red-100 p-2.5 rounded-md flex items-start gap-2">
-                                            <span className="font-bold shrink-0">Error:</span>
-                                            <span>{chapter.error_message}</span>
-                                        </div>
-                                    )}
+                                        {chapter.processing_status === 'FAILED' && chapter.error_message && (
+                                            <div className="mt-3 text-xs text-red-600 bg-red-50 border border-red-100 p-2.5 rounded-md flex items-start gap-2">
+                                                <span className="font-bold shrink-0">Error:</span>
+                                                <span>{chapter.error_message}</span>
+                                            </div>
+                                        )}
+                                    </div>
                                 </div>
                             </div>
                         </li>
@@ -461,8 +454,8 @@ export default function ChapterListClient({ chapters, onDelete, pagination }: Ch
                                         window.location.search = params.toString();
                                     }}
                                     className={`px-3 py-1 border rounded text-sm ${pageNum === pagination.currentPage
-                                            ? 'bg-indigo-600 text-white border-indigo-600'
-                                            : 'border-gray-300 hover:bg-gray-50'
+                                        ? 'bg-indigo-600 text-white border-indigo-600'
+                                        : 'border-gray-300 hover:bg-gray-50'
                                         }`}
                                 >
                                     {pageNum}
