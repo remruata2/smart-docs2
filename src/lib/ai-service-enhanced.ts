@@ -3889,7 +3889,7 @@ Output a JSON object with a "questions" array.`;
 /**
  * Exam category types for difficulty calibration
  */
-type ExamCategory =
+export type ExamCategory =
 	| 'primary'      // Class 1-5
 	| 'middle'       // Class 6-8
 	| 'secondary'    // Class 9-10

@@ -8,6 +8,7 @@ import { isAdmin } from "@/lib/auth";
 import { supabaseAdmin } from "@/lib/supabase";
 import { clearChapterCache } from "@/lib/response-cache";
 import { generateQuestionBank } from "@/lib/question-bank-service";
+import { DEFAULT_CONFIG } from "@/app/admin/chapters/new/question-bank-config";
 
 export async function regenerateChapterQuizAction(chapterId: string) {
     const session = await getServerSession(authOptions);
@@ -19,29 +20,25 @@ export async function regenerateChapterQuizAction(chapterId: string) {
         const bigIntId = BigInt(chapterId);
 
         // 1. Delete all existing questions for this chapter
-        await prisma.question.deleteMany({
+        const deletedCount = await prisma.question.deleteMany({
             where: { chapter_id: bigIntId }
         });
 
-        // 2. Trigger regeneration in background with the current halved defaults
-        // These match the new DEFAULT_CONFIG in question-bank-config.tsx
-        const halvedConfig = {
-            easy: { MCQ: 15, TRUE_FALSE: 15, FILL_IN_BLANK: 15, SHORT_ANSWER: 5, LONG_ANSWER: 5 },
-            medium: { MCQ: 15, TRUE_FALSE: 15, FILL_IN_BLANK: 15, SHORT_ANSWER: 5, LONG_ANSWER: 5 },
-            hard: { MCQ: 10, TRUE_FALSE: 10, FILL_IN_BLANK: 10, SHORT_ANSWER: 5, LONG_ANSWER: 5 },
-        };
+        console.log(`[QUIZ-REGEN] Deleted ${deletedCount.count} existing questions for chapter ${chapterId}`);
 
-        // Fire and forget
+        // 2. Trigger regeneration in background with the current defaults
+        // Using DEFAULT_CONFIG ensures consistency with the UI
         setImmediate(async () => {
             try {
-                await generateQuestionBank(chapterId, halvedConfig as any);
+                await generateQuestionBank(chapterId, DEFAULT_CONFIG as any);
+                console.log(`[QUIZ-REGEN] Successfully regenerated quiz for chapter ${chapterId}`);
             } catch (error) {
                 console.error(`[QUIZ-REGEN] Failed for chapter ${chapterId}:`, error);
             }
         });
 
         revalidatePath("/admin/chapters");
-        return { success: true };
+        return { success: true, deletedCount: deletedCount.count };
     } catch (error) {
         console.error("Error regenerating quiz:", error);
         throw error;

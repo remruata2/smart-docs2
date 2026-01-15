@@ -43,8 +43,8 @@ export default function ChapterListClient({ chapters, onDelete }: ChapterListCli
         startTransition(async () => {
             try {
                 const { regenerateChapterQuizAction } = await import("./actions");
-                await regenerateChapterQuizAction(chapterId);
-                toast.success("Quiz regeneration started in background");
+                const result = await regenerateChapterQuizAction(chapterId);
+                toast.success(`Quiz regeneration started! Deleted ${result.deletedCount} old questions.`);
                 router.refresh();
             } catch (error: any) {
                 toast.error(error.message || "Failed to start quiz regeneration");

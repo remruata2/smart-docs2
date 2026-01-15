@@ -8,7 +8,7 @@ export interface QuestionBankConfigState {
     hard: Record<QuestionType, number>;
 }
 
-const DEFAULT_CONFIG: QuestionBankConfigState = {
+export const DEFAULT_CONFIG: QuestionBankConfigState = {
     easy: { MCQ: 15, TRUE_FALSE: 15, FILL_IN_BLANK: 15, SHORT_ANSWER: 5, LONG_ANSWER: 5 },
     medium: { MCQ: 15, TRUE_FALSE: 15, FILL_IN_BLANK: 15, SHORT_ANSWER: 5, LONG_ANSWER: 5 },
     hard: { MCQ: 10, TRUE_FALSE: 10, FILL_IN_BLANK: 10, SHORT_ANSWER: 5, LONG_ANSWER: 5 },
