@@ -156,6 +156,13 @@ export interface ChapterGenerationOptions {
   difficulty: 'basic' | 'intermediate' | 'advanced';
   thinkingLevel: 'low' | 'high';
   customPrompt?: string; // Optional extra prompt from admin
+  // Overrides
+  minWords?: number;
+  maxWords?: number;
+  mcqCount?: number;
+  shortAnswerCount?: number;
+  longAnswerCount?: number;
+  imageCount?: number;
 }
 
 export interface QuestionGenerationOptions {

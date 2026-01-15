@@ -1065,6 +1065,14 @@ model TextbookChapter {
   short_questions Json? // Array of short answer questions
   long_questions  Json? // Array of long answer questions
 
+  // Generation overrides (customizable by admin)
+  min_words          Int?
+  max_words          Int?
+  mcq_count          Int?
+  short_answer_count Int?
+  long_answer_count  Int?
+  image_count        Int?
+
   // Generation metadata
   model_used         String? @db.VarChar(100)
   tokens_used        Json? // { input: number, output: number }

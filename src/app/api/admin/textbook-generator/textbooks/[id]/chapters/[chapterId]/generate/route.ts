@@ -49,6 +49,13 @@ export async function POST(request: NextRequest, { params }: RouteParams) {
             difficulty: options.difficulty || 'intermediate',
             thinkingLevel: options.thinkingLevel || 'high',
             customPrompt: customPrompt,
+            // Overrides from UI
+            minWords: options.minWords,
+            maxWords: options.maxWords,
+            mcqCount: options.mcqCount,
+            shortAnswerCount: options.shortAnswerCount,
+            longAnswerCount: options.longAnswerCount,
+            imageCount: options.imageCount,
         };
 
         // Verify chapter belongs to textbook

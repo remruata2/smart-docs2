@@ -21,17 +21,20 @@ import {
     SelectTrigger,
     SelectValue,
 } from '@/components/ui/select';
+import { Input } from '@/components/ui/input';
 import { Sparkles, Loader2, FileText, Image as ImageIcon } from 'lucide-react';
 import type { TextbookChapter } from '@/lib/textbook-generator/types';
 
 interface ChapterGenerationDialogProps {
     chapter: TextbookChapter;
+    styleConfig?: any; // Passed from parent to provide defaults
     onGenerate: (options: any) => Promise<void>;
     trigger?: React.ReactNode;
 }
 
 export function ChapterGenerationDialog({
     chapter,
+    styleConfig,
     onGenerate,
     trigger
 }: ChapterGenerationDialogProps) {
@@ -45,6 +48,14 @@ export function ChapterGenerationDialog({
     const [generateImages, setGenerateImages] = useState(true);
     const [generatePdf, setGeneratePdf] = useState(true);
 
+    // Dynamic Content Overrides
+    const [minWords, setMinWords] = useState(chapter.min_words || styleConfig?.minWords || 800);
+    const [maxWords, setMaxWords] = useState(chapter.max_words || styleConfig?.maxWords || 1200);
+    const [mcqCount, setMcqCount] = useState(chapter.mcq_count || styleConfig?.mcqCount || 10);
+    const [shortAnswerCount, setShortAnswerCount] = useState(chapter.short_answer_count || styleConfig?.shortAnswerCount || 5);
+    const [longAnswerCount, setLongAnswerCount] = useState(chapter.long_answer_count || styleConfig?.longAnswerCount || 3);
+    const [imageCount, setImageCount] = useState(chapter.image_count || styleConfig?.imageCount || 3);
+
     const handleGenerate = async () => {
         try {
             setLoading(true);
@@ -53,6 +64,13 @@ export function ChapterGenerationDialog({
                 options: {
                     includeExamHighlights,
                     difficulty,
+                    // Pass overrides
+                    minWords,
+                    maxWords,
+                    mcqCount,
+                    shortAnswerCount,
+                    longAnswerCount,
+                    imageCount,
                 },
                 generateImages,
                 generatePdf,
@@ -83,7 +101,7 @@ export function ChapterGenerationDialog({
                     </DialogDescription>
                 </DialogHeader>
 
-                <div className="space-y-6 py-4">
+                <div className="space-y-6 py-4 max-h-[60vh] overflow-y-auto pr-2">
                     {/* Custom Prompt */}
                     <div className="space-y-2">
                         <Label>Custom Instructions (Optional)</Label>
@@ -93,6 +111,67 @@ export function ChapterGenerationDialog({
                             onChange={(e) => setCustomPrompt(e.target.value)}
                             rows={3}
                         />
+                    </div>
+
+                    {/* Quantity Overrides */}
+                    <div className="space-y-4">
+                        <Label className="text-primary font-bold">Content Quantity Overrides</Label>
+                        <div className="grid grid-cols-2 gap-4">
+                            <div className="space-y-2">
+                                <Label htmlFor="minWords">Min Words</Label>
+                                <Input
+                                    id="minWords"
+                                    type="number"
+                                    value={minWords}
+                                    onChange={(e) => setMinWords(parseInt(e.target.value))}
+                                />
+                            </div>
+                            <div className="space-y-2">
+                                <Label htmlFor="maxWords">Max Words</Label>
+                                <Input
+                                    id="maxWords"
+                                    type="number"
+                                    value={maxWords}
+                                    onChange={(e) => setMaxWords(parseInt(e.target.value))}
+                                />
+                            </div>
+                            <div className="space-y-2">
+                                <Label htmlFor="mcqCount">MCQ Count</Label>
+                                <Input
+                                    id="mcqCount"
+                                    type="number"
+                                    value={mcqCount}
+                                    onChange={(e) => setMcqCount(parseInt(e.target.value))}
+                                />
+                            </div>
+                            <div className="space-y-2">
+                                <Label htmlFor="imageCount">Image Count</Label>
+                                <Input
+                                    id="imageCount"
+                                    type="number"
+                                    value={imageCount}
+                                    onChange={(e) => setImageCount(parseInt(e.target.value))}
+                                />
+                            </div>
+                            <div className="space-y-2">
+                                <Label htmlFor="shortAnswerCount">Short Answers</Label>
+                                <Input
+                                    id="shortAnswerCount"
+                                    type="number"
+                                    value={shortAnswerCount}
+                                    onChange={(e) => setShortAnswerCount(parseInt(e.target.value))}
+                                />
+                            </div>
+                            <div className="space-y-2">
+                                <Label htmlFor="longAnswerCount">Long Answers</Label>
+                                <Input
+                                    id="longAnswerCount"
+                                    type="number"
+                                    value={longAnswerCount}
+                                    onChange={(e) => setLongAnswerCount(parseInt(e.target.value))}
+                                />
+                            </div>
+                        </div>
                     </div>
 
                     {/* Difficulty */}

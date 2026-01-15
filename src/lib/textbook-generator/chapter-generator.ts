@@ -307,14 +307,25 @@ ${stylesNeedingFullExamPrompt.includes(contentStyle) ? `- Mark important formula
         const { getStyleCorePrompt, getStyleUniversalInstructions, getStyleInstructions, CONTENT_STYLE_LABELS, STYLE_CONFIG } = await import('./content-styles');
         type ContentStyleType = keyof typeof CONTENT_STYLE_LABELS;
 
+        // Build prompt context for style-specific core prompt
         // Use textbook content_style or default to 'academic'
-        // const contentStyle = (textbook.content_style as ContentStyleType) || 'academic'; // Already declared above
         const contentStyleLabel = CONTENT_STYLE_LABELS[contentStyle] || 'Academic Textbook';
         const styleConfig = STYLE_CONFIG[contentStyle];
 
-        console.log(`[CHAPTER-GEN] Using content style: ${contentStyleLabel} (${styleConfig.minWords}-${styleConfig.maxWords} words, ${styleConfig.mcqCount} MCQs)`);
-
         // Build prompt context for style-specific core prompt
+        // Apply admin overrides for word counts and question counts if they exist on the chapter OR passed in options
+        const runtimeStyleConfig = {
+            ...styleConfig,
+            minWords: options.minWords ?? chapter.min_words ?? styleConfig.minWords,
+            maxWords: options.maxWords ?? chapter.max_words ?? styleConfig.maxWords,
+            mcqCount: options.mcqCount ?? chapter.mcq_count ?? styleConfig.mcqCount,
+            shortAnswerCount: options.shortAnswerCount ?? chapter.short_answer_count ?? styleConfig.shortAnswerCount,
+            longAnswerCount: options.longAnswerCount ?? chapter.long_answer_count ?? styleConfig.longAnswerCount,
+            imageCount: options.imageCount ?? chapter.image_count ?? styleConfig.imageCount,
+        };
+
+        console.log(`[CHAPTER-GEN] Runtime Config: ${runtimeStyleConfig.minWords}-${runtimeStyleConfig.maxWords} words, ${runtimeStyleConfig.mcqCount} MCQs (Override: ${options.mcqCount !== undefined || chapter.mcq_count !== null})`);
+
         const promptContext = {
             subjectName: textbook.subject_name || 'General',
             classLevel: textbook.class_level || 'General',
@@ -327,6 +338,9 @@ ${stylesNeedingFullExamPrompt.includes(contentStyle) ? `- Mark important formula
             examSection: examSection,
             contextSection: contextSection,
             customSection: customSection,
+            // Pass the runtime config to the core prompt if needed
+            minWords: runtimeStyleConfig.minWords,
+            maxWords: runtimeStyleConfig.maxWords,
         };
 
         // Get style-specific core prompt (replaces hardcoded academic prompt)
@@ -373,19 +387,19 @@ Return ONLY a valid JSON object matching this schema:
   "markdown_content": "Content formatted according to the ${contentStyleLabel} style. Use [IMAGE: description] tags for visuals. DO NOT include the exercises here (they will be appended automatically).",
   "images_to_generate": [
     { "description": "Detailed image prompt", "type": "DIAGRAM|CHART|MAP|TIMELINE|COMPARISON|INFOGRAPHIC", "placement": "must_match_IMAGE_tag_in_content", "caption": "Caption text" }
-  ], // Generate EXACTLY ${styleConfig.imageCount} images
-  "mcqs": [...], // Generate EXACTLY ${styleConfig.mcqCount} MCQs
-  "short_answers": [...], // Generate EXACTLY ${styleConfig.shortAnswerCount} short answer questions  
-  "long_answers": [...], // Generate EXACTLY ${styleConfig.longAnswerCount} long answer questions
+  ], // Generate EXACTLY ${runtimeStyleConfig.imageCount} images
+  "mcqs": [...], // Generate EXACTLY ${runtimeStyleConfig.mcqCount} MCQs
+  "short_answers": [...], // Generate EXACTLY ${runtimeStyleConfig.shortAnswerCount} short answer questions  
+  "long_answers": [...], // Generate EXACTLY ${runtimeStyleConfig.longAnswerCount} long answer questions
   "key_concepts": ["concept1", "concept2"],
   "exam_highlights": [...]
 }
 
 🚨 QUANTITY LIMITS (MANDATORY):
-- **Images**: EXACTLY ${styleConfig.imageCount} images (not more)
-- **MCQs**: EXACTLY ${styleConfig.mcqCount} questions
-- **Short Answers**: EXACTLY ${styleConfig.shortAnswerCount} questions
-- **Long Answers**: EXACTLY ${styleConfig.longAnswerCount} questions
+- **Images**: EXACTLY ${runtimeStyleConfig.imageCount} images (not more)
+- **MCQs**: EXACTLY ${runtimeStyleConfig.mcqCount} questions
+- **Short Answers**: EXACTLY ${runtimeStyleConfig.shortAnswerCount} questions
+- **Long Answers**: EXACTLY ${runtimeStyleConfig.longAnswerCount} questions
 
 IMPORTANT: The 'placement' field in 'images_to_generate' MUST MATCH EXACTLY the text inside the [IMAGE: ...] tag in the markdown_content. Your code relies on this exact match to inject the images.
 `;

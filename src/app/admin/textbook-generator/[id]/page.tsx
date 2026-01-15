@@ -68,7 +68,7 @@ import { BookCompilationDialog } from '../components/BookCompilationDialog';
 import { ChapterContentDialog } from '../components/ChapterContentDialog';
 import { toast } from 'sonner';
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@/components/ui/select';
-import { CONTENT_STYLE_LABELS, CONTENT_STYLE_DESCRIPTIONS, type ContentStyle } from '@/lib/textbook-generator/content-styles';
+import { CONTENT_STYLE_LABELS, CONTENT_STYLE_DESCRIPTIONS, STYLE_CONFIG, type ContentStyle } from '@/lib/textbook-generator/content-styles';
 
 const statusConfig: Record<TextbookStatus, { label: string; color: string; bgColor: string }> = {
     DRAFT: { label: 'Draft', color: 'text-gray-700', bgColor: 'bg-gray-100' },
@@ -625,6 +625,7 @@ export default function TextbookDetailPage({ params }: PageProps) {
                                                             {chapter.status !== 'GENERATING' && (
                                                                 <ChapterGenerationDialog
                                                                     chapter={chapter}
+                                                                    styleConfig={STYLE_CONFIG[textbook.content_style as ContentStyle || 'academic']}
                                                                     onGenerate={(options) => handleGenerateChapter(chapter.id, options)}
                                                                     trigger={
                                                                         <Button size="sm" variant={chapter.status === 'COMPLETED' ? "outline" : "default"} className="gap-2">
