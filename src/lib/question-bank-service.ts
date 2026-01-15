@@ -31,22 +31,34 @@ export async function generateQuestionBank(
     try {
         const bigChapterId = BigInt(chapterId);
 
-        // 1. Fetch all chunks for the chapter
-        const chunks = await prisma.chapterChunk.findMany({
-            where: { chapter_id: bigChapterId },
-            orderBy: { chunk_index: 'asc' },
-            select: {
-                id: true,
-                content: true,
-                page_number: true,
-                chunk_index: true
+        // 1. Fetch chapter details to get exam_category and chunks
+        const chapter = await prisma.chapter.findUnique({
+            where: { id: bigChapterId },
+            include: {
+                subject: {
+                    include: {
+                        program: true
+                    }
+                },
+                chunks: {
+                    orderBy: { chunk_index: 'asc' },
+                    select: {
+                        id: true,
+                        content: true,
+                        page_number: true,
+                        chunk_index: true
+                    }
+                }
             }
         });
 
-        if (chunks.length === 0) {
-            console.warn(`[QUESTION-BANK] No chunks found for chapter ${chapterId}`);
+        if (!chapter || chapter.chunks.length === 0) {
+            console.warn(`[QUESTION-BANK] No chunks or chapter found for chapter ${chapterId}`);
             return;
         }
+
+        const chunks = chapter.chunks;
+        const examCategory = chapter.subject.program.exam_category as any;
 
         // 2. Group chunks into logical sections (e.g., ~3 pages per section)
         // This ensures thorough coverage of the entire chapter
@@ -152,7 +164,8 @@ export async function generateQuestionBank(
                     const questions = await generateBatchQuestions({
                         context: job.section.content,
                         config: job.config,
-                        chapterTitle: `Pages ${job.section.startPage}-${job.section.endPage}` // Context for AI
+                        chapterTitle: `Pages ${job.section.startPage}-${job.section.endPage}`, // Context for AI
+                        examCategory // Pass the category
                     });
 
                     // Save to DB

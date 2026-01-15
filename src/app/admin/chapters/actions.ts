@@ -7,6 +7,46 @@ import { authOptions } from "@/lib/auth-options";
 import { isAdmin } from "@/lib/auth";
 import { supabaseAdmin } from "@/lib/supabase";
 import { clearChapterCache } from "@/lib/response-cache";
+import { generateQuestionBank } from "@/lib/question-bank-service";
+
+export async function regenerateChapterQuizAction(chapterId: string) {
+    const session = await getServerSession(authOptions);
+    if (!session?.user || !isAdmin((session.user as any).role)) {
+        throw new Error("Unauthorized");
+    }
+
+    try {
+        const bigIntId = BigInt(chapterId);
+
+        // 1. Delete all existing questions for this chapter
+        await prisma.question.deleteMany({
+            where: { chapter_id: bigIntId }
+        });
+
+        // 2. Trigger regeneration in background with the current halved defaults
+        // These match the new DEFAULT_CONFIG in question-bank-config.tsx
+        const halvedConfig = {
+            easy: { MCQ: 15, TRUE_FALSE: 15, FILL_IN_BLANK: 15, SHORT_ANSWER: 5, LONG_ANSWER: 5 },
+            medium: { MCQ: 15, TRUE_FALSE: 15, FILL_IN_BLANK: 15, SHORT_ANSWER: 5, LONG_ANSWER: 5 },
+            hard: { MCQ: 10, TRUE_FALSE: 10, FILL_IN_BLANK: 10, SHORT_ANSWER: 5, LONG_ANSWER: 5 },
+        };
+
+        // Fire and forget
+        setImmediate(async () => {
+            try {
+                await generateQuestionBank(chapterId, halvedConfig as any);
+            } catch (error) {
+                console.error(`[QUIZ-REGEN] Failed for chapter ${chapterId}:`, error);
+            }
+        });
+
+        revalidatePath("/admin/chapters");
+        return { success: true };
+    } catch (error) {
+        console.error("Error regenerating quiz:", error);
+        throw error;
+    }
+}
 
 export async function deleteChapters(chapterIds: string[]) {
     const session = await getServerSession(authOptions);

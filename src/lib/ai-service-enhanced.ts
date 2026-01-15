@@ -3753,6 +3753,7 @@ export interface BatchQuestionConfig {
 		medium: { [key in QuestionType]?: number };
 		hard: { [key in QuestionType]?: number };
 	};
+	examCategory?: ExamCategory; // Add this for better tailoring
 }
 
 /**
@@ -3760,7 +3761,7 @@ export interface BatchQuestionConfig {
  * Used for pre-generating the Question Bank
  */
 export async function generateBatchQuestions(input: BatchQuestionConfig) {
-	const { context, chapterTitle, config } = input;
+	const { context, chapterTitle, config, examCategory } = input;
 
 	// Construct a detailed request list
 	let requestList: string[] = [];
@@ -3777,8 +3778,9 @@ export async function generateBatchQuestions(input: BatchQuestionConfig) {
 
 	if (totalQuestions === 0) return [];
 
-	const prompt = `You are an expert educational content creator.
+	const prompt = `You are an expert educational content creator specializing in ${examCategory || 'Academic'} level content.
 Your task is to generate exactly ${totalQuestions} questions for the chapter section: "${chapterTitle}".
+The target audience level is: ${examCategory || 'General Academic'}.
 
 === SOURCE MATERIAL ===
 ${context}

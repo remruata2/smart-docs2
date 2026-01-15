@@ -3,7 +3,7 @@
 import { useState, useTransition, useEffect } from "react";
 import { useRouter } from "next/navigation";
 import { toast } from "sonner";
-import { Wand2, Sparkles, Loader2, Trash2, FileSearch, Zap } from "lucide-react";
+import { Wand2, Sparkles, Loader2, Trash2, FileSearch, Zap, Dices } from "lucide-react";
 import { Button } from "@/components/ui/button";
 
 interface ChapterListClientProps {
@@ -31,6 +31,23 @@ export default function ChapterListClient({ chapters, onDelete }: ChapterListCli
                 router.refresh();
             } catch (error: any) {
                 toast.error(error.message || "Failed to generate materials");
+            }
+        });
+    };
+
+    const handleRegenerateQuiz = async (chapterId: string, title: string) => {
+        if (!confirm(`This will delete ALL existing questions for "${title}" and generate new ones using current settings. Continue?`)) {
+            return;
+        }
+
+        startTransition(async () => {
+            try {
+                const { regenerateChapterQuizAction } = await import("./actions");
+                await regenerateChapterQuizAction(chapterId);
+                toast.success("Quiz regeneration started in background");
+                router.refresh();
+            } catch (error: any) {
+                toast.error(error.message || "Failed to start quiz regeneration");
             }
         });
     };
@@ -279,9 +296,25 @@ export default function ChapterListClient({ chapters, onDelete }: ChapterListCli
                                                 }}
                                                 disabled={isPending}
                                                 className="h-8 border-indigo-200 text-indigo-700 hover:bg-indigo-50"
+                                                title="Generate Study Materials"
                                             >
                                                 <Wand2 className="w-4 h-4 mr-2" />
                                                 Generate
+                                            </Button>
+
+                                            <Button
+                                                variant="outline"
+                                                size="sm"
+                                                onClick={(e) => {
+                                                    e.stopPropagation();
+                                                    handleRegenerateQuiz(chapter.id.toString(), chapter.title);
+                                                }}
+                                                disabled={isPending}
+                                                className="h-8 border-green-200 text-green-700 hover:bg-green-50"
+                                                title="Regenerate Quiz Questions"
+                                            >
+                                                <Dices className="w-4 h-4 mr-2" />
+                                                Regen Quiz
                                             </Button>
 
                                             <Button
