@@ -23,11 +23,12 @@ export default async function ChaptersPage({
         redirect("/");
     }
 
-    const { boardId, subjectId } = await searchParams;
+    const params = await searchParams;
+    const { boardId, subjectId } = params;
 
     // Pagination parameters
-    const page = parseInt((await searchParams).page || '1');
-    const pageSize = parseInt((await searchParams).pageSize || '50');
+    const page = parseInt(params.page || '1');
+    const pageSize = parseInt(params.pageSize || '50');
     const skip = (page - 1) * pageSize;
 
     // Build filter
