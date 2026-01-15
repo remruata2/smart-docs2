@@ -57,6 +57,7 @@ export default async function ChaptersPage({
                 is_global: true,
                 accessible_boards: true,
                 processing_status: true,
+                quiz_regen_status: true,  // For tracking quiz regeneration
                 error_message: true,
                 pdf_url: true,
                 created_at: true,

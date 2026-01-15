@@ -19,20 +19,38 @@ export async function regenerateChapterQuizAction(chapterId: string) {
     try {
         const bigIntId = BigInt(chapterId);
 
-        // 1. Delete all existing questions for this chapter
+        // 1. Set status to GENERATING
+        await prisma.chapter.update({
+            where: { id: bigIntId },
+            data: { quiz_regen_status: 'GENERATING' }
+        });
+
+        // 2. Delete all existing questions for this chapter
         const deletedCount = await prisma.question.deleteMany({
             where: { chapter_id: bigIntId }
         });
 
         console.log(`[QUIZ-REGEN] Deleted ${deletedCount.count} existing questions for chapter ${chapterId}`);
 
-        // 2. Trigger regeneration in background with the current defaults
-        // Using DEFAULT_CONFIG ensures consistency with the UI
+        // 3. Trigger regeneration in background with the current defaults
         setImmediate(async () => {
             try {
                 await generateQuestionBank(chapterId, DEFAULT_CONFIG as any);
+
+                // Set status to COMPLETED
+                await prisma.chapter.update({
+                    where: { id: bigIntId },
+                    data: { quiz_regen_status: 'COMPLETED' }
+                });
+
                 console.log(`[QUIZ-REGEN] Successfully regenerated quiz for chapter ${chapterId}`);
             } catch (error) {
+                // Set status to FAILED
+                await prisma.chapter.update({
+                    where: { id: bigIntId },
+                    data: { quiz_regen_status: 'FAILED' }
+                });
+
                 console.error(`[QUIZ-REGEN] Failed for chapter ${chapterId}:`, error);
             }
         });

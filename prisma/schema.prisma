@@ -482,6 +482,15 @@ enum ChapterStatus {
   @@map("chapter_status")
 }
 
+enum QuizRegenStatus {
+  IDLE
+  GENERATING
+  COMPLETED
+  FAILED
+
+  @@map("quiz_regen_status")
+}
+
 model Chapter {
   id                BigInt        @id @default(autoincrement())
   subject_id        Int
@@ -499,6 +508,8 @@ model Chapter {
   updated_at        DateTime      @updatedAt
   parsed_at         DateTime?
   pdf_url           String?
+
+  quiz_regen_status QuizRegenStatus @default(IDLE) // For tracking quiz regeneration
 
   subject           Subject           @relation(fields: [subject_id], references: [id], onDelete: Cascade)
   chunks            ChapterChunk[]

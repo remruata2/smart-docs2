@@ -20,12 +20,57 @@ interface ChapterListClientProps {
 export default function ChapterListClient({ chapters, onDelete, pagination }: ChapterListClientProps) {
     const [selectedIds, setSelectedIds] = useState<Set<string>>(new Set());
     const [isPending, startTransition] = useTransition();
+    const [generatingChapters, setGeneratingChapters] = useState<Set<string>>(new Set());
     const router = useRouter();
 
     // Check if any chapters are still processing
     const hasProcessingChapters = chapters.some(
         ch => ch.processing_status === 'PENDING' || ch.processing_status === 'PROCESSING'
     );
+
+    // Initialize generating chapters from server data
+    useEffect(() => {
+        const generating = chapters
+            .filter(ch => ch.quiz_regen_status === 'GENERATING')
+            .map(ch => ch.id.toString());
+        if (generating.length > 0) {
+            setGeneratingChapters(new Set(generating));
+        }
+    }, []);
+
+    // Poll for status updates when there are generating chapters
+    useEffect(() => {
+        if (generatingChapters.size === 0) return;
+
+        const interval = setInterval(async () => {
+            try {
+                const { getChaptersQuizStatus } = await import("./quiz-status-action");
+                const result = await getChaptersQuizStatus(Array.from(generatingChapters));
+
+                if (result.chapters) {
+                    const newGenerating = new Set<string>();
+
+                    for (const ch of result.chapters) {
+                        if (ch.quiz_regen_status === 'GENERATING') {
+                            newGenerating.add(ch.id);
+                        } else if (ch.quiz_regen_status === 'COMPLETED') {
+                            toast.success(`Quiz generation completed! Generated ${ch.question_count} questions.`);
+                            router.refresh();
+                        } else if (ch.quiz_regen_status === 'FAILED') {
+                            toast.error(`Quiz generation failed for a chapter.`);
+                            router.refresh();
+                        }
+                    }
+
+                    setGeneratingChapters(newGenerating);
+                }
+            } catch (error) {
+                console.error('Error polling quiz status:', error);
+            }
+        }, 5000);
+
+        return () => clearInterval(interval);
+    }, [generatingChapters, router]);
 
     const handleGenerateMaterials = async (chapterId: string) => {
         startTransition(async () => {
@@ -50,6 +95,10 @@ export default function ChapterListClient({ chapters, onDelete, pagination }: Ch
             try {
                 const { regenerateChapterQuizAction } = await import("./actions");
                 const result = await regenerateChapterQuizAction(chapterId);
+
+                // Track this chapter as generating
+                setGeneratingChapters(prev => new Set([...prev, chapterId]));
+
                 toast.success(`Quiz regeneration started! Deleted ${result.deletedCount} old questions.`);
                 router.refresh();
             } catch (error: any) {
@@ -308,20 +357,27 @@ export default function ChapterListClient({ chapters, onDelete, pagination }: Ch
                                                 Generate
                                             </Button>
 
-                                            <Button
-                                                variant="outline"
-                                                size="sm"
-                                                onClick={(e) => {
-                                                    e.stopPropagation();
-                                                    handleRegenerateQuiz(chapter.id.toString(), chapter.title);
-                                                }}
-                                                disabled={isPending}
-                                                className="h-8 border-green-200 text-green-700 hover:bg-green-50"
-                                                title="Regenerate Quiz Questions"
-                                            >
-                                                <Dices className="w-4 h-4 mr-2" />
-                                                Regen Quiz
-                                            </Button>
+                                            {generatingChapters.has(chapter.id.toString()) ? (
+                                                <div className="flex items-center px-3 py-1.5 bg-yellow-50 text-yellow-700 rounded-lg border border-yellow-200 text-sm animate-pulse">
+                                                    <Loader2 className="w-4 h-4 mr-2 animate-spin" />
+                                                    Generating Quiz...
+                                                </div>
+                                            ) : (
+                                                <Button
+                                                    variant="outline"
+                                                    size="sm"
+                                                    onClick={(e) => {
+                                                        e.stopPropagation();
+                                                        handleRegenerateQuiz(chapter.id.toString(), chapter.title);
+                                                    }}
+                                                    disabled={isPending}
+                                                    className="h-8 border-green-200 text-green-700 hover:bg-green-50"
+                                                    title="Regenerate Quiz Questions"
+                                                >
+                                                    <Dices className="w-4 h-4 mr-2" />
+                                                    Regen Quiz
+                                                </Button>
+                                            )}
 
                                             <Button
                                                 variant="outline"
