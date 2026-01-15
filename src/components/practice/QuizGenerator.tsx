@@ -33,7 +33,7 @@ export function QuizGenerator({
     const [selectedSubject, setSelectedSubject] = useState<string>(initialSubjectId || "");
     const [selectedChapter, setSelectedChapter] = useState<string>(initialChapterId || "");
     const [difficulty, setDifficulty] = useState<"easy" | "medium" | "hard" | "exam">("medium");
-    const [questionCount, setQuestionCount] = useState([10]);
+    const [questionCount, setQuestionCount] = useState([5]);
     const [questionTypes, setQuestionTypes] = useState<string[]>(["MCQ"]);
 
     useEffect(() => {
@@ -242,13 +242,13 @@ export function QuizGenerator({
                                 value={questionCount}
                                 onValueChange={setQuestionCount}
                                 min={5}
-                                max={10}
+                                max={20}
                                 step={1}
                                 className="py-2"
                             />
                             <div className="flex justify-between text-sm text-muted-foreground px-1">
                                 <span>5 questions</span>
-                                <span>10 questions</span>
+                                <span>20 questions</span>
                             </div>
                         </div>
                     </div>
