@@ -1,32 +1,11 @@
 import { NextRequest, NextResponse } from "next/server";
 import { prisma } from "@/lib/prisma";
-import { supabaseAdmin } from "@/lib/supabase";
+import { getMobileUser } from "@/lib/mobile-auth";
 
 export async function GET(request: NextRequest) {
     try {
-        // 1. Verify Bearer Token
-        const authHeader = request.headers.get("Authorization");
-        if (!authHeader?.startsWith("Bearer ")) {
-            return NextResponse.json({ error: "Missing Bearer token" }, { status: 401 });
-        }
-        const token = authHeader.split(" ")[1];
-        if (!supabaseAdmin) return NextResponse.json({ error: "Server config error" }, { status: 500 });
-
-        const { data: { user: supabaseUser }, error: authError } = await supabaseAdmin.auth.getUser(token);
-        if (authError || !supabaseUser?.email) {
-            return NextResponse.json({ error: "Invalid token" }, { status: 401 });
-        }
-
-        // 2. Get User ID
-        const dbUser = await prisma.user.findUnique({
-            where: { email: supabaseUser.email }
-        });
-
-        if (!dbUser) {
-            return NextResponse.json({ error: "User not found" }, { status: 404 });
-        }
-
-        const userId = dbUser.id;
+        const user = await getMobileUser(request);
+        const userId = Number(user.id);
 
         // 3. Fetch Enrollments
         const enrollments = await prisma.userEnrollment.findMany({

@@ -6,20 +6,17 @@ const nextConfig: NextConfig = {
 		// Enable styled-components support
 		styledComponents: true,
 	},
-	// Server external packages - these won't be bundled, reducing build time
 	serverExternalPackages: [
 		"mammoth",
 		"xlsx",
 		"@xenova/transformers",
 		"llamaindex",
-		"react-pdf",
 		"pdf-parse",
 		"pdf-poppler",
 		"@supabase/supabase-js",
 	],
 	// Transpile packages for client-side bundling
-	// Note: react-pdf is in serverExternalPackages, so don't include it here
-	transpilePackages: [],
+	transpilePackages: ["react-pdf"],
 	// Experimental features
 	experimental: {
 		// Increase proxy client body size for large file uploads (e.g., textbooks) - Next.js 16
@@ -284,7 +281,6 @@ const nextConfig: NextConfig = {
 			config.externals.push({
 				"@xenova/transformers": "commonjs @xenova/transformers",
 				llamaindex: "commonjs llamaindex",
-				"react-pdf": "commonjs react-pdf",
 			});
 		}
 

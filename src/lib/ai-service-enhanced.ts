@@ -3884,9 +3884,321 @@ Output a JSON object with a "questions" array.`;
 	}
 }
 
+/**
+ * Exam category types for difficulty calibration
+ */
+type ExamCategory =
+	| 'primary'      // Class 1-5
+	| 'middle'       // Class 6-8
+	| 'secondary'    // Class 9-10
+	| 'senior'       // Class 11-12 (Board level)
+	| 'entrance'     // JEE, NEET, CUET, etc. (Board level complexity)
+	| 'competitive'  // UPSC, MPSC, Bank, SSC, Railways (Competitive level)
+	| 'professional'; // CA, CS, GATE, etc.
+
+/**
+ * Get exam-appropriate difficulty guidelines based on program level/exam type
+ * @param level - Program name (e.g., "Class 10", "UPSC Prelims") for auto-detection
+ * @param difficulty - Difficulty level ("easy", "medium", "hard")
+ * @param explicitExamCategory - Optional explicit exam category from program.exam_category (takes priority)
+ */
+function getGradeDifficultyGuidelines(level?: string, difficulty?: string, explicitExamCategory?: string): string {
+	const levelStr = (level || "").toLowerCase();
+
+	// Detect exam category from level string, or use explicit if provided
+	let examCategory: ExamCategory = 'secondary'; // Default
+	let audienceLabel = level || "General";
+
+	// PRIORITY 1: Use explicit exam category if provided (from program.exam_category)
+	if (explicitExamCategory) {
+		// Map Syllabus exam_category values to our internal ExamCategory
+		const categoryMap: Record<string, ExamCategory> = {
+			'academic_board': 'secondary',  // Will be refined by grade detection below if needed
+			'engineering': 'entrance',
+			'medical': 'entrance',
+			'government_prelims': 'competitive',
+			'government_mains': 'competitive',
+			'banking': 'competitive',
+			'university': 'senior',
+			'general': 'secondary'
+		};
+
+		const mappedCategory = categoryMap[explicitExamCategory];
+		if (mappedCategory) {
+			examCategory = mappedCategory;
+			audienceLabel = level || explicitExamCategory;
+
+			// For academic_board, continue to detect grade level for age-appropriate content
+			// For other categories, skip auto-detection
+			if (explicitExamCategory !== 'academic_board' && explicitExamCategory !== 'general') {
+				// Skip the auto-detection block below by not entering any conditions
+				// The examCategory and audienceLabel are already set
+			}
+		}
+	}
+
+	// PRIORITY 2: Auto-detect from level string (fallback)
+	// Competitive exams (UPSC, MPSC, Bank, SSC, Railways, etc.)
+	if (
+		levelStr.includes('upsc') ||
+		levelStr.includes('mpsc') ||
+		levelStr.includes('psc') ||
+		levelStr.includes('bank') ||
+		levelStr.includes('ssc') ||
+		levelStr.includes('railway') ||
+		levelStr.includes('rrb') ||
+		levelStr.includes('ibps') ||
+		levelStr.includes('sbi') ||
+		levelStr.includes('lic') ||
+		levelStr.includes('civil service') ||
+		levelStr.includes('government') ||
+		levelStr.includes('govt') ||
+		levelStr.includes('public service')
+	) {
+		examCategory = 'competitive';
+		audienceLabel = level || "Competitive Exam Aspirants";
+	}
+	// Entrance exams (JEE, NEET, CUET, etc.) - Board level, not competitive
+	else if (
+		levelStr.includes('jee') ||
+		levelStr.includes('neet') ||
+		levelStr.includes('cuet') ||
+		levelStr.includes('entrance') ||
+		levelStr.includes('engineering') ||
+		levelStr.includes('medical') ||
+		levelStr.includes('clat') ||
+		levelStr.includes('cat') ||
+		levelStr.includes('mat') ||
+		levelStr.includes('xat')
+	) {
+		examCategory = 'entrance';
+		audienceLabel = level || "Entrance Exam Aspirants";
+	}
+	// Professional exams (CA, CS, GATE, etc.)
+	else if (
+		levelStr.includes('ca ') ||
+		levelStr.includes('gate') ||
+		levelStr.includes('net') ||
+		levelStr.includes('ctet') ||
+		levelStr.includes('professional')
+	) {
+		examCategory = 'professional';
+		audienceLabel = level || "Professional Exam Aspirants";
+	}
+	// School levels - parse class number
+	else {
+		const match = levelStr.match(/(?:class|grade|std)\s*(\d+)|(\d+)(?:th|st|nd|rd)?/i);
+		if (match) {
+			const gradeNum = parseInt(match[1] || match[2], 10);
+			if (gradeNum <= 5) {
+				examCategory = 'primary';
+				audienceLabel = `Class ${gradeNum} students (age ${gradeNum + 5}-${gradeNum + 6})`;
+			} else if (gradeNum <= 8) {
+				examCategory = 'middle';
+				audienceLabel = `Class ${gradeNum} students (age ${gradeNum + 5}-${gradeNum + 6})`;
+			} else if (gradeNum <= 10) {
+				examCategory = 'secondary';
+				audienceLabel = `Class ${gradeNum} students (age ${gradeNum + 5}-${gradeNum + 6})`;
+			} else {
+				examCategory = 'senior';
+				audienceLabel = `Class ${gradeNum} students (age ${gradeNum + 5}-${gradeNum + 6})`;
+			}
+		}
+	}
+
+	// Difficulty definitions for each exam category
+	const difficultyDefinitions: Record<ExamCategory, Record<string, string>> = {
+		primary: {
+			easy: `
+**EASY (Primary School - Class 1-5)**:
+- Direct recall of facts, names, basic definitions
+- Simple "What is...?" or "Name the..." questions
+- Fill blanks with words directly from the text
+- True/False on straightforward facts
+- NO abstract reasoning required`,
+			medium: `
+**MEDIUM (Primary School - Class 1-5)**:
+- Simple application of one concept
+- "Why does...?" with straightforward answers
+- Fill blanks requiring slight inference
+- Questions connecting two related facts
+- Age-appropriate vocabulary only`,
+			hard: `
+**HARD (Primary School - Class 1-5)**:
+- Apply concepts to new simple scenarios
+- Compare two things with clear differences
+- Simple cause-and-effect questions
+- 2-step reasoning maximum
+- Still age-appropriate vocabulary`
+		},
+		middle: {
+			easy: `
+**EASY (Middle School - Class 6-8)**:
+- Direct recall of definitions, formulas, facts
+- Fill blanks with key terms from chapter
+- True/False on explicit statements
+- "What is the definition of...?" questions
+- NO application or analysis`,
+			medium: `
+**MEDIUM (Middle School - Class 6-8)**:
+- Apply single rule/formula to straightforward problem
+- Simple sentence transformations
+- Explain "why" with 1-2 reasons
+- Connect two related concepts
+- NO multi-step reasoning`,
+			hard: `
+**HARD (Middle School - Class 6-8)**:
+- Apply concepts to unfamiliar scenarios
+- Multi-step problems (2-3 steps max)
+- Compare and contrast two concepts
+- Identify errors or exceptions
+- Still age-appropriate complexity`
+		},
+		secondary: {
+			easy: `
+**EASY (Secondary School - Class 9-10)**:
+- Direct recall of facts, definitions, formulas, rules
+- Fill blanks with key terms
+- Obvious correct option among distractors
+- "State...", "Define...", "What is..." questions
+- Answerable in under 30 seconds`,
+			medium: `
+**MEDIUM (Secondary School - Class 9-10)**:
+- Apply ONE rule/concept to standard problem
+- Simple transformations (active→passive, direct→indirect)
+- Fill blanks requiring context understanding
+- "Why does...?" with single clear reason
+- Answerable in 1-2 minutes
+- NO meta-analysis (don't ask WHY rules exist, just test APPLICATION)`,
+			hard: `
+**HARD (Secondary School - Class 9-10)**:
+- Apply multiple concepts together
+- Multi-step problems (3-4 steps)
+- Identify exceptions or tricky cases
+- Compare and contrast related concepts
+- Board exam level challenging questions
+- Answerable in 2-3 minutes`
+		},
+		senior: {
+			easy: `
+**EASY (Senior Secondary - Class 11-12, Board Level)**:
+- Direct recall of definitions, theorems, standard formulas
+- Fill blanks requiring subject knowledge
+- Single-step application problems
+- Basic concept questions
+- Answerable in 30-45 seconds`,
+			medium: `
+**MEDIUM (Senior Secondary - Class 11-12, Board Level)**:
+- Apply concepts to standard problems
+- Multi-step problems (2-3 steps)
+- Connect related concepts
+- Board exam typical questions
+- Numerical problems with moderate complexity
+- Answerable in 2-3 minutes`,
+			hard: `
+**HARD (Senior Secondary - Class 11-12, Board Level)**:
+- Complex multi-step problems (4-5 steps)
+- Apply multiple concepts together
+- Exception cases and edge conditions
+- HOTS (Higher Order Thinking Skills) questions
+- Board exam challenging questions
+- Answerable in 3-5 minutes
+- Still BOARD level, not competitive exam level`
+		},
+		entrance: {
+			easy: `
+**EASY (Entrance Exams - JEE/NEET/CUET, Board Level)**:
+- NCERT-based direct questions
+- Single concept application
+- Formula-based straightforward problems
+- Definition and fact recall
+- Answerable in 30-60 seconds`,
+			medium: `
+**MEDIUM (Entrance Exams - JEE/NEET/CUET, Board Level)**:
+- Standard NCERT application problems
+- Multi-step problems (2-3 steps)
+- Conceptual understanding questions
+- Moderate numerical complexity
+- Previous year easy-medium questions style
+- Answerable in 2-3 minutes`,
+			hard: `
+**HARD (Entrance Exams - JEE/NEET/CUET, Board Level)**:
+- Complex application problems
+- Multi-concept integration (3-4 concepts)
+- NCERT exemplar level questions
+- Tricky but fair questions
+- Previous year medium-hard questions style
+- Answerable in 3-4 minutes
+- Focus on conceptual depth, not tricks`
+		},
+		competitive: {
+			easy: `
+**EASY (Competitive Exams - UPSC/MPSC/Bank/SSC)**:
+- Direct factual recall
+- Current affairs basic facts
+- Standard formulas and shortcuts
+- Speed-based questions (30 seconds)
+- Clear-cut answers with no ambiguity`,
+			medium: `
+**MEDIUM (Competitive Exams - UPSC/MPSC/Bank/SSC)**:
+- Multi-statement questions (find correct/incorrect)
+- Application of facts to scenarios
+- Moderate calculation with shortcuts
+- Paragraph-based inference questions
+- Answerable in 45-60 seconds with practice
+- Elimination strategy may be needed`,
+			hard: `
+**HARD (Competitive Exams - UPSC/MPSC/Bank/SSC)**:
+- Complex multi-statement analysis
+- Tricky options requiring careful elimination
+- Data interpretation with multiple steps
+- Analytical reasoning puzzles
+- Previous year difficult questions style
+- Requires 60-90 seconds even with practice
+- Tests both knowledge AND exam strategy
+- Deliberately confusing distractors allowed`
+		},
+		professional: {
+			easy: `
+**EASY (Professional Exams - CA/GATE/NET)**:
+- Core concept definitions
+- Standard problem patterns
+- Direct application of rules
+- Foundational knowledge testing`,
+			medium: `
+**MEDIUM (Professional Exams - CA/GATE/NET)**:
+- Case-based application
+- Multi-step standard problems
+- Connecting theoretical concepts
+- Previous year standard questions`,
+			hard: `
+**HARD (Professional Exams - CA/GATE/NET)**:
+- Complex case analysis
+- Multi-concept integration
+- Edge cases and exceptions
+- Advanced problem-solving
+- Requires deep domain expertise`
+		}
+	};
+
+	const selectedDifficulty = difficulty || 'medium';
+	const guidelines = difficultyDefinitions[examCategory]?.[selectedDifficulty] || difficultyDefinitions.secondary.medium;
+
+	return `**Target Audience**: ${audienceLabel}
+
+=== DIFFICULTY CALIBRATION ===
+${guidelines}
+
+**CRITICAL**: Questions must match BOTH the exam type AND the difficulty level. 
+- For SCHOOL exams: Questions should be appropriate for the student's age and curriculum.
+- For ENTRANCE exams: Questions should be NCERT/syllabus-based, NOT tricky competitive style.
+- For COMPETITIVE exams: Questions CAN include elimination strategies, time pressure, and tricky options.
+=== END DIFFICULTY CALIBRATION ===`
+}
+
 export async function generateQuiz(
 	config: QuizGenerationConfig,
-	opts: { model?: string; keyId?: number; board?: string; level?: string } = {}
+	opts: { model?: string; keyId?: number; board?: string; level?: string; examCategory?: string } = {}
 ) {
 	try {
 		// Helper to delay
@@ -3899,14 +4211,19 @@ export async function generateQuiz(
 			return `${count}x ${type}`;
 		}).join(", ");
 		const boardContext = opts.board ? `You are an expert ${opts.board} question setter.` : "";
-		const levelContext = opts.level ? `The target audience is ${opts.level} students.` : "";
 
-		const prompt = `${boardContext} ${levelContext}
-You are creating a ${config.difficulty}-level educational quiz for students studying "${config.subject}: ${config.topic}".
+		// Get grade-appropriate difficulty guidelines
+		// Priority: explicit examCategory > auto-detect from level string
+		const difficultyGuidelines = getGradeDifficultyGuidelines(opts.level, config.difficulty, opts.examCategory);
+
+		const prompt = `${boardContext}
+${difficultyGuidelines}
+
+You are creating a **${config.difficulty.toUpperCase()}** difficulty quiz for "${config.subject}: ${config.topic}".
 
 **Subject**: ${config.subject}
 **Chapter**: ${config.topic}
-**Difficulty**: ${config.difficulty}
+**Difficulty**: ${config.difficulty.toUpperCase()}
 
 === EDUCATIONAL MATERIAL ===
 The following is the study material from the textbook chapter on this topic. Use this to create meaningful questions that test students' understanding of the concepts, facts, and knowledge they should learn from this chapter.
@@ -3926,11 +4243,34 @@ QUIZ REQUIREMENTS:
 • SHORT_ANSWER: correct_answer = 2-3 sentence model answer, 2 points
 • LONG_ANSWER: correct_answer = 5+ sentence detailed answer, 5 points
 
+QUESTION COMPLEXITY BY DIFFICULTY:
+${config.difficulty === "easy" ? `
+• Ask ONLY: "What is...?", "Define...", "Name the...", "State the..."
+• Fill blanks should use exact words from the material
+• MCQ distractors should be obviously incorrect
+• TRUE/FALSE should test explicit facts only
+• NO "Why", "How", "Compare", "Explain" questions for Easy difficulty` : ""}
+${config.difficulty === "medium" ? `
+• Ask: "What happens when...?", "Fill in: [sentence with one blank]", simple "Why...?" questions
+• Apply ONE rule or concept per question
+• For grammar: test APPLICATION of rules, not explanation of rules
+• For math/science: single-step or simple two-step problems
+• NO "Compare and contrast", "Describe the relationship", "Analyze" questions
+• NO questions asking students to explain WHY rules work (just test if they can USE rules)` : ""}
+${config.difficulty === "hard" ? `
+• Apply multiple concepts together
+• Include tricky distractors that require careful thinking
+• Test exceptions, edge cases, and common mistakes
+• Multi-step reasoning allowed (but still grade-appropriate)
+• "Compare", "Analyze", "What would happen if..." questions allowed
+• Still must be solvable by target grade students, not graduate-level` : ""}
+
 CRITICAL RULES - QUESTIONS MUST:
 ✓ Test actual subject knowledge and concepts
 ✓ Be completely self-contained and understandable without any visual aids
 ✓ Be answerable using the knowledge from the educational material
-✓ Focus on "what", "why", and "how" of the subject matter
+✓ Match the specified difficulty level EXACTLY (don't make Easy questions that are actually Medium)
+✓ Be appropriate for the target grade level
 ✓ Include all necessary context within the question itself
 
 STRICTLY PROHIBITED - DO NOT CREATE:
@@ -3943,6 +4283,8 @@ STRICTLY PROHIBITED - DO NOT CREATE:
 ✗ Questions about formatting, layout, or visual presentation
 ✗ Questions that reference section numbers, page numbers, or document organization
 ✗ Meta-questions about the text itself rather than the subject matter
+✗ Questions asking students to EXPLAIN grammar rules (for Easy/Medium - just test APPLICATION)
+✗ Questions using advanced academic terminology inappropriate for the grade level
 
 PHRASING GUIDELINES:
 ✓ GOOD: Direct questions (e.g., "What is the time complexity of binary search?")
@@ -3950,30 +4292,21 @@ PHRASING GUIDELINES:
 ✗ AVOID: "According to the text, what is..."
 ✗ AVOID: "The text states that..."
 ✗ AVOID: "In the exercise regarding..."
+✗ AVOID: "Describe the relationship between..." (for Easy/Medium difficulty)
+✗ AVOID: "Compare and contrast..." (for Easy/Medium difficulty)
+✗ AVOID: "What is the purpose of..." when asking about grammar rules (for Easy/Medium)
 
-EXAMPLES:
-❌ BAD: "In Exercise 1.2, what is the value of x?"
-✅ GOOD: "If x + 2 = 5, what is the value of x?"
+EXAMPLES OF GRADE-APPROPRIATE QUESTIONS:
+❌ BAD (Too complex for Medium): "Describe the relationship between Past Perfect and Simple Past tenses"
+✅ GOOD (Medium level): "Fill in the blank: The train ____ (leave) before I reached the station."
 
-❌ BAD: "According to the 'Note to the Reader', what implies..."
-✅ GOOD: "What implies that the product of HCF and LCM for three numbers equals the product of the numbers?"
+❌ BAD (Too complex for Medium): "Explain why grammatical inversion is required in 'No sooner...than'"  
+✅ GOOD (Medium level): "Complete: No sooner had he arrived ____ it started raining."
 
-❌ BAD: "In the provided 'Remove' algorithm, which case is executed when...?"
-✅ GOOD: "In a linked list removal operation, what happens when the list contains only one node that matches the value to be removed?"
+❌ BAD (Meta-question): "What is the purpose of placing 'had' before the subject?"
+✅ GOOD (Application): "Choose the correct form: No sooner ____ he seen the teacher than he stood up. (a) has (b) had (c) have (d) having"
 
-❌ BAD: "Which of the following numbers is shown in the provided content?"
-✅ GOOD: "What is the boiling point of water in Celsius?"
-
-❌ BAD: "According to the text, which data structure is used for BFS?"
-✅ GOOD: "Which data structure is traditionally used in the implementation of breadth-first traversal?"
-
-❌ BAD: "According to Figure 2.1, what process is shown?"
-✅ GOOD: "What is the process by which water vapor turns into liquid water?"
-
-❌ BAD: "In Activity 1.3, what was demonstrated?"
-✅ GOOD: "What happens when you mix an acid with a base?"
-
-Remember: You are testing students' knowledge of ${config.subject}, not their ability to read the textbook layout! Questions should be professional exam-style questions that stand alone without any external references.`;
+Remember: You are testing students' knowledge of ${config.subject} at the ${config.difficulty.toUpperCase()} level for their grade. Questions should be professional exam-style questions that stand alone without any external references.`;
 
 
 

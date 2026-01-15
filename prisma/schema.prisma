@@ -425,6 +425,10 @@ model Program {
   is_active      Boolean  @default(true)
   created_at     DateTime @default(now())
 
+  // Exam Category for quiz difficulty calibration
+  // Values: academic_board, engineering, medical, government_prelims, government_mains, banking, university, general
+  exam_category String? @db.VarChar(50)
+
   board       Board            @relation(fields: [board_id], references: [id])
   institution Institution?      @relation(fields: [institution_id], references: [id])
   subjects    Subject[]

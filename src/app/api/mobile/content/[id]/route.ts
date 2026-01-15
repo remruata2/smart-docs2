@@ -23,17 +23,13 @@ export async function GET(
         }
 
         const { id } = await params;
-        const chapterId = parseInt(id);
-        if (isNaN(chapterId)) {
-            return NextResponse.json({ error: "Invalid chapter ID" }, { status: 400 });
-        }
+        const chapterId = BigInt(id);
 
         // 2. Fetch Chapter
         const chapter = await prisma.chapter.findUnique({
             where: { id: chapterId },
             include: {
                 subject: true,
-                // chunks: true, // Optional: include chunks if needed for offline search
             }
         });
 
@@ -41,12 +37,56 @@ export async function GET(
             return NextResponse.json({ error: "Chapter not found" }, { status: 404 });
         }
 
-        // 3. Check Access (TODO: Check if user's board matches accessible_boards)
-        // For now, assume access is granted if authenticated
+        // 3. Fetch StudyMaterial (same as web version)
+        const studyMaterial = await prisma.studyMaterial.findUnique({
+            where: { chapter_id: chapterId },
+        });
+
+        // 4. Extract textbook content from chapter.content_json
+        const contentJson = chapter.content_json as any || {};
+        const textbookContent = contentJson.text || contentJson.markdown || contentJson.content || null;
+
+        // 5. Build materials response (matching web structure)
+        const summary = studyMaterial?.summary as any || null;
+        const materials = {
+            // Summary tab
+            summary: summary ? {
+                brief: summary.brief || null,
+                key_points: summary.key_points || [],
+                important_formulas: summary.important_formulas || [],
+            } : null,
+            // Key Terms tab (definitions)
+            key_terms: studyMaterial?.definitions || [],
+            // Flashcards tab
+            flashcards: (studyMaterial?.flashcards as any[]) || [],
+            // Videos tab
+            curated_videos: (studyMaterial?.curated_videos as any[]) || [],
+            // Textbook tab
+            content: textbookContent,
+            // Mind map (bonus)
+            mind_map: studyMaterial?.mind_map || null,
+        };
+
+        // 6. Serialize BigInt
+        const serializeWithBigInt = (obj: any): any => {
+            return JSON.parse(
+                JSON.stringify(obj, (_, value) =>
+                    typeof value === 'bigint' ? value.toString() : value
+                )
+            );
+        };
+
+        const safeChapter = serializeWithBigInt({
+            id: chapter.id,
+            title: chapter.title,
+            subject: chapter.subject,
+            pdf_url: chapter.pdf_url,
+        });
 
         return NextResponse.json({
             success: true,
-            chapter,
+            chapter: safeChapter,
+            materials,
         });
 
     } catch (error) {

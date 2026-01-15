@@ -23,11 +23,23 @@ export async function POST(request: NextRequest) {
         }
 
         // 2. Sync User to Local DB
-        // First check if user exists by email
-        let dbUser = await prisma.user.findUnique({
-            where: { email: supabaseUser.email },
-            include: { profile: true }
-        });
+        let dbUser = null;
+        const email = supabaseUser.email;
+
+        // If it's a derived email, look up by username
+        if (email.endsWith("@aiexamprep.local")) {
+            const username = email.split("@")[0];
+            dbUser = await prisma.user.findUnique({
+                where: { username },
+                include: { profile: true }
+            });
+        } else {
+            // Otherwise look up by email
+            dbUser = await prisma.user.findUnique({
+                where: { email },
+                include: { profile: true }
+            });
+        }
 
         if (!dbUser) {
             console.log(`[MOBILE AUTH] Creating new user for ${supabaseUser.email}`);
