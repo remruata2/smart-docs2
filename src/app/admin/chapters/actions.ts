@@ -8,7 +8,7 @@ import { isAdmin } from "@/lib/auth";
 import { supabaseAdmin } from "@/lib/supabase";
 import { clearChapterCache } from "@/lib/response-cache";
 import { generateQuestionBank } from "@/lib/question-bank-service";
-import { DEFAULT_CONFIG } from "@/app/admin/chapters/new/question-bank-config";
+import { DEFAULT_CONFIG } from "@/lib/question-bank-defaults";
 
 export async function regenerateChapterQuizAction(chapterId: string) {
     const session = await getServerSession(authOptions);
