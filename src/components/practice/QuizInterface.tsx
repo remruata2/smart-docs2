@@ -298,8 +298,8 @@ export function QuizInterface({ quiz }: { quiz: Quiz }) {
                     const answerArray = Array.isArray(selectedAnswers) ? selectedAnswers : [];
 
                     return (
-                        <div className="space-y-3">
-                            <p className="text-sm text-muted-foreground font-medium uppercase tracking-wider">Select all that apply</p>
+                        <div className="space-y-2">
+                            <p className="text-xs text-muted-foreground font-medium uppercase tracking-wider">Select all that apply</p>
                             {options.map((opt: string, idx: number) => {
                                 const isChecked = answerArray.includes(opt);
                                 return (
@@ -307,10 +307,10 @@ export function QuizInterface({ quiz }: { quiz: Quiz }) {
                                         key={idx}
                                         onClick={() => handleCheckboxToggle(opt)}
                                         className={`
-                                            relative flex items-center space-x-4 p-5 md:p-6 rounded-xl cursor-pointer transition-all duration-200 group
+                                            relative flex items-center space-x-3 p-3.5 md:p-4 rounded-xl cursor-pointer transition-all duration-200 group
                                             border-2 ${isChecked
-                                                ? 'border-primary bg-primary/10 shadow-lg scale-[1.01]'
-                                                : 'border-muted bg-card hover:border-primary/60 hover:bg-accent/60 hover:shadow-md'
+                                                ? 'border-primary bg-primary/10 shadow-md scale-[1.01]'
+                                                : 'border-muted bg-card hover:border-primary/60 hover:bg-accent/60 hover:shadow-sm'
                                             }
                                         `}
                                     >
@@ -318,9 +318,9 @@ export function QuizInterface({ quiz }: { quiz: Quiz }) {
                                             checked={isChecked}
                                             onCheckedChange={() => handleCheckboxToggle(opt)}
                                             id={`opt-${idx}`}
-                                            className="h-6 w-6 mt-0.5 data-[state=checked]:bg-primary data-[state=checked]:text-primary-foreground border-2"
+                                            className="h-5 w-5 mt-0.5 data-[state=checked]:bg-primary data-[state=checked]:text-primary-foreground border-2"
                                         />
-                                        <Label htmlFor={`opt-${idx}`} className="flex-1 cursor-pointer text-base md:text-lg font-medium leading-normal group-hover:text-primary transition-colors">
+                                        <Label htmlFor={`opt-${idx}`} className="flex-1 cursor-pointer text-sm md:text-base font-medium leading-snug group-hover:text-primary transition-colors">
                                             <ReactMarkdown
                                                 remarkPlugins={[remarkMath]}
                                                 rehypePlugins={[rehypeKatex]}
@@ -332,8 +332,8 @@ export function QuizInterface({ quiz }: { quiz: Quiz }) {
                                             </ReactMarkdown>
                                         </Label>
                                         {isChecked && (
-                                            <div className="absolute right-4 md:right-6 text-primary animate-in zoom-in duration-200">
-                                                <CheckCircle2 className="h-6 w-6 md:h-7 md:w-7" />
+                                            <div className="absolute right-3 md:right-4 text-primary animate-in zoom-in duration-200">
+                                                <CheckCircle2 className="h-5 w-5 md:h-6 md:w-6" />
                                             </div>
                                         )}
                                     </div>
@@ -344,7 +344,7 @@ export function QuizInterface({ quiz }: { quiz: Quiz }) {
                 } else {
                     // Render radio buttons for single-select
                     return (
-                        <RadioGroup value={answer} onValueChange={handleAnswerChange} className="space-y-3">
+                        <RadioGroup value={answer} onValueChange={handleAnswerChange} className="space-y-2">
                             {options.map((opt: string, idx: number) => {
                                 const isSelected = answer === opt;
                                 return (
@@ -352,15 +352,15 @@ export function QuizInterface({ quiz }: { quiz: Quiz }) {
                                         key={idx}
                                         onClick={() => handleAnswerChange(opt)}
                                         className={`
-                                            relative flex items-center space-x-4 p-5 md:p-6 rounded-xl cursor-pointer transition-all duration-200 group
+                                            relative flex items-center space-x-3 p-3.5 md:p-4 rounded-xl cursor-pointer transition-all duration-200 group
                                             border-2 ${isSelected
-                                                ? 'border-primary bg-primary/10 shadow-lg scale-[1.01]'
-                                                : 'border-muted bg-card hover:border-primary/60 hover:bg-accent/60 hover:shadow-md'
+                                                ? 'border-primary bg-primary/10 shadow-md scale-[1.01]'
+                                                : 'border-muted bg-card hover:border-primary/60 hover:bg-accent/60 hover:shadow-sm'
                                             }
                                         `}
                                     >
-                                        <RadioGroupItem value={opt} id={`opt-${idx}`} className="h-6 w-6 mt-0.5 border-2" />
-                                        <Label htmlFor={`opt-${idx}`} className="flex-1 cursor-pointer text-base md:text-lg font-medium leading-normal group-hover:text-primary transition-colors">
+                                        <RadioGroupItem value={opt} id={`opt-${idx}`} className="h-5 w-5 mt-0.5 border-2" />
+                                        <Label htmlFor={`opt-${idx}`} className="flex-1 cursor-pointer text-sm md:text-base font-medium leading-snug group-hover:text-primary transition-colors">
                                             <ReactMarkdown
                                                 remarkPlugins={[remarkMath]}
                                                 rehypePlugins={[rehypeKatex]}
@@ -372,8 +372,8 @@ export function QuizInterface({ quiz }: { quiz: Quiz }) {
                                             </ReactMarkdown>
                                         </Label>
                                         {isSelected && (
-                                            <div className="absolute right-4 md:right-6 text-primary animate-in zoom-in duration-200">
-                                                <CheckCircle2 className="h-6 w-6 md:h-7 md:w-7" />
+                                            <div className="absolute right-3 md:right-4 text-primary animate-in zoom-in duration-200">
+                                                <CheckCircle2 className="h-5 w-5 md:h-6 md:w-6" />
                                             </div>
                                         )}
                                     </div>
@@ -452,17 +452,17 @@ export function QuizInterface({ quiz }: { quiz: Quiz }) {
                 </div>
 
                 {/* Scrollable Question Area */}
-                <div className="flex-1 overflow-y-auto p-4 md:p-8 lg:p-12 pb-24 md:pb-32 scroll-smooth">
+                <div className="flex-1 overflow-y-auto p-4 md:p-6 lg:p-8 pb-20 md:pb-24 scroll-smooth">
                     <div className="max-w-3xl mx-auto w-full">
                         <QuestionCard
                             questionType={currentQuestion.question_type}
                             questionNumber={currentQuestionIndex + 1}
                             totalQuestions={totalQuestions}
                             points={currentQuestion.points}
-                            className="animate-in fade-in-50 slide-in-from-bottom-4 duration-500 mb-6"
+                            className="animate-in fade-in-50 slide-in-from-bottom-4 duration-500 mb-4"
                         >
-                            <div className="space-y-6">
-                                <div className="prose prose-lg md:prose-xl dark:prose-invert max-w-none text-foreground leading-relaxed">
+                            <div className="space-y-4">
+                                <div className="prose prose-base md:prose-lg dark:prose-invert max-w-none text-foreground leading-relaxed">
                                     <ReactMarkdown
                                         remarkPlugins={[remarkGfm, remarkBreaks, remarkMath]}
                                         rehypePlugins={[rehypeKatex]}
