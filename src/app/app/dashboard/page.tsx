@@ -268,31 +268,9 @@ export default async function DashboardPage() {
                                 </CardTitle>
                             </CardHeader>
                             <CardContent className="pt-4">
-                                <div className="space-y-3">
-                                    {data.upcomingExams && data.upcomingExams.length > 0 ? (
-                                        data.upcomingExams.map((exam) => (
-                                            <div key={exam.id} className="flex items-center gap-3 p-2 hover:bg-gray-50 rounded-lg transition-colors cursor-pointer">
-                                                <div className="bg-indigo-50 text-indigo-700 px-2 py-1 rounded text-center min-w-[50px]">
-                                                    <span className="block text-xs font-bold uppercase">
-                                                        {new Date(exam.date).toLocaleDateString('en-US', { month: 'short' })}
-                                                    </span>
-                                                    <span className="block text-lg font-bold">
-                                                        {new Date(exam.date).getDate()}
-                                                    </span>
-                                                </div>
-                                                <div>
-                                                    <p className="text-sm font-medium text-gray-900">{exam.title}</p>
-                                                    <p className="text-xs text-gray-500">
-                                                        {exam.description || (exam.program_id ? "Program Exam" : "General Exam")}
-                                                    </p>
-                                                </div>
-                                            </div>
-                                        ))
-                                    ) : (
-                                        <div className="text-center py-4 text-gray-500 text-sm">
-                                            No upcoming exams
-                                        </div>
-                                    )}
+                                <div className="text-center py-6">
+                                    <p className="text-gray-500 text-sm">Coming Soon</p>
+                                    <p className="text-xs text-gray-400 mt-1">Exam schedule feature will be available soon</p>
                                 </div>
                             </CardContent>
                         </Card>

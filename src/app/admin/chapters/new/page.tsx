@@ -27,11 +27,20 @@ export default async function NewChapterPage() {
 
     const subjects = await prisma.subject.findMany({
         where: { is_active: true },
-        include: {
+        select: {
+            id: true,
+            name: true,
+            exam_id: true,
             program: {
-                include: {
-                    board: true,
-                    institution: true,
+                select: {
+                    id: true,
+                    name: true,
+                    board: {
+                        select: {
+                            id: true,
+                            name: true,
+                        },
+                    },
                 },
             },
         },

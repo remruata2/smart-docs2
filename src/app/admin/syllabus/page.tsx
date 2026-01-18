@@ -34,13 +34,16 @@ export default function SyllabusListPage() {
     const [error, setError] = useState('');
     const [search, setSearch] = useState('');
     const [classFilter, setClassFilter] = useState('all');
+    const [examFilter, setExamFilter] = useState('all');
     const [programs, setPrograms] = useState<{ id: string | number, name: string }[]>([]);
+    const [exams, setExams] = useState<{ id: string, name: string, short_name: string | null }[]>([]);
 
     const fetchSyllabi = useCallback(async () => {
         try {
             setLoading(true);
             const params = new URLSearchParams();
             if (classFilter !== 'all') params.append('class_level', classFilter);
+            if (examFilter !== 'all') params.append('exam_id', examFilter);
             if (search) params.append('search', search);
 
             const res = await fetch(`/api/admin/syllabi?${params}`);
@@ -52,21 +55,28 @@ export default function SyllabusListPage() {
         } finally {
             setLoading(false);
         }
-    }, [classFilter, search]);
+    }, [classFilter, examFilter, search]);
 
     useEffect(() => {
-        async function fetchPrograms() {
+        async function fetchData() {
             try {
-                const res = await fetch('/api/admin/programs');
-                if (res.ok) {
-                    const data = await res.json();
+                // Fetch programs
+                const programsRes = await fetch('/api/admin/programs');
+                if (programsRes.ok) {
+                    const data = await programsRes.json();
                     setPrograms(data.programs || []);
                 }
+                // Fetch exams
+                const examsRes = await fetch('/api/admin/exams');
+                if (examsRes.ok) {
+                    const data = await examsRes.json();
+                    setExams(data.exams || []);
+                }
             } catch (error) {
-                console.error('Failed to fetch programs:', error);
+                console.error('Failed to fetch data:', error);
             }
         }
-        fetchPrograms();
+        fetchData();
     }, []);
 
     useEffect(() => {
@@ -108,6 +118,19 @@ export default function SyllabusListPage() {
                         {programs.map((p) => (
                             <SelectItem key={p.id} value={p.name}>
                                 {p.name}
+                            </SelectItem>
+                        ))}
+                    </SelectContent>
+                </Select>
+                <Select value={examFilter} onValueChange={setExamFilter}>
+                    <SelectTrigger className="w-full md:w-[200px]">
+                        <SelectValue placeholder="Filter by Exam" />
+                    </SelectTrigger>
+                    <SelectContent>
+                        <SelectItem value="all">All Exams</SelectItem>
+                        {exams.map((e) => (
+                            <SelectItem key={e.id} value={e.id}>
+                                {e.short_name || e.name}
                             </SelectItem>
                         ))}
                     </SelectContent>

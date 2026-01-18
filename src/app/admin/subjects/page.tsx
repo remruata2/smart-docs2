@@ -15,18 +15,21 @@ import EntityActions from "@/components/admin/EntityActions";
 export default async function SubjectsPage({
     searchParams,
 }: {
-    searchParams: Promise<{ programId?: string }>;
+    searchParams: Promise<{ programId?: string; examId?: string }>;
 }) {
     const session = await getServerSession(authOptions);
     if (!session?.user || !isAdmin((session.user as any).role)) {
         redirect("/");
     }
 
-    const { programId } = await searchParams;
+    const { programId, examId } = await searchParams;
 
     const where: any = {};
     if (programId) {
         where.program_id = parseInt(programId);
+    }
+    if (examId) {
+        where.exam_id = examId;
     }
 
     const subjects = await prisma.subject.findMany({
@@ -37,6 +40,7 @@ export default async function SubjectsPage({
                     board: true,
                 },
             },
+            exam: true,
             _count: {
                 select: { chapters: true },
             },
@@ -52,6 +56,11 @@ export default async function SubjectsPage({
         orderBy: { name: "asc" },
     });
 
+    const exams = await prisma.exam.findMany({
+        where: { is_active: true },
+        orderBy: { display_order: "asc" },
+    });
+
     return (
         <div className="container mx-auto py-10">
             <div className="flex justify-between items-center mb-8">
@@ -62,11 +71,16 @@ export default async function SubjectsPage({
             <SubjectForm programs={programs} />
 
             {/* Filters */}
-            <div className="bg-white p-4 rounded-lg shadow mb-8">
+            <div className="bg-white p-4 rounded-lg shadow mb-8 flex gap-4 flex-wrap">
                 <FilterSelect
                     name="programId"
                     placeholder="All Programs"
                     options={programs.map(p => ({ value: p.id.toString(), label: `${p.name} (${p.board.name})` }))}
+                />
+                <FilterSelect
+                    name="examId"
+                    placeholder="All Exams"
+                    options={exams.map(e => ({ value: e.id, label: e.short_name || e.name }))}
                 />
             </div>
 

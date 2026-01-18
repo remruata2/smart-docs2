@@ -22,6 +22,7 @@ export async function GET(request: NextRequest) {
             stream: searchParams.get('stream') as TextbookFilters['stream'] || undefined,
             search: searchParams.get('search') || undefined,
         };
+        const examId = searchParams.get('exam_id');
 
         const page = parseInt(searchParams.get('page') || '1');
         const pageSize = parseInt(searchParams.get('pageSize') || '20');
@@ -38,6 +39,9 @@ export async function GET(request: NextRequest) {
         }
         if (filters.stream) {
             where.stream = filters.stream;
+        }
+        if (examId && examId !== 'all') {
+            where.exam_id = examId;
         }
         if (filters.search) {
             where.OR = [
@@ -124,6 +128,19 @@ export async function POST(request: NextRequest) {
         if (body.syllabus_id) {
             const { createTextbookFromSyllabus } = await import('@/lib/textbook-generator/syllabus-manager');
             try {
+                // Option B: If exam_id provided and syllabus has no exam, propagate to syllabus
+                if (body.exam_id) {
+                    const syllabus = await prisma.syllabus.findUnique({
+                        where: { id: body.syllabus_id },
+                        select: { exam_id: true },
+                    });
+                    if (syllabus && !syllabus.exam_id) {
+                        await prisma.syllabus.update({
+                            where: { id: body.syllabus_id },
+                            data: { exam_id: body.exam_id },
+                        });
+                    }
+                }
                 const textbook = await createTextbookFromSyllabus(body.syllabus_id, body, user.id);
                 return NextResponse.json({ textbook }, { status: 201 });
             } catch (err: any) {

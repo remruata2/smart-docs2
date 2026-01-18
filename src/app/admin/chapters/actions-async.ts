@@ -26,6 +26,7 @@ export async function batchCreateChaptersAsync(formData: FormData) {
 		const accessibleBoards = formData.getAll("accessibleBoards") as string[];
 		const questionConfigStr = formData.get("questionConfig") as string;
 		const questionConfig = questionConfigStr ? JSON.parse(questionConfigStr) : undefined;
+		const examId = formData.get("examId") as string;
 
 		if (!file || !subjectId || !chapters || chapters.length === 0) {
 			return { success: false, error: "Missing required fields" };
@@ -50,6 +51,14 @@ export async function batchCreateChaptersAsync(formData: FormData) {
 		// Auto-derive board from subject's program (unless explicitly set to global)
 		const subjectBoardId = subject.program.board_id;
 		const isGlobal = accessibleBoards.includes("GLOBAL");
+
+		// Option B: Propagate exam to subject if subject has no exam and examId is provided
+		if (examId && !subject.exam_id) {
+			await prisma.subject.update({
+				where: { id: parseInt(subjectId) },
+				data: { exam_id: examId },
+			});
+		}
 
 		// If global is selected, use empty array
 		// If specific boards are selected, use those
@@ -139,6 +148,7 @@ export async function ingestChapterAsync(formData: FormData) {
 		const accessibleBoards = formData.getAll("accessibleBoards") as string[];
 		const questionConfigStr = formData.get("questionConfig") as string;
 		const questionConfig = questionConfigStr ? JSON.parse(questionConfigStr) : undefined;
+		const examId = formData.get("examId") as string;
 
 		if (!file || !title || !subjectId) {
 			return { success: false, error: "Missing required fields" };
@@ -162,6 +172,14 @@ export async function ingestChapterAsync(formData: FormData) {
 
 		const subjectBoardId = subject.program.board_id;
 		const isGlobal = accessibleBoards.includes("GLOBAL");
+
+		// Option B: Propagate exam to subject if subject has no exam and examId is provided
+		if (examId && !subject.exam_id) {
+			await prisma.subject.update({
+				where: { id: parseInt(subjectId) },
+				data: { exam_id: examId },
+			});
+		}
 
 		const finalAccessibleBoards = isGlobal
 			? []

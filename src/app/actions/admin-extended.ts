@@ -199,6 +199,7 @@ export async function createSubject(formData: FormData) {
     const programId = formData.get("programId") as string;
     const code = formData.get("code") as string;
     const term = formData.get("term") as string;
+    const examId = formData.get("examId") as string;
 
     if (!name || !programId) {
         throw new Error("Missing required fields");
@@ -211,6 +212,7 @@ export async function createSubject(formData: FormData) {
                 program_id: parseInt(programId),
                 code: code || null,
                 term: term || null,
+                exam_id: examId || null,
             },
         });
         revalidatePath("/admin/subjects");
@@ -230,6 +232,7 @@ export async function updateSubject(subjectId: number, formData: FormData) {
     const programId = formData.get("programId") as string;
     const code = formData.get("code") as string;
     const term = formData.get("term") as string;
+    const examId = formData.get("examId") as string;
 
     if (!name || !programId) {
         throw new Error("Missing required fields");
@@ -243,6 +246,7 @@ export async function updateSubject(subjectId: number, formData: FormData) {
                 program_id: parseInt(programId),
                 code: code || null,
                 term: term || null,
+                exam_id: examId || null,
             },
         });
         revalidatePath("/admin/subjects");

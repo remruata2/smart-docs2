@@ -121,3 +121,64 @@ export async function deleteChapters(chapterIds: string[]) {
         throw error;
     }
 }
+
+export async function updateChapter(
+    chapterId: string,
+    data: {
+        title: string;
+        subject_id: number;
+        chapter_number: number | null;
+        is_active: boolean;
+        is_global: boolean;
+    }
+) {
+    const session = await getServerSession(authOptions);
+    if (!session?.user || !isAdmin((session.user as any).role)) {
+        return { success: false, error: "Unauthorized" };
+    }
+
+    try {
+        const bigIntId = BigInt(chapterId);
+
+        // Validate that the subject exists
+        const subject = await prisma.subject.findUnique({
+            where: { id: data.subject_id },
+            select: { id: true, program: { select: { board_id: true } } }
+        });
+
+        if (!subject) {
+            return { success: false, error: "Subject not found" };
+        }
+
+        // Update the chapter
+        await prisma.chapter.update({
+            where: { id: bigIntId },
+            data: {
+                title: data.title,
+                subject_id: data.subject_id,
+                chapter_number: data.chapter_number,
+                is_active: data.is_active,
+                is_global: data.is_global,
+                // If not global, update accessible_boards to include the new subject's board
+                accessible_boards: data.is_global ? [] : [subject.program.board_id],
+            }
+        });
+
+        // If subject changed, update the chunks' subject_id too
+        await prisma.chapterChunk.updateMany({
+            where: { chapter_id: bigIntId },
+            data: { subject_id: data.subject_id }
+        });
+
+        // Clear cache for this chapter
+        await clearChapterCache(bigIntId);
+
+        revalidatePath("/admin/chapters");
+        revalidatePath(`/admin/chapters/${chapterId}`);
+
+        return { success: true };
+    } catch (error) {
+        console.error("Error updating chapter:", error);
+        return { success: false, error: "Failed to update chapter" };
+    }
+}

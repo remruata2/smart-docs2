@@ -151,19 +151,8 @@ export async function getDashboardData() {
         quizId: lastQuiz.id
     } : null;
 
-    // G. Upcoming Exams (Filter by enrolled programs or global)
-    const upcomingExams = await prisma.exam.findMany({
-        where: {
-            is_active: true,
-            date: { gte: new Date() },
-            OR: [
-                { program_id: { in: activeProgramIds } },
-                { program_id: null }
-            ]
-        },
-        orderBy: { date: 'asc' },
-        take: 3
-    });
+    // G. Upcoming Exams - Feature removed (Exam model redesigned for categorization)
+    // If you need exam schedules, consider creating a separate ExamSchedule model
 
     // H. Badges
     const badges = await prisma.userBadge.findMany({
@@ -207,7 +196,6 @@ export async function getDashboardData() {
         weaknessList,
         resumeData,
         recentActivity: quizzes.slice(0, 5),
-        upcomingExams,
         badges,
         radarData,
         enrollments

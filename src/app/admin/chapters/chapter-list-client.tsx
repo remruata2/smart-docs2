@@ -5,10 +5,33 @@ import { useRouter } from "next/navigation";
 import { toast } from "sonner";
 import { Wand2, Sparkles, Loader2, Trash2, FileSearch, Zap, Dices } from "lucide-react";
 import { Button } from "@/components/ui/button";
+import EditChapterDialog from "./edit-chapter-dialog";
+
+interface Subject {
+    id: number;
+    name: string;
+    program: {
+        name: string;
+        board: {
+            name: string;
+        };
+    };
+}
 
 interface ChapterListClientProps {
     chapters: any[];
     onDelete: (ids: string[]) => Promise<void>;
+    onUpdate: (
+        chapterId: string,
+        data: {
+            title: string;
+            subject_id: number;
+            chapter_number: number | null;
+            is_active: boolean;
+            is_global: boolean;
+        }
+    ) => Promise<{ success: boolean; error?: string }>;
+    subjects: Subject[];
     pagination: {
         currentPage: number;
         pageSize: number;
@@ -17,7 +40,7 @@ interface ChapterListClientProps {
     };
 }
 
-export default function ChapterListClient({ chapters, onDelete, pagination }: ChapterListClientProps) {
+export default function ChapterListClient({ chapters, onDelete, onUpdate, subjects, pagination }: ChapterListClientProps) {
     const [selectedIds, setSelectedIds] = useState<Set<string>>(new Set());
     const [isPending, startTransition] = useTransition();
     const [generatingChapters, setGeneratingChapters] = useState<Set<string>>(new Set());
@@ -378,6 +401,12 @@ export default function ChapterListClient({ chapters, onDelete, pagination }: Ch
                                                     Regen Quiz
                                                 </Button>
                                             )}
+
+                                            <EditChapterDialog
+                                                chapter={chapter}
+                                                subjects={subjects}
+                                                onUpdate={onUpdate}
+                                            />
 
                                             <Button
                                                 variant="outline"

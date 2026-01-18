@@ -84,6 +84,7 @@ export interface CreateTextbookInput {
   author?: string;
   syllabus_id?: number; // Optional link to syllabus
   raw_syllabus?: string; // Legacy/Manual override
+  exam_id?: string; // Optional link to Exam for categorization
 }
 
 export interface UpdateTextbookInput extends Partial<CreateTextbookInput> {
@@ -115,6 +116,7 @@ export interface CreateSyllabusInput {
   subject: string;
   board?: string;
   academic_year?: string;
+  exam_id?: string; // Links to Exam model for categorization
   exam_category?: string; // Exam category for textbook generation prompts
   syllabus_mode?: 'single' | 'multi_split'; // For competitive exams
   raw_text?: string;

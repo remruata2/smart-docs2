@@ -1,6 +1,6 @@
 'use client';
 
-import { useState } from "react";
+import { useState, useEffect } from "react";
 import { updateSubject } from "@/app/actions/admin-extended";
 import { useRouter } from "next/navigation";
 import {
@@ -28,6 +28,14 @@ interface Subject {
     program_id: number;
     code: string | null;
     term: string | null;
+    exam_id?: string | null;
+}
+
+interface Exam {
+    id: string;
+    code: string;
+    name: string;
+    short_name: string | null;
 }
 
 interface EditSubjectDialogProps {
@@ -39,6 +47,25 @@ export default function EditSubjectDialog({ subject, programs }: EditSubjectDial
     const router = useRouter();
     const [open, setOpen] = useState(false);
     const [isLoading, setIsLoading] = useState(false);
+    const [exams, setExams] = useState<Exam[]>([]);
+
+    // Fetch exams when dialog opens
+    useEffect(() => {
+        if (open) {
+            async function fetchExams() {
+                try {
+                    const res = await fetch('/api/admin/exams');
+                    if (res.ok) {
+                        const data = await res.json();
+                        setExams(data.exams || []);
+                    }
+                } catch (error) {
+                    console.error('Failed to fetch exams:', error);
+                }
+            }
+            fetchExams();
+        }
+    }, [open]);
 
     async function handleSubmit(e: React.FormEvent<HTMLFormElement>) {
         e.preventDefault();
@@ -107,6 +134,23 @@ export default function EditSubjectDialog({ subject, programs }: EditSubjectDial
                             defaultValue={subject.code || ''}
                             className="mt-1 block w-full rounded-md border-gray-300 shadow-sm focus:border-indigo-500 focus:ring-indigo-500 sm:text-sm border p-2"
                         />
+                    </div>
+
+                    <div>
+                        <label className="block text-sm font-medium text-gray-700">Target Exam (Optional)</label>
+                        <select
+                            name="examId"
+                            defaultValue={subject.exam_id || ''}
+                            className="mt-1 block w-full rounded-md border-gray-300 shadow-sm focus:border-indigo-500 focus:ring-indigo-500 sm:text-sm border p-2"
+                        >
+                            <option value="">None</option>
+                            {exams.map(exam => (
+                                <option key={exam.id} value={exam.id}>
+                                    {exam.short_name || exam.name} ({exam.code})
+                                </option>
+                            ))}
+                        </select>
+                        <p className="text-xs text-gray-500 mt-1">Categorize by target exam</p>
                     </div>
 
                     <div>

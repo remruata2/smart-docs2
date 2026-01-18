@@ -25,6 +25,7 @@ export async function createSyllabus(data: CreateSyllabusInput) {
                 subject: data.subject,
                 board: data.board || 'MBSE',
                 academic_year: data.academic_year,
+                exam_id: data.exam_id || null, // Link to Exam model
                 exam_category: data.exam_category || 'academic_board', // Default to academic board
                 syllabus_mode: data.syllabus_mode || 'single', // Default to single
                 raw_text: data.raw_text,
@@ -192,6 +193,7 @@ export async function createTextbookFromSyllabus(
             author: overrides.author,
             raw_syllabus: syllabus.raw_text, // Keep a copy or reference? User wants ref.
             syllabus_id: syllabus.id,
+            exam_id: syllabus.exam_id, // Inherit exam from syllabus
             status: 'DRAFT',
             created_by: userId
         }

@@ -55,21 +55,30 @@ export default function TextbookGeneratorPage() {
     const [statusFilter, setStatusFilter] = useState<string>('all');
     const [classFilter, setClassFilter] = useState<string>('all');
     const [streamFilter, setStreamFilter] = useState<string>('all');
+    const [examFilter, setExamFilter] = useState<string>('all');
     const [programs, setPrograms] = useState<{ id: string | number, name: string }[]>([]);
+    const [exams, setExams] = useState<{ id: string, name: string, short_name: string | null }[]>([]);
 
     useEffect(() => {
-        async function fetchPrograms() {
+        async function fetchData() {
             try {
-                const res = await fetch('/api/admin/programs');
-                if (res.ok) {
-                    const data = await res.json();
+                // Fetch programs
+                const programsRes = await fetch('/api/admin/programs');
+                if (programsRes.ok) {
+                    const data = await programsRes.json();
                     setPrograms(data.programs || []);
                 }
+                // Fetch exams
+                const examsRes = await fetch('/api/admin/exams');
+                if (examsRes.ok) {
+                    const data = await examsRes.json();
+                    setExams(data.exams || []);
+                }
             } catch (error) {
-                console.error('Failed to fetch programs:', error);
+                console.error('Failed to fetch data:', error);
             }
         }
-        fetchPrograms();
+        fetchData();
     }, []);
 
     const fetchTextbooks = useCallback(async () => {
@@ -79,6 +88,7 @@ export default function TextbookGeneratorPage() {
             if (statusFilter !== 'all') params.append('status', statusFilter);
             if (classFilter !== 'all') params.append('class_level', classFilter);
             if (streamFilter !== 'all') params.append('stream', streamFilter);
+            if (examFilter !== 'all') params.append('exam_id', examFilter);
             if (search) params.append('search', search);
 
             const res = await fetch(`/api/admin/textbook-generator/textbooks?${params}`);
@@ -91,7 +101,7 @@ export default function TextbookGeneratorPage() {
         } finally {
             setLoading(false);
         }
-    }, [statusFilter, classFilter, streamFilter, search]);
+    }, [statusFilter, classFilter, streamFilter, examFilter, search]);
 
     useEffect(() => {
         fetchTextbooks();
@@ -185,6 +195,20 @@ export default function TextbookGeneratorPage() {
                                 <SelectItem value="Arts">Arts</SelectItem>
                                 <SelectItem value="Science">Science</SelectItem>
                                 <SelectItem value="Commerce">Commerce</SelectItem>
+                            </SelectContent>
+                        </Select>
+
+                        <Select value={examFilter} onValueChange={setExamFilter}>
+                            <SelectTrigger className="w-[150px]">
+                                <SelectValue placeholder="Exam" />
+                            </SelectTrigger>
+                            <SelectContent>
+                                <SelectItem value="all">All Exams</SelectItem>
+                                {exams.map(e => (
+                                    <SelectItem key={e.id} value={e.id}>
+                                        {e.short_name || e.name}
+                                    </SelectItem>
+                                ))}
                             </SelectContent>
                         </Select>
 

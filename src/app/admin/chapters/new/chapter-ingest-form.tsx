@@ -1,6 +1,6 @@
 'use client';
 
-import { useState } from "react";
+import { useState, useEffect } from "react";
 import { batchCreateChapters, analyzeTextbook } from "@/app/actions/admin";
 import { ingestChapterAsync } from "../actions-async";
 import { useRouter } from "next/navigation";
@@ -23,11 +23,19 @@ interface Program {
 interface Subject {
     id: number;
     name: string;
+    exam_id?: string | null;
     program: {
         id: number;
         name: string;
         board: { id: string; name: string };
     };
+}
+
+interface Exam {
+    id: string;
+    code: string;
+    name: string;
+    short_name: string | null;
 }
 
 type UploadMode = 'individual' | 'textbook';
@@ -45,6 +53,9 @@ export default function ChapterIngestForm({
     const [uploadMode, setUploadMode] = useState<UploadMode>('individual');
     const [isLoading, setIsLoading] = useState(false);
     const [selectedProgram, setSelectedProgram] = useState<number | "">("");
+    const [exams, setExams] = useState<Exam[]>([]);
+    const [selectedExamId, setSelectedExamId] = useState<string>('');
+    const [subjectHasExam, setSubjectHasExam] = useState(false);
 
     // Individual mode state
     const [uploadingFiles, setUploadingFiles] = useState<Array<{
@@ -55,6 +66,8 @@ export default function ChapterIngestForm({
         subjectId: string;
         chapterNumber: string;
         accessibleBoards: string[];
+        examId: string;
+        subjectHasExam: boolean;
     }>>([]);
 
     // Textbook mode state
@@ -67,6 +80,38 @@ export default function ChapterIngestForm({
 
     // Question Bank Config
     const [questionConfig, setQuestionConfig] = useState<QuestionBankConfigState | null>(null);
+
+    // Fetch exams on mount
+    useEffect(() => {
+        async function fetchExams() {
+            try {
+                const res = await fetch('/api/admin/exams');
+                if (res.ok) {
+                    const data = await res.json();
+                    setExams(data.exams || []);
+                }
+            } catch (error) {
+                console.error('Failed to fetch exams:', error);
+            }
+        }
+        fetchExams();
+    }, []);
+
+    // Update exam when textbook subject changes
+    useEffect(() => {
+        if (textbookSubjectId) {
+            const subject = subjects.find(s => s.id.toString() === textbookSubjectId);
+            if (subject?.exam_id) {
+                setSelectedExamId(subject.exam_id);
+                setSubjectHasExam(true);
+            } else {
+                setSubjectHasExam(false);
+                // Don't reset exam if user already selected one
+            }
+        } else {
+            setSubjectHasExam(false);
+        }
+    }, [textbookSubjectId, subjects]);
 
     // Filter subjects based on selected program
     const filteredSubjects = selectedProgram
@@ -101,6 +146,8 @@ export default function ChapterIngestForm({
             subjectId: "",
             chapterNumber: "",
             accessibleBoards: [] as string[],
+            examId: "",
+            subjectHasExam: false,
         }));
 
         setUploadingFiles(fileRecords);
@@ -187,6 +234,11 @@ export default function ChapterIngestForm({
                     });
                 }
 
+                // Add examId for propagation to subject (Option B)
+                if (fileRecord.examId) {
+                    formData.append("examId", fileRecord.examId);
+                }
+
                 if (questionConfig) {
                     formData.append("questionConfig", JSON.stringify(questionConfig));
                 }
@@ -265,6 +317,11 @@ export default function ChapterIngestForm({
 
             if (textbookFile) {
                 formData.append("file", textbookFile);
+            }
+
+            // Add examId for propagation to subject (Option B)
+            if (selectedExamId) {
+                formData.append("examId", selectedExamId);
             }
 
             if (questionConfig) {
@@ -445,20 +502,65 @@ export default function ChapterIngestForm({
                                         <select
                                             value={fileRecord.subjectId}
                                             onChange={(e) => {
+                                                const selectedSubjectId = e.target.value;
+                                                const selectedSubject = subjects.find(s => s.id.toString() === selectedSubjectId);
                                                 const updated = [...uploadingFiles];
-                                                updated[index].subjectId = e.target.value;
+                                                updated[index].subjectId = selectedSubjectId;
+                                                // Auto-fill exam from subject
+                                                if (selectedSubject?.exam_id) {
+                                                    updated[index].examId = selectedSubject.exam_id;
+                                                    updated[index].subjectHasExam = true;
+                                                } else {
+                                                    updated[index].subjectHasExam = false;
+                                                    // Don't reset exam if user already selected one
+                                                }
                                                 setUploadingFiles(updated);
                                             }}
                                             disabled={isLoading}
                                             className="block w-full rounded-md border-gray-300 shadow-sm focus:border-indigo-500 focus:ring-indigo-500 text-sm border p-2"
                                         >
                                             <option value="">Select Subject</option>
-                                            {filteredSubjects.map((s) => (
+                                            {/* Show filtered subjects, or all subjects if filtered is empty */}
+                                            {(filteredSubjects.length > 0 ? filteredSubjects : subjects).map((s) => (
                                                 <option key={s.id} value={s.id}>
                                                     {s.name} ({s.program.name} - {s.program.board.name})
                                                 </option>
                                             ))}
                                         </select>
+                                        {filteredSubjects.length === 0 && selectedProgram && (
+                                            <p className="text-xs text-amber-600 mt-1">
+                                                No subjects for selected program. Showing all subjects.
+                                            </p>
+                                        )}
+                                    </div>
+
+                                    {/* Exam Selection - Auto-filled from subject */}
+                                    <div>
+                                        <label className="block text-xs font-medium text-gray-700 mb-1">
+                                            Target Exam {fileRecord.subjectHasExam && <span className="text-amber-600">(from subject)</span>}
+                                        </label>
+                                        <select
+                                            value={fileRecord.examId}
+                                            onChange={(e) => {
+                                                const updated = [...uploadingFiles];
+                                                updated[index].examId = e.target.value;
+                                                setUploadingFiles(updated);
+                                            }}
+                                            disabled={isLoading || fileRecord.subjectHasExam}
+                                            className={`block w-full rounded-md border-gray-300 shadow-sm focus:border-indigo-500 focus:ring-indigo-500 text-sm border p-2 ${fileRecord.subjectHasExam ? 'bg-gray-50' : ''}`}
+                                        >
+                                            <option value="">None</option>
+                                            {exams.map((exam) => (
+                                                <option key={exam.id} value={exam.id}>
+                                                    {exam.short_name || exam.name} ({exam.code})
+                                                </option>
+                                            ))}
+                                        </select>
+                                        {fileRecord.subjectHasExam ? (
+                                            <p className="text-xs text-amber-600 mt-1">Exam inherited from subject</p>
+                                        ) : (
+                                            <p className="text-xs text-gray-500 mt-1">Optional: Categorize by exam</p>
+                                        )}
                                     </div>
 
                                     <div>
@@ -652,6 +754,35 @@ export default function ChapterIngestForm({
                                 <p className="mt-1 text-xs text-gray-500">
                                     All detected chapters will be created under this subject.
                                 </p>
+                            </div>
+
+                            {/* Exam Selection - Prefilled from subject */}
+                            <div>
+                                <label className="block text-sm font-medium text-gray-700 mb-2">
+                                    Target Exam {subjectHasExam && <span className="text-amber-600">(from subject)</span>}
+                                </label>
+                                <select
+                                    value={selectedExamId}
+                                    onChange={(e) => setSelectedExamId(e.target.value)}
+                                    disabled={subjectHasExam}
+                                    className={`block w-full rounded-md border-gray-300 shadow-sm focus:border-indigo-500 focus:ring-indigo-500 text-sm border p-2 ${subjectHasExam ? 'bg-gray-50' : ''}`}
+                                >
+                                    <option value="">None</option>
+                                    {exams.map((exam) => (
+                                        <option key={exam.id} value={exam.id}>
+                                            {exam.short_name || exam.name} ({exam.code})
+                                        </option>
+                                    ))}
+                                </select>
+                                {subjectHasExam ? (
+                                    <p className="mt-1 text-xs text-amber-600">
+                                        Exam inherited from subject (locked)
+                                    </p>
+                                ) : (
+                                    <p className="mt-1 text-xs text-gray-500">
+                                        Optional: Categorize chapters by target exam
+                                    </p>
+                                )}
                             </div>
 
                             <div>

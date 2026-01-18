@@ -32,6 +32,7 @@ export default function CreateSyllabusPage() {
     const router = useRouter();
     const [loading, setLoading] = useState(false);
     const [programs, setPrograms] = useState<{ id: string | number, name: string }[]>([]);
+    const [exams, setExams] = useState<{ id: string, code: string, name: string, short_name: string | null, exam_type: string }[]>([]);
     const [inputType, setInputType] = useState<'raw' | 'manual'>('raw');
     const [isCustomLevel, setIsCustomLevel] = useState(false);
 
@@ -51,6 +52,7 @@ export default function CreateSyllabusPage() {
         class_level: '',
         custom_class_level: '',
         stream: '',
+        exam_id: '', // Links to Exam model
         exam_category: 'academic_board', // Default to board exams
         academic_year: '2024-2025',
         board: 'MBSE',
@@ -61,18 +63,26 @@ export default function CreateSyllabusPage() {
     const isCompetitiveCategory = ['government_prelims', 'government_mains', 'banking'].includes(formData.exam_category);
 
     useEffect(() => {
-        async function fetchPrograms() {
+        async function fetchData() {
             try {
-                const res = await fetch('/api/admin/programs');
-                if (res.ok) {
-                    const data = await res.json();
-                    setPrograms(data.programs || []);
+                // Fetch programs
+                const programsRes = await fetch('/api/admin/programs');
+                if (programsRes.ok) {
+                    const programsData = await programsRes.json();
+                    setPrograms(programsData.programs || []);
+                }
+
+                // Fetch exams
+                const examsRes = await fetch('/api/admin/exams');
+                if (examsRes.ok) {
+                    const examsData = await examsRes.json();
+                    setExams(examsData.exams || []);
                 }
             } catch (error) {
-                console.error('Failed to fetch programs:', error);
+                console.error('Failed to fetch data:', error);
             }
         }
-        fetchPrograms();
+        fetchData();
     }, []);
 
     const handleChange = (e: React.ChangeEvent<HTMLInputElement | HTMLTextAreaElement>) => {
@@ -88,6 +98,20 @@ export default function CreateSyllabusPage() {
                 setIsCustomLevel(false);
                 setFormData(prev => ({ ...prev, class_level: value }));
             }
+        } else if (name === 'exam_id') {
+            // When exam is selected, auto-update exam_category based on exam type
+            // 'none' value means no exam selected
+            const actualValue = value === 'none' ? '' : value;
+            const selectedExam = exams.find(e => e.id === actualValue);
+            const examTypeToCategory: Record<string, string> = {
+                'board': 'academic_board',
+                'entrance': 'engineering',
+                'competitive': 'government_prelims',
+                'professional': 'university',
+                'university': 'university',
+            };
+            const newCategory = selectedExam ? (examTypeToCategory[selectedExam.exam_type] || 'general') : formData.exam_category;
+            setFormData(prev => ({ ...prev, exam_id: actualValue, exam_category: newCategory }));
         } else {
             setFormData(prev => ({ ...prev, [name]: value }));
         }
@@ -274,6 +298,28 @@ export default function CreateSyllabusPage() {
                                         <SelectItem value="Commerce">Commerce</SelectItem>
                                     </SelectContent>
                                 </Select>
+                            </div>
+                            <div className="space-y-2">
+                                <Label htmlFor="exam_id">Target Exam</Label>
+                                <Select
+                                    value={formData.exam_id || 'none'}
+                                    onValueChange={(val) => handleSelectChange('exam_id', val)}
+                                >
+                                    <SelectTrigger>
+                                        <SelectValue placeholder="Select Target Exam (Optional)" />
+                                    </SelectTrigger>
+                                    <SelectContent>
+                                        <SelectItem value="none">None</SelectItem>
+                                        {exams.map(exam => (
+                                            <SelectItem key={exam.id} value={exam.id}>
+                                                {exam.short_name || exam.name} ({exam.code})
+                                            </SelectItem>
+                                        ))}
+                                    </SelectContent>
+                                </Select>
+                                <p className="text-xs text-muted-foreground">
+                                    Categorize this syllabus by target exam. Auto-updates exam category below.
+                                </p>
                             </div>
                             <div className="space-y-2">
                                 <Label htmlFor="exam_category">Exam Category *</Label>

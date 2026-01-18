@@ -40,12 +40,15 @@ export default function NewTextbookPage() {
     const router = useRouter();
     const [loading, setLoading] = useState(false);
     const [error, setError] = useState<string | null>(null);
-    const [syllabi, setSyllabi] = useState<Syllabus[]>([]);
+    const [syllabi, setSyllabi] = useState<(Syllabus & { exam_id?: string | null })[]>([]);
     const [fetchingSyllabi, setFetchingSyllabi] = useState(false);
+    const [exams, setExams] = useState<{ id: string; code: string; name: string; short_name: string | null }[]>([]);
 
     // Form State
     const [mode, setMode] = useState<'syllabus' | 'manual'>('syllabus');
     const [selectedSyllabusId, setSelectedSyllabusId] = useState<string>('');
+    const [selectedExamId, setSelectedExamId] = useState<string>('');
+    const [syllabusHasExam, setSyllabusHasExam] = useState(false); // Track if syllabus has an exam
     const [useSyllabusMetadata, setUseSyllabusMetadata] = useState(true);
 
     const [formData, setFormData] = useState<CreateTextbookInput & { content_style?: string }>({
@@ -64,18 +67,26 @@ export default function NewTextbookPage() {
     const [programs, setPrograms] = useState<{ id: string | number, name: string }[]>([]);
 
     useEffect(() => {
-        async function fetchPrograms() {
+        async function fetchData() {
             try {
-                const res = await fetch('/api/admin/programs');
-                if (res.ok) {
-                    const data = await res.json();
+                // Fetch programs
+                const programsRes = await fetch('/api/admin/programs');
+                if (programsRes.ok) {
+                    const data = await programsRes.json();
                     setPrograms(data.programs || []);
                 }
+
+                // Fetch exams
+                const examsRes = await fetch('/api/admin/exams');
+                if (examsRes.ok) {
+                    const examsData = await examsRes.json();
+                    setExams(examsData.exams || []);
+                }
             } catch (error) {
-                console.error('Failed to fetch programs:', error);
+                console.error('Failed to fetch data:', error);
             }
         }
-        fetchPrograms();
+        fetchData();
     }, []);
 
     const fetchSyllabi = async () => {
@@ -111,7 +122,18 @@ export default function NewTextbookPage() {
                     board_id: syllabus.board,
                     academic_year: syllabus.academic_year || prev.academic_year
                 }));
+
+                // Prefill exam from syllabus
+                if (syllabus.exam_id) {
+                    setSelectedExamId(syllabus.exam_id);
+                    setSyllabusHasExam(true);
+                } else {
+                    setSyllabusHasExam(false);
+                    // Don't reset exam if user already selected one
+                }
             }
+        } else if (!selectedSyllabusId) {
+            setSyllabusHasExam(false);
         }
     }, [selectedSyllabusId, syllabi, mode, useSyllabusMetadata]);
     // ...
@@ -139,7 +161,8 @@ export default function NewTextbookPage() {
 
             const payload = {
                 ...formData,
-                syllabus_id: mode === 'syllabus' ? parseInt(selectedSyllabusId) : undefined
+                syllabus_id: mode === 'syllabus' ? parseInt(selectedSyllabusId) : undefined,
+                exam_id: selectedExamId || undefined,
             };
 
             const res = await fetch('/api/admin/textbook-generator/textbooks', {
@@ -247,6 +270,38 @@ export default function NewTextbookPage() {
                                                 Auto-fill basic info from syllabus
                                             </Label>
                                         </div>
+                                    </div>
+
+                                    {/* Exam Selection - Prefilled from syllabus */}
+                                    <div className="space-y-2">
+                                        <Label>Target Exam</Label>
+                                        <Select
+                                            value={selectedExamId || 'none'}
+                                            onValueChange={(v) => setSelectedExamId(v === 'none' ? '' : v)}
+                                            disabled={syllabusHasExam}
+                                        >
+                                            <SelectTrigger className={syllabusHasExam ? 'bg-gray-50' : ''}>
+                                                <SelectValue placeholder="Select target exam (optional)" />
+                                            </SelectTrigger>
+                                            <SelectContent>
+                                                <SelectItem value="none">None</SelectItem>
+                                                {exams.map(exam => (
+                                                    <SelectItem key={exam.id} value={exam.id}>
+                                                        {exam.short_name || exam.name} ({exam.code})
+                                                    </SelectItem>
+                                                ))}
+                                            </SelectContent>
+                                        </Select>
+                                        {syllabusHasExam && (
+                                            <p className="text-xs text-amber-600">
+                                                Exam inherited from syllabus (locked)
+                                            </p>
+                                        )}
+                                        {!syllabusHasExam && (
+                                            <p className="text-xs text-muted-foreground">
+                                                Optional: Categorize by target exam
+                                            </p>
+                                        )}
                                     </div>
 
                                     <div className="text-sm text-muted-foreground bg-muted p-3 rounded-md">

@@ -15,10 +15,14 @@ export async function GET(request: NextRequest) {
         const { searchParams } = new URL(request.url);
         const search = searchParams.get('search');
         const classLevel = searchParams.get('class_level');
+        const examId = searchParams.get('exam_id');
 
         const where: any = {};
         if (classLevel && classLevel !== 'all') {
             where.class_level = classLevel;
+        }
+        if (examId && examId !== 'all') {
+            where.exam_id = examId;
         }
         if (search) {
             where.OR = [
@@ -31,6 +35,7 @@ export async function GET(request: NextRequest) {
             where,
             orderBy: { updated_at: 'desc' },
             include: {
+                exam: true,
                 _count: {
                     select: { units: true, textbooks: true }
                 }

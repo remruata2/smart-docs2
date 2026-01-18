@@ -430,10 +430,9 @@ model Program {
   exam_category String? @db.VarChar(50)
 
   board       Board            @relation(fields: [board_id], references: [id])
-  institution Institution?      @relation(fields: [institution_id], references: [id])
+  institution Institution?     @relation(fields: [institution_id], references: [id])
   subjects    Subject[]
   enrollments UserEnrollment[]
-  exams       Exam[]
 
   @@unique([board_id, institution_id, name])
   @@index([board_id, level])
@@ -455,12 +454,14 @@ model Profile {
 model Subject {
   id         Int      @id @default(autoincrement())
   program_id Int // Required: subjects belong to programs
+  exam_id    String?  // Optional: categorize by target exam (UPSC, JEE, etc.)
   name       String // 'Physics', 'Data Structures', 'General Studies', 'Pharmacology'
   code       String? // 'PHY', 'DS', 'GS', 'PHARM'
   is_active  Boolean  @default(true)
   created_at DateTime @default(now())
 
   program       Program        @relation(fields: [program_id], references: [id])
+  exam          Exam?          @relation(fields: [exam_id], references: [id])
   term          String? // e.g. "Semester 1", "Year 2", or null for annual
   chapters      Chapter[]
   quizzes       Quiz[]
@@ -470,6 +471,7 @@ model Subject {
 
   @@unique([program_id, name])
   @@index([program_id])
+  @@index([exam_id])
   @@map("subjects")
 }
 
@@ -768,20 +770,36 @@ model StudyMaterial {
   @@map("study_materials")
 }
 
+// Exam Category Model - For categorizing content by target exam
+// Examples: UPSC, JEE Main, NEET, MBSE Class 10, SSC CGL, etc.
 model Exam {
   id          String   @id @default(cuid())
-  title       String
-  description String?
-  date        DateTime
-  program_id  Int?
+  code        String   @unique @db.VarChar(50) // 'UPSC', 'JEE_MAIN', 'NEET', 'MBSE_10'
+  name        String   @db.VarChar(255) // 'Union Public Service Commission Civil Services'
+  short_name  String?  @db.VarChar(100) // 'UPSC CSE' - for display
+  description String?  @db.Text
+  
+  // Exam type for content generation calibration
+  // Values: board, entrance, competitive, professional, university
+  exam_type   String   @default("board") @db.VarChar(30)
+  
+  // Optional grouping
+  parent_id   String?  // For sub-exams like 'UPSC_PRELIMS' under 'UPSC'
+  parent      Exam?    @relation("ExamHierarchy", fields: [parent_id], references: [id])
+  children    Exam[]   @relation("ExamHierarchy")
+  
   is_active   Boolean  @default(true)
+  display_order Int    @default(0) // For sorting in dropdowns
   created_at  DateTime @default(now())
   updated_at  DateTime @updatedAt
 
-  program Program? @relation(fields: [program_id], references: [id])
+  // Relations - content categorized by this exam
+  syllabi     Syllabus[]
+  subjects    Subject[]
+  textbooks   Textbook[]
 
-  @@index([program_id])
-  @@index([date])
+  @@index([exam_type])
+  @@index([is_active, display_order])
   @@map("exams")
 }
 
@@ -903,7 +921,11 @@ model Syllabus {
   subject       String  @db.VarChar(255)
   academic_year String? @db.VarChar(20)
 
-  // Exam Category for textbook generation prompts
+  // Exam categorization - links to Exam model
+  exam_id       String? // Optional: categorize by target exam (UPSC, JEE, etc.)
+  exam          Exam?   @relation(fields: [exam_id], references: [id])
+
+  // Exam Category for textbook generation prompts (legacy string field)
   // Values: academic_board, engineering, medical, government_prelims, government_mains, banking, university, general
   exam_category String? @default("academic_board") @db.VarChar(50)
 
@@ -927,6 +949,7 @@ model Syllabus {
   units     SyllabusUnit[]
   textbooks Textbook[] // Textbooks created from this syllabus
 
+  @@index([exam_id])
   @@index([parent_syllabus_id])
   @@map("syllabi")
 }
@@ -983,6 +1006,10 @@ model Textbook {
   board_id     String? @default("MBSE")
   subject_id   Int?
 
+  // Exam categorization - links to Exam model
+  exam_id      String? // Can inherit from Syllabus or set directly
+  exam         Exam?   @relation(fields: [exam_id], references: [id])
+
   // Metadata
   academic_year String? @db.VarChar(20) // "2024-2025"
   author        String? @db.VarChar(255)
@@ -1017,6 +1044,7 @@ model Textbook {
   units           TextbookUnit[]
   generation_jobs TextbookGenerationJob[]
 
+  @@index([exam_id])
   @@index([status, created_at(sort: Desc)])
   @@index([board_id, class_level])
   @@index([created_by])

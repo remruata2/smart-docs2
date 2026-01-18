@@ -6,7 +6,7 @@ import { authOptions } from "@/lib/auth-options";
 import { isAdmin } from "@/lib/auth";
 import FilterSelect from "@/components/admin/FilterSelect";
 import ChapterListClient from "./chapter-list-client";
-import { deleteChapters } from "./actions";
+import { deleteChapters, updateChapter } from "./actions";
 
 export default async function ChaptersPage({
     searchParams,
@@ -14,6 +14,7 @@ export default async function ChaptersPage({
     searchParams: Promise<{
         boardId?: string;
         subjectId?: string;
+        examId?: string;
         page?: string;
         pageSize?: string;
     }>;
@@ -24,7 +25,7 @@ export default async function ChaptersPage({
     }
 
     const params = await searchParams;
-    const { boardId, subjectId } = params;
+    const { boardId, subjectId, examId } = params;
 
     // Pagination parameters
     const page = parseInt(params.page || '1');
@@ -40,8 +41,19 @@ export default async function ChaptersPage({
             { is_global: true }
         ];
     }
+
+    // Handle subject and exam filtering
     if (subjectId) {
         where.subject_id = parseInt(subjectId);
+    }
+
+    if (examId) {
+        // Filter subjects by exam_id. If subject_id is also present, this adds an additional constraint
+        // (though usually subject_id implies a specific exam)
+        where.subject = {
+            ...where.subject,
+            exam_id: examId
+        };
     }
 
     // Optimized query with selective fields and pagination
@@ -74,7 +86,8 @@ export default async function ChaptersPage({
                                     }
                                 }
                             }
-                        }
+                        },
+                        exam: true // Include exam info if needed for display
                     }
                 },
                 // Only count if we're actually using it in the UI
@@ -92,11 +105,20 @@ export default async function ChaptersPage({
         select: { id: true, name: true }
     });
 
-    // Only load subjects that have chapters - more efficient
-    const subjects = await prisma.subject.findMany({
+    const exams = await prisma.exam.findMany({
+        where: { is_active: true },
+        orderBy: { display_order: "asc" },
+    });
+
+    // Load subjects for filter dropdown - only those with chapters
+    const subjectsWithChapters = await prisma.subject.findMany({
         where: {
             is_active: true,
-            chapters: { some: {} }  // Only subjects with chapters
+            chapters: { some: {} },
+            // If exam is selected, only show subjects for that exam in the dropdown?
+            // Usually valid to filter subjects independently or conditionally.
+            // For now, let's show all relevant subjects or filter if we want stricter UX.
+            // Let's keep it simple: show all subjects that have chapters.
         },
         select: {
             id: true,
@@ -112,6 +134,30 @@ export default async function ChaptersPage({
                 }
             }
         },
+    });
+
+    // Load ALL subjects for edit dialog subject selection
+    const allSubjects = await prisma.subject.findMany({
+        where: { is_active: true },
+        select: {
+            id: true,
+            name: true,
+            program: {
+                select: {
+                    name: true,
+                    board: {
+                        select: {
+                            name: true
+                        }
+                    }
+                }
+            }
+        },
+        orderBy: [
+            { program: { board: { name: 'asc' } } },
+            { program: { name: 'asc' } },
+            { name: 'asc' }
+        ]
     });
 
     // Serialize BigInt for client component
@@ -131,16 +177,21 @@ export default async function ChaptersPage({
             </div>
 
             {/* Filters */}
-            <div className="bg-white p-4 rounded-lg shadow mb-8 flex gap-4">
+            <div className="bg-white p-4 rounded-lg shadow mb-8 flex gap-4 flex-wrap">
                 <FilterSelect
                     name="boardId"
                     placeholder="All Boards"
                     options={boards.map(b => ({ value: b.id, label: b.name }))}
                 />
                 <FilterSelect
+                    name="examId"
+                    placeholder="All Exams"
+                    options={exams.map(e => ({ value: e.id, label: e.short_name || e.name }))}
+                />
+                <FilterSelect
                     name="subjectId"
                     placeholder="All Subjects"
-                    options={subjects.map(s => ({ value: s.id.toString(), label: `${s.name} (${s.program.name} - ${s.program.board.name})` }))}
+                    options={subjectsWithChapters.map(s => ({ value: s.id.toString(), label: `${s.name} (${s.program.name} - ${s.program.board.name})` }))}
                 />
             </div>
 
@@ -148,6 +199,8 @@ export default async function ChaptersPage({
             <ChapterListClient
                 chapters={serializedChapters}
                 onDelete={deleteChapters}
+                onUpdate={updateChapter}
+                subjects={allSubjects}
                 pagination={{
                     currentPage: page,
                     pageSize: pageSize,
