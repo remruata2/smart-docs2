@@ -83,6 +83,8 @@ OUTPUT: Generate a structured JSON with chapters and their subtopics.`;
             model: google(PARSER),
             schema: ExpandedTopicSchema,
             prompt: prompt,
+            // @ts-expect-error - timeout is supported by AI SDK v5 but not in type definitions yet
+            timeout: 300000, // 5 minutes for complex topic expansion
         });
 
         const expanded = result.object;

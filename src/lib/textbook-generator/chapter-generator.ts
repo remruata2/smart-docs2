@@ -438,6 +438,8 @@ IMPORTANT: The 'placement' field in 'images_to_generate' MUST MATCH EXACTLY the 
                     model: google(modelName),
                     schema: ChapterContentSchema,
                     prompt: prompt,
+                    // @ts-expect-error - timeout is supported by AI SDK v5 but not in type definitions yet
+                    timeout: 300000, // 5 minutes for complex chapter generation
                 });
 
                 // Success - Record usage

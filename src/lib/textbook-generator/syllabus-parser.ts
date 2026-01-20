@@ -145,6 +145,8 @@ Parse this syllabus and return the structured JSON.`;
             model: google(PARSER),
             schema: ParsedSyllabusSchema,
             prompt: prompt,
+            // @ts-expect-error - timeout is supported by AI SDK v5 but not in type definitions yet
+            timeout: 300000, // 5 minutes for complex syllabus parsing
         });
 
         // Validate the result
