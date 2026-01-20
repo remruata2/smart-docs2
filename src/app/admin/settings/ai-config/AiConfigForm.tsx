@@ -113,7 +113,7 @@ export default function AiConfigForm() {
     { key: "chat_image", label: "Chat Image Generation", description: "Model for generating educational diagrams in chat.", placeholder: "gemini-2.5-flash-image" },
     // Textbook Models
     { key: "textbook_content", label: "Textbook Content", description: "Primary model for generating textbook chapters.", placeholder: "gemini-3-pro-preview" },
-    { key: "textbook_image", label: "Textbook Images", description: "Used for generating high-quality educational diagrams.", placeholder: "gemini-3-pro-image-preview" },
+    { key: "textbook_image", label: "Textbook Images", description: "Used for generating high-quality educational diagrams.", placeholder: "gemini-2.5-flash-image" },
     { key: "textbook_parser", label: "Syllabus Parser", description: "Used for parsing syllabus structure.", placeholder: "gemini-3-flash-preview" },
     // Other Features
     { key: "chat", label: "Legacy Chat (deprecated)", description: "Old chat model key - may not be used.", placeholder: "gemini-2.0-flash" },
