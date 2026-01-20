@@ -98,5 +98,5 @@ export async function setSettingInt(key: string, value: number): Promise<void> {
 
 export async function getSettingString(key: string, defaultValue: string): Promise<string> {
   const v = await getSetting(key);
-  return v ?? defaultValue;
+  return v || defaultValue;
 }
