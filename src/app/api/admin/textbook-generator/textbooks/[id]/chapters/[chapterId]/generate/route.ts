@@ -86,7 +86,8 @@ export async function POST(request: NextRequest, { params }: RouteParams) {
             try {
                 console.log(`[API] Starting background content generation for chapter ${chapterIdNum}`);
 
-                // 1. Generate Content
+                const contentStartTime = Date.now();
+                console.log(`[API][CHAPTER-${chapterIdNum}] STEP 1/4: Generating Content...`);
                 const contentResult = await generateChapterContent(
                     chapterIdNum,
                     generationOptions,
@@ -94,33 +95,45 @@ export async function POST(request: NextRequest, { params }: RouteParams) {
                 );
 
                 if (!contentResult.success) {
+                    console.error(`[API][CHAPTER-${chapterIdNum}] STEP 1 FAILED after ${Date.now() - contentStartTime}ms: ${contentResult.error}`);
                     throw new Error(contentResult.error);
                 }
+                console.log(`[API][CHAPTER-${chapterIdNum}] STEP 1 COMPLETED in ${Date.now() - contentStartTime}ms`);
 
                 // 2. Save Content
+                const saveStartTime = Date.now();
+                console.log(`[API][CHAPTER-${chapterIdNum}] STEP 2/4: Saving Content to DB...`);
                 const saveResult = await saveChapterContent(chapterIdNum, contentResult.content);
                 if (!saveResult.success) {
+                    console.error(`[API][CHAPTER-${chapterIdNum}] STEP 2 FAILED after ${Date.now() - saveStartTime}ms: ${saveResult.error}`);
                     throw new Error(saveResult.error);
                 }
+                console.log(`[API][CHAPTER-${chapterIdNum}] STEP 2 COMPLETED in ${Date.now() - saveStartTime}ms`);
 
                 // 3. Generate Images
                 if (generateImages && contentResult.content.images_to_generate.length > 0) {
-                    console.log(`[API] Generating ${contentResult.content.images_to_generate.length} images for chapter ${chapterIdNum}...`);
+                    const imageStartTime = Date.now();
+                    console.log(`[API][CHAPTER-${chapterIdNum}] STEP 3/4: Generating ${contentResult.content.images_to_generate.length} images...`);
                     await generateChapterImages(chapterIdNum);
-                    console.log(`[API] Image generation completed for chapter ${chapterIdNum}`);
+                    console.log(`[API][CHAPTER-${chapterIdNum}] STEP 3 COMPLETED in ${Date.now() - imageStartTime}ms`);
+                } else {
+                    console.log(`[API][CHAPTER-${chapterIdNum}] STEP 3: Skipping image generation (none requested or none in content)`);
                 }
 
                 // 4. Generate PDF
                 if (generatePdf) {
-                    console.log(`[API] Generating PDF for chapter ${chapterIdNum}...`);
+                    const pdfStartTime = Date.now();
+                    console.log(`[API][CHAPTER-${chapterIdNum}] STEP 4/4: Generating PDF...`);
                     const pdfResult = await generateChapterPDF(chapterIdNum);
                     if (pdfResult.success) {
-                        console.log(`[API] PDF generation completed for chapter ${chapterIdNum}: ${pdfResult.result.pdf_url}`);
+                        console.log(`[API][CHAPTER-${chapterIdNum}] STEP 4 COMPLETED in ${Date.now() - pdfStartTime}ms. URL: ${pdfResult.result.pdf_url}`);
                     } else {
-                        console.error(`[API] PDF generation FAILED for chapter ${chapterIdNum}: ${pdfResult.error}`);
+                        console.error(`[API][CHAPTER-${chapterIdNum}] STEP 4 FAILED after ${Date.now() - pdfStartTime}ms: ${pdfResult.error}`);
                         // Don't throw - allow chapter to still be marked as COMPLETED
                         // The PDF can be regenerated later
                     }
+                } else {
+                    console.log(`[API][CHAPTER-${chapterIdNum}] STEP 4: Skipping PDF generation`);
                 }
 
                 // 5. Mark Chapter as COMPLETED

@@ -62,6 +62,9 @@ export async function generateImage(
             break;
     }
 
+    console.log(`${logLabel} Original prompt: "${prompt}"`);
+    console.log(`${logLabel} Enhanced prompt: "${enhancedPrompt}"`);
+
     while (true) {
         attempts++;
         let currentKeyId: number | null = null;
@@ -139,12 +142,14 @@ export async function generateImage(
 
             // Handle image data
             if (part?.inlineData?.data) {
+                console.log(`${logLabel} Successfully received image data (${part.inlineData.mimeType})`);
                 return {
                     success: true,
                     imageBase64: part.inlineData.data,
                     mimeType: part.inlineData.mimeType || 'image/png',
                 };
             } else if (part?.executableCode) {
+                console.error(`${logLabel} Model returned executable code instead of image.`);
                 return { success: false, error: 'Model returned executable code instead of image.' };
             }
 

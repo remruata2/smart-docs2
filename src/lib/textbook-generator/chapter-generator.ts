@@ -410,6 +410,8 @@ IMPORTANT: The 'placement' field in 'images_to_generate' MUST MATCH EXACTLY the 
         const { CONTENT_PRIMARY } = await getTextbookModels();
         const modelName = await getSettingString('ai.model.textbook.content_override', process.env.TEXTBOOK_GEN_CONTENT_MODEL || CONTENT_PRIMARY);
 
+        console.log(`[CHAPTER-GEN][CHAPTER-${chapterId}] Model: ${modelName}, Prompt Size: ~${Math.round(prompt.length / 4)} tokens`);
+
         let result: any;
         let attempts = 0;
         const maxAttempts = 4; // Try up to 4 different keys
@@ -434,6 +436,7 @@ IMPORTANT: The 'placement' field in 'images_to_generate' MUST MATCH EXACTLY the 
             try {
                 console.log(`[CHAPTER - GEN] Attempt ${attempts}/${maxAttempts} using Key: "${currentLabel}" (ID: ${keyId || 'ENV'})`);
 
+                const genStartTime = Date.now();
                 result = await generateObject({
                     model: google(modelName),
                     schema: ChapterContentSchema,
@@ -441,9 +444,15 @@ IMPORTANT: The 'placement' field in 'images_to_generate' MUST MATCH EXACTLY the 
                     // @ts-expect-error - timeout is supported by AI SDK v5 but not in type definitions yet
                     timeout: 300000, // 5 minutes for complex chapter generation
                 });
+                const genDuration = Date.now() - genStartTime;
 
                 // Success - Record usage
                 if (keyId) await recordKeyUsage(keyId, true);
+
+                const content = result.object as GeneratedChapterContent;
+                console.log(`[CHAPTER-GEN][CHAPTER-${chapterId}] Generation successful in ${genDuration}ms`);
+                console.log(`[CHAPTER-GEN][CHAPTER-${chapterId}] Content Summary: ${content.markdown_content.length} chars, ${content.images_to_generate.length} images, ${content.mcqs?.length || 0} MCQs`);
+
                 break; // Exit loop
 
             } catch (error: any) {

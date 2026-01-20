@@ -283,15 +283,15 @@ export async function generateChapterPDF(
       );
     }
 
-    console.log(`[PDF-GEN] After replacement, content has ${(content.match(/<img/g) || []).length} <img> tags`);
-
+    console.log(`[PDF-GEN][CHAPTER-${chapterId}] After replacement, content has ${(content.match(/<img/g) || []).length} <img> tags`);
 
     // Convert to HTML
-    // Await the asynchronous markdownToHtml function
+    console.log(`[PDF-GEN][CHAPTER-${chapterId}] Converting Markdown to HTML...`);
     const html = await markdownToHtml(content, chapter.title, chapter.chapter_number);
+    console.log(`[PDF-GEN][CHAPTER-${chapterId}] HTML conversion complete (${Math.round(html.length / 1024)}KB)`);
 
     // Generate PDF using Puppeteer
-    console.log(`[PDF-GEN] Launching Puppeteer...`);
+    console.log(`[PDF-GEN][CHAPTER-${chapterId}] Launching Puppeteer...`);
     const puppeteer = await getPuppeteer();
     console.log(`[PDF-GEN] Puppeteer loaded, launching browser...`);
 
@@ -339,16 +339,16 @@ export async function generateChapterPDF(
       timeout: 60000
     });
 
-    console.log(`[PDF-GEN] Generating PDF buffer...`);
+    console.log(`[PDF-GEN][CHAPTER-${chapterId}] Generating PDF buffer...`);
     const pdfBuffer = await page.pdf({
       format: 'A4',
       printBackground: true,
       margin: { top: '2cm', right: '2cm', bottom: '2cm', left: '2cm' },
     });
-    console.log(`[PDF-GEN] PDF buffer created (${pdfBuffer.length} bytes), closing browser...`);
+    console.log(`[PDF-GEN][CHAPTER-${chapterId}] PDF buffer created (${pdfBuffer.length} bytes), closing browser...`);
 
     await browser.close();
-    console.log(`[PDF-GEN] Browser closed, uploading to Supabase...`);
+    console.log(`[PDF-GEN][CHAPTER-${chapterId}] Browser closed, uploading to Supabase...`);
 
     // Upload to Supabase
     if (!supabaseAdmin) {
