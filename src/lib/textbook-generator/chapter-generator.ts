@@ -411,6 +411,10 @@ IMPORTANT: The 'placement' field in 'images_to_generate' MUST MATCH EXACTLY the 
         const modelName = await getSettingString('ai.model.textbook.content_override', process.env.TEXTBOOK_GEN_CONTENT_MODEL || CONTENT_PRIMARY);
 
         console.log(`[CHAPTER-GEN][CHAPTER-${chapterId}] Model: ${modelName}, Prompt Size: ~${Math.round(prompt.length / 4)} tokens`);
+        // DEBUG: Log full prompt for troubleshooting
+        console.log(`[CHAPTER-GEN][CHAPTER-${chapterId}] ===== FULL PROMPT START =====`);
+        console.log(prompt);
+        console.log(`[CHAPTER-GEN][CHAPTER-${chapterId}] ===== FULL PROMPT END =====`);
 
         let result: any;
         let attempts = 0;
@@ -471,6 +475,32 @@ IMPORTANT: The 'placement' field in 'images_to_generate' MUST MATCH EXACTLY the 
                 }
 
                 console.error(`[CHAPTER-GEN] Generation failed on attempt ${attempts}:`, error);
+
+                // DEBUG: Always log raw response details for troubleshooting
+                console.error(`[CHAPTER-GEN][CHAPTER-${chapterId}] ===== ERROR DEBUG START =====`);
+                console.error(`[CHAPTER-GEN][CHAPTER-${chapterId}] Error Name: ${error.name}`);
+                console.error(`[CHAPTER-GEN][CHAPTER-${chapterId}] Error Message: ${error.message}`);
+                console.error(`[CHAPTER-GEN][CHAPTER-${chapterId}] Finish Reason: ${error.finishReason}`);
+                console.error(`[CHAPTER-GEN][CHAPTER-${chapterId}] Usage: ${JSON.stringify(error.usage)}`);
+                console.error(`[CHAPTER-GEN][CHAPTER-${chapterId}] Raw Text (first 3000 chars): ${error.text?.substring(0, 3000) || '(no text property)'}`);
+                if (error.response) {
+                    console.error(`[CHAPTER-GEN][CHAPTER-${chapterId}] Response ID: ${error.response.id}`);
+                    console.error(`[CHAPTER-GEN][CHAPTER-${chapterId}] Response Headers: ${JSON.stringify(error.response.headers)}`);
+                }
+                console.error(`[CHAPTER-GEN][CHAPTER-${chapterId}] ===== ERROR DEBUG END =====`);
+
+                console.error(`[CHAPTER-GEN][CHAPTER-${chapterId}] Response: ${JSON.stringify(error.response)?.substring(0, 2000) || '(no response)'}`);
+                console.error(`[CHAPTER-GEN][CHAPTER-${chapterId}] ===== END RAW RESPONSE DEBUG =====`);
+
+                // Retry for AI_NoObjectGeneratedError (intermittent Gemini issue where model returns empty response)
+                const isNoObjectError = error.name === 'AI_NoObjectGeneratedError' || errorMsg.includes('No object generated');
+                if (isNoObjectError && attempts < maxAttempts) {
+                    console.warn(`[CHAPTER-GEN][CHAPTER-${chapterId}] Empty response from Gemini (attempt ${attempts}/${maxAttempts}). Retrying with same key...`);
+                    // Add delay before retry to give Gemini time to recover
+                    await new Promise(r => setTimeout(r, 2000));
+                    continue;
+                }
+
                 throw error; // Non-retriable error or max attempts reached
             }
         }
