@@ -48,7 +48,6 @@ export default function NewTextbookPage() {
     const [mode, setMode] = useState<'syllabus' | 'manual'>('syllabus');
     const [selectedSyllabusId, setSelectedSyllabusId] = useState<string>('');
     const [selectedExamId, setSelectedExamId] = useState<string>('');
-    const [syllabusHasExam, setSyllabusHasExam] = useState(false); // Track if syllabus has an exam
     const [useSyllabusMetadata, setUseSyllabusMetadata] = useState(true);
 
     const [formData, setFormData] = useState<CreateTextbookInput & { content_style?: string }>({
@@ -109,6 +108,22 @@ export default function NewTextbookPage() {
         fetchSyllabi();
     }, []);
 
+    // Filter syllabi based on selected exam
+    const filteredSyllabi = selectedExamId
+        ? syllabi.filter(s => s.exam_id === selectedExamId || !s.exam_id)
+        : syllabi;
+
+    // Reset syllabus selection when exam changes (if current syllabus doesn't match)
+    useEffect(() => {
+        if (selectedExamId && selectedSyllabusId) {
+            const currentSyllabus = syllabi.find(s => s.id.toString() === selectedSyllabusId);
+            // If current syllabus has a different exam, reset selection
+            if (currentSyllabus?.exam_id && currentSyllabus.exam_id !== selectedExamId) {
+                setSelectedSyllabusId('');
+            }
+        }
+    }, [selectedExamId, selectedSyllabusId, syllabi]);
+
     useEffect(() => {
         if (mode === 'syllabus' && selectedSyllabusId && useSyllabusMetadata) {
             const syllabus = syllabi.find(s => s.id.toString() === selectedSyllabusId);
@@ -123,23 +138,13 @@ export default function NewTextbookPage() {
                     academic_year: syllabus.academic_year || prev.academic_year
                 }));
 
-                // Prefill exam from syllabus
-                if (syllabus.exam_id) {
+                // If syllabus has an exam and no exam is selected, auto-select it
+                if (syllabus.exam_id && !selectedExamId) {
                     setSelectedExamId(syllabus.exam_id);
-                    setSyllabusHasExam(true);
-                } else {
-                    setSyllabusHasExam(false);
-                    // Don't reset exam if user already selected one
                 }
             }
-        } else if (!selectedSyllabusId) {
-            setSyllabusHasExam(false);
         }
-    }, [selectedSyllabusId, syllabi, mode, useSyllabusMetadata]);
-    // ...
-    // Scroll down to find the Select component to update
-    // I will use a separate replacement for the Select content since it is far down.
-    // Waiting for next step.
+    }, [selectedSyllabusId, syllabi, mode, useSyllabusMetadata, selectedExamId]);
 
 
     const handleSubmit = async (e: React.FormEvent) => {
@@ -240,6 +245,31 @@ export default function NewTextbookPage() {
                                     <CardDescription>Choose a pre-defined syllabus blueprint to auto-generate structure.</CardDescription>
                                 </CardHeader>
                                 <CardContent className="space-y-4">
+                                    {/* Target Exam - Select first to filter syllabi */}
+                                    <div className="space-y-2">
+                                        <Label>Target Exam</Label>
+                                        <Select
+                                            value={selectedExamId || 'all'}
+                                            onValueChange={(v) => setSelectedExamId(v === 'all' ? '' : v)}
+                                        >
+                                            <SelectTrigger>
+                                                <SelectValue placeholder="All Exams" />
+                                            </SelectTrigger>
+                                            <SelectContent>
+                                                <SelectItem value="all">All Exams</SelectItem>
+                                                {exams.map(exam => (
+                                                    <SelectItem key={exam.id} value={exam.id}>
+                                                        {exam.short_name || exam.name} ({exam.code})
+                                                    </SelectItem>
+                                                ))}
+                                            </SelectContent>
+                                        </Select>
+                                        <p className="text-xs text-muted-foreground">
+                                            Filter syllabi by target exam, or select "All Exams" to see all
+                                        </p>
+                                    </div>
+
+                                    {/* Syllabus Blueprint - Filtered by selected exam */}
                                     <div className="space-y-2">
                                         <Label>Syllabus Blueprint</Label>
                                         <Select value={selectedSyllabusId} onValueChange={setSelectedSyllabusId}>
@@ -249,10 +279,12 @@ export default function NewTextbookPage() {
                                             <SelectContent>
                                                 {fetchingSyllabi ? (
                                                     <SelectItem value="loading" disabled>Loading...</SelectItem>
-                                                ) : syllabi.length === 0 ? (
-                                                    <SelectItem value="none" disabled>No parsed syllabi found</SelectItem>
+                                                ) : filteredSyllabi.length === 0 ? (
+                                                    <SelectItem value="none" disabled>
+                                                        {selectedExamId ? 'No syllabi for this exam' : 'No parsed syllabi found'}
+                                                    </SelectItem>
                                                 ) : (
-                                                    syllabi.map(s => (
+                                                    filteredSyllabi.map(s => (
                                                         <SelectItem key={s.id} value={s.id.toString()}>
                                                             {s.title} (Class {s.class_level})
                                                         </SelectItem>
@@ -270,38 +302,6 @@ export default function NewTextbookPage() {
                                                 Auto-fill basic info from syllabus
                                             </Label>
                                         </div>
-                                    </div>
-
-                                    {/* Exam Selection - Prefilled from syllabus */}
-                                    <div className="space-y-2">
-                                        <Label>Target Exam</Label>
-                                        <Select
-                                            value={selectedExamId || 'none'}
-                                            onValueChange={(v) => setSelectedExamId(v === 'none' ? '' : v)}
-                                            disabled={syllabusHasExam}
-                                        >
-                                            <SelectTrigger className={syllabusHasExam ? 'bg-gray-50' : ''}>
-                                                <SelectValue placeholder="Select target exam (optional)" />
-                                            </SelectTrigger>
-                                            <SelectContent>
-                                                <SelectItem value="none">None</SelectItem>
-                                                {exams.map(exam => (
-                                                    <SelectItem key={exam.id} value={exam.id}>
-                                                        {exam.short_name || exam.name} ({exam.code})
-                                                    </SelectItem>
-                                                ))}
-                                            </SelectContent>
-                                        </Select>
-                                        {syllabusHasExam && (
-                                            <p className="text-xs text-amber-600">
-                                                Exam inherited from syllabus (locked)
-                                            </p>
-                                        )}
-                                        {!syllabusHasExam && (
-                                            <p className="text-xs text-muted-foreground">
-                                                Optional: Categorize by target exam
-                                            </p>
-                                        )}
                                     </div>
 
                                     <div className="text-sm text-muted-foreground bg-muted p-3 rounded-md">

@@ -97,25 +97,34 @@ export default function ChapterIngestForm({
         fetchExams();
     }, []);
 
-    // Update exam when textbook subject changes
+    // Auto-select exam from subject if subject has one and no exam is selected
     useEffect(() => {
         if (textbookSubjectId) {
             const subject = subjects.find(s => s.id.toString() === textbookSubjectId);
-            if (subject?.exam_id) {
+            if (subject?.exam_id && !selectedExamId) {
                 setSelectedExamId(subject.exam_id);
-                setSubjectHasExam(true);
-            } else {
-                setSubjectHasExam(false);
-                // Don't reset exam if user already selected one
             }
-        } else {
-            setSubjectHasExam(false);
         }
-    }, [textbookSubjectId, subjects]);
+    }, [textbookSubjectId, subjects, selectedExamId]);
+
+    // Reset subject selection when exam changes (if current subject doesn't match)
+    useEffect(() => {
+        if (selectedExamId && textbookSubjectId) {
+            const currentSubject = subjects.find(s => s.id.toString() === textbookSubjectId);
+            if (currentSubject?.exam_id && currentSubject.exam_id !== selectedExamId) {
+                setTextbookSubjectId('');
+            }
+        }
+    }, [selectedExamId, textbookSubjectId, subjects]);
 
     // Filter subjects based on selected program
     const filteredSubjects = selectedProgram
         ? subjects.filter(s => s.program.id === selectedProgram)
+        : subjects;
+
+    // Filter subjects based on selected exam (for textbook mode)
+    const examFilteredSubjects = selectedExamId
+        ? subjects.filter(s => s.exam_id === selectedExamId || !s.exam_id)
         : subjects;
 
     function handleFileSelect(e: React.ChangeEvent<HTMLInputElement>) {
@@ -737,6 +746,29 @@ export default function ChapterIngestForm({
                                 </div>
                             </div>
 
+                            {/* Target Exam - Select first to filter subjects */}
+                            <div>
+                                <label className="block text-sm font-medium text-gray-700 mb-2">
+                                    Target Exam
+                                </label>
+                                <select
+                                    value={selectedExamId || ''}
+                                    onChange={(e) => setSelectedExamId(e.target.value)}
+                                    className="block w-full rounded-md border-gray-300 shadow-sm focus:border-indigo-500 focus:ring-indigo-500 text-sm border p-2"
+                                >
+                                    <option value="">All Exams</option>
+                                    {exams.map((exam) => (
+                                        <option key={exam.id} value={exam.id}>
+                                            {exam.short_name || exam.name} ({exam.code})
+                                        </option>
+                                    ))}
+                                </select>
+                                <p className="mt-1 text-xs text-gray-500">
+                                    Filter subjects by target exam, or select "All Exams" to see all
+                                </p>
+                            </div>
+
+                            {/* Subject - Filtered by selected exam */}
                             <div>
                                 <label className="block text-sm font-medium text-gray-700 mb-2">Subject *</label>
                                 <select
@@ -745,44 +777,15 @@ export default function ChapterIngestForm({
                                     className="block w-full rounded-md border-gray-300 shadow-sm focus:border-indigo-500 focus:ring-indigo-500 text-sm border p-2"
                                 >
                                     <option value="">Select Subject</option>
-                                    {subjects.map((s) => (
+                                    {examFilteredSubjects.map((s) => (
                                         <option key={s.id} value={s.id}>
                                             {s.name} ({s.program.name} - {s.program.board.name})
                                         </option>
                                     ))}
                                 </select>
                                 <p className="mt-1 text-xs text-gray-500">
-                                    All detected chapters will be created under this subject.
+                                    {selectedExamId ? 'Showing subjects for selected exam' : 'All detected chapters will be created under this subject.'}
                                 </p>
-                            </div>
-
-                            {/* Exam Selection - Prefilled from subject */}
-                            <div>
-                                <label className="block text-sm font-medium text-gray-700 mb-2">
-                                    Target Exam {subjectHasExam && <span className="text-amber-600">(from subject)</span>}
-                                </label>
-                                <select
-                                    value={selectedExamId}
-                                    onChange={(e) => setSelectedExamId(e.target.value)}
-                                    disabled={subjectHasExam}
-                                    className={`block w-full rounded-md border-gray-300 shadow-sm focus:border-indigo-500 focus:ring-indigo-500 text-sm border p-2 ${subjectHasExam ? 'bg-gray-50' : ''}`}
-                                >
-                                    <option value="">None</option>
-                                    {exams.map((exam) => (
-                                        <option key={exam.id} value={exam.id}>
-                                            {exam.short_name || exam.name} ({exam.code})
-                                        </option>
-                                    ))}
-                                </select>
-                                {subjectHasExam ? (
-                                    <p className="mt-1 text-xs text-amber-600">
-                                        Exam inherited from subject (locked)
-                                    </p>
-                                ) : (
-                                    <p className="mt-1 text-xs text-gray-500">
-                                        Optional: Categorize chapters by target exam
-                                    </p>
-                                )}
                             </div>
 
                             <div>
