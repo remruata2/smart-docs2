@@ -283,7 +283,7 @@ export default function LoginPage() {
 									</div>
 									<div className="relative flex justify-center text-xs uppercase">
 										<span className="bg-white px-3 text-gray-500 font-medium">
-											Or continue with
+											Or sign in with
 										</span>
 									</div>
 								</div>

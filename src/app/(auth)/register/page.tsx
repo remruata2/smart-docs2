@@ -284,7 +284,7 @@ export default function RegisterPage() {
 									</div>
 									<div className="relative flex justify-center text-xs uppercase">
 										<span className="bg-white px-3 text-gray-500 font-medium">
-											Or continue with
+											Or sign up with
 										</span>
 									</div>
 								</div>
