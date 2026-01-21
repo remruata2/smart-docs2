@@ -108,9 +108,9 @@ export default function NewTextbookPage() {
         fetchSyllabi();
     }, []);
 
-    // Filter syllabi based on selected exam
+    // Filter syllabi based on selected exam (only show syllabi with matching exam_id)
     const filteredSyllabi = selectedExamId
-        ? syllabi.filter(s => s.exam_id === selectedExamId || !s.exam_id)
+        ? syllabi.filter(s => s.exam_id === selectedExamId)
         : syllabi;
 
     // Reset syllabus selection when exam changes (if current syllabus doesn't match)

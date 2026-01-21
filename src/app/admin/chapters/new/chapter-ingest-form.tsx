@@ -122,10 +122,17 @@ export default function ChapterIngestForm({
         ? subjects.filter(s => s.program.id === selectedProgram)
         : subjects;
 
-    // Filter subjects based on selected exam (for textbook mode)
+    // Filter subjects based on selected exam (only show subjects with matching exam_id)
     const examFilteredSubjects = selectedExamId
-        ? subjects.filter(s => s.exam_id === selectedExamId || !s.exam_id)
+        ? subjects.filter(s => s.exam_id === selectedExamId)
         : subjects;
+
+    // Combined filter for individual mode: apply both program and exam filters
+    const individualModeSubjects = subjects.filter(s => {
+        const matchesProgram = !selectedProgram || s.program.id === selectedProgram;
+        const matchesExam = !selectedExamId || s.exam_id === selectedExamId;
+        return matchesProgram && matchesExam;
+    });
 
     function handleFileSelect(e: React.ChangeEvent<HTMLInputElement>) {
         const files = e.target.files;
@@ -428,6 +435,25 @@ export default function ChapterIngestForm({
                         </select>
                     </div>
 
+                    {/* Filter by Exam */}
+                    <div>
+                        <label className="block text-sm font-medium text-gray-700 mb-2">
+                            Filter by Exam (Optional)
+                        </label>
+                        <select
+                            value={selectedExamId || ''}
+                            onChange={(e) => setSelectedExamId(e.target.value)}
+                            className="block w-full rounded-md border-gray-300 shadow-sm focus:border-indigo-500 focus:ring-indigo-500 sm:text-sm border p-2"
+                        >
+                            <option value="">All Exams</option>
+                            {exams.map((exam) => (
+                                <option key={exam.id} value={exam.id}>
+                                    {exam.short_name || exam.name} ({exam.code})
+                                </option>
+                            ))}
+                        </select>
+                    </div>
+
                     <div>
                         <label className="block text-sm font-medium text-gray-700 mb-2">
                             PDF Files *
@@ -529,16 +555,16 @@ export default function ChapterIngestForm({
                                             className="block w-full rounded-md border-gray-300 shadow-sm focus:border-indigo-500 focus:ring-indigo-500 text-sm border p-2"
                                         >
                                             <option value="">Select Subject</option>
-                                            {/* Show filtered subjects, or all subjects if filtered is empty */}
-                                            {(filteredSubjects.length > 0 ? filteredSubjects : subjects).map((s) => (
+                                            {/* Show subjects filtered by program and exam */}
+                                            {individualModeSubjects.map((s) => (
                                                 <option key={s.id} value={s.id}>
                                                     {s.name} ({s.program.name} - {s.program.board.name})
                                                 </option>
                                             ))}
                                         </select>
-                                        {filteredSubjects.length === 0 && selectedProgram && (
+                                        {individualModeSubjects.length === 0 && (selectedProgram || selectedExamId) && (
                                             <p className="text-xs text-amber-600 mt-1">
-                                                No subjects for selected program. Showing all subjects.
+                                                No subjects match the selected filters.
                                             </p>
                                         )}
                                     </div>
