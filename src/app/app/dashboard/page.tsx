@@ -248,36 +248,6 @@ export default async function DashboardPage() {
                         <Card className="border-none shadow-md bg-white">
                             <CardHeader className="pb-2 border-b border-gray-50">
                                 <CardTitle className="flex items-center gap-2 text-base">
-                                    <Trophy className="w-5 h-5 text-yellow-500" />
-                                    Leaderboard
-                                </CardTitle>
-                            </CardHeader>
-                            <CardContent className="pt-4">
-                                <div className="text-center py-6">
-                                    <p className="text-gray-500 text-sm">Coming Soon</p>
-                                    <p className="text-xs text-gray-400 mt-1">Compete with peers in your program</p>
-                                </div>
-                            </CardContent>
-                        </Card>
-
-                        <Card className="border-none shadow-md bg-white">
-                            <CardHeader className="pb-2 border-b border-gray-50">
-                                <CardTitle className="flex items-center gap-2 text-base">
-                                    <Calendar className="w-5 h-5 text-indigo-500" />
-                                    Upcoming Exams
-                                </CardTitle>
-                            </CardHeader>
-                            <CardContent className="pt-4">
-                                <div className="text-center py-6">
-                                    <p className="text-gray-500 text-sm">Coming Soon</p>
-                                    <p className="text-xs text-gray-400 mt-1">Exam schedule feature will be available soon</p>
-                                </div>
-                            </CardContent>
-                        </Card>
-
-                        <Card className="border-none shadow-md bg-white">
-                            <CardHeader className="pb-2 border-b border-gray-50">
-                                <CardTitle className="flex items-center gap-2 text-base">
                                     <Award className="w-5 h-5 text-orange-500" />
                                     Your Badges
                                 </CardTitle>

@@ -115,10 +115,8 @@ export default async function ChaptersPage({
         where: {
             is_active: true,
             chapters: { some: {} },
-            // If exam is selected, only show subjects for that exam in the dropdown?
-            // Usually valid to filter subjects independently or conditionally.
-            // For now, let's show all relevant subjects or filter if we want stricter UX.
-            // Let's keep it simple: show all subjects that have chapters.
+            // Filter by exam if selected
+            ...(examId ? { exam_id: examId } : {})
         },
         select: {
             id: true,
@@ -179,14 +177,14 @@ export default async function ChaptersPage({
             {/* Filters */}
             <div className="bg-white p-4 rounded-lg shadow mb-8 flex gap-4 flex-wrap">
                 <FilterSelect
-                    name="boardId"
-                    placeholder="All Boards"
-                    options={boards.map(b => ({ value: b.id, label: b.name }))}
-                />
-                <FilterSelect
                     name="examId"
                     placeholder="All Exams"
                     options={exams.map(e => ({ value: e.id, label: e.short_name || e.name }))}
+                />
+                <FilterSelect
+                    name="boardId"
+                    placeholder="All Boards"
+                    options={boards.map(b => ({ value: b.id, label: b.name }))}
                 />
                 <FilterSelect
                     name="subjectId"

@@ -11,7 +11,7 @@ import { ScrollArea } from '@/components/ui/scroll-area';
 import { toast } from 'sonner';
 import { ArrowLeft, Loader2, Sparkles, FileText, Layers, Edit, Trash2 } from 'lucide-react';
 import type { SyllabusWithRelations } from '@/lib/textbook-generator/types';
-import { SubtopicEditor } from '@/components/admin/SubtopicEditor';
+import { TopicEditor } from '@/components/admin/TopicEditor';
 
 export default function SyllabusDetailPage({ params }: { params: Promise<{ id: string }> }) {
     const { id } = use(params);
@@ -191,23 +191,11 @@ export default function SyllabusDetailPage({ params }: { params: Promise<{ id: s
                                                                     Unit {chapter.chapter_number}: {chapter.title}
                                                                 </span>
                                                             </div>
-                                                            {/* Subtopics - Editable */}
-                                                            <SubtopicEditor
+                                                            {/* Topics - Editable */}
+                                                            <TopicEditor
                                                                 chapterId={chapter.id}
                                                                 syllabusId={syllabus.id}
-                                                                initialSubtopics={(() => {
-                                                                    if (Array.isArray(chapter.subtopics)) {
-                                                                        return chapter.subtopics.map(s => String(s));
-                                                                    }
-                                                                    if (typeof chapter.subtopics === 'string') {
-                                                                        try {
-                                                                            return JSON.parse(chapter.subtopics);
-                                                                        } catch {
-                                                                            return [chapter.subtopics];
-                                                                        }
-                                                                    }
-                                                                    return [];
-                                                                })()}
+                                                                initialTopics={chapter.subtopics as any}
                                                                 onUpdate={fetchSyllabus}
                                                             />
                                                         </div>

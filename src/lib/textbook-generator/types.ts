@@ -17,6 +17,7 @@ import type {
   SyllabusUnit,
   SyllabusChapter,
   SyllabusStatus,
+  Exam,
 } from '@/generated/prisma';
 
 // Re-export Prisma types
@@ -35,6 +36,7 @@ export type {
   SyllabusUnit,
   SyllabusChapter,
   SyllabusStatus,
+  Exam,
 };
 
 // Extended types with relations
@@ -44,6 +46,7 @@ export type SyllabusWithRelations = Syllabus & {
     units: number;
     textbooks: number;
   };
+  exam?: Exam | null;
 };
 
 export type SyllabusUnitWithChapters = SyllabusUnit & {
@@ -62,6 +65,7 @@ export type TextbookWithRelations = Textbook & {
     units: number;
     generation_jobs: number;
   };
+  exam?: Exam | null;
 };
 
 export type TextbookUnitWithChapters = TextbookUnit & {

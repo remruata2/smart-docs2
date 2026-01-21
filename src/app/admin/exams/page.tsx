@@ -7,6 +7,7 @@ import { getServerSession } from "next-auth";
 import { authOptions } from "@/lib/auth-options";
 import { isAdmin } from "@/lib/auth";
 import { redirect } from "next/navigation";
+import DeleteEntityButton from "@/components/admin/DeleteEntityButton";
 
 const examTypeIcons: Record<string, any> = {
     board: GraduationCap,
@@ -113,11 +114,12 @@ export default async function AdminExamsPage() {
                                                 </Button>
                                             </Link>
                                             {totalUsage === 0 && (
-                                                <form action={deleteExam.bind(null, exam.id)}>
-                                                    <Button variant="outline" size="sm" type="submit" className="h-8 border-red-200 text-red-700 hover:bg-red-50">
-                                                        <Trash2 className="w-4 h-4" />
-                                                    </Button>
-                                                </form>
+                                                <DeleteEntityButton
+                                                    entityId={exam.id}
+                                                    entityName={exam.short_name || exam.name}
+                                                    entityType="Exam"
+                                                    deleteAction={deleteExam}
+                                                />
                                             )}
                                         </div>
                                     </div>

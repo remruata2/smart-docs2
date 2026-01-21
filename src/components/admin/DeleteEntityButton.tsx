@@ -9,7 +9,7 @@ import { useRouter } from "next/navigation";
 interface DeleteEntityButtonProps {
     entityId: string | number | bigint;
     entityName: string;
-    entityType: 'Subject' | 'Program' | 'Institution' | 'Board';
+    entityType: 'Subject' | 'Program' | 'Institution' | 'Board' | 'Syllabus' | 'Exam';
     deleteAction: (id: any) => Promise<any>;
 }
 

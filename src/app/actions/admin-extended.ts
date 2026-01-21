@@ -390,3 +390,84 @@ export async function deleteBoard(id: string) {
         throw error;
     }
 }
+
+// --- Syllabus Actions ---
+
+export async function updateSyllabusMetadata(syllabusId: number, formData: FormData) {
+    const session = await getServerSession(authOptions);
+    if (!session?.user || !isAdmin((session.user as any).role)) {
+        throw new Error("Unauthorized");
+    }
+
+    const title = formData.get("title") as string;
+    const subject = formData.get("subject") as string;
+    const classLevel = formData.get("classLevel") as string;
+    const stream = formData.get("stream") as string;
+    const board = formData.get("board") as string;
+    const examId = formData.get("examId") as string;
+
+    if (!title || !subject || !classLevel) {
+        throw new Error("Missing required fields");
+    }
+
+    try {
+        await prisma.syllabus.update({
+            where: { id: syllabusId },
+            data: {
+                title,
+                subject,
+                class_level: classLevel,
+                stream: (stream && stream !== "none") ? stream : null,
+                board: board || 'MBSE',
+                exam_id: (examId && examId !== "none") ? examId : null,
+            },
+        });
+        revalidatePath("/admin/syllabus");
+        return { success: true };
+    } catch (error: any) {
+        console.error("Error updating syllabus:", error);
+        return { success: false, error: error.message || "Failed to update syllabus" };
+    }
+}
+
+export async function deleteSyllabus(syllabusId: number) {
+    const session = await getServerSession(authOptions);
+    if (!session?.user || !isAdmin((session.user as any).role)) {
+        throw new Error("Unauthorized");
+    }
+
+    try {
+        // Prisma will handle constraints, but we need to delete associated units and chapters
+        // if they aren't set to cascade. Looking at schema, they have relations.
+        // Let's rely on standard transaction/cascade if possible, or manual delete.
+        await prisma.$transaction(async (tx) => {
+            // SyllabusUnit and SyllabusChapter don't have explicit cascade in schema usually
+            // but let's check if we can just delete syllabus if cascade is on.
+            // If not, we manually delete units and chapters.
+            const units = await tx.syllabusUnit.findMany({
+                where: { syllabus_id: syllabusId },
+                select: { id: true }
+            });
+
+            for (const unit of units) {
+                await tx.syllabusChapter.deleteMany({
+                    where: { unit_id: unit.id }
+                });
+            }
+
+            await tx.syllabusUnit.deleteMany({
+                where: { syllabus_id: syllabusId }
+            });
+
+            await tx.syllabus.delete({
+                where: { id: syllabusId }
+            });
+        });
+
+        revalidatePath("/admin/syllabus");
+        return { success: true };
+    } catch (error) {
+        console.error("Error deleting syllabus:", error);
+        throw error;
+    }
+}

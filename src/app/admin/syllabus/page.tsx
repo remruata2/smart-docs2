@@ -14,6 +14,10 @@ import {
     SelectTrigger,
     SelectValue,
 } from '@/components/ui/select';
+import EntityActions from "@/components/admin/EntityActions";
+import DeleteEntityButton from "@/components/admin/DeleteEntityButton";
+import { deleteSyllabus } from "@/app/actions/admin-extended";
+import EditSyllabusDialog from "./edit-syllabus-dialog";
 
 interface Syllabus {
     id: number;
@@ -26,6 +30,11 @@ interface Syllabus {
         textbooks: number;
     };
     updated_at: string;
+    exam?: {
+        id: string;
+        name: string;
+        short_name: string | null;
+    } | null;
 }
 
 export default function SyllabusListPage() {
@@ -109,19 +118,6 @@ export default function SyllabusListPage() {
                         className="pl-9"
                     />
                 </div>
-                <Select value={classFilter} onValueChange={setClassFilter}>
-                    <SelectTrigger className="w-full md:w-[200px]">
-                        <SelectValue placeholder="Filter by Class" />
-                    </SelectTrigger>
-                    <SelectContent>
-                        <SelectItem value="all">All Classes</SelectItem>
-                        {programs.map((p) => (
-                            <SelectItem key={p.id} value={p.name}>
-                                {p.name}
-                            </SelectItem>
-                        ))}
-                    </SelectContent>
-                </Select>
                 <Select value={examFilter} onValueChange={setExamFilter}>
                     <SelectTrigger className="w-full md:w-[200px]">
                         <SelectValue placeholder="Filter by Exam" />
@@ -131,6 +127,19 @@ export default function SyllabusListPage() {
                         {exams.map((e) => (
                             <SelectItem key={e.id} value={e.id}>
                                 {e.short_name || e.name}
+                            </SelectItem>
+                        ))}
+                    </SelectContent>
+                </Select>
+                <Select value={classFilter} onValueChange={setClassFilter}>
+                    <SelectTrigger className="w-full md:w-[200px]">
+                        <SelectValue placeholder="Filter by Class" />
+                    </SelectTrigger>
+                    <SelectContent>
+                        <SelectItem value="all">All Classes</SelectItem>
+                        {programs.map((p) => (
+                            <SelectItem key={p.id} value={p.name}>
+                                {p.name}
                             </SelectItem>
                         ))}
                     </SelectContent>
@@ -162,7 +171,7 @@ export default function SyllabusListPage() {
                 <div className="bg-white shadow overflow-hidden sm:rounded-md">
                     <ul className="divide-y divide-gray-200">
                         {syllabi.map((syllabus) => (
-                            <li key={syllabus.id}>
+                            <li key={syllabus.id} className="relative group">
                                 <Link
                                     href={`/admin/syllabus/${syllabus.id}`}
                                     className="block hover:bg-gray-50 transition"
@@ -180,6 +189,8 @@ export default function SyllabusListPage() {
                                             <div className="ml-2 flex-shrink-0 text-xs text-gray-400">
                                                 Updated {new Date(syllabus.updated_at).toLocaleDateString()}
                                             </div>
+                                            {/* Action Menu - Spacer */}
+                                            <div className="w-10"></div>
                                         </div>
 
                                         <div className="mt-4 flex flex-col sm:flex-row sm:justify-between sm:items-center gap-4">
@@ -192,6 +203,12 @@ export default function SyllabusListPage() {
                                                     <span className="font-semibold text-gray-600 mr-1.5">Subject:</span>
                                                     <span className="bg-gray-50 px-2 py-0.5 rounded border border-gray-100">{syllabus.subject}</span>
                                                 </div>
+                                                {syllabus.exam && (
+                                                    <div className="flex items-center">
+                                                        <span className="font-semibold text-gray-600 mr-1.5">Exam:</span>
+                                                        <span className="bg-amber-50 px-2 py-0.5 rounded border border-amber-100 text-amber-700 font-medium">{syllabus.exam.short_name || syllabus.exam.name}</span>
+                                                    </div>
+                                                )}
                                             </div>
 
                                             <div className="flex items-center gap-3">
@@ -209,6 +226,21 @@ export default function SyllabusListPage() {
                                         </div>
                                     </div>
                                 </Link>
+                                <div className="absolute top-5 right-4 sm:right-6">
+                                    <EntityActions>
+                                        <EditSyllabusDialog
+                                            syllabus={syllabus}
+                                            programs={programs}
+                                            exams={exams}
+                                        />
+                                        <DeleteEntityButton
+                                            entityId={syllabus.id}
+                                            entityName={syllabus.title}
+                                            entityType="Syllabus"
+                                            deleteAction={deleteSyllabus}
+                                        />
+                                    </EntityActions>
+                                </div>
                             </li>
                         ))}
                     </ul>

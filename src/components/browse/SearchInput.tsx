@@ -31,12 +31,12 @@ export function SearchInput() {
             params.delete("q");
         }
 
-        router.push(`/?${params.toString()}`, { scroll: false });
+        router.push(`/courses?${params.toString()}`, { scroll: false });
     }, [query, router, searchParams]);
 
     const handleClear = useCallback(() => {
         setText("");
-        router.push("/", { scroll: false });
+        router.push("/courses", { scroll: false });
     }, [router]);
 
     return (

@@ -42,7 +42,7 @@ function DashboardChatPageContent() {
 		number | null
 	>(null);
 	const [conversationTitle, setConversationTitle] =
-		useState<string>("New Conversation");
+		useState<string>("New AI Tutor");
 	const [sidebarRefreshTrigger, setSidebarRefreshTrigger] = useState(0);
 
 	const [model, setModel] = useState<string>("gemini-2.5-pro");
@@ -254,7 +254,7 @@ function DashboardChatPageContent() {
 		}
 
 		// Fallback if empty
-		return title || "New Conversation";
+		return title || "New AI Tutor";
 	};
 
 	// Create a new conversation
@@ -264,7 +264,7 @@ function DashboardChatPageContent() {
 		try {
 			const title = firstMessage
 				? generateTitleFromQuery(firstMessage)
-				: "New Conversation";
+				: "New AI Tutor";
 
 			const response = await fetch("/api/dashboard/conversations", {
 				method: "POST",
@@ -377,12 +377,12 @@ function DashboardChatPageContent() {
 	// Start a new conversation (clear messages, reset state)
 	const startNewConversation = () => {
 		setCurrentConversationId(null);
-		setConversationTitle("New Conversation");
+		setConversationTitle("New AI Tutor");
 		setMessages([]);
 		setError(null);
 		setLastResponseMeta(null);
 		setInputMessage("");
-		toast.success("Started new conversation");
+		toast.success("Started new AI Tutor");
 	};
 
 	// === END CONVERSATION MANAGEMENT ===
@@ -851,7 +851,7 @@ function DashboardChatPageContent() {
 								className="hidden sm:flex"
 							>
 								<MessageSquare className="h-4 w-4 mr-2" />
-								New Chat
+								New AI Tutor
 							</Button>
 						</div>
 					</div>

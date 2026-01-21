@@ -367,12 +367,15 @@ export function getUniversalInstructions(): string {
      - **HOTS**: Include difficult application questions.
 
 6. 📄 FORMATTING STANDARDS:
-   - Use Markdown headers: ## for main sections, ### for subsections.
-   - Use **KaTeX** ($...$) for ALL mathematical notations, even simple ones.
    - Use Blockquotes (>) for definitions, laws, and key statements.
    - Use Markdown Tables for comparisons and data.
 
-7. 📱 INDIAN CONTEXT:
+7. 🚫 NO CODE BLOCKS (STRICT):
+   - Unless the subject is explicitly Computer Science/Informatics, you must **NEVER** include code snippets (Python, C++, Java, etc.).
+   - Do NOT show Python code for plots in the final output text (use the \`\`\`python-plot\`\`\` block ONLY if you are generating a plot image, but do not show code to the student).
+   - If explaining a concept, use mathematical notation ($...$) or pseudocode/algorithms in plain text, \`not_code_blocks\`.
+
+8. 📱 INDIAN CONTEXT:
    - Use "Scientific Calculator" or "Manual Calculation" instead of "Computer Algebra System".
    - Use Indian names, rupees (₹), and local examples where appropriate.
    - Assume resources available in typical Indian schools.

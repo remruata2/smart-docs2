@@ -68,6 +68,7 @@ export async function GET(request: NextRequest) {
                             generation_jobs: true,
                         },
                     },
+                    exam: true,
                 },
                 orderBy: { updated_at: 'desc' },
                 skip,

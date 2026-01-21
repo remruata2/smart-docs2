@@ -73,10 +73,11 @@ export async function getSubjectsForUserProgram(courseId?: number, includeMaster
         };
     }
 
-    // Calculate mastery for each enrollment based on quiz scores
-    // Mastery is calculated at the course level in the DB, but we want to show it per subject in the UI
+    // Calculate mastery using per-chapter recent attempts method
+    // This reflects recent performance and prevents practice penalty
     const enrollmentsWithMastery = await Promise.all(enrollments.map(async (enrollment) => {
         const subjectsWithMastery = await Promise.all(enrollment.course.subjects.map(async (subject) => {
+            // Get ALL completed quizzes for this subject
             const completedQuizzes = await prisma.quiz.findMany({
                 where: {
                     user_id: userId,
@@ -86,15 +87,65 @@ export async function getSubjectsForUserProgram(courseId?: number, includeMaster
                 },
                 select: {
                     score: true,
-                    total_points: true
+                    total_points: true,
+                    chapter_id: true,
+                    completed_at: true,
+                    created_at: true
                 }
             });
 
             let mastery = 0;
+            const totalChapters = subject._count.chapters;
+
             if (completedQuizzes.length > 0) {
-                const totalScore = completedQuizzes.reduce((sum, q) => sum + q.score, 0);
-                const totalPoints = completedQuizzes.reduce((sum, q) => sum + q.total_points, 0);
-                mastery = Math.round((totalScore / totalPoints) * 100);
+                // Group quizzes by chapter
+                const quizzesByChapter = new Map<string, typeof completedQuizzes>();
+
+                completedQuizzes.forEach(quiz => {
+                    if (quiz.chapter_id !== null) {
+                        const chapterId = quiz.chapter_id.toString();
+                        if (!quizzesByChapter.has(chapterId)) {
+                            quizzesByChapter.set(chapterId, []);
+                        }
+                        quizzesByChapter.get(chapterId)!.push(quiz);
+                    }
+                });
+
+                // Calculate mastery per chapter using last 3 attempts
+                const chapterMasteries: number[] = [];
+
+                quizzesByChapter.forEach((chapterQuizzes) => {
+                    // Sort by date (newest first)
+                    const sortedQuizzes = chapterQuizzes.sort((a, b) => {
+                        const dateA = a.completed_at || a.created_at;
+                        const dateB = b.completed_at || b.created_at;
+                        return new Date(dateB).getTime() - new Date(dateA).getTime();
+                    });
+
+                    // Take last 3 attempts (or all if less than 3)
+                    const recentAttempts = sortedQuizzes.slice(0, 3);
+
+                    // Calculate average score using cumulative method (naturally weights by quiz size)
+                    const totalScore = recentAttempts.reduce((sum, q) => sum + q.score, 0);
+                    const totalPoints = recentAttempts.reduce((sum, q) => sum + q.total_points, 0);
+                    const chapterMastery = (totalScore / totalPoints) * 100;
+
+                    chapterMasteries.push(chapterMastery);
+                });
+
+                // Average mastery across all attempted chapters
+                const avgChapterMastery = chapterMasteries.length > 0
+                    ? chapterMasteries.reduce((sum, m) => sum + m, 0) / chapterMasteries.length
+                    : 0;
+
+                // Calculate chapter coverage
+                const chaptersAttempted = quizzesByChapter.size;
+                const coveragePercentage = totalChapters > 0
+                    ? (chaptersAttempted / totalChapters) * 100
+                    : 0;
+
+                // Final mastery: (Average chapter mastery × Coverage) / 100
+                mastery = Math.round((avgChapterMastery * coveragePercentage) / 100);
             }
 
             return {

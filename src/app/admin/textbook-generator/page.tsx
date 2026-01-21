@@ -174,6 +174,20 @@ export default function TextbookGeneratorPage() {
                             </SelectContent>
                         </Select>
 
+                        <Select value={examFilter} onValueChange={setExamFilter}>
+                            <SelectTrigger className="w-[150px]">
+                                <SelectValue placeholder="Exam" />
+                            </SelectTrigger>
+                            <SelectContent>
+                                <SelectItem value="all">All Exams</SelectItem>
+                                {exams.map(e => (
+                                    <SelectItem key={e.id} value={e.id}>
+                                        {e.short_name || e.name}
+                                    </SelectItem>
+                                ))}
+                            </SelectContent>
+                        </Select>
+
                         <Select value={classFilter} onValueChange={setClassFilter}>
                             <SelectTrigger className="w-[130px]">
                                 <SelectValue placeholder="Class" />
@@ -195,20 +209,6 @@ export default function TextbookGeneratorPage() {
                                 <SelectItem value="Arts">Arts</SelectItem>
                                 <SelectItem value="Science">Science</SelectItem>
                                 <SelectItem value="Commerce">Commerce</SelectItem>
-                            </SelectContent>
-                        </Select>
-
-                        <Select value={examFilter} onValueChange={setExamFilter}>
-                            <SelectTrigger className="w-[150px]">
-                                <SelectValue placeholder="Exam" />
-                            </SelectTrigger>
-                            <SelectContent>
-                                <SelectItem value="all">All Exams</SelectItem>
-                                {exams.map(e => (
-                                    <SelectItem key={e.id} value={e.id}>
-                                        {e.short_name || e.name}
-                                    </SelectItem>
-                                ))}
                             </SelectContent>
                         </Select>
 
@@ -302,6 +302,12 @@ export default function TextbookGeneratorPage() {
                                                         <span className="font-semibold text-gray-600 mr-1.5">Units:</span>
                                                         <span className="bg-gray-50 px-2 py-0.5 rounded border border-gray-100">{textbook._count?.units || 0}</span>
                                                     </div>
+                                                    {textbook.exam && (
+                                                        <div className="flex items-center">
+                                                            <span className="font-semibold text-gray-600 mr-1.5">Exam:</span>
+                                                            <span className="bg-amber-50 px-2 py-0.5 rounded border border-amber-100 text-amber-700 font-medium">{textbook.exam.short_name || textbook.exam.name}</span>
+                                                        </div>
+                                                    )}
                                                 </div>
 
                                                 <div className="max-w-md">

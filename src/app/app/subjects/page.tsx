@@ -50,7 +50,7 @@ export default async function SubjectsPage({
                         </p>
                     </div>
                     {!courseId && (
-                        <Link href="/app/catalog">
+                        <Link href="/courses">
                             <Button className="bg-blue-600 hover:bg-blue-700 text-white font-bold px-6 py-6 h-auto text-base shadow-lg shadow-blue-500/20">
                                 Explore New Courses
                             </Button>
@@ -72,7 +72,7 @@ export default async function SubjectsPage({
                         <p className="text-gray-500 mb-8 max-w-sm mx-auto">
                             Head over to the catalog to choose your courses and begin your exam preparation journey.
                         </p>
-                        <Link href="/app/catalog">
+                        <Link href="/courses">
                             <Button size="lg" className="bg-indigo-600 hover:bg-indigo-700 font-bold px-8">
                                 Browse Course Catalog
                             </Button>

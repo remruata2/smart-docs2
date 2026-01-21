@@ -70,17 +70,16 @@ export default async function SubjectsPage({
             {/* Add Subject Form */}
             <SubjectForm programs={programs} />
 
-            {/* Filters */}
             <div className="bg-white p-4 rounded-lg shadow mb-8 flex gap-4 flex-wrap">
-                <FilterSelect
-                    name="programId"
-                    placeholder="All Programs"
-                    options={programs.map(p => ({ value: p.id.toString(), label: `${p.name} (${p.board.name})` }))}
-                />
                 <FilterSelect
                     name="examId"
                     placeholder="All Exams"
                     options={exams.map(e => ({ value: e.id, label: e.short_name || e.name }))}
+                />
+                <FilterSelect
+                    name="programId"
+                    placeholder="All Programs"
+                    options={programs.map(p => ({ value: p.id.toString(), label: `${p.name} (${p.board.name})` }))}
                 />
             </div>
 
@@ -126,6 +125,12 @@ export default async function SubjectsPage({
                                                 <div className="flex items-center">
                                                     <span className="font-semibold text-gray-600 mr-1.5">Term:</span>
                                                     <span className="bg-blue-50 px-2 py-0.5 rounded border border-blue-100 text-blue-700">{subject.term}</span>
+                                                </div>
+                                            )}
+                                            {subject.exam && (
+                                                <div className="flex items-center">
+                                                    <span className="font-semibold text-gray-600 mr-1.5">Exam:</span>
+                                                    <span className="bg-amber-50 px-2 py-0.5 rounded border border-amber-100 text-amber-700 font-medium">{subject.exam.short_name || subject.exam.name}</span>
                                                 </div>
                                             )}
                                         </div>

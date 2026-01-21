@@ -15,7 +15,8 @@ import {
 	Trophy,
 	History,
 	Swords,
-	Compass,
+	// Compass, -- Removed
+
 } from "lucide-react";
 import {
 	DropdownMenu,
@@ -134,20 +135,7 @@ export default function UserSidebar({ setSidebarOpen }: UserSidebarProps) {
 					{!displayCollapsed && "Subjects"}
 				</Link>
 
-				<Link
-					href="/app/catalog"
-					onClick={() => setSidebarOpen && setSidebarOpen(false)}
-					className={`${baseLinkClasses} ${pathname.startsWith("/app/catalog")
-						? "bg-white/20 text-white shadow-sm"
-						: "text-white/70 hover:bg-white/10 hover:text-white"
-						} ${displayCollapsed ? "justify-center px-0" : ""}`}
-					title={displayCollapsed ? "Explore Catalog" : ""}
-				>
-					<Compass
-						className={`${displayCollapsed ? "h-5 w-5" : "mr-3 h-5 w-5"}`}
-					/>
-					{!displayCollapsed && "Explore Catalog"}
-				</Link>
+
 
 				<Link
 					href="/app/practice"

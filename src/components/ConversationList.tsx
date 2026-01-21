@@ -199,12 +199,12 @@ export default function ConversationList({
 						}`}
 					variant="default"
 					size={isCollapsed ? "icon" : "default"}
-					title={isCollapsed ? "New Chat" : ""}
+					title={isCollapsed ? "New AI Tutor" : ""}
 				>
 					<MessageSquarePlus
 						className={`h-4 w-4 ${isCollapsed ? "" : "mr-2"}`}
 					/>
-					{!isCollapsed && "New Chat"}
+					{!isCollapsed && "New AI Tutor"}
 				</Button>
 			</div>
 

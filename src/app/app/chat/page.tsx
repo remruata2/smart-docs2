@@ -250,7 +250,7 @@ function ChatPageContent() {
 		}
 
 		// Fallback if empty
-		return title || "New Conversation";
+		return title || "New AI Tutor";
 	};
 
 	// Create a new conversation
@@ -407,7 +407,7 @@ function ChatPageContent() {
 	// Start a new conversation (clear messages, reset state)
 	const startNewConversation = () => {
 		setCurrentConversationId(null);
-		setConversationTitle("New Conversation");
+		setConversationTitle("New AI Tutor");
 		setMessages([]);
 		setError(null);
 		setLastResponseMeta(null);
@@ -416,7 +416,7 @@ function ChatPageContent() {
 		// Clear URL params
 		router.push("/app/chat");
 
-		toast.success("Started new conversation");
+		toast.success("Started new AI Tutor");
 	};
 
 	// === END CONVERSATION MANAGEMENT ===
@@ -906,49 +906,141 @@ function ChatPageContent() {
 								className="text-muted-foreground hover:text-primary"
 							>
 								<MessageSquare className="w-4 h-4 mr-2" />
-								New Chat
+								New AI Tutor
 							</Button>
 						</div>
 					</div>
 
 					{/* Messages Area */}
-					<div className="flex-1 overflow-y-auto p-4 space-y-6">
+					<div className={`flex-1 overflow-y-auto p-4 space-y-6 ${messages.length === 0 ? 'flex flex-col justify-center' : ''}`}>
 						{messages.length === 0 ? (
-							<div className="h-full flex flex-col items-center justify-center text-center p-8 animate-in fade-in zoom-in duration-500">
+							<div className="flex flex-col items-center justify-center text-center p-8 animate-in fade-in zoom-in duration-500">
 								<div className="w-24 h-24 bg-primary/5 rounded-3xl flex items-center justify-center mb-6 shadow-inner">
 									<Bot className="w-12 h-12 text-primary/80" />
 								</div>
 								<h2 className="text-2xl font-bold text-gray-900 dark:text-gray-100 mb-3">
 									How can I help you today?
 								</h2>
-								<p className="text-muted-foreground max-w-md mb-8 leading-relaxed">
+								<p className="text-muted-foreground max-w-md mb-4 leading-relaxed">
 									I'm your AI tutor. I can help you understand chapters, explain complex topics, and create visual diagrams for better learning.
-									<br />
-									<span className="text-xs font-medium text-primary/80 mt-2 block bg-primary/5 py-1 px-3 rounded-full w-fit mx-auto border border-primary/10">
-										Supported languages: English, Mizo & Hindi
-									</span>
 								</p>
 
-								<div className="grid grid-cols-1 md:grid-cols-2 gap-4 max-w-2xl w-full">
-									{[
-										"Summarize this chapter",
-										"Explain key concepts",
-										"Create a diagram of...",
-										"Test my knowledge",
-									].map((suggestion, i) => (
-										<button
-											key={i}
-											onClick={() => {
-												setInputMessage(suggestion);
-												inputRef.current?.focus();
+								{/* Note replacing suggestion cards */}
+								<div className="bg-blue-50 dark:bg-blue-900/30 border border-blue-100 dark:border-blue-800 rounded-xl px-6 py-4 max-w-md mb-8">
+									<p className="text-sm text-blue-700 dark:text-blue-300 font-medium">
+										💡 Ask me anything about the chapter in your preferred language
+									</p>
+								</div>
+
+								{/* Inline Input Area for empty state */}
+								<div className="w-full max-w-2xl space-y-2">
+									{/* Filters */}
+									<div className="flex flex-wrap items-center justify-center gap-2">
+										<select
+											className="h-9 text-sm border rounded-md px-3 bg-white dark:bg-gray-800 focus:ring-2 focus:ring-primary/20 outline-none disabled:opacity-50 disabled:cursor-not-allowed"
+											value={selectedSubjectId || ""}
+											onChange={(e) => {
+												const val = e.target.value;
+												if (val) {
+													const id = parseInt(val);
+													setSelectedSubjectId(id);
+													const subj = subjects.find((s) => s.id === id);
+													if (subj) setSelectedSubjectName(subj.name);
+													const params = new URLSearchParams(searchParams.toString());
+													params.set("subjectId", val);
+													params.delete("chapterId");
+													router.push(`?${params.toString()}`);
+												}
 											}}
-											className="p-4 text-sm text-left bg-white dark:bg-gray-800 border border-gray-200 dark:border-gray-700 rounded-xl hover:border-primary/50 hover:shadow-md transition-all duration-200 group"
+											disabled={subjectsLoading}
 										>
-											<span className="text-gray-600 dark:text-gray-300 group-hover:text-primary transition-colors">
-												{suggestion}
-											</span>
-										</button>
-									))}
+											{subjects.map((s) => (
+												<option key={s.id} value={s.id}>
+													{s.name}
+												</option>
+											))}
+										</select>
+
+										<select
+											className="h-9 text-sm border rounded-md px-3 bg-white dark:bg-gray-800 focus:ring-2 focus:ring-primary/20 outline-none max-w-[200px]"
+											value={selectedChapterId || ""}
+											onChange={(e) => {
+												const val = e.target.value;
+												if (val) {
+													setSelectedChapterId(val);
+													const chap = chapters.find((c) => c.id === val);
+													if (chap) setSelectedChapterTitle(chap.title);
+													const params = new URLSearchParams(searchParams.toString());
+													params.set("chapterId", val);
+													router.push(`?${params.toString()}`);
+												}
+											}}
+											disabled={chaptersLoading || !selectedSubjectId}
+										>
+											{chapters.length === 0 ? (
+												<option value="" disabled>No chapters found</option>
+											) : (
+												<option value="" disabled>Select Chapter</option>
+											)}
+											{chapters.map((c) => (
+												<option key={c.id} value={c.id} disabled={c.isLocked}>
+													{c.isLocked ? "🔒 " : ""}
+													{c.chapter_number ? `${c.chapter_number}. ` : ""}
+													{c.title}
+													{c.isLocked ? " (Upgrade)" : ""}
+												</option>
+											))}
+										</select>
+									</div>
+
+									{/* Input Box */}
+									<div className="relative flex items-end gap-2 bg-white dark:bg-gray-800 border rounded-xl shadow-sm focus-within:ring-2 focus-within:ring-primary/20 focus-within:border-primary transition-all p-2">
+										<div className="flex-1">
+											<Textarea
+												ref={(el: HTMLTextAreaElement | null) => {
+													if (el) {
+														inputRef.current = el as unknown as HTMLInputElement;
+														el.style.height = "auto";
+														el.style.height = `${Math.min(el.scrollHeight, 128)}px`;
+													}
+												}}
+												value={inputMessage}
+												onChange={(e: React.ChangeEvent<HTMLTextAreaElement>) => {
+													setInputMessage(e.target.value);
+													const target = e.target as HTMLTextAreaElement;
+													target.style.height = "auto";
+													target.style.height = `${Math.min(target.scrollHeight, 128)}px`;
+												}}
+												onKeyDown={handleKeyPress}
+												placeholder={
+													selectedChapterId
+														? `Ask about ${truncateTitle(selectedChapterTitle, 30)}...`
+														: "Select a chapter to start chatting..."
+												}
+												className="border-0 focus-visible:ring-0 px-3 py-2 min-h-[50px] max-h-32 resize-none bg-transparent shadow-none"
+												disabled={isLoading || !selectedChapterId}
+												rows={2}
+											/>
+										</div>
+										<Button
+											onClick={() => handleSendMessage()}
+											disabled={isLoading || !inputMessage.trim() || !selectedChapterId}
+											size="icon"
+											className={`h-10 w-10 rounded-lg transition-all duration-200 mb-0.5 ${inputMessage.trim() && !isLoading && selectedChapterId
+												? "bg-primary hover:bg-primary/90 text-primary-foreground shadow-md hover:shadow-lg scale-100"
+												: "bg-gray-100 text-gray-400 scale-95"
+												}`}
+										>
+											{isLoading ? (
+												<Loader2 className="h-5 w-5 animate-spin" />
+											) : (
+												<Send className="h-5 w-5" />
+											)}
+										</Button>
+									</div>
+									<p className="text-[10px] text-muted-foreground text-center">
+										AI can make mistakes. Please verify important information.
+									</p>
 								</div>
 							</div>
 						) : (
@@ -1253,151 +1345,153 @@ function ChatPageContent() {
 						)}
 					</div>
 
-					{/* Input Area */}
-					<div className="border-t bg-white dark:bg-gray-900 px-2 pt-2 pb-1">
-						<div className="max-w-4xl mx-auto space-y-1">
-							{/* Filters */}
-							<div className="flex flex-wrap items-center gap-2">
-								{currentConversationId && (
-									<div className="w-full text-xs text-amber-600 bg-amber-50 px-2 py-1 rounded border border-amber-200 mb-1 flex items-center gap-1">
-										<span>🔒 Context locked to this conversation. Start a new chat to change.</span>
-									</div>
-								)}
-								<select
-									className="h-9 text-sm border rounded-md px-3 bg-white dark:bg-gray-800 focus:ring-2 focus:ring-primary/20 outline-none disabled:opacity-50 disabled:cursor-not-allowed"
-									value={selectedSubjectId || ""}
-
-									onChange={(e) => {
-										const val = e.target.value;
-										if (val) {
-											const id = parseInt(val);
-											setSelectedSubjectId(id);
-											const subj = subjects.find((s) => s.id === id);
-											if (subj) setSelectedSubjectName(subj.name);
-
-											// Update URL
-											const params = new URLSearchParams(searchParams.toString());
-											params.set("subjectId", val);
-											params.delete("chapterId"); // Reset chapter when subject changes
-											router.push(`?${params.toString()}`);
-										}
-										// No "All Subjects" option allowed
-									}}
-									disabled={subjectsLoading || !!currentConversationId}
-								>
-									{subjects.map((s) => (
-										<option key={s.id} value={s.id}>
-											{s.name}
-										</option>
-									))}
-								</select>
-
-								<select
-									className="h-9 text-sm border rounded-md px-3 bg-white dark:bg-gray-800 focus:ring-2 focus:ring-primary/20 outline-none max-w-[200px]"
-									value={selectedChapterId || ""}
-									onChange={(e) => {
-										const val = e.target.value;
-										if (val) {
-											setSelectedChapterId(val);
-											const chap = chapters.find((c) => c.id === val);
-											if (chap) setSelectedChapterTitle(chap.title);
-
-											// Update URL
-											const params = new URLSearchParams(searchParams.toString());
-											params.set("chapterId", val);
-											router.push(`?${params.toString()}`);
-										}
-									}}
-									disabled={chaptersLoading || !selectedSubjectId || !!currentConversationId}
-								>
-									{chapters.length === 0 ? (
-										<option value="" disabled>
-											No chapters found
-										</option>
-									) : (
-										<option value="" disabled>Select Chapter</option>
+					{/* Input Area - Only show at bottom when there are messages */}
+					{messages.length > 0 && (
+						<div className="border-t bg-white dark:bg-gray-900 px-2 pt-2 pb-1">
+							<div className="max-w-4xl mx-auto space-y-1">
+								{/* Filters */}
+								<div className="flex flex-wrap items-center gap-2">
+									{currentConversationId && (
+										<div className="w-full text-xs text-amber-600 bg-amber-50 px-2 py-1 rounded border border-amber-200 mb-1 flex items-center gap-1">
+											<span>🔒 Context locked to this AI Tutor. Start a new one to change.</span>
+										</div>
 									)}
-									{chapters.map((c) => (
-										<option key={c.id} value={c.id} disabled={c.isLocked}>
-											{c.isLocked ? "🔒 " : ""}
-											{c.chapter_number ? `${c.chapter_number}. ` : ""}
-											{c.title}
-											{c.isLocked ? " (Upgrade)" : ""}
-										</option>
-									))}
-								</select>
-							</div>
+									<select
+										className="h-9 text-sm border rounded-md px-3 bg-white dark:bg-gray-800 focus:ring-2 focus:ring-primary/20 outline-none disabled:opacity-50 disabled:cursor-not-allowed"
+										value={selectedSubjectId || ""}
 
-							{/* Input Box */}
-							<div className="relative flex items-end gap-2 bg-white dark:bg-gray-800 border rounded-xl shadow-sm focus-within:ring-2 focus-within:ring-primary/20 focus-within:border-primary transition-all p-2">
-								<div className="flex-1">
-									<Textarea
-										ref={(el: HTMLTextAreaElement | null) => {
-											// Combined ref for internal use and auto-resize
-											if (el) {
-												inputRef.current = el as unknown as HTMLInputElement; // Type casting for compatibility
-												// Auto-resize logic on mount/ref update
-												el.style.height = "auto";
-												el.style.height = `${Math.min(el.scrollHeight, 128)}px`;
+										onChange={(e) => {
+											const val = e.target.value;
+											if (val) {
+												const id = parseInt(val);
+												setSelectedSubjectId(id);
+												const subj = subjects.find((s) => s.id === id);
+												if (subj) setSelectedSubjectName(subj.name);
+
+												// Update URL
+												const params = new URLSearchParams(searchParams.toString());
+												params.set("subjectId", val);
+												params.delete("chapterId"); // Reset chapter when subject changes
+												router.push(`?${params.toString()}`);
+											}
+											// No "All Subjects" option allowed
+										}}
+										disabled={subjectsLoading || !!currentConversationId}
+									>
+										{subjects.map((s) => (
+											<option key={s.id} value={s.id}>
+												{s.name}
+											</option>
+										))}
+									</select>
+
+									<select
+										className="h-9 text-sm border rounded-md px-3 bg-white dark:bg-gray-800 focus:ring-2 focus:ring-primary/20 outline-none max-w-[200px]"
+										value={selectedChapterId || ""}
+										onChange={(e) => {
+											const val = e.target.value;
+											if (val) {
+												setSelectedChapterId(val);
+												const chap = chapters.find((c) => c.id === val);
+												if (chap) setSelectedChapterTitle(chap.title);
+
+												// Update URL
+												const params = new URLSearchParams(searchParams.toString());
+												params.set("chapterId", val);
+												router.push(`?${params.toString()}`);
 											}
 										}}
-										value={inputMessage}
-										onChange={(e: React.ChangeEvent<HTMLTextAreaElement>) => {
-											setInputMessage(e.target.value);
-											// Auto-resize on change
-											const target = e.target as HTMLTextAreaElement;
-											target.style.height = "auto";
-											target.style.height = `${Math.min(target.scrollHeight, 128)}px`;
-										}}
-										onKeyDown={handleKeyPress}
-										placeholder={
-											selectedChapterId
-												? `Ask about ${truncateTitle(
-													selectedChapterTitle,
-													30
-												)}...`
-												: "Select a chapter to start chatting..."
-										}
-										className="border-0 focus-visible:ring-0 px-3 py-2 min-h-[50px] max-h-32 resize-none bg-transparent shadow-none"
-										disabled={isLoading || !selectedChapterId}
-										rows={2} // Default to 2 lines height
-									/>
-								</div>
-								<Button
-									onClick={() => handleSendMessage()}
-									disabled={
-										isLoading || !inputMessage.trim() || !selectedChapterId
-									}
-									size="icon"
-									className={`h-10 w-10 rounded-lg transition-all duration-200 mb-0.5 ${inputMessage.trim() && !isLoading && selectedChapterId
-										? "bg-primary hover:bg-primary/90 text-primary-foreground shadow-md hover:shadow-lg scale-100"
-										: "bg-gray-100 text-gray-400 scale-95"
-										}`}
-								>
-									{isLoading ? (
-										<Loader2 className="h-5 w-5 animate-spin" />
-									) : (
-										<Send className="h-5 w-5" />
-									)}
-								</Button>
-							</div>
-							<div className="flex justify-between items-center px-1">
-								<p className="text-[10px] text-muted-foreground">
-									AI can make mistakes. Please verify important information.
-								</p>
-								{lastResponseMeta && (
-									<Badge
-										variant="outline"
-										className="text-[10px] h-5 font-normal text-muted-foreground"
+										disabled={chaptersLoading || !selectedSubjectId || !!currentConversationId}
 									>
-										{lastResponseMeta.queryType === "analytical_query"
-											? "Deep Analysis"
-											: "Quick Search"}
-									</Badge>
-								)}
+										{chapters.length === 0 ? (
+											<option value="" disabled>
+												No chapters found
+											</option>
+										) : (
+											<option value="" disabled>Select Chapter</option>
+										)}
+										{chapters.map((c) => (
+											<option key={c.id} value={c.id} disabled={c.isLocked}>
+												{c.isLocked ? "🔒 " : ""}
+												{c.chapter_number ? `${c.chapter_number}. ` : ""}
+												{c.title}
+												{c.isLocked ? " (Upgrade)" : ""}
+											</option>
+										))}
+									</select>
+								</div>
+
+								{/* Input Box */}
+								<div className="relative flex items-end gap-2 bg-white dark:bg-gray-800 border rounded-xl shadow-sm focus-within:ring-2 focus-within:ring-primary/20 focus-within:border-primary transition-all p-2">
+									<div className="flex-1">
+										<Textarea
+											ref={(el: HTMLTextAreaElement | null) => {
+												// Combined ref for internal use and auto-resize
+												if (el) {
+													inputRef.current = el as unknown as HTMLInputElement; // Type casting for compatibility
+													// Auto-resize logic on mount/ref update
+													el.style.height = "auto";
+													el.style.height = `${Math.min(el.scrollHeight, 128)}px`;
+												}
+											}}
+											value={inputMessage}
+											onChange={(e: React.ChangeEvent<HTMLTextAreaElement>) => {
+												setInputMessage(e.target.value);
+												// Auto-resize on change
+												const target = e.target as HTMLTextAreaElement;
+												target.style.height = "auto";
+												target.style.height = `${Math.min(target.scrollHeight, 128)}px`;
+											}}
+											onKeyDown={handleKeyPress}
+											placeholder={
+												selectedChapterId
+													? `Ask about ${truncateTitle(
+														selectedChapterTitle,
+														30
+													)}...`
+													: "Select a chapter to start chatting..."
+											}
+											className="border-0 focus-visible:ring-0 px-3 py-2 min-h-[50px] max-h-32 resize-none bg-transparent shadow-none"
+											disabled={isLoading || !selectedChapterId}
+											rows={2} // Default to 2 lines height
+										/>
+									</div>
+									<Button
+										onClick={() => handleSendMessage()}
+										disabled={
+											isLoading || !inputMessage.trim() || !selectedChapterId
+										}
+										size="icon"
+										className={`h-10 w-10 rounded-lg transition-all duration-200 mb-0.5 ${inputMessage.trim() && !isLoading && selectedChapterId
+											? "bg-primary hover:bg-primary/90 text-primary-foreground shadow-md hover:shadow-lg scale-100"
+											: "bg-gray-100 text-gray-400 scale-95"
+											}`}
+									>
+										{isLoading ? (
+											<Loader2 className="h-5 w-5 animate-spin" />
+										) : (
+											<Send className="h-5 w-5" />
+										)}
+									</Button>
+								</div>
+								<div className="flex justify-between items-center px-1">
+									<p className="text-[10px] text-muted-foreground">
+										AI can make mistakes. Please verify important information.
+									</p>
+									{lastResponseMeta && (
+										<Badge
+											variant="outline"
+											className="text-[10px] h-5 font-normal text-muted-foreground"
+										>
+											{lastResponseMeta.queryType === "analytical_query"
+												? "Deep Analysis"
+												: "Quick Search"}
+										</Badge>
+									)}
+								</div>
 							</div>
 						</div>
-					</div>
+					)}
 				</div>
 			</div>
 		</div>
@@ -1468,4 +1562,3 @@ function parseSuggestedResponses(content: string): { cleanedContent: string; sug
 
 	return { cleanedContent, suggestedResponses };
 }
-

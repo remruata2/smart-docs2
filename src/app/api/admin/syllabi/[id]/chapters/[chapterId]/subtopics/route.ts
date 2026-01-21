@@ -7,9 +7,38 @@ interface RouteParams {
     params: Promise<{ id: string; chapterId: string }>;
 }
 
+// Type for the new hierarchical format
+interface TopicWithSubtopics {
+    title: string;
+    subtopics: string[];
+}
+
+/**
+ * Migrate old format (string[]) to new format (TopicWithSubtopics[])
+ */
+function migrateToNewFormat(data: any): TopicWithSubtopics[] {
+    if (!Array.isArray(data) || data.length === 0) {
+        return [];
+    }
+
+    // Check if already in new format (array of objects with title property)
+    if (typeof data[0] === 'object' && data[0] !== null && 'title' in data[0]) {
+        return data as TopicWithSubtopics[];
+    }
+
+    // Migrate from old format (array of strings)
+    return (data as string[]).map(title => ({
+        title: String(title),
+        subtopics: []
+    }));
+}
+
 /**
  * PUT /api/admin/syllabi/[id]/chapters/[chapterId]/subtopics
- * Update subtopics for a specific syllabus chapter
+ * Update topics for a specific syllabus chapter
+ * Accepts either:
+ *   - { topics: TopicWithSubtopics[] } (new format)
+ *   - { subtopics: string[] } (old format, auto-migrated)
  */
 export async function PUT(request: NextRequest, { params }: RouteParams) {
     try {
@@ -27,11 +56,18 @@ export async function PUT(request: NextRequest, { params }: RouteParams) {
         }
 
         const body = await request.json();
-        const { subtopics } = body;
 
-        // Validate subtopics is an array of strings
-        if (!Array.isArray(subtopics)) {
-            return NextResponse.json({ error: 'Subtopics must be an array' }, { status: 400 });
+        // Accept either "topics" (new format) or "subtopics" (old format)
+        let topicsToSave: TopicWithSubtopics[];
+
+        if (body.topics && Array.isArray(body.topics)) {
+            // New format: already structured
+            topicsToSave = migrateToNewFormat(body.topics);
+        } else if (body.subtopics && Array.isArray(body.subtopics)) {
+            // Old format: migrate to new structure
+            topicsToSave = migrateToNewFormat(body.subtopics);
+        } else {
+            return NextResponse.json({ error: 'Topics or subtopics must be provided as an array' }, { status: 400 });
         }
 
         // Verify chapter belongs to syllabus
@@ -48,23 +84,23 @@ export async function PUT(request: NextRequest, { params }: RouteParams) {
             return NextResponse.json({ error: 'Chapter not found' }, { status: 404 });
         }
 
-        // Update subtopics
+        // Update topics (stored in the 'subtopics' column for backward compatibility)
         const updatedChapter = await prisma.syllabusChapter.update({
             where: { id: chapterIdNum },
             data: {
-                subtopics: subtopics,
+                subtopics: topicsToSave as any, // Cast needed for Prisma Json type
             },
         });
 
         return NextResponse.json({
             success: true,
-            subtopics: updatedChapter.subtopics,
+            topics: updatedChapter.subtopics,
         });
 
     } catch (error) {
-        console.error('Error updating subtopics:', error);
+        console.error('Error updating topics:', error);
         return NextResponse.json(
-            { error: 'Failed to update subtopics' },
+            { error: 'Failed to update topics' },
             { status: 500 }
         );
     }

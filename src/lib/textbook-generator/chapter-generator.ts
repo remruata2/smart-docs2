@@ -191,9 +191,13 @@ export async function generateChapterContent(
         const previousChapter = chapterIndex > 0 ? unit.chapters[chapterIndex - 1] : null;
         const nextChapter = chapterIndex < unit.chapters.length - 1 ? unit.chapters[chapterIndex + 1] : null;
 
-        // Build subtopics list
-        // Build subtopics list - Robust handling for Json type and nested stringified JSON
-        let subtopics: string[] = [];
+        // Build topics/subtopics list
+        // Handles both old format (string[]) and new format (Array<{ title: string; subtopics: string[] }>)
+
+        interface TopicWithSubtopics {
+            title: string;
+            subtopics: string[];
+        }
 
         const parseSubtopicItem = (item: any): string[] => {
             if (typeof item === 'string') {
@@ -223,20 +227,48 @@ export async function generateChapterContent(
             return [String(item)];
         };
 
-        if (Array.isArray(chapter.subtopics)) {
-            subtopics = chapter.subtopics.flatMap(s => parseSubtopicItem(s));
+        // Detect format and parse accordingly
+        let topics: TopicWithSubtopics[] = [];
+
+        if (Array.isArray(chapter.subtopics) && chapter.subtopics.length > 0) {
+            const firstItem = chapter.subtopics[0];
+
+            // Check if new hierarchical format (object with 'title' property)
+            if (typeof firstItem === 'object' && firstItem !== null && 'title' in firstItem) {
+                // New format: array of { title, subtopics }
+                topics = chapter.subtopics as unknown as TopicWithSubtopics[];
+            } else {
+                // Old format: array of strings - migrate to new structure
+                topics = chapter.subtopics.flatMap(s => parseSubtopicItem(s)).map(title => ({
+                    title,
+                    subtopics: []
+                }));
+            }
         } else if (typeof chapter.subtopics === 'string') {
-            subtopics = parseSubtopicItem(chapter.subtopics);
-        } else {
-            // Fallback for unexpected types
-            subtopics = [String(chapter.subtopics)];
+            // Single stringified value - parse and migrate
+            const parsed = parseSubtopicItem(chapter.subtopics);
+            topics = parsed.map(title => ({ title, subtopics: [] }));
         }
 
-        const subtopicsText = subtopics.length > 0
-            ? `\n\nKEY SUBTOPICS TO COVER:\n${subtopics.map((s, i) => `${i + 1}. ${s}`).join('\n')}`
-            : '';
+        // Build the hierarchical prompt text
+        let subtopicsText = '';
+        if (topics.length > 0) {
+            const lines: string[] = ['\n\nKEY TOPICS TO COVER:'];
+            topics.forEach((topic, i) => {
+                lines.push(`${i + 1}. ${topic.title}`);
+                if (topic.subtopics && topic.subtopics.length > 0) {
+                    topic.subtopics.forEach(sub => {
+                        lines.push(`   - ${sub}`);
+                    });
+                }
+            });
+            subtopicsText = lines.join('\n');
+        }
 
-        console.log(`[CHAPTER-GEN] Subtopics found: ${subtopics.length}`, subtopics);
+        // Flatten for counting/logging
+        const flatTopics = topics.map(t => t.title);
+        const flatSubtopics = topics.flatMap(t => t.subtopics);
+        console.log(`[CHAPTER-GEN] Topics found: ${flatTopics.length}, Subtopics: ${flatSubtopics.length}`);
 
         // Build exam highlights section
         // Import exam-specific prompt modules
