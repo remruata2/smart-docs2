@@ -149,10 +149,20 @@ export function getStyleCorePrompt(
         examSection: string;
         contextSection: string;
         customSection: string;
+        difficulty?: string;
+        topicCount?: number;
+        minWords?: number;
+        maxWords?: number;
     }
 ): string {
     const config = STYLE_CONFIG[style];
-    const { subjectName, classLevel, textbookTitle, unitTitle, chapterNumber, chapterTitle, examCategoryLabel, subtopicsText, examSection, contextSection, customSection } = context;
+    const { subjectName, classLevel, textbookTitle, unitTitle, chapterNumber, chapterTitle, examCategoryLabel, subtopicsText, examSection, contextSection, customSection, difficulty, topicCount, minWords, maxWords } = context;
+
+    // Use runtime overrides if available, otherwise default to config
+    const targetMin = minWords || config.minWords;
+    const targetMax = maxWords || config.maxWords;
+    const avgWordsPerTopic = topicCount ? Math.floor(targetMax / topicCount) : 500;
+
 
     switch (style) {
         case 'quick_reference':
@@ -198,11 +208,17 @@ export function getStyleUniversalInstructions(style: ContentStyle): string {
 // ACADEMIC TEXTBOOK STYLE (Default)
 // ============================================
 function getAcademicCorePrompt(config: StyleConfig, ctx: any): string {
+    // Calculate budgeting hint
+    const budgetHint = ctx.topicCount > 0
+        ? `(Roughly ${Math.floor(ctx.maxWords / ctx.topicCount)} words per subtopic)`
+        : '';
+
     return `You are a World-Class Educator and Textbook Author specializing in ${ctx.subjectName} for ${ctx.classLevel}.
 Your goal is to create a "Super-Textbook" that covers the standard curriculum but significantly outperforms standard textbooks in clarity, depth, and exam utility.
 
 🚨 CRITICAL INSTRUCTION - CONTENT LENGTH & DEPTH 🚨
-- **TOTAL TARGET LENGTH**: ${config.minWords} to ${config.maxWords} Words. This is a NON-NEGOTIABLE requirement.
+- **TOTAL TARGET LENGTH**: ${ctx.minWords} to ${ctx.maxWords} Words. ${budgetHint}
+- **STRICT ADHERENCE**: You MUST stay within this range. Do not write less than ${ctx.minWords} and DO NOT exceed ${ctx.maxWords}.
 - **NO SUMMARIES**: Do not summarize subtopics. You must expand on every single subtopic with extreme detail.
 - **STRUCTURE**: For each major concept, you must provide:
   1. Formal Definition
@@ -217,6 +233,7 @@ TEXTBOOK: ${ctx.textbookTitle}
 UNIT: ${ctx.unitTitle}
 CHAPTER: ${ctx.chapterNumber}. ${ctx.chapterTitle}
 AUDIENCE: ${ctx.classLevel} students preparing for ${ctx.examCategoryLabel}.
+DIFFICULTY LEVEL: ${ctx.difficulty?.toUpperCase() || 'INTERMEDIATE'}
 ${ctx.subtopicsText}
 ${ctx.examSection}
 ${ctx.contextSection}
@@ -251,7 +268,7 @@ function getQuickReferenceCorePrompt(config: StyleConfig, ctx: any): string {
 Your goal is to create a comprehensive QUICK REFERENCE GUIDE in the classic GK book format - fact-dense, table-heavy, and exam-focused.
 
 🚨 CRITICAL INSTRUCTION - GK BOOK FORMAT 🚨
-- **TOTAL TARGET LENGTH**: ${config.minWords} to ${config.maxWords} Words.
+- **TOTAL TARGET LENGTH**: ${ctx.minWords} to ${ctx.maxWords} Words.
 - **NO PARAGRAPHS**: Use ONLY bullet points, tables, and lists.
 - **CLASSIC GK BOOK FORMATS**: Follow these specific section types:
 
@@ -300,6 +317,7 @@ TEXTBOOK: ${ctx.textbookTitle}
 UNIT: ${ctx.unitTitle}
 CHAPTER: ${ctx.chapterNumber}. ${ctx.chapterTitle}
 AUDIENCE: ${ctx.classLevel} students preparing for ${ctx.examCategoryLabel}.
+DIFFICULTY LEVEL: ${ctx.difficulty?.toUpperCase() || 'INTERMEDIATE'}
 ${ctx.subtopicsText}
 ${ctx.examSection}
 ${ctx.contextSection}
@@ -415,7 +433,7 @@ Your goal is to create a PRACTICE-FOCUSED chapter where content is presented pri
 - **MCQ HEAVY**: Generate ${config.mcqCount}+ Multiple Choice Questions with detailed explanations.
 - **ANSWER EXPLANATIONS**: Every answer MUST have a detailed explanation.
 - **DIFFICULTY TAGGING**: Tag each question as [Easy], [Medium], or [Hard].
-- **CONTENT LENGTH**: ${config.minWords} to ${config.maxWords} Words total.
+- **CONTENT LENGTH**: ${ctx.minWords} to ${ctx.maxWords} Words total.
 
 CONTENT STRUCTURE:
 1. **Concept Snapshot** - ULTRA-BRIEF 1-paragraph intro (max 50 words) just to set context.
@@ -431,6 +449,7 @@ TEXTBOOK: ${ctx.textbookTitle}
 UNIT: ${ctx.unitTitle}
 CHAPTER: ${ctx.chapterNumber}. ${ctx.chapterTitle}
 AUDIENCE: ${ctx.classLevel} students preparing for ${ctx.examCategoryLabel}.
+DIFFICULTY LEVEL: ${ctx.difficulty?.toUpperCase() || 'INTERMEDIATE'}
 ${ctx.subtopicsText}
 ${ctx.examSection}
 ${ctx.contextSection}
@@ -531,7 +550,7 @@ function getSummaryCorePrompt(config: StyleConfig, ctx: any): string {
 Your goal is to create the SHORTEST possible summary that covers all key points - for last-minute revision.
 
 🚨 CRITICAL INSTRUCTION - ULTRA-CONDENSED FORMAT 🚨
-- **TOTAL LENGTH**: ${config.minWords} to ${config.maxWords} Words ONLY. Do NOT exceed.
+- **TOTAL LENGTH**: ${ctx.minWords} to ${ctx.maxWords} Words ONLY. Do NOT exceed.
 - **MAX 3-4 SENTENCES per concept**: Strip everything to essentials.
 - **NO EXAMPLES**: Skip worked examples and derivations.
 - **KEY POINTS ONLY**: Only the most critical information.
@@ -550,6 +569,7 @@ TEXTBOOK: ${ctx.textbookTitle}
 UNIT: ${ctx.unitTitle}
 CHAPTER: ${ctx.chapterNumber}. ${ctx.chapterTitle}
 AUDIENCE: ${ctx.classLevel} students preparing for ${ctx.examCategoryLabel}.
+DIFFICULTY LEVEL: ${ctx.difficulty?.toUpperCase() || 'INTERMEDIATE'}
 ${ctx.subtopicsText}
 ${ctx.examSection}
 ${ctx.contextSection}
@@ -648,7 +668,7 @@ Your goal is to teach concepts through REAL-WORLD SCENARIOS and analytical case 
 - **SCENARIO-FIRST**: Every concept should be introduced through a real-world scenario.
 - **ANALYSIS FRAMEWORK**: Provide structured analysis approaches.
 - **DECISION POINTS**: Include "What would you do?" prompts.
-- **CONTENT LENGTH**: ${config.minWords} to ${config.maxWords} Words.
+- **CONTENT LENGTH**: ${ctx.minWords} to ${ctx.maxWords} Words.
 
 CONTENT STRUCTURE:
 1. **Opening Scenario** - A real-world situation that illustrates the topic
@@ -664,6 +684,7 @@ TEXTBOOK: ${ctx.textbookTitle}
 UNIT: ${ctx.unitTitle}
 CHAPTER: ${ctx.chapterNumber}. ${ctx.chapterTitle}
 AUDIENCE: ${ctx.classLevel} students preparing for ${ctx.examCategoryLabel}.
+DIFFICULTY LEVEL: ${ctx.difficulty?.toUpperCase() || 'INTERMEDIATE'}
 ${ctx.subtopicsText}
 ${ctx.examSection}
 ${ctx.contextSection}
@@ -803,6 +824,7 @@ TEXTBOOK: ${ctx.textbookTitle}
 UNIT: ${ctx.unitTitle}
 CHAPTER: ${ctx.chapterNumber}. ${ctx.chapterTitle}
 AUDIENCE: ${ctx.classLevel} students preparing for ${ctx.examCategoryLabel}.
+DIFFICULTY LEVEL: ${ctx.difficulty?.toUpperCase() || 'INTERMEDIATE'}
 ${ctx.subtopicsText}
 ${ctx.examSection}
 ${ctx.contextSection}

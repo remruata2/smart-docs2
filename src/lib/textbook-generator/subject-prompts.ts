@@ -347,7 +347,10 @@ export function getUniversalInstructions(): string {
      3. **Structural Details**: Physical location, appearance, biochemical makeup.
      4. **Exam context**: Why examiners ask about this (High-yield points).
      5. **TABLES OVER LISTS**: If data can be compared (e.g., Glands, Developmental Milestones, Comparative Anatomy), you MUST use a Markdown Table. Bulleted lists are for simple features only.
-   - **Minimum Word Count:** Aim for at least 3,000 words as an absolute floor for the simplest chapters. For complex technical subjects (like Human Reproduction, Mechanics, or Calculus), you are expected to write 8,000 to 12,000 words. There is NO upper limit—prioritize total technical exhaustiveness over brevity.
+   - **Word Count & Depth:** You must strictly separate "Core Concepts" from "Minor Details". 
+     - If the target word count is high (8000+), go into extreme depth for everything.
+     - If the target word count is low (<4000), focus on the Core Concepts and keep minor details concise.
+     - **ALWAYS prioritization total technical accuracy over length padding.**
 
 3. 📋 SYLLABUS COMPLETE COVERAGE:
    - You MUST cover EVERY item in the SUBTOPICS list. Do not skip any topic, treat every words inside the subtopics as important, especially towards the end.

@@ -1,7 +1,6 @@
 import { redirect } from "next/navigation";
 import { getStudyMaterialsAction } from "../actions";
 import { StudyMaterialsClient } from "@/components/study/StudyMaterialsClient";
-import { GenerateStudyMaterialsButton } from "@/components/study/GenerateStudyMaterialsButton";
 import { Button } from "@/components/ui/button";
 import { ArrowLeft, Sparkles, Lock } from "lucide-react";
 import Link from "next/link";

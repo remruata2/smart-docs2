@@ -9,6 +9,7 @@ import { generateObject } from 'ai';
 import { createGoogleGenerativeAI } from '@ai-sdk/google';
 import { getProviderApiKey, recordKeyUsage } from '@/lib/ai-key-store';
 import { prisma } from '@/lib/prisma';
+import { Prisma } from '@/generated/prisma';
 import { getTextbookModels } from './models';
 import { getSettingString } from '@/lib/app-settings';
 import { generateFigureSVG, svgToDataUrl, type FigureSpec } from './svg-figure-generator';
@@ -191,6 +192,48 @@ export async function generateChapterContent(
         const previousChapter = chapterIndex > 0 ? unit.chapters[chapterIndex - 1] : null;
         const nextChapter = chapterIndex < unit.chapters.length - 1 ? unit.chapters[chapterIndex + 1] : null;
 
+        // SYNC SYLLABUS DATA IF LINKED
+        // If the textbook is linked to a syllabus, we should use the authoritative subtopics from the SyllabusChapter
+        // This ensures that if the user edits the master syllabus, the textbook generation sees those changes
+        if (unit.textbook.syllabus_id) {
+            try {
+                const syllabusChapter = await prisma.syllabusChapter.findFirst({
+                    where: {
+                        unit: {
+                            syllabus_id: unit.textbook.syllabus_id,
+                            order: unit.order
+                        },
+                        order: chapter.order
+                    },
+                    select: {
+                        id: true,
+                        subtopics: true
+                    }
+                });
+
+                if (syllabusChapter && syllabusChapter.subtopics) {
+                    console.log(`[CHAPTER-GEN] Syncing subtopics from SyllabusChapter ID ${syllabusChapter.id} to TextbookChapter ID ${chapter.id}`);
+
+                    // Override the local chapter subtopics with the authoritative ones
+                    chapter.subtopics = syllabusChapter.subtopics;
+
+                    // Update the database so the TextbookChapter reflects the synced data
+                    // This creates a "pull" effect from Syllabus -> Textbook
+                    await prisma.textbookChapter.update({
+                        where: { id: chapterId },
+                        data: {
+                            subtopics: syllabusChapter.subtopics ?? Prisma.JsonNull
+                        }
+                    });
+                } else {
+                    console.log(`[CHAPTER-GEN] No matching SyllabusChapter found for sync (Unit Order: ${unit.order}, Chapter Order: ${chapter.order})`);
+                }
+            } catch (error) {
+                console.error('[CHAPTER-GEN] Failed to sync syllabus chapter:', error);
+                // Continue with existing subtopics on error
+            }
+        }
+
         // Build topics/subtopics list
         // Handles both old format (string[]) and new format (Array<{ title: string; subtopics: string[] }>)
 
@@ -246,7 +289,16 @@ export async function generateChapterContent(
             }
         } else if (typeof chapter.subtopics === 'string') {
             // Single stringified value - parse and migrate
-            const parsed = parseSubtopicItem(chapter.subtopics);
+            // Handle double-stringified JSON which is common in Prisma with strings
+            let rawStr = chapter.subtopics.trim();
+            // Try to unquote if it's double quoted "..."
+            if (rawStr.startsWith('"') && rawStr.endsWith('"')) {
+                try {
+                    rawStr = JSON.parse(rawStr);
+                } catch (e) { /* ignore */ }
+            }
+
+            const parsed = parseSubtopicItem(rawStr);
             topics = parsed.map(title => ({ title, subtopics: [] }));
         }
 
@@ -373,6 +425,10 @@ ${stylesNeedingFullExamPrompt.includes(contentStyle) ? `- Mark important formula
             // Pass the runtime config to the core prompt if needed
             minWords: runtimeStyleConfig.minWords,
             maxWords: runtimeStyleConfig.maxWords,
+            // Pass difficulty to prompt
+            difficulty: options.difficulty || 'intermediate',
+            // Pass topic count for budgeting
+            topicCount: flatSubtopics.length || 1,
         };
 
         // Get style-specific core prompt (replaces hardcoded academic prompt)
