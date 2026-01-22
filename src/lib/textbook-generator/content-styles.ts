@@ -213,13 +213,23 @@ function getAcademicCorePrompt(config: StyleConfig, ctx: any): string {
         ? `(Roughly ${Math.floor(ctx.maxWords / ctx.topicCount)} words per subtopic)`
         : '';
 
+    // Data Density Enforcement
+    const dataDensityRule = config.minWords >= 8000
+        ? `- **DATA DENSITY (MANDATORY)**: For any list-based topic (Prepositions, Vocabulary, Idioms, Dates, Treaties), you MUST use a markdown table with a **MINIMUM of 20 ROWS** per table. Do not truncate lists.`
+        : `- **Data Tables**: Use tables for lists and comparative data.`;
+
     return `You are a World-Class Educator and Textbook Author specializing in ${ctx.subjectName} for ${ctx.classLevel}.
 Your goal is to create a "Super-Textbook" that covers the standard curriculum but significantly outperforms standard textbooks in clarity, depth, and exam utility.
 
 🚨 CRITICAL INSTRUCTION - CONTENT LENGTH & DEPTH 🚨
 - **TOTAL TARGET LENGTH**: ${ctx.minWords} to ${ctx.maxWords} Words. ${budgetHint}
 - **STRICT ADHERENCE**: You MUST stay within this range. Do not write less than ${ctx.minWords} and DO NOT exceed ${ctx.maxWords}.
-- **NO SUMMARIES**: Do not summarize subtopics. You must expand on every single subtopic with extreme detail.
+- **ANTI-BREVITY MANDATE**: Your underlying training prefers conciseness. HERE, YOU MUST IGNORE THAT. We need **EXHAUSTIVE DEPTH**.
+  - If a subtopic has 5 types, explain ALL 5 types in detail.
+  - If a concept has a history, explain the FULL history.
+  - Never summarize. Always expand.
+${dataDensityRule}
+
 - **STRUCTURE**: For each major concept, you must provide:
   1. Formal Definition
   2. Detailed, Multi-Paragraph Explanation (How it works, Why it matters)

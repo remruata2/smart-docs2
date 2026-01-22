@@ -323,10 +323,80 @@ export function getSubjectInstructions(subjectName: string, classLevel: string, 
 
 /**
  * Get universal instructions that apply to all subjects
+ * Inject dynamic limits to reinforce constraints at the end of the prompt
  */
-export function getUniversalInstructions(): string {
+export function getUniversalInstructions(options?: {
+   minWords?: number;
+   maxWords?: number;
+   imageCount?: number;
+   mcqCount?: number;
+   shortAnswerCount?: number;
+   longAnswerCount?: number;
+   customPrompt?: string;
+   subject?: string;
+}): string {
+   const wordCountStr = options?.minWords && options?.maxWords
+      ? `\n   - **TARGET LENGTH**: ${options.minWords} to ${options.maxWords} Words. (Critical)`
+      : '';
+
+   const imageCountStr = options?.imageCount
+      ? `\n   - **QUANTITY**: Generate EXACTLY ${options.imageCount} images.`
+      : '';
+
+   const customPromptStr = options?.customPrompt
+      ? `\n\n🚨 **SPECIAL USER INSTRUCTIONS (HIGHEST PRIORITY)**:\n${options.customPrompt}\n`
+      : '';
+
+   // Dynamic Depth Rules based on Word Count Ranges
+   const minWords = options?.minWords || 0;
+   let depthRule = '';
+
+   // Subject-Specific Header Adaptations
+   const s = options?.subject?.toLowerCase() || '';
+   const isSTEM = s.includes('math') || s.includes('physics') || s.includes('chem') || s.includes('account');
+
+   const headerHistory = isSTEM ? "Origin & Derivation" : "Historical Evolution";
+   const headerContext = isSTEM ? "(Who discovered/derived it? Evolution of the formula/concept)" : "(Who discovered/defined it? How has the concept changed over time?)";
+   const headerMechanism = isSTEM ? "Underlying Principle & Logic" : "Theoretical Mechanism";
+
+   if (minWords < 4000) {
+      // CONCISE MODE
+      depthRule = `   - **Efficiency Rule:** Focus on clarity and high-yield points.
+   - **Conciseness**: Explain core concepts clearly but avoid unnecessary fluff.
+   - **Structure**: Use bullet points and short paragraphs where appropriate for readability.
+   - **Scope**: Stick strictly to the syllabus requirements without over-expanding on minor details.`;
+   } else if (minWords < 8000) {
+      // COMPREHENSIVE MODE (Standard)
+      depthRule = `   - **Balanced Depth:** Provide a thorough explanation for every concept.
+   - **Explanation Standard**: Ensure the "Why" and "How" are explained, not just the "What".
+   - **No One-Liners**: Avoid single-sentence definitions for main topics; expand them into proper sections.
+   - **Structure**: Use distinct subsections for sub-components to ensure readability and organization.`;
+   } else {
+      // EXHAUSTIVE MODE (> 8000 Words)
+      depthRule = `   - **EXPANSION MANDATE:** The target word count is HIGH, so you must treat every subtopic as a major section.
+   - **MANDATORY STRUCTURAL ENFORCEMENT**: The output will be mechanically rejected if you fail to use the following structure for EVERY subtopic.
+     For each subtopic, you MUST generate these specific subtitles (H4):
+     #### 1. Definition & Etymology
+     (Must include formal definition + Latin/Greek root analysis)
+     
+     #### 2. ${headerHistory}
+     ${headerContext} (Minimum 2 paragraphs)
+     
+     #### 3. ${headerMechanism}
+     (Deep dive into the "How" and "Why". Minimum 4 paragraphs of detailed explanation)
+     
+     #### 4. Classification & Types
+     (Detailed breakdown of ALL types. Use H5 headers for subtypes)
+     
+     #### 5. Examination Pitfalls
+     (Common student errors and trick questions)
+
+   - **Data Density**: For any list (e.g., properties, functions), you MUST use a table with at least 5 columns (Feature, Explanation, Function, Example, Exam Note).
+   - **Section Size Heuristic**: If a subtopic section is less than 600 words, it is INCOMPLETE. Expand it.`;
+   }
+
    return `
-*** UNIVERSAL INSTRUCTIONS (ALL SUBJECTS) ***
+*** UNIVERSAL INSTRUCTIONS (ALL SUBJECTS) ***${customPromptStr}
 
 1. 🚫 NO SUMMARIES - SHOW THE WORK:
    - NEVER say "It can be shown that...", "Substituting values we get...", or "After simplification...".
@@ -334,13 +404,11 @@ export function getUniversalInstructions(): string {
      - Step 1: State assumptions clearly.
      - Step 2: Write the base formula/theorem.
      - Step 3: Show substitution and manipulation line-by-line using LaTeX.
-     - Step 4: Interpret the final result.
-   - **Length:** Write as much as needed. There is NO word limit. Cover every subtopic comprehensively.
+     - Step 4: Interpret the final result.${wordCountStr}
+   - **Length:** Start strongly, cover every subtopic in depth, and adhere strictly to the target range. Do NOT fluff, but do NOT cut corners.
 
 2. 📖 DEPTH OVER BREVITY (MANDATORY - NO EXCEPTIONS):
-   - **STRICT RULE:** NEVER write a one-liner or a simple bullet-point definition. 
-   - Each concept (even small ones) MUST be explained in at least 2-3 substantive paragraphs.
-   - If you provide a list of parts/cells (like "Sertoli cells", "Leydig cells"), DO NOT just list them. Give EACH item its own ### subsection or a substantial bolded paragraph (100+ words each) explaining its function, anatomy, and significance.
+${depthRule}
    - **Pedagogical Structure for Every Topic:**
      1. **Technical Definition**: Formal terminology with KaTeX.
      2. **Functional Explanation**: How it works, the "Why" and "How", connectivity to other parts.
@@ -360,13 +428,14 @@ export function getUniversalInstructions(): string {
    - **"Pitfall Alert"**: Common mistakes students make (e.g., "Don't confuse velocity with speed").
    - **"Competitive Corner"**: Shortcuts, tricks, or advanced tips for JEE/NEET/CUET.
 
-5. � EXERCISES (END OF CHAPTER - MANDATORY):
+5.  EXERCISES (END OF CHAPTER - MANDATORY):
    - **CRITICAL**: Do NOT write the exercises in the markdown body.
    - You MUST populate the JSON fields \`mcqs\`, \`short_answers\`, and \`long_answers\` with high-quality questions.
    - The system will automatically append them to the chapter in a standardized format.
    - **Task**: Generate extensive practice material in the JSON arrays:
-     - **MCQs**: As requested by exam config (15-50 questions).
-     - **Short/Long Answers**: As requested.
+     - **MCQs**: As requested by exam config (${options?.mcqCount ?? '15+'} questions).
+     - **Short Answers**: ${options?.shortAnswerCount ?? '5'} questions.
+     - **Long Answers**: ${options?.longAnswerCount ?? '3'} questions.
      - **HOTS**: Include difficult application questions.
 
 6. 📄 FORMATTING STANDARDS:
@@ -383,8 +452,11 @@ export function getUniversalInstructions(): string {
    - Use Indian names, rupees (₹), and local examples where appropriate.
    - Assume resources available in typical Indian schools.
 
-8. 🖼️ IMAGE GENERATION (CRITICAL):
-   - **QUANTITY**: There is NO upper limit. Generate as many images, plots, and diagrams as needed to ensure every major conceptual step is visually supported. For detailed chapters, 8-15 visuals are encouraged.
+8. 🖼️ IMAGE GENERATION (CRITICAL):${imageCountStr}
+   - **QUANTITY RULE**: 
+     ${options?.imageCount === 0
+         ? '- **STRICT PROHIBITION**: You MUST NOT generate any images. Return an empty array `[]` for `images_to_generate`. Do not include any `[IMAGE: ...]` tags in the text.'
+         : `- **STRICT QUANTITY**: You MUST generate EXACTLY ${options?.imageCount} images. Do not generate more, do not generate fewer.`}
    - **PLACEMENT**: Insert tags on their own line: \`[IMAGE: short_unique_description]\`
    - **TIMING**: Place image tags AFTER introducing the concept, never before.
    - **MATCHING**: The 'placement' in 'images_to_generate' MUST be just the \`short_unique_description\` part of the tag (e.g., "diagram_ovary_structure"), NOT the whole \`[IMAGE: ...]\` tag.

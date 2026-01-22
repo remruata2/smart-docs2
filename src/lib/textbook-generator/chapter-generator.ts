@@ -59,9 +59,9 @@ async function processFigureSpecs(markdown: string): Promise<string> {
     return processedMarkdown;
 }
 
-// Zod schema for chapter content output
-const ChapterContentSchema = z.object({
-    markdown_content: z.string().describe('Full chapter content in markdown format with proper headings, examples, and explanations'),
+// Zod schema creator for dynamic constraints
+const createChapterContentSchema = (options: ChapterGenerationOptions) => z.object({
+    markdown_content: z.string().describe(`EXTREMELY DETAILED chapter content in markdown format. MUST BE BETWEEN ${options.minWords} AND ${options.maxWords} WORDS. Cover every single subtopic with deep explanations, multiple examples, and real-world analogies. Do not summarize.`),
     exam_highlights: z.array(z.object({
         exam_type: z.string().describe('Exam type (e.g., UPSC Prelims, JEE Main, NEET, MPSC, Banking)'),
         key_points: z.array(z.string()).describe('Important points likely to appear in this exam'),
@@ -91,7 +91,7 @@ const ChapterContentSchema = z.object({
         description: z.string().describe('Detailed, specific description for AI image generation. Include colors, layout, labels, and key elements to show.'),
         placement: z.string().describe('Where in the chapter this image should appear (e.g., "After introduction to photosynthesis", "Before the practice questions")'),
         caption: z.string().optional().describe('Caption text to display below the image'),
-    })).describe('Educational images/diagrams for this chapter. Generate as many as the content requires (typically 5-15 for comprehensive coverage). Let relevancy guide quantity, not arbitrary limits.'),
+    })).describe(`Educational images/diagrams for this chapter. Generate EXACTLY ${options.imageCount || 5} images as requested.`),
     mcqs: z.array(z.object({
         question: z.string(),
         options: z.array(z.string()).length(4),
@@ -124,12 +124,12 @@ const ChapterContentSchema = z.object({
             })),
             columns: z.number().optional(),
         }).optional().describe('For figure-based aptitude questions - generates SVG shapes showing the complete answer pattern'),
-    })).optional().describe('Multiple choice questions for practice'),
+    })).optional().describe(`Multiple choice questions for practice. Generate EXACTLY ${options.mcqCount || 5} questions.`),
     short_answers: z.array(z.object({
         question: z.string(),
         expectedPoints: z.array(z.string()),
         marks: z.number(),
-    })).optional().describe('Short answer questions'),
+    })).optional().describe(`Short answer questions. Generate EXACTLY ${options.shortAnswerCount || 3} questions.`),
     long_answers: z.array(z.object({
         question: z.string(),
         markingScheme: z.array(z.object({
@@ -137,7 +137,7 @@ const ChapterContentSchema = z.object({
             marks: z.number(),
         })),
         totalMarks: z.number(),
-    })).optional().describe('Long answer questions'),
+    })).optional().describe(`Long answer questions. Generate EXACTLY ${options.longAnswerCount || 1} questions.`),
 });
 
 interface ChapterContext {
@@ -324,18 +324,18 @@ export async function generateChapterContent(
 
         // Build exam highlights section
         // Import exam-specific prompt modules
-        const { getExamInstructions, EXAM_CATEGORY_LABELS } = await import('./exam-prompts');
+        const { getExamInstructions, EXAM_CATEGORY_LABELS, EXAM_CONTENT_CONFIG } = await import('./exam-prompts');
         type ExamCategoryType = keyof typeof EXAM_CATEGORY_LABELS;
 
         // Use syllabus exam_category, or options override, or default to 'academic_board'
         const syllabusExamCategory = textbook.syllabus?.exam_category as ExamCategoryType | undefined;
         const examCategory: ExamCategoryType = syllabusExamCategory || options.examCategory || 'academic_board';
         const examCategoryLabel = EXAM_CATEGORY_LABELS[examCategory];
+        const examConfig = EXAM_CONTENT_CONFIG[examCategory];
         const examTypes = options.examTypes || [];
 
         console.log(`[CHAPTER-GEN] Using exam category: ${examCategoryLabel} (from ${syllabusExamCategory ? 'syllabus' : options.examCategory ? 'options' : 'default'})`);
 
-        // Get exam-specific instructions
         // Get exam-specific instructions
         // CRITICAL FIX: Only include full exam instructions for "Academic" and "Case Study" styles.
         // For "Q&A", "Summary", and "Quick Reference", the detailed exam instructions (which often demand 
@@ -398,14 +398,17 @@ ${stylesNeedingFullExamPrompt.includes(contentStyle) ? `- Mark important formula
 
         // Build prompt context for style-specific core prompt
         // Apply admin overrides for word counts and question counts if they exist on the chapter OR passed in options
+        // If style supports exam structure (Academic/Case Study), use exam config defaults as priority over style defaults
+        const useExamDefaults = stylesNeedingFullExamPrompt.includes(contentStyle);
+
         const runtimeStyleConfig = {
             ...styleConfig,
             minWords: options.minWords ?? chapter.min_words ?? styleConfig.minWords,
             maxWords: options.maxWords ?? chapter.max_words ?? styleConfig.maxWords,
-            mcqCount: options.mcqCount ?? chapter.mcq_count ?? styleConfig.mcqCount,
-            shortAnswerCount: options.shortAnswerCount ?? chapter.short_answer_count ?? styleConfig.shortAnswerCount,
-            longAnswerCount: options.longAnswerCount ?? chapter.long_answer_count ?? styleConfig.longAnswerCount,
-            imageCount: options.imageCount ?? chapter.image_count ?? styleConfig.imageCount,
+            mcqCount: options.mcqCount ?? chapter.mcq_count ?? (useExamDefaults ? examConfig?.mcqCount : undefined) ?? styleConfig.mcqCount,
+            shortAnswerCount: options.shortAnswerCount ?? chapter.short_answer_count ?? (useExamDefaults ? examConfig?.shortAnswerCount : undefined) ?? styleConfig.shortAnswerCount,
+            longAnswerCount: options.longAnswerCount ?? chapter.long_answer_count ?? (useExamDefaults ? examConfig?.longAnswerCount : undefined) ?? styleConfig.longAnswerCount,
+            imageCount: options.imageCount ?? chapter.image_count ?? (useExamDefaults ? examConfig?.minImagesPerChapter : undefined) ?? styleConfig.imageCount,
         };
 
         console.log(`[CHAPTER-GEN] Runtime Config: ${runtimeStyleConfig.minWords}-${runtimeStyleConfig.maxWords} words, ${runtimeStyleConfig.mcqCount} MCQs (Override: ${options.mcqCount !== undefined || chapter.mcq_count !== null})`);
@@ -444,8 +447,17 @@ ${stylesNeedingFullExamPrompt.includes(contentStyle) ? `- Mark important formula
         const styleUniversalInstructions = getStyleUniversalInstructions(contentStyle);
         let universalInstructions = '';
         if (stylesNeedingFullExamPrompt.includes(contentStyle)) {
-            // For academic/case_study, use the detailed universal instructions
-            universalInstructions = styleUniversalInstructions || getUniversalInstructions();
+            // For academic/case_study, use the detailed universal instructions with dynamic limits
+            universalInstructions = styleUniversalInstructions || getUniversalInstructions({
+                minWords: runtimeStyleConfig.minWords,
+                maxWords: runtimeStyleConfig.maxWords,
+                imageCount: runtimeStyleConfig.imageCount,
+                mcqCount: runtimeStyleConfig.mcqCount,
+                shortAnswerCount: runtimeStyleConfig.shortAnswerCount,
+                longAnswerCount: runtimeStyleConfig.longAnswerCount,
+                customPrompt: customPrompt || options.customPrompt,
+                subject: textbook.subject_name || 'General'
+            });
         } else {
             // For Q&A, Summary, Quick Reference: ONLY use the style-specific universal instructions
             // If none exist, use a minimal fallback that doesn't mandate narrative depth
@@ -488,6 +500,7 @@ Return ONLY a valid JSON object matching this schema:
 - **MCQs**: EXACTLY ${runtimeStyleConfig.mcqCount} questions
 - **Short Answers**: EXACTLY ${runtimeStyleConfig.shortAnswerCount} questions
 - **Long Answers**: EXACTLY ${runtimeStyleConfig.longAnswerCount} questions
+- **Content Length**: ${runtimeStyleConfig.minWords} to ${runtimeStyleConfig.maxWords} Words (Strict Range)
 
 IMPORTANT: The 'placement' field in 'images_to_generate' MUST MATCH EXACTLY the text inside the [IMAGE: ...] tag in the markdown_content. Your code relies on this exact match to inject the images.
 `;
@@ -531,10 +544,11 @@ IMPORTANT: The 'placement' field in 'images_to_generate' MUST MATCH EXACTLY the 
                 const genStartTime = Date.now();
                 result = await generateObject({
                     model: google(modelName),
-                    schema: ChapterContentSchema,
+                    schema: createChapterContentSchema(options),
                     prompt: prompt,
                     // @ts-expect-error - timeout is supported by AI SDK v5 but not in type definitions yet
                     timeout: 300000, // 5 minutes for complex chapter generation
+                    maxTokens: 20000, // Explicitly allow long generation for 8k+ words
                 });
                 const genDuration = Date.now() - genStartTime;
 
