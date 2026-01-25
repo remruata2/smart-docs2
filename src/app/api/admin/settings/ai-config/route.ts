@@ -24,6 +24,10 @@ const MODEL_KEYS = {
   chat_fallback: "ai.model.chat.fallback",
   chat_analyzer: "ai.model.chat.analyzer",
   chat_image: "ai.model.chat.image",
+  // Feature-specific models
+  study_material: "ai.model.study_material",
+  quiz_generation: "ai.model.quiz_generation",
+  question_bank: "ai.model.question_bank",
 };
 
 export async function GET(request: NextRequest) {

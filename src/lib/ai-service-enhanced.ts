@@ -3828,12 +3828,29 @@ Output a JSON object with a "questions" array.`;
 
 		const google = createGoogleGenerativeAI({ apiKey: keyToUse });
 
-		// Model selection strategy
-		const modelsToTry: string[] = [];
-		const dbModels = await getActiveModelNames("gemini");
-		modelsToTry.push(...dbModels);
+		// Removed nested try
+		const configModel = await getSettingString("ai.model.question_bank", "");
+		const preferredModel = "gemini-3-flash-preview";
 		const fallbackModel = process.env.GEMINI_DEFAULT_MODEL || "gemini-2.0-flash";
+
+		// Priority: 1. Config -> 2. Preferred -> 3. Fallback
+		// We also filter out image models from the "try all" logic if we were using it, 
+		// but here we are iterating over specific models.
+
+		// If config model is set, use it first.
+		const modelsToTry = [];
+		if (configModel) modelsToTry.push(configModel);
+
+		// Then try preferred
+		modelsToTry.push(preferredModel);
+
+		// Then try others excluding image
+		const dbModels = await getActiveModelNames("gemini");
+		const textModels = dbModels.filter(m => !m.includes("-image"));
+		modelsToTry.push(...textModels);
+
 		modelsToTry.push(fallbackModel);
+
 		const uniqueModels = [...new Set(modelsToTry)];
 
 		for (const modelName of uniqueModels) {
@@ -4326,6 +4343,13 @@ Remember: You are testing students' knowledge of ${config.subject} at the ${conf
 		const textModels = dbModels.filter(m => !m.includes("-image"));
 		modelsToTry.push(...textModels);
 
+		const configModel = await getSettingString("ai.model.quiz_generation", "");
+		const preferredModel = "gemini-3-flash-preview";
+
+		// Priority: Config > Preferred > DB > Fallback
+		if (configModel) modelsToTry.unshift(configModel);
+		modelsToTry.unshift(preferredModel);
+
 		// Add .env fallback
 		const fallbackModel = process.env.GEMINI_DEFAULT_MODEL || "gemini-2.0-flash";
 		modelsToTry.push(fallbackModel);
@@ -4609,12 +4633,14 @@ export async function generateStudyMaterials(
 		const textModels = dbModels.filter(m => !m.includes("-image"));
 		const fallbackModel = process.env.GEMINI_DEFAULT_MODEL || "gemini-2.0-flash";
 
+		const configModel = await getSettingString("ai.model.study_material", "");
 		const preferredModel = "gemini-3-flash-preview";
+
 		let modelName = opts.model;
 
 		if (!modelName) {
 			// If preferred model is in our active list or we just want to default to it
-			modelName = preferredModel;
+			modelName = configModel || preferredModel;
 		}
 
 		// Get API key for generateObject

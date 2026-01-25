@@ -30,6 +30,9 @@ interface ModelSettings {
   chat_fallback: string;
   chat_analyzer: string;
   chat_image: string;
+  study_material: string;
+  quiz_generation: string;
+  question_bank: string;
 }
 
 export default function AiConfigForm() {
@@ -46,6 +49,9 @@ export default function AiConfigForm() {
     chat_fallback: "",
     chat_analyzer: "",
     chat_image: "",
+    study_material: "",
+    quiz_generation: "",
+    question_bank: "",
   });
   const [availableModels, setAvailableModels] = useState<string[]>([]);
   const [loading, setLoading] = useState<boolean>(false);
@@ -111,6 +117,10 @@ export default function AiConfigForm() {
     { key: "chat_fallback", label: "Chat Fallback", description: "Fallback when primary chat model fails.", placeholder: "gemini-2.5-flash" },
     { key: "chat_analyzer", label: "Query Analyzer", description: "Fast model for analyzing student queries.", placeholder: "gemini-2.0-flash" },
     { key: "chat_image", label: "Chat Image Generation", description: "Model for generating educational diagrams in chat.", placeholder: "gemini-2.5-flash-image" },
+    // Feature Generation Models
+    { key: "study_material", label: "Study Material Generation", description: "Used for generating key points, summaries, and mind maps.", placeholder: "gemini-3-flash-preview" },
+    { key: "quiz_generation", label: "Quiz Generation", description: "Used for generating quizzes from chapters.", placeholder: "gemini-3-flash-preview" },
+    { key: "question_bank", label: "Question Bank Generation", description: "Used for generating large question banks during ingestion.", placeholder: "gemini-3-flash-preview" },
     // Textbook Models
     { key: "textbook_content", label: "Textbook Content", description: "Primary model for generating textbook chapters.", placeholder: "gemini-3-pro-preview" },
     { key: "textbook_image", label: "Textbook Images", description: "Used for generating high-quality educational diagrams.", placeholder: "gemini-2.5-flash-image" },
