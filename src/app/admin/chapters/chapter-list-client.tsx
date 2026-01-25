@@ -44,6 +44,7 @@ export default function ChapterListClient({ chapters, onDelete, onUpdate, subjec
     const [selectedIds, setSelectedIds] = useState<Set<string>>(new Set());
     const [isPending, startTransition] = useTransition();
     const [generatingChapters, setGeneratingChapters] = useState<Set<string>>(new Set());
+    const [generatingMaterialIds, setGeneratingMaterialIds] = useState<Set<string>>(new Set());
     const router = useRouter();
 
     // Check if any chapters are still processing
@@ -96,17 +97,32 @@ export default function ChapterListClient({ chapters, onDelete, onUpdate, subjec
     }, [generatingChapters, router]);
 
     const handleGenerateMaterials = async (chapterId: string) => {
+        // Optimistically set loading state
+        setGeneratingMaterialIds(prev => new Set(prev).add(chapterId));
+
+        // Use transition for the router refresh part, but don't block the UI
         startTransition(async () => {
-            try {
-                // We'll use the same action we just restricted
-                const { generateStudyMaterialsAction } = await import("@/app/app/study/actions");
-                await generateStudyMaterialsAction(chapterId);
-                toast.success("Study materials generated successfully");
-                router.refresh();
-            } catch (error: any) {
-                toast.error(error.message || "Failed to generate materials");
-            }
+            // We'll wrap the action call in a try/catch inside the transition
+            // but strictly speaking, we want the button to spin independently of the transition
         });
+
+        // Actually call the action outside/inside? 
+        // Better pattern: call action, then refresh. 
+        // Let's do it this way:
+        try {
+            const { generateStudyMaterialsAction } = await import("@/app/app/study/actions");
+            await generateStudyMaterialsAction(chapterId);
+            toast.success("Study materials generated successfully");
+            router.refresh();
+        } catch (error: any) {
+            toast.error(error.message || "Failed to generate materials");
+        } finally {
+            setGeneratingMaterialIds(prev => {
+                const next = new Set(prev);
+                next.delete(chapterId);
+                return next;
+            });
+        }
     };
 
     const handleRegenerateQuiz = async (chapterId: string, title: string) => {
@@ -372,11 +388,15 @@ export default function ChapterListClient({ chapters, onDelete, onUpdate, subjec
                                                     e.stopPropagation();
                                                     handleGenerateMaterials(chapter.id.toString());
                                                 }}
-                                                disabled={isPending}
+                                                disabled={generatingMaterialIds.has(chapter.id.toString())}
                                                 className="h-8 border-indigo-200 text-indigo-700 hover:bg-indigo-50"
                                                 title="Generate Study Materials"
                                             >
-                                                <Wand2 className="w-4 h-4 mr-2" />
+                                                {generatingMaterialIds.has(chapter.id.toString()) ? (
+                                                    <Loader2 className="w-4 h-4 mr-2 animate-spin" />
+                                                ) : (
+                                                    <Wand2 className="w-4 h-4 mr-2" />
+                                                )}
                                                 Generate
                                             </Button>
 

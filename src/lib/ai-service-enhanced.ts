@@ -4321,8 +4321,10 @@ Remember: You are testing students' knowledge of ${config.subject} at the ${conf
 		modelsToTry.push("gemini-3-flash-preview");
 
 		// Add admin-configured models
+		// Add admin-configured models (exclude image models)
 		const dbModels = await getActiveModelNames("gemini");
-		modelsToTry.push(...dbModels);
+		const textModels = dbModels.filter(m => !m.includes("-image"));
+		modelsToTry.push(...textModels);
 
 		// Add .env fallback
 		const fallbackModel = process.env.GEMINI_DEFAULT_MODEL || "gemini-2.0-flash";
@@ -4469,9 +4471,17 @@ export async function gradeQuiz(
 		}
 
 		// Use priority: 1) opts.model, 2) admin-configured models, 3) .env fallback
+		// Use priority: 1) opts.model, 2) Preferred (Gemini 3 Flash), 3) admin-configured models, 4) .env fallback
 		const dbModels = await getActiveModelNames("gemini");
+		const textModels = dbModels.filter(m => !m.includes("-image"));
 		const fallbackModel = process.env.GEMINI_DEFAULT_MODEL || "gemini-2.0-flash";
-		const modelName = opts.model || dbModels[0] || fallbackModel;
+
+		// Prioritize Gemini 3 Flash Preview
+		const preferredModel = "gemini-3-flash-preview";
+		let modelName = opts.model;
+		if (!modelName) {
+			modelName = preferredModel; // Always try preferred first if not specified
+		}
 
 		let attempts = 0;
 		const maxAttempts = 3;
@@ -4594,9 +4604,18 @@ export async function generateStudyMaterials(
 		});
 
 		// Use priority: 1) opts.model, 2) admin-configured models, 3) .env fallback
+		// Use priority: 1) opts.model, 2) Preferred (Gemini 3 Flash), 3) admin-configured models, 4) .env fallback
 		const dbModels = await getActiveModelNames("gemini");
-		const fallbackModel = process.env.GEMINI_DEFAULT_MODEL || "gemini-2.0-flash	";
-		const modelName = opts.model || dbModels[0] || fallbackModel;
+		const textModels = dbModels.filter(m => !m.includes("-image"));
+		const fallbackModel = process.env.GEMINI_DEFAULT_MODEL || "gemini-2.0-flash";
+
+		const preferredModel = "gemini-3-flash-preview";
+		let modelName = opts.model;
+
+		if (!modelName) {
+			// If preferred model is in our active list or we just want to default to it
+			modelName = preferredModel;
+		}
 
 		// Get API key for generateObject
 		const { apiKey } = await getProviderApiKey({ provider: "gemini", keyId: opts.keyId });
@@ -4690,10 +4709,17 @@ export async function extractQuestionsFromPaper(pdfMarkdown: string) {
 		});
 
 		// Dynamic model selection
+		// Dynamic model selection
 		const dbModels = await getActiveModelNames("gemini");
+		const textModels = dbModels.filter(m => !m.includes("-image"));
 		const configModel = await getSettingString("ai.model.extract_questions", "");
 		const fallbackModel = process.env.GEMINI_DEFAULT_MODEL || "gemini-2.0-flash";
-		const modelName = configModel || dbModels[0] || fallbackModel;
+
+		// Prioritize Gemini 3 Flash Preview if no config
+		const preferredModel = "gemini-3-flash-preview";
+		const baseModel = textModels[0] || fallbackModel;
+
+		const modelName = configModel || preferredModel;
 
 		const { apiKey } = await getProviderApiKey({ provider: "gemini", keyId: keyId ?? undefined });
 		if (!apiKey) throw new Error("No Gemini API key found");
@@ -4754,10 +4780,15 @@ export async function generateAnswerForQuestion(question: string, context: strin
 		});
 
 		// Dynamic model selection
+		// Dynamic model selection
 		const dbModels = await getActiveModelNames("gemini");
+		const textModels = dbModels.filter(m => !m.includes("-image"));
+
 		const configModel = await getSettingString("ai.model.generate_answer", "");
 		const fallbackModel = process.env.GEMINI_DEFAULT_MODEL || "gemini-2.0-flash";
-		const modelName = configModel || dbModels[0] || fallbackModel;
+
+		const preferredModel = "gemini-3-flash-preview";
+		const modelName = configModel || preferredModel;
 
 		const { apiKey } = await getProviderApiKey({ provider: "gemini", keyId: keyId ?? undefined });
 		if (!apiKey) throw new Error("No Gemini API key found");
@@ -4835,12 +4866,17 @@ export async function generateAnswersForBatch(
 		});
 
 		// Dynamic model selection
+		// Dynamic model selection
 		const dbModels = await getActiveModelNames("gemini");
+		const textModels = dbModels.filter(m => !m.includes("-image"));
+
 		// Try batch_answer setting, then answer setting, then fallback
 		const batchModel = await getSettingString("ai.model.batch_answer", "");
 		const answerModel = await getSettingString("ai.model.generate_answer", "");
 		const fallbackModel = process.env.GEMINI_DEFAULT_MODEL || "gemini-2.0-flash";
-		const modelName = batchModel || answerModel || dbModels[0] || fallbackModel;
+
+		const preferredModel = "gemini-3-flash-preview";
+		const modelName = batchModel || answerModel || preferredModel;
 
 		const { apiKey } = await getProviderApiKey({ provider: "gemini", keyId: keyId ?? undefined });
 		if (!apiKey) throw new Error("No Gemini API key found");
