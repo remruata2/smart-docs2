@@ -1,5 +1,6 @@
 "use client";
 
+import { useSupabase } from "@/components/providers/supabase-provider";
 import { Button } from "@/components/ui/button";
 import { Trophy, Home, Swords, Loader2, Frown, Medal } from "lucide-react";
 import Link from "next/link";
@@ -15,6 +16,7 @@ interface BattleResultProps {
 
 export function BattleResult({ battle, currentUser }: BattleResultProps) {
     const router = useRouter();
+    const { sendChallenge, updatePresenceStatus } = useSupabase();
     const [rematchLoading, setRematchLoading] = useState(false);
     const myParticipant = battle.participants.find((p: any) => p.user_id === currentUser.id);
     const opponent = battle.participants.find((p: any) => p.user_id !== currentUser.id);
@@ -36,9 +38,31 @@ export function BattleResult({ battle, currentUser }: BattleResultProps) {
             const data = await res.json();
             if (!res.ok) throw new Error(data.error);
 
+            // Send challenges to all previous participants (except self)
+            const invites = battle.participants
+                .filter((p: any) => p.user_id !== currentUser.id)
+                .map((p: any) => p.user);
+
+            if (invites.length > 0) {
+                toast.info(`Inviting ${invites.length} previous player${invites.length > 1 ? 's' : ''}...`);
+
+                // Send invites in parallel
+                await Promise.all(invites.map((user: any) =>
+                    sendChallenge(
+                        user.id,
+                        user.username,
+                        data.battleId,
+                        data.battleCode, // We need to ensure API returns this or we fetch it
+                        battle.quiz.subject?.name || "Quiz Battle",
+                        battle.quiz.chapter?.title || "Rematch"
+                    ).catch(e => console.error(`Failed to invite ${user.username}`, e))
+                ));
+            }
+
             toast.success("Rematch created! Redirecting...");
 
             // Redirect to new battle
+            updatePresenceStatus('IN_LOBBY');
             router.push(`/app/practice/battle/${data.battleId}`);
         } catch (error: any) {
             toast.error(error.message || "Failed to create rematch");
@@ -65,65 +89,65 @@ export function BattleResult({ battle, currentUser }: BattleResultProps) {
                     </p>
                 </div>
 
-                <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
-                    {/* My Card */}
-                    <div className={`relative overflow-hidden rounded-3xl p-6 border-2 ${iWon && battleCompleted ? 'border-yellow-500 bg-yellow-500/10' : 'border-slate-800 bg-slate-900/50'} backdrop-blur-xl transition-all duration-500`}>
-                        <div className="flex flex-col items-center space-y-4">
-                            <div className="relative">
-                                <div className={`h-24 w-24 rounded-full flex items-center justify-center text-3xl font-bold text-white shadow-xl ${iWon && battleCompleted ? 'bg-gradient-to-br from-yellow-400 to-orange-500' : 'bg-gradient-to-br from-indigo-500 to-purple-600'}`}>
-                                    {currentUser.username?.[0]?.toUpperCase()}
-                                </div>
-                                {iWon && battleCompleted && (
-                                    <div className="absolute -top-2 -right-2 bg-yellow-400 text-yellow-900 p-2 rounded-full shadow-lg animate-bounce">
-                                        <Trophy className="h-6 w-6" />
-                                    </div>
-                                )}
-                            </div>
-                            <div className="text-center">
-                                <h3 className="text-2xl font-bold text-white">{currentUser.username}</h3>
-                                <p className="text-indigo-300 font-medium">You</p>
-                            </div>
-                            <div className="w-full py-4 border-t border-slate-700/50">
-                                <div className="flex justify-between items-end">
-                                    <span className="text-slate-400 text-sm uppercase tracking-wider font-bold">Score</span>
-                                    <span className="text-4xl font-black text-white">{myParticipant?.score || 0}</span>
-                                </div>
-                            </div>
-                        </div>
-                    </div>
+                {/* Leaderboard List */}
+                <div className="bg-slate-900/50 backdrop-blur-xl rounded-3xl border border-slate-800 overflow-hidden max-h-[60vh] overflow-y-auto">
+                    <div className="divide-y divide-slate-800">
+                        {battle.participants
+                            .sort((a: any, b: any) => {
+                                if (b.score !== a.score) return b.score - a.score;
+                                // Tie-breaker: completion time (earlier is better)
+                                const aTime = a.completed_at ? new Date(a.completed_at).getTime() : Infinity;
+                                const bTime = b.completed_at ? new Date(b.completed_at).getTime() : Infinity;
+                                return aTime - bTime;
+                            })
+                            .map((p: any, index: number) => {
+                                const isMe = p.user_id === currentUser.id;
+                                const isWinner = index === 0;
+                                const place = index + 1;
 
-                    {/* Opponent Card */}
-                    <div className={`relative overflow-hidden rounded-3xl p-6 border-2 ${!iWon && !isDraw && battleCompleted ? 'border-yellow-500 bg-yellow-500/10' : 'border-slate-800 bg-slate-900/50'} backdrop-blur-xl transition-all duration-500`}>
-                        <div className="flex flex-col items-center space-y-4">
-                            <div className="relative">
-                                <div className={`h-24 w-24 rounded-full flex items-center justify-center text-3xl font-bold text-white shadow-xl ${!iWon && !isDraw && battleCompleted ? 'bg-gradient-to-br from-yellow-400 to-orange-500' : 'bg-gradient-to-br from-rose-500 to-orange-600'}`}>
-                                    {opponent?.user?.username?.[0]?.toUpperCase() || "?"}
-                                </div>
-                                {!iWon && !isDraw && battleCompleted && (
-                                    <div className="absolute -top-2 -right-2 bg-yellow-400 text-yellow-900 p-2 rounded-full shadow-lg animate-bounce">
-                                        <Trophy className="h-6 w-6" />
+                                return (
+                                    <div
+                                        key={p.user_id}
+                                        className={`
+                                            flex items-center gap-4 p-4 md:p-6 transition-colors
+                                            ${isMe ? 'bg-indigo-500/10' : 'hover:bg-slate-800/30'}
+                                            ${isWinner ? 'bg-gradient-to-r from-yellow-500/10 to-transparent' : ''}
+                                        `}
+                                    >
+                                        {/* Rank */}
+                                        <div className={`
+                                            flex-shrink-0 w-10 h-10 md:w-12 md:h-12 flex items-center justify-center rounded-xl font-black text-lg md:text-xl
+                                            ${index === 0 ? 'bg-yellow-500 text-yellow-950 shadow-lg shadow-yellow-500/20' :
+                                                index === 1 ? 'bg-slate-300 text-slate-900' :
+                                                    index === 2 ? 'bg-amber-700 text-amber-100' :
+                                                        'bg-slate-800 text-slate-500 border border-slate-700'}
+                                        `}>
+                                            {index < 3 ? <Trophy className="h-5 w-5 md:h-6 md:w-6" /> : `#${place}`}
+                                        </div>
+
+                                        {/* User Info */}
+                                        <div className="flex-1 min-w-0">
+                                            <div className="flex items-center gap-2">
+                                                <h3 className={`font-bold text-base md:text-lg truncate ${isMe ? 'text-indigo-400' : 'text-slate-200'}`}>
+                                                    {p.user?.username || "Unknown"}
+                                                </h3>
+                                                {isMe && <span className="text-[10px] bg-indigo-500/20 text-indigo-300 px-1.5 py-0.5 rounded font-bold uppercase tracking-wide">You</span>}
+                                            </div>
+                                            <p className="text-xs text-slate-500">
+                                                {p.finished ? "Finished" : "Still playing..."}
+                                            </p>
+                                        </div>
+
+                                        {/* Score */}
+                                        <div className="text-right">
+                                            <div className="text-2xl md:text-3xl font-black text-white leading-none">
+                                                {p.score}
+                                            </div>
+                                            <div className="text-[10px] text-slate-500 uppercase font-bold tracking-wider">Points</div>
+                                        </div>
                                     </div>
-                                )}
-                            </div>
-                            <div className="text-center">
-                                <h3 className="text-2xl font-bold text-white">{opponent?.user?.username || "Opponent"}</h3>
-                                <p className="text-rose-300 font-medium">Challenger</p>
-                            </div>
-                            <div className="w-full py-4 border-t border-slate-700/50">
-                                <div className="flex justify-between items-end">
-                                    <span className="text-slate-400 text-sm uppercase tracking-wider font-bold">Score</span>
-                                    <span className="text-4xl font-black text-white">{opponent?.score || 0}</span>
-                                </div>
-                            </div>
-                            {!battleCompleted && (
-                                <div className="absolute inset-0 bg-slate-950/60 backdrop-blur-sm flex items-center justify-center">
-                                    <div className="flex flex-col items-center gap-2 text-slate-300 animate-pulse">
-                                        <Loader2 className="h-8 w-8 animate-spin" />
-                                        <span className="font-bold">Still playing...</span>
-                                    </div>
-                                </div>
-                            )}
-                        </div>
+                                );
+                            })}
                     </div>
                 </div>
 

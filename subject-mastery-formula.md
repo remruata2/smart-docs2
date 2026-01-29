@@ -14,6 +14,7 @@ Subject mastery is calculated using a **per-chapter recent attempts method** tha
 3. Averages chapter masteries
 4. Multiplies by chapter coverage percentage
 
+
 This approach solves the "practice penalty" problem (old low scores dragging down mastery) while maintaining accuracy and preventing gaming.
 
 ---

@@ -5,7 +5,7 @@ import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
 import { Card, CardContent, CardHeader, CardTitle, CardDescription } from "@/components/ui/card";
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
 import { LeaderboardList } from "./LeaderboardList";
-import { getLeaderboardData, LeaderboardEntry, LeaderboardScope, LeaderboardMetric } from "@/app/app/leaderboard/actions";
+import { getLeaderboardData, LeaderboardEntry, LeaderboardScope, LeaderboardMetric, LeaderboardTimeframe } from "@/app/app/leaderboard/actions";
 import { Loader2, School, Globe, Trophy, Percent } from "lucide-react";
 import { Badge } from "@/components/ui/badge";
 
@@ -17,46 +17,41 @@ interface LeaderboardClientProps {
         boardName?: string;
         institutionName?: string;
         hasInstitution: boolean;
+        courseTitle?: string;
     };
     enrolledCourses: { id: number; title: string }[];
 }
 
 export function LeaderboardClient({ initialEntries, initialUserRank, userContext, enrolledCourses }: LeaderboardClientProps) {
-    const defaultScope = enrolledCourses.length > 0 ? "COURSE" : (userContext.hasInstitution ? "INSTITUTION" : "BOARD");
-    const [scope, setScope] = useState<LeaderboardScope | "COURSE">(defaultScope);
+    // Default to first course if available
     const [selectedCourseId, setSelectedCourseId] = useState<string>(enrolledCourses[0]?.id.toString() || "");
     const [metric, setMetric] = useState<LeaderboardMetric>("POINTS");
+    const [timeframe, setTimeframe] = useState<LeaderboardTimeframe>("weekly");
     const [entries, setEntries] = useState<LeaderboardEntry[]>(initialEntries);
     const [currentUserRank, setCurrentUserRank] = useState<number | null>(initialUserRank);
     const [isLoading, setIsLoading] = useState(false);
 
-    // Fetch data when scope or metric changes
-    // Skip first render if initial data matches default state (which it should if we pass correct initial data)
-    // Actually, simpler to just fetch on change.
-
-    const handleScopeChange = async (newScope: string) => {
-        const s = newScope as LeaderboardScope | "COURSE";
-        setScope(s);
-        await fetchData(s, metric, s === "COURSE" ? parseInt(selectedCourseId) : undefined);
-    };
-
     const handleCourseChange = async (courseId: string) => {
         setSelectedCourseId(courseId);
-        if (scope === "COURSE") {
-            await fetchData("COURSE", metric, parseInt(courseId));
-        }
+        await fetchData(metric, parseInt(courseId), timeframe);
     };
 
     const handleMetricChange = async (newMetric: string) => {
         const m = newMetric as LeaderboardMetric;
         setMetric(m);
-        await fetchData(scope, m, scope === "COURSE" ? parseInt(selectedCourseId) : undefined);
+        await fetchData(m, parseInt(selectedCourseId), timeframe);
     };
 
-    const fetchData = async (s: LeaderboardScope | "COURSE", m: LeaderboardMetric, courseId?: number) => {
+    const handleTimeframeChange = async (newTimeframe: LeaderboardTimeframe) => {
+        setTimeframe(newTimeframe);
+        await fetchData(metric, parseInt(selectedCourseId), newTimeframe);
+    };
+
+    const fetchData = async (m: LeaderboardMetric, courseId: number, tf: LeaderboardTimeframe) => {
         setIsLoading(true);
         try {
-            const data = await getLeaderboardData(s, m, courseId);
+            // Always use scope "COURSE"
+            const data = await getLeaderboardData("COURSE", m, courseId, tf);
             if (data) {
                 setEntries(data.entries);
                 setCurrentUserRank(data.currentUserRank);
@@ -77,81 +72,48 @@ export function LeaderboardClient({ initialEntries, initialUserRank, userContext
             <div className="flex flex-col md:flex-row gap-4 justify-between items-start md:items-center bg-muted/30 p-4 rounded-lg border">
                 <div>
                     <h2 className="text-lg font-semibold flex items-center gap-2">
-                        {scope === "COURSE" ? (
-                            <>
-                                <Trophy className="w-5 h-5 text-primary" />
-                                {enrolledCourses.find(c => c.id.toString() === selectedCourseId)?.title || "Course"} Leaderboard
-                            </>
-                        ) : scope === "INSTITUTION" ? (
-                            <>
-                                <School className="w-5 h-5 text-primary" />
-                                {userContext.institutionName || "Institution"} Leaderboard
-                            </>
-                        ) : (
-                            <>
-                                <Globe className="w-5 h-5 text-primary" />
-                                {userContext.boardName || "National"} Leaderboard
-                            </>
-                        )}
+                        <Trophy className="w-5 h-5 text-primary" />
+                        {enrolledCourses.find(c => c.id.toString() === selectedCourseId)?.title || "Course"} Leaderboard
                     </h2>
                     <p className="text-sm text-muted-foreground">
-                        {scope === "COURSE"
-                            ? "Ranking among all enrolled students in this course"
-                            : `Ranking for students in ${userContext.programName || "the program"}`
-                        }
+                        Ranking among all enrolled students in this course
                     </p>
                 </div>
 
-                <div className="flex flex-wrap items-center bg-muted p-1 rounded-lg gap-1">
+                <div className="flex flex-col md:flex-row gap-2">
+                    {/* Course Selector */}
                     {enrolledCourses.length > 0 && (
-                        <div className="flex items-center gap-2 mr-2">
-                            {scope === "COURSE" && (
-                                <Select value={selectedCourseId} onValueChange={handleCourseChange}>
-                                    <SelectTrigger className="h-8 w-[180px] bg-background">
-                                        <SelectValue placeholder="Select Course" />
-                                    </SelectTrigger>
-                                    <SelectContent>
-                                        {enrolledCourses.map(course => (
-                                            <SelectItem key={course.id} value={course.id.toString()}>
-                                                {course.title}
-                                            </SelectItem>
-                                        ))}
-                                    </SelectContent>
-                                </Select>
-                            )}
+                        <div className="flex items-center gap-2">
+                            <Select value={selectedCourseId} onValueChange={handleCourseChange}>
+                                <SelectTrigger className="h-9 w-[200px] bg-background">
+                                    <SelectValue placeholder="Select Course" />
+                                </SelectTrigger>
+                                <SelectContent>
+                                    {enrolledCourses.map(course => (
+                                        <SelectItem key={course.id} value={course.id.toString()}>
+                                            {course.title}
+                                        </SelectItem>
+                                    ))}
+                                </SelectContent>
+                            </Select>
+                        </div>
+                    )}
+
+                    {/* Timeframe Selector */}
+                    <div className="flex items-center bg-muted p-1 rounded-lg gap-1">
+                        {(['weekly', 'monthly', 'all_time'] as const).map((tf) => (
                             <button
-                                onClick={() => handleScopeChange("COURSE")}
-                                className={`px-3 py-1.5 text-sm font-medium rounded-md transition-all ${scope === "COURSE"
+                                key={tf}
+                                onClick={() => handleTimeframeChange(tf)}
+                                className={`px-3 py-1.5 text-xs font-medium rounded-md transition-all ${timeframe === tf
                                     ? "bg-background shadow-sm text-foreground"
                                     : "text-muted-foreground hover:text-foreground"
                                     }`}
                             >
-                                Course
+                                {tf === 'weekly' ? 'This Week' : tf === 'monthly' ? 'This Month' : 'All Time'}
                             </button>
-                        </div>
-                    )}
-
-                    {userContext.hasInstitution && (
-                        <button
-                            onClick={() => handleScopeChange("INSTITUTION")}
-                            className={`px-3 py-1.5 text-sm font-medium rounded-md transition-all ${scope === "INSTITUTION"
-                                ? "bg-background shadow-sm text-foreground"
-                                : "text-muted-foreground hover:text-foreground"
-                                }`}
-                        >
-                            Institution
-                        </button>
-                    )}
-
-                    <button
-                        onClick={() => handleScopeChange("BOARD")}
-                        className={`px-3 py-1.5 text-sm font-medium rounded-md transition-all ${scope === "BOARD"
-                            ? "bg-background shadow-sm text-foreground"
-                            : "text-muted-foreground hover:text-foreground"
-                            }`}
-                    >
-                        National
-                    </button>
+                        ))}
+                    </div>
                 </div>
             </div>
 
@@ -170,7 +132,7 @@ export function LeaderboardClient({ initialEntries, initialUserRank, userContext
                 <TabsList className="grid w-full grid-cols-2 mb-6">
                     <TabsTrigger value="POINTS" className="flex items-center gap-2">
                         <Trophy className="w-4 h-4" />
-                        By Points
+                        By Points (Battle Mode)
                     </TabsTrigger>
                     <TabsTrigger value="AVG_SCORE" className="flex items-center gap-2">
                         <Percent className="w-4 h-4" />
@@ -181,9 +143,9 @@ export function LeaderboardClient({ initialEntries, initialUserRank, userContext
                 <TabsContent value="POINTS" className="mt-0">
                     <Card>
                         <CardHeader>
-                            <CardTitle>Top Students by Points</CardTitle>
+                            <CardTitle>Top Battle Warriors</CardTitle>
                             <CardDescription>
-                                Earn points by completing quizzes, daily streaks, and more.
+                                Earn points by winning battles and defeating opponents.
                             </CardDescription>
                         </CardHeader>
                         <CardContent>

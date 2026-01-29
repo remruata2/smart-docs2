@@ -136,12 +136,19 @@ export async function POST(req: Request) {
                 }
             };
 
-            return NextResponse.json({
+
+            const response = {
                 success: true,
                 battleId: joinedBattle.id,
                 battle: sanitizedBattle,
                 autoJoined: true  // Flag to indicate this was an auto-join
-            });
+            };
+
+            const serialized = JSON.parse(JSON.stringify(response, (key, value) =>
+                typeof value === 'bigint' ? value.toString() : value
+            ));
+
+            return NextResponse.json(serialized);
         }
 
         // Otherwise, create a new rematch battle as usual
@@ -173,11 +180,18 @@ export async function POST(req: Request) {
             }
         };
 
-        return NextResponse.json({
+
+        const response = {
             success: true,
             battleId: newBattle.id,
             battle: sanitizedBattle
-        });
+        };
+
+        const serialized = JSON.parse(JSON.stringify(response, (key, value) =>
+            typeof value === 'bigint' ? value.toString() : value
+        ));
+
+        return NextResponse.json(serialized);
 
     } catch (error: any) {
         console.error("[BATTLE REMATCH] Error:", error);

@@ -865,6 +865,8 @@ model Battle {
   quiz_id String
   code    String       @unique @db.VarChar(10) // 6-digit join code
   status  BattleStatus @default(WAITING)
+  
+  is_public Boolean @default(true) // Whether to show in public lobby
 
   created_by Int
   created_at DateTime  @default(now())
@@ -873,6 +875,7 @@ model Battle {
 
   // Settings snapshot
   settings Json? // { timePerQuestion: 15, ... }
+  duration_minutes Int @default(5)
 
   quiz    Quiz @relation(fields: [quiz_id], references: [id], onDelete: Cascade)
   creator user @relation(fields: [created_by], references: [id])
@@ -893,7 +896,13 @@ model BattleParticipant {
   score           Int      @default(0)
   current_q_index Int      @default(0) // Which question they are on
   finished        Boolean  @default(false)
+  is_ready        Boolean  @default(false)
   joined_at       DateTime @default(now())
+  completed_at    DateTime?
+  
+  // Results
+  points_change   Int      @default(0) // Points won/lost from this battle
+  rank            Int      @default(0) // Final rank in this battle
 
   // Realtime state
   last_active DateTime @default(now())

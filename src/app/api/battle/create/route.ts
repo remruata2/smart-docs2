@@ -8,6 +8,11 @@ import { checkAIFeatureAccess } from "@/lib/trial-access";
 
 const createBattleSchema = z.object({
     quizId: z.string(),
+    subjectId: z.number().optional(),
+    chapterId: z.number().optional(),
+    subjectName: z.string().optional(),
+    chapterName: z.string().optional(),
+    isPublic: z.boolean().optional().default(true),
 });
 
 export async function POST(req: Request) {
@@ -18,7 +23,7 @@ export async function POST(req: Request) {
         }
 
         const body = await req.json();
-        const { quizId } = createBattleSchema.parse(body);
+        const { quizId, subjectName, chapterName, isPublic } = createBattleSchema.parse(body);
 
         // Fetch the quiz to get the chapterId for access check
         const quiz = await prisma.quiz.findUnique({
@@ -36,9 +41,20 @@ export async function POST(req: Request) {
             }
         }
 
-        const battle = await BattleService.createBattle(parseInt(session.user.id), quizId);
+        const battle = await BattleService.createBattle(
+            parseInt(session.user.id),
+            quizId,
+            subjectName,
+            chapterName,
+            isPublic
+        );
 
-        return NextResponse.json({ success: true, battle });
+        // Serialize BigInts before returning
+        const serializedBattle = JSON.parse(JSON.stringify(battle, (key, value) =>
+            typeof value === 'bigint' ? value.toString() : value
+        ));
+
+        return NextResponse.json({ success: true, battle: serializedBattle });
     } catch (error) {
         console.error("[BATTLE CREATE] Error:", error);
         return NextResponse.json(
@@ -47,3 +63,4 @@ export async function POST(req: Request) {
         );
     }
 }
+

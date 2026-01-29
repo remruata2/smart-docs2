@@ -8,6 +8,8 @@ interface PageProps {
     params: Promise<{ battleId: string }>;
 }
 
+export const dynamic = 'force-dynamic';
+
 export default async function BattleRoomPage({ params }: PageProps) {
     const { battleId } = await params;
     const session = await getServerSession(authOptions);
@@ -16,42 +18,66 @@ export default async function BattleRoomPage({ params }: PageProps) {
         redirect("/login");
     }
 
-    const battle = await prisma.battle.findUnique({
-        where: { id: battleId },
-        include: {
-            participants: {
-                include: {
-                    user: {
-                        select: { id: true, username: true, email: true }
+    const userId = parseInt(session.user.id);
+
+    // Parallelize data fetching
+    const [courseIdData, battleData] = await Promise.all([
+        prisma.userEnrollment.findFirst({
+            where: { user_id: userId, status: 'active' },
+            select: { course_id: true }
+        }),
+        prisma.battle.findUnique({
+            where: { id: battleId },
+            include: {
+                participants: {
+                    include: {
+                        user: {
+                            select: { id: true, username: true, email: true }
+                        }
+                    }
+                },
+                quiz: {
+                    include: {
+                        questions: true,
+                        chapter: {
+                            include: {
+                                subject: {
+                                    select: { name: true }
+                                }
+                            }
+                        }
                     }
                 }
-            },
-            quiz: {
-                include: {
-                    questions: true
-                }
             }
-        }
-    });
+        })
+    ]);
 
-    if (!battle) {
+    if (!battleData) {
         notFound();
     }
 
     // Ensure user is participant
-    const isParticipant = battle.participants.some(p => p.user_id === parseInt(session.user.id));
+    const isParticipant = battleData.participants.some(p => p.user_id === userId);
     if (!isParticipant) {
-        // Redirect to join page or show error
+        console.warn(`[BATTLE-ROOM] User ${userId} is not a participant in battle ${battleId}. Redirecting...`);
         redirect("/app/practice/battle");
     }
 
+    const courseId = courseIdData?.course_id?.toString() || "general";
+
+    // Serialize BigInts before passing to Client Component
+    const serializedBattle = JSON.parse(JSON.stringify(battleData, (key, value) =>
+        typeof value === 'bigint' ? value.toString() : value
+    ));
+
     return (
         <BattleArena
-            battle={battle}
+            battle={serializedBattle}
             currentUser={{
-                id: parseInt(session.user.id),
+                id: userId,
                 username: session.user.name || session.user.email,
             }}
+            courseId={courseId}
             supabaseConfig={{
                 url: process.env.NEXT_PUBLIC_SUPABASE_URL || "",
                 anonKey: process.env.NEXT_PUBLIC_SUPABASE_ANON_KEY || ""

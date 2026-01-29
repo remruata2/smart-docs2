@@ -13,6 +13,9 @@ export default async function BattlePage() {
     // Prefetch subjects without mastery for faster loading
     const subjectsData = await getSubjectsForUserProgram(undefined, false);
     const initialSubjects = subjectsData?.enrollments.flatMap(e => e.course.subjects) || [];
+    // Use the first enrolled course ID for the battle lobby presence room
+    // Use the first enrolled course ID for the battle lobby presence room, or generic 'general' room
+    const courseId = subjectsData?.enrollments?.[0]?.course_id?.toString() || "general";
 
-    return <BattleLobby initialSubjects={initialSubjects} />;
+    return <BattleLobby initialSubjects={initialSubjects} courseId={courseId} />;
 }

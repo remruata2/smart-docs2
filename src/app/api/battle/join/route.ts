@@ -36,7 +36,12 @@ export async function POST(req: Request) {
             }
         }
 
-        return NextResponse.json({ success: true, battle });
+
+        const serializedBattle = JSON.parse(JSON.stringify(battle, (key, value) =>
+            typeof value === 'bigint' ? value.toString() : value
+        ));
+
+        return NextResponse.json({ success: true, battle: serializedBattle });
     } catch (error: any) {
         console.error("[BATTLE JOIN] Error:", error);
         return NextResponse.json(

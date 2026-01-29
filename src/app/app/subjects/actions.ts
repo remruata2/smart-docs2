@@ -33,6 +33,15 @@ export async function getSubjectsForUserProgram(courseId?: number, includeMaster
                             program: {
                                 include: { board: true }
                             },
+                            chapters: {
+                                select: {
+                                    id: true,
+                                    title: true
+                                },
+                                orderBy: {
+                                    id: 'asc'
+                                }
+                            },
                             _count: {
                                 select: {
                                     chapters: true,

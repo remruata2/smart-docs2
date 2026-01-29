@@ -9,6 +9,9 @@ const supabase = createClient(
     process.env.SUPABASE_SERVICE_ROLE_KEY!
 );
 
+console.log("[API] Loaded battle/leave route");
+
+
 export async function POST(req: Request) {
     try {
         const session = await getServerSession(authOptions);

@@ -20,7 +20,12 @@ export async function POST(req: Request) {
 
         const battle = await BattleService.startBattle(battleId, parseInt(session.user.id));
 
-        return NextResponse.json({ success: true, battle });
+
+        const serializedBattle = JSON.parse(JSON.stringify(battle, (key, value) =>
+            typeof value === 'bigint' ? value.toString() : value
+        ));
+
+        return NextResponse.json({ success: true, battle: serializedBattle });
     } catch (error: any) {
         console.error("[BATTLE START] Error:", error);
         return NextResponse.json(

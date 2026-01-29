@@ -29,7 +29,12 @@ export async function POST(req: Request) {
             finished
         );
 
-        return NextResponse.json({ success: true, participant });
+
+        const serializedParticipant = JSON.parse(JSON.stringify(participant, (key, value) =>
+            typeof value === 'bigint' ? value.toString() : value
+        ));
+
+        return NextResponse.json({ success: true, participant: serializedParticipant });
     } catch (error) {
         console.error("[BATTLE PROGRESS] Error:", error);
         return NextResponse.json(

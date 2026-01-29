@@ -27,7 +27,14 @@ export async function GET(
                 },
                 quiz: {
                     include: {
-                        questions: true
+                        questions: true,
+                        chapter: {
+                            include: {
+                                subject: {
+                                    select: { name: true }
+                                }
+                            }
+                        }
                     }
                 }
             }
@@ -52,7 +59,12 @@ export async function GET(
             }
         };
 
-        return NextResponse.json({ battle: sanitizedBattle });
+
+        const serializedBattle = JSON.parse(JSON.stringify(sanitizedBattle, (key, value) =>
+            typeof value === 'bigint' ? value.toString() : value
+        ));
+
+        return NextResponse.json({ battle: serializedBattle });
     } catch (error) {
         console.error("Error fetching battle:", error);
         return NextResponse.json({ error: "Internal Server Error" }, { status: 500 });

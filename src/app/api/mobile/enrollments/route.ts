@@ -1,11 +1,27 @@
 import { NextRequest, NextResponse } from "next/server";
 import { prisma } from "@/lib/prisma";
 import { getMobileUser } from "@/lib/mobile-auth";
+import { getServerSession } from "next-auth";
+import { authOptions } from "@/lib/auth-options";
 
 export async function GET(request: NextRequest) {
     try {
-        const user = await getMobileUser(request);
-        const userId = Number(user.id);
+        let userId: number;
+        const authHeader = request.headers.get("Authorization");
+
+        // Mobile Auth (Bearer Token)
+        if (authHeader?.startsWith("Bearer ")) {
+            const user = await getMobileUser(request);
+            userId = Number(user.id);
+        }
+        // Web Auth (Session Cookie)
+        else {
+            const session = await getServerSession(authOptions);
+            if (!session?.user?.id) {
+                return NextResponse.json({ error: "Unauthorized" }, { status: 401 });
+            }
+            userId = Number(session.user.id);
+        }
 
         // 3. Fetch Enrollments
         const enrollments = await prisma.userEnrollment.findMany({

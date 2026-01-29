@@ -56,7 +56,7 @@ export class BattleService {
     /**
      * Creates a new battle
      */
-    static async createBattle(userId: number, quizId: string) {
+    static async createBattle(userId: number, quizId: string, subjectName?: string, chapterName?: string, isPublic: boolean = true) {
         const code = await this.generateBattleCode();
 
         const battle = await prisma.battle.create({
@@ -65,6 +65,9 @@ export class BattleService {
                 quiz_id: quizId,
                 created_by: userId,
                 status: BattleStatus.WAITING,
+                is_public: isPublic,
+                // Store subject/chapter names as metadata if needed in future
+                // For now, they are available via the quiz relation
                 participants: {
                     create: {
                         user_id: userId,
@@ -77,6 +80,14 @@ export class BattleService {
                     select: {
                         title: true,
                         chapter_id: true,
+                        chapter: {
+                            select: {
+                                title: true,
+                                subject: {
+                                    select: { name: true }
+                                }
+                            }
+                        },
                         questions: {
                             select: { id: true, points: true }
                         }
@@ -106,41 +117,66 @@ export class BattleService {
             throw new Error("Battle has already started or ended");
         }
 
-        if (battle.participants.some((p: { user_id: number }) => p.user_id === userId)) {
-            return battle; // Already joined
+        // Check if already joined (ensure type safety)
+        const isJoined = battle.participants.some((p: any) => Number(p.user_id) === Number(userId));
+        if (isJoined) {
+            console.log(`[BATTLE SERVICE] User ${userId} already in battle ${battle.id}`);
+            return battle;
         }
 
-        // Add participant
-        const updatedBattle = await prisma.battle.update({
-            where: { id: battle.id },
-            data: {
-                participants: {
-                    create: {
-                        user_id: userId,
-                        joined_at: new Date()
+        try {
+            // Add participant
+            const updatedBattle = await prisma.battle.update({
+                where: { id: battle.id },
+                data: {
+                    participants: {
+                        create: {
+                            user_id: userId,
+                            joined_at: new Date()
+                        }
                     }
                 },
-                // If we have 2 participants, we can start the countdown or wait for creator to start
-                // For now, let's keep it manual start or auto-start logic in frontend
-            },
-            include: {
-                participants: {
-                    include: { user: { select: { username: true, id: true } } }
-                },
-                quiz: {
-                    select: {
-                        title: true,
-                        chapter_id: true,
-                        questions: true
+                include: {
+                    participants: {
+                        include: { user: { select: { username: true, id: true } } }
+                    },
+                    quiz: {
+                        select: {
+                            title: true,
+                            chapter_id: true,
+                            questions: true
+                        }
                     }
                 }
+            });
+
+            // Broadcast player join to notify all participants
+            await this.broadcast(battle.id, 'BATTLE_UPDATE', { type: 'PLAYER_JOINED', userId });
+
+            return updatedBattle;
+        } catch (error: any) {
+            // Handle unique constraint violation (P2002) - race condition where user joined in parallel
+            if (error.code === 'P2002') {
+                console.log(`[BATTLE SERVICE] Race condition: User ${userId} joined concurrently.`);
+                return prisma.battle.findUnique({
+                    where: { id: battle.id },
+                    include: {
+                        participants: {
+                            include: { user: { select: { username: true, id: true } } }
+                        },
+                        quiz: {
+                            select: {
+                                title: true,
+                                chapter_id: true,
+                                questions: true
+                            }
+                        }
+                    }
+                });
             }
-        });
+            throw error;
+        }
 
-        // Broadcast player join to notify all participants
-        await this.broadcast(battle.id, 'BATTLE_UPDATE', { type: 'PLAYER_JOINED', userId });
-
-        return updatedBattle;
     }
 
     /**
@@ -158,7 +194,8 @@ export class BattleService {
                 score,
                 current_q_index: questionIndex,
                 finished,
-                last_active: new Date()
+                last_active: new Date(),
+                ...(finished ? { completed_at: new Date() } : {})
             }
         });
 
@@ -178,6 +215,9 @@ export class BattleService {
                     }
                 });
 
+                // Calculate Results (Ranks and Point Changes)
+                await this.calculateBattleResults(battleId);
+
                 // Broadcast completion
                 await this.broadcast(battleId, 'BATTLE_UPDATE', { status: 'COMPLETED' });
             }
@@ -195,15 +235,87 @@ export class BattleService {
     }
 
     /**
+     * Calculates and saves battle results (ranks and point changes)
+     * Dynamic Stake System: Zero-sum + inflation
+     */
+    static async calculateBattleResults(battleId: string) {
+        const battle = await prisma.battle.findUnique({
+            where: { id: battleId },
+            include: { participants: true }
+        });
+
+        if (!battle) return;
+
+        // Sort participants: Score DESC, then Time ASC (finished earlier is better)
+        const sortedParticipants = [...battle.participants].sort((a, b) => {
+            if (b.score !== a.score) {
+                return b.score - a.score; // Higher score wins
+            }
+            // Tie-breaker: Time
+            const timeA = a.completed_at ? new Date(a.completed_at).getTime() : Infinity;
+            const timeB = b.completed_at ? new Date(b.completed_at).getTime() : Infinity;
+            return timeA - timeB; // Lower time wins
+        });
+
+        const numPlayers = sortedParticipants.length;
+        const participationBonus = 5; // Everyone gets +5 base
+
+        // Define base point distribution (before bonus)
+        // This is a zero-sum map (or close to it)
+        let distribution: number[] = [];
+
+        if (numPlayers === 2) {
+            distribution = [20, -20];
+        } else if (numPlayers === 3) {
+            distribution = [25, 0, -25];
+        } else if (numPlayers === 4) {
+            distribution = [30, 10, -10, -30];
+        } else if (numPlayers >= 5) {
+            // General algorithm for N players:
+            // Top half gaining, bottom half losing.
+            // Example for 8: +50, +30, +15, +5 | -5, -15, -30, -50
+            // We can map manually for 5-8 or use a curve.
+            // Let's use the explicit example for 8 and scale down.
+            if (numPlayers === 5) distribution = [35, 15, 0, -15, -35];
+            else if (numPlayers === 6) distribution = [40, 20, 5, -5, -20, -40];
+            else if (numPlayers === 7) distribution = [45, 25, 10, 0, -10, -25, -45];
+            else distribution = [50, 30, 15, 5, -5, -15, -30, -50]; // 8+
+        } else {
+            // 1 player? (Shouldn't happen for points, but if so)
+            distribution = [0];
+        }
+
+        // Apply updates
+        for (let i = 0; i < sortedParticipants.length; i++) {
+            const participant = sortedParticipants[i];
+            const basePoints = distribution[i] || 0; // Fallback 0
+            const totalPointsChange = basePoints + participationBonus;
+            const rank = i + 1;
+
+            await prisma.battleParticipant.update({
+                where: { id: participant.id },
+                data: {
+                    rank: rank,
+                    points_change: totalPointsChange
+                }
+            });
+
+            console.log(`[BATTLE RESULTS] User ${participant.user_id} Rank ${rank}: ${totalPointsChange} pts (${basePoints} + ${participationBonus})`);
+        }
+    }
+
+    /**
      * Start the battle
      */
     static async startBattle(battleId: string, userId: number) {
         const battle = await prisma.battle.findUnique({
-            where: { id: battleId }
+            where: { id: battleId },
+            include: { participants: true }
         });
 
         if (!battle) throw new Error("Battle not found");
         if (battle.created_by !== userId) throw new Error("Only creator can start battle");
+        if (battle.participants.length < 2) throw new Error("Need at least 2 players to start");
 
         const updatedBattle = await prisma.battle.update({
             where: { id: battleId },
@@ -235,8 +347,9 @@ export class BattleService {
         });
 
         if (!originalBattle) throw new Error("Original battle not found");
-        if (originalBattle.participants.length !== 2) {
-            throw new Error("Can only rematch 1v1 battles");
+        // Allow rematch for any battle size >= 2
+        if (originalBattle.participants.length < 2) {
+            throw new Error("Cannot rematch with fewer than 2 players");
         }
 
         // Generate new battle code
