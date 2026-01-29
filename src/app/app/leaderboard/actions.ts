@@ -4,7 +4,7 @@ import { getServerSession } from "next-auth";
 import { authOptions } from "@/lib/auth-options";
 import { prisma } from "@/lib/prisma";
 
-export type LeaderboardScope = "BOARD" | "INSTITUTION";
+export type LeaderboardScope = "BOARD" | "COURSE";
 export type LeaderboardMetric = "POINTS" | "AVG_SCORE";
 
 export interface LeaderboardEntry {
@@ -19,7 +19,7 @@ export interface LeaderboardEntry {
 export type LeaderboardTimeframe = "weekly" | "monthly" | "all_time";
 
 export async function getLeaderboardData(
-    scope: "COURSE", // Force strict typing to COURSE only
+    scope: LeaderboardScope,
     metric: LeaderboardMetric,
     courseId?: number,
     timeframe: LeaderboardTimeframe = "weekly"
