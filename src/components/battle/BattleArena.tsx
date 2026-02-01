@@ -245,6 +245,8 @@ export function BattleArena({ battle: initialBattle, currentUser, courseId, supa
                             Number(p.user_id) === Number(userId) ? { ...p, score, finished } : p
                         )
                     }));
+                    // DO NOT fetch - we already have the correct data from the broadcast
+                    return;
                 }
 
                 // Handle COMPLETION
@@ -256,8 +258,9 @@ export function BattleArena({ battle: initialBattle, currentUser, courseId, supa
                         hasShownCompletionToast.current = true;
                         toast.success("Battle Completed!");
                     }
-                    // Force fetch to get final results/ranks
+                    // Force fetch to get final results/ranks (points_change)
                     fetchBattleData();
+                    return;
                 }
 
                 // Don't fetch if we know it's completed
