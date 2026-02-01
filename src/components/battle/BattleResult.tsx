@@ -175,8 +175,8 @@ export function BattleResult({ battle, currentUser }: BattleResultProps) {
                                             </div>
                                             <div className="text-[10px] text-slate-500 uppercase font-bold tracking-wider mb-1">Score</div>
 
-                                            {/* Points Change Display */}
-                                            {p.points_change !== undefined && (
+                                            {/* Points Change Display - Only if Battle Completed */}
+                                            {battleCompleted && p.points_change !== undefined && (
                                                 <div className={`text-xs font-bold ${p.points_change > 0 ? 'text-emerald-400' : 'text-red-400'}`}>
                                                     {p.points_change > 0 ? '+' : ''}{p.points_change} pts
                                                 </div>

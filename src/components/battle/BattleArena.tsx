@@ -650,6 +650,11 @@ export function BattleArena({ battle: initialBattle, currentUser, courseId, supa
         );
     }
 
+    // Completed State
+    if (battle.status === 'COMPLETED' || myParticipant?.finished) {
+        return <BattleResult battle={battle} currentUser={currentUser} />;
+    }
+
     // Battle Interface
     const question = battle.quiz.questions[currentQIndex];
 
