@@ -132,7 +132,8 @@ export function BattleLobbyRoom({
         if (!supabase || !battle?.id) return;
 
         // 1. Lobby Chat & Status
-        const channel = supabase.channel(`battle-lobby:${battle.id}`)
+        // 1. Lobby Chat & Status
+        const channel = supabase.channel(`battle:${battle.id}`)
             .on('broadcast', { event: 'CHAT_MESSAGE' }, (payload: any) => {
                 const msg = payload.payload;
                 if (msg && msg.userId !== currentUser.id) {
@@ -145,19 +146,27 @@ export function BattleLobbyRoom({
                     }]);
                 }
             })
-            .on('broadcast', { event: 'READY_STATUS' }, (payload: any) => {
-                const { userId, ready } = payload.payload || {};
-                if (userId !== currentUser.id) {
-                    setReadyMap(prev => ({ ...prev, [userId]: ready }));
+            // Unified BATTLE_UPDATE listener (Matches Mobile & Backend)
+            .on('broadcast', { event: 'BATTLE_UPDATE' }, (payload: any) => {
+                const data = payload.payload;
+                if (!data) return;
+
+                if (data.type === 'READY_UPDATE') {
+                    const { userId, isReady } = data; // Backend sends 'isReady', check battle-service line 235
+                    if (userId !== currentUser.id) {
+                        setReadyMap(prev => ({ ...prev, [userId]: isReady }));
+                    }
+                } else if (data.type === 'PLAYER_JOINED') {
+                    // Ideally trigger a refresh or add to list, but for now relying on parent/refresh
+                    router.refresh();
+                } else if (data.type === 'SETTINGS_UPDATE') {
+                    router.refresh();
                 }
             })
             .subscribe();
 
-
-
-        // 2. Local Lobby Presence (Host Only)
-        // Game Logic (Join/Kick/Start) is now handled by parent BattleArena to prevent subscription conflicts
-
+        // 2. Host Presence
+        // ... (keep logic)
 
         // 3. Lobby Presence (Host Only)
         let lobbyChannel: any = null;
@@ -188,7 +197,7 @@ export function BattleLobbyRoom({
             supabase.removeChannel(channel);
             if (lobbyChannel) supabase.removeChannel(lobbyChannel);
         };
-    }, [supabase, battle?.id, currentUser.id, onLeave, isHost, battle?.is_public, participants.length]);
+    }, [supabase, battle?.id, currentUser.id, onLeave, isHost, battle?.is_public, participants.length, router]);
 
     const sendMessage = useCallback(async () => {
         if (!newMessage.trim() || !supabase) return;
@@ -208,7 +217,7 @@ export function BattleLobbyRoom({
         }]);
 
         // Broadcast to others
-        await supabase.channel(`battle-lobby:${battle.id}`).send({
+        await supabase.channel(`battle:${battle.id}`).send({
             type: 'broadcast',
             event: 'CHAT_MESSAGE',
             payload: msg,
@@ -221,17 +230,9 @@ export function BattleLobbyRoom({
         const newReady = !isReady;
         setIsReady(newReady);
 
-        // 1. Broadcast to others immediately for realtime UI
-        if (supabase) {
-            await supabase.channel(`battle-lobby:${battle.id}`).send({
-                type: 'broadcast',
-                event: 'READY_STATUS',
-                payload: {
-                    userId: currentUser.id,
-                    ready: newReady,
-                },
-            });
-        }
+        // 1. Optimistic Broadcast (Optional, but let's stick to Server Truth or send matching signal)
+        // We will rely on server broadcast to avoid race conditions and type mismatch
+        // The API call below will trigger BATTLE_UPDATE -> READY_UPDATE
 
         // 2. Persist to DB
         try {
@@ -242,8 +243,10 @@ export function BattleLobbyRoom({
             });
         } catch (error) {
             console.error("Failed to persist ready status", error);
+            // Revert on error
+            setIsReady(!newReady);
         }
-    }, [isReady, supabase, battle?.id, currentUser.id]);
+    }, [isReady, battle?.id]);
 
     const copyCode = () => {
         navigator.clipboard.writeText(battle.code);
