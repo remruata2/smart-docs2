@@ -232,6 +232,33 @@ export function BattleArena({ battle: initialBattle, currentUser, courseId, supa
                     setWaiting(false);
                 }
 
+                // Handle PROGRESS (Score/Finish) immediately
+                if (payload.payload?.type === 'PROGRESS') {
+                    const { userId, score, finished } = payload.payload;
+                    console.log(`[BATTLE-REALTIME] Updating progress for user ${userId}: Score ${score}, Finished ${finished}`);
+
+                    setBattle((prev: any) => ({
+                        ...prev,
+                        participants: prev.participants.map((p: any) =>
+                            p.user_id === userId ? { ...p, score, finished } : p
+                        )
+                    }));
+                }
+
+                // Handle COMPLETION immediately
+                if (payload.payload?.status === 'COMPLETED') {
+                    console.log('[BATTLE-REALTIME] Battle COMPLETED received');
+                    setBattle((prev: any) => ({ ...prev, status: 'COMPLETED' }));
+                    // Ensure the toast fires
+                    if (!hasShownCompletionToast.current) {
+                        hasShownCompletionToast.current = true;
+                        toast.success("Battle Completed!");
+                    }
+                    // Force fetch to get final results/ranks
+                    fetchBattleData();
+                    return;
+                }
+
                 // Don't fetch if we know it's completed
                 if (battleRef.current.status === 'COMPLETED') return;
 

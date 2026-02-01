@@ -127,12 +127,11 @@ export function BattleLobbyRoom({
         }
     };
 
-    // Subscribe to lobby events
+    // Subscribe to STABLE battle channel events (Chat & Status)
     useEffect(() => {
         if (!supabase || !battle?.id) return;
 
-        // 1. Lobby Chat & Status
-        // 1. Lobby Chat & Status
+        // 1. Lobby Chat & Status (Unified Channel)
         const channel = supabase.channel(`battle:${battle.id}`)
             .on('broadcast', { event: 'CHAT_MESSAGE' }, (payload: any) => {
                 const msg = payload.payload;
@@ -146,36 +145,43 @@ export function BattleLobbyRoom({
                     }]);
                 }
             })
-            // Unified BATTLE_UPDATE listener (Matches Mobile & Backend)
             .on('broadcast', { event: 'BATTLE_UPDATE' }, (payload: any) => {
                 const data = payload.payload;
                 if (!data) return;
 
                 if (data.type === 'READY_UPDATE') {
-                    const { userId, isReady } = data; // Backend sends 'isReady', check battle-service line 235
+                    const { userId, isReady } = data;
                     if (userId !== currentUser.id) {
                         setReadyMap(prev => ({ ...prev, [userId]: isReady }));
                     }
                 } else if (data.type === 'PLAYER_JOINED') {
-                    // Ideally trigger a refresh or add to list, but for now relying on parent/refresh
-                    router.refresh();
+                    router.refresh(); // Refresh to update participants list
                 } else if (data.type === 'SETTINGS_UPDATE') {
                     router.refresh();
+                } else if (data.type === 'START' || data.status === 'IN_PROGRESS') {
+                    router.refresh(); // Switch to Arena View
                 }
             })
             .subscribe();
 
-        // 2. Host Presence
-        // ... (keep logic)
+        return () => {
+            supabase.removeChannel(channel);
+        };
+    }, [supabase, battle?.id, currentUser.id, router]);
 
-        // 3. Lobby Presence (Host Only)
+    // Subscribe to PRESENCE (HOST ONLY) - Re-runs on participant change
+    useEffect(() => {
+        if (!supabase || !battle?.id) return;
+
         let lobbyChannel: any = null;
+
+        // Only host tracks public lobby presence
         if (isHost && battle.is_public) {
             lobbyChannel = supabase.channel('battle_lobby_presence');
 
             lobbyChannel
                 .on('presence', { event: 'sync' }, () => {
-                    // console.log('Lobby presence synced');
+                    // synced
                 })
                 .subscribe(async (status: any) => {
                     if (status === 'SUBSCRIBED') {
@@ -194,10 +200,9 @@ export function BattleLobbyRoom({
         }
 
         return () => {
-            supabase.removeChannel(channel);
             if (lobbyChannel) supabase.removeChannel(lobbyChannel);
         };
-    }, [supabase, battle?.id, currentUser.id, onLeave, isHost, battle?.is_public, participants.length, router]);
+    }, [supabase, battle?.id, isHost, battle.is_public, participants.length, currentUser.username]);
 
     const sendMessage = useCallback(async () => {
         if (!newMessage.trim() || !supabase) return;
