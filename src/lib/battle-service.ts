@@ -119,6 +119,10 @@ export class BattleService {
             throw new Error("Battle not found");
         }
 
+        if (battle.participants.length >= 8) {
+            throw new Error("Lobby is full (Max 8 players)");
+        }
+
         if (battle.status !== BattleStatus.WAITING) {
             throw new Error("Battle has already started or ended");
         }
