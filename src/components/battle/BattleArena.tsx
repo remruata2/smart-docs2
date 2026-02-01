@@ -124,10 +124,12 @@ export function BattleArena({ battle: initialBattle, currentUser, courseId, supa
         const currentMyParticipant = currentBattle.participants.find((p: any) => p.user_id === currentUser.id);
 
         try {
-            const res = await fetch(`/api/battle/${currentBattle.id}`);
+            const res = await fetch(`/api/battle/${currentBattle.id}`, { cache: 'no-store' });
+            console.log('[BATTLE-FETCH] Fetched data code:', res.status);
             if (res.ok) {
                 const data = await res.json();
                 if (data.battle) {
+                    console.log('[BATTLE-FETCH] Participants:', data.battle.participants.map((p: any) => `${p.user.username}: ${p.finished}`));
                     // Prevent reverting status from IN_PROGRESS to WAITING due to race condition
                     if (currentBattle.status === 'IN_PROGRESS' && data.battle.status === 'WAITING') {
                         data.battle.status = 'IN_PROGRESS';
@@ -236,6 +238,8 @@ export function BattleArena({ battle: initialBattle, currentUser, courseId, supa
                 if (payload.payload?.type === 'PROGRESS') {
                     const { userId, score, finished } = payload.payload;
                     console.log(`[BATTLE-REALTIME] Updating progress for user ${userId}: Score ${score}, Finished ${finished}`);
+                    console.log(`[BATTLE-REALTIME] Current Participants:`, battle.participants.map((p: any) => `${p.user_id} (${typeof p.user_id})`));
+                    console.log(`[BATTLE-REALTIME] Target userId: ${userId} (${typeof userId})`);
 
                     setBattle((prev: any) => ({
                         ...prev,
