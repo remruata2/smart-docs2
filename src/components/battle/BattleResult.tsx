@@ -73,6 +73,9 @@ export function BattleResult({ battle, currentUser }: BattleResultProps) {
         }
     };
 
+    // Calculate Max Possible Score
+    const maxScore = battle.quiz?.questions?.reduce((acc: number, q: any) => acc + (q.points || 1), 0) || 0;
+
     return (
         <div className="min-h-screen bg-slate-950 text-slate-100 font-sans selection:bg-purple-500/30 relative overflow-hidden flex items-center justify-center p-4">
             {/* Background Effects */}
@@ -168,7 +171,7 @@ export function BattleResult({ battle, currentUser }: BattleResultProps) {
                                         {/* Score */}
                                         <div className="text-right">
                                             <div className="text-2xl md:text-3xl font-black text-white leading-none">
-                                                {p.score}
+                                                {p.score} <span className="text-base font-medium text-slate-500">/ {maxScore}</span>
                                             </div>
                                             <div className="text-[10px] text-slate-500 uppercase font-bold tracking-wider mb-1">Score</div>
 
