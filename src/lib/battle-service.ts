@@ -320,14 +320,19 @@ export class BattleService {
             return timeA - timeB; // Lower time wins
         });
 
+        const topScore = sortedParticipants[0]?.score ?? 0;
+        const isTiedZero = topScore === 0;
+
         const numPlayers = sortedParticipants.length;
-        const participationBonus = 5; // Everyone gets +5 base
+        const participationBonus = isTiedZero ? 0 : 5; // No bonus if everyone got 0
 
         // Define base point distribution (before bonus)
-        // This is a zero-sum map (or close to it)
+        // If tied at 0, no one wins or loses points
         let distribution: number[] = [];
 
-        if (numPlayers === 2) {
+        if (isTiedZero) {
+            distribution = new Array(numPlayers).fill(0);
+        } else if (numPlayers === 2) {
             distribution = [20, -20];
         } else if (numPlayers === 3) {
             distribution = [25, 0, -25];
@@ -337,14 +342,12 @@ export class BattleService {
             // General algorithm for N players:
             // Top half gaining, bottom half losing.
             // Example for 8: +50, +30, +15, +5 | -5, -15, -30, -50
-            // We can map manually for 5-8 or use a curve.
-            // Let's use the explicit example for 8 and scale down.
             if (numPlayers === 5) distribution = [35, 15, 0, -15, -35];
             else if (numPlayers === 6) distribution = [40, 20, 5, -5, -20, -40];
             else if (numPlayers === 7) distribution = [45, 25, 10, 0, -10, -25, -45];
             else distribution = [50, 30, 15, 5, -5, -15, -30, -50]; // 8+
         } else {
-            // 1 player? (Shouldn't happen for points, but if so)
+            // 1 player?
             distribution = [0];
         }
 

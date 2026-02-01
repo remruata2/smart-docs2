@@ -140,9 +140,29 @@ export function BattleResult({ battle, currentUser }: BattleResultProps) {
                                                 </h3>
                                                 {isMe && <span className="text-[10px] bg-indigo-500/20 text-indigo-300 px-1.5 py-0.5 rounded font-bold uppercase tracking-wide">You</span>}
                                             </div>
-                                            <p className="text-xs text-slate-500">
-                                                {p.finished ? "Finished" : "Still playing..."}
-                                            </p>
+                                            <div className="flex flex-col gap-0.5">
+                                                <p className="text-xs text-slate-500">
+                                                    {p.finished ? (
+                                                        <span className="flex items-center gap-1.5 ">
+                                                            <span>Finished</span>
+                                                            {p.completed_at && battle.started_at && (
+                                                                <span className="bg-slate-800 px-1.5 py-0.5 rounded text-slate-400 font-mono">
+                                                                    {(() => {
+                                                                        const start = new Date(battle.started_at).getTime();
+                                                                        const end = new Date(p.completed_at).getTime();
+                                                                        const seconds = Math.floor((end - start) / 1000);
+                                                                        const m = Math.floor(seconds / 60);
+                                                                        const s = seconds % 60;
+                                                                        return `${m}m ${s}s`;
+                                                                    })()}
+                                                                </span>
+                                                            )}
+                                                        </span>
+                                                    ) : (
+                                                        "Still playing..."
+                                                    )}
+                                                </p>
+                                            </div>
                                         </div>
 
                                         {/* Score */}

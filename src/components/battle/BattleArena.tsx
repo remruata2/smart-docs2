@@ -240,7 +240,7 @@ export function BattleArena({ battle: initialBattle, currentUser, courseId, supa
                     setBattle((prev: any) => ({
                         ...prev,
                         participants: prev.participants.map((p: any) =>
-                            p.user_id === userId ? { ...p, score, finished } : p
+                            Number(p.user_id) === Number(userId) ? { ...p, score, finished } : p
                         )
                     }));
                 }
