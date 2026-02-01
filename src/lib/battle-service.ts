@@ -105,7 +105,13 @@ export class BattleService {
     static async joinBattle(userId: number, code: string) {
         const battle = await prisma.battle.findUnique({
             where: { code },
-            include: { participants: true }
+            include: {
+                participants: {
+                    include: {
+                        user: true
+                    }
+                }
+            }
         });
         console.log(`[BATTLE SERVICE] joinBattle lookup for code "${code}" returned:`, battle ? `Battle ID ${battle.id}` : "null");
 

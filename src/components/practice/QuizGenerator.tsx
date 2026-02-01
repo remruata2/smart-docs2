@@ -43,11 +43,15 @@ export function QuizGenerator({
                 if (data && data.enrollments) {
                     // Flatten subjects from all course enrollments
                     const allSubjects = data.enrollments.flatMap(e => e.course.subjects);
-                    setSubjects(allSubjects);
+
+                    // Deduplicate subjects by ID
+                    const uniqueSubjects = Array.from(new Map(allSubjects.map(s => [s.id, s])).values());
+
+                    setSubjects(uniqueSubjects);
 
                     // Preselect first subject only if no initialSubjectId provided
-                    if (!initialSubjectId && allSubjects.length > 0) {
-                        setSelectedSubject(allSubjects[0].id.toString());
+                    if (!initialSubjectId && uniqueSubjects.length > 0) {
+                        setSelectedSubject(uniqueSubjects[0].id.toString());
                     }
                 }
             }).catch(console.error);
