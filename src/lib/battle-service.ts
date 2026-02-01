@@ -262,6 +262,14 @@ export class BattleService {
             }
         });
 
+        // Broadcast progress update IMMEDIATELY so clients see the score/finished status
+        await this.broadcast(battleId, 'BATTLE_UPDATE', {
+            type: 'PROGRESS',
+            userId,
+            score,
+            finished
+        });
+
         // Check if all participants finished
         if (finished) {
             const battle = await prisma.battle.findUnique({
@@ -281,18 +289,12 @@ export class BattleService {
                 // Calculate Results (Ranks and Point Changes)
                 await this.calculateBattleResults(battleId);
 
-                // Broadcast completion
+                // Broadcast completion after the individual progress was sent
                 await this.broadcast(battleId, 'BATTLE_UPDATE', { status: 'COMPLETED' });
             }
         }
 
-        // Broadcast progress update
-        await this.broadcast(battleId, 'BATTLE_UPDATE', {
-            type: 'PROGRESS',
-            userId,
-            score,
-            finished
-        });
+        return participant;
 
         return participant;
     }

@@ -234,12 +234,10 @@ export function BattleArena({ battle: initialBattle, currentUser, courseId, supa
                     setWaiting(false);
                 }
 
-                // Handle PROGRESS (Score/Finish) immediately
+                // Handle PROGRESS (Score/Finish) - Always process this first
                 if (payload.payload?.type === 'PROGRESS') {
                     const { userId, score, finished } = payload.payload;
                     console.log(`[BATTLE-REALTIME] Updating progress for user ${userId}: Score ${score}, Finished ${finished}`);
-                    console.log(`[BATTLE-REALTIME] Current Participants:`, battle.participants.map((p: any) => `${p.user_id} (${typeof p.user_id})`));
-                    console.log(`[BATTLE-REALTIME] Target userId: ${userId} (${typeof userId})`);
 
                     setBattle((prev: any) => ({
                         ...prev,
@@ -249,7 +247,7 @@ export function BattleArena({ battle: initialBattle, currentUser, courseId, supa
                     }));
                 }
 
-                // Handle COMPLETION immediately
+                // Handle COMPLETION
                 if (payload.payload?.status === 'COMPLETED') {
                     console.log('[BATTLE-REALTIME] Battle COMPLETED received');
                     setBattle((prev: any) => ({ ...prev, status: 'COMPLETED' }));
@@ -260,7 +258,6 @@ export function BattleArena({ battle: initialBattle, currentUser, courseId, supa
                     }
                     // Force fetch to get final results/ranks
                     fetchBattleData();
-                    return;
                 }
 
                 // Don't fetch if we know it's completed
