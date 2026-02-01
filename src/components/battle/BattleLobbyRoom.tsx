@@ -44,6 +44,7 @@ export function BattleLobbyRoom({
     isLeaving = false,
 }: BattleLobbyRoomProps) {
     const { updatePresenceStatus, sendChallenge } = useSupabase();
+    const router = useRouter();
     const [messages, setMessages] = useState<ChatMessage[]>([]);
     const [newMessage, setNewMessage] = useState("");
     const [isReady, setIsReady] = useState(false);
@@ -67,6 +68,20 @@ export function BattleLobbyRoom({
             // updatePresenceStatus('ONLINE'); // Handled by provider's leaveCourseRoom logic or new page
         };
     }, [updatePresenceStatus]);
+
+    // Update readyMap when participants change (e.g. new player joins)
+    useEffect(() => {
+        setReadyMap(prev => {
+            const newMap = { ...prev };
+            participants.forEach((p: any) => {
+                // If user not in map (newly joined), set to their DB status or false
+                if (newMap[p.user_id] === undefined) {
+                    newMap[p.user_id] = p.is_ready || false;
+                }
+            });
+            return newMap;
+        });
+    }, [participants]);
 
     const handleOpenChallengeModal = async (user: any) => {
         // Direct invite in lobby (bypass modal)
@@ -116,6 +131,7 @@ export function BattleLobbyRoom({
     useEffect(() => {
         if (!supabase || !battle?.id) return;
 
+        // 1. Lobby Chat & Status
         const channel = supabase.channel(`battle-lobby:${battle.id}`)
             .on('broadcast', { event: 'CHAT_MESSAGE' }, (payload: any) => {
                 const msg = payload.payload;
@@ -135,14 +151,18 @@ export function BattleLobbyRoom({
                     setReadyMap(prev => ({ ...prev, [userId]: ready }));
                 }
             })
-            // Listen for BATTLE_UPDATE from kick/route.ts (broadcasts on battle:ID not battle-lobby:ID in my previous code)
-            // Wait, previous code used `battle:${battleId}` for kick event.
             .subscribe();
 
-        // BROADCAST LOBBY PRESENCE (Host Only)
-        // This makes the battle show up in "Open Battles" in realtime
+
+
+        // 2. Local Lobby Presence (Host Only)
+        // Game Logic (Join/Kick/Start) is now handled by parent BattleArena to prevent subscription conflicts
+
+
+        // 3. Lobby Presence (Host Only)
+        let lobbyChannel: any = null;
         if (isHost && battle.is_public) {
-            const lobbyChannel = supabase.channel('battle_lobby_presence');
+            lobbyChannel = supabase.channel('battle_lobby_presence');
 
             lobbyChannel
                 .on('presence', { event: 'sync' }, () => {
@@ -162,38 +182,11 @@ export function BattleLobbyRoom({
                         });
                     }
                 });
-
-            // Update presence when participants change
-            // We can't easily "update" presence without re-tracking, but track() updates if already present.
-            // Since this effect depends on participants, re-running might be expensive if full mount/unmount.
-            // Presence is robust to re-tracking.
-            // However, effects run on deps change.
-            return () => {
-                supabase.removeChannel(channel);
-                supabase.removeChannel(gameChannel); // Handled in previous block, careful with return
-                supabase.removeChannel(lobbyChannel);
-            };
         }
-
-        const gameChannel = supabase.channel(`battle:${battle.id}`)
-            .on('broadcast', { event: 'BATTLE_UPDATE' }, (payload: any) => {
-                if (payload.payload?.type === 'PLAYER_KICKED') {
-                    const kickedId = payload.payload.userId;
-                    if (Number(kickedId) === currentUser.id) {
-                        toast.error("You have been kicked from the battle.");
-                        onLeave();
-                    } else {
-                        // Someone else kicked - trigger refresh or let parent handle
-                        toast.info("A player was kicked.");
-                        window.location.reload();
-                    }
-                }
-            })
-            .subscribe();
 
         return () => {
             supabase.removeChannel(channel);
-            supabase.removeChannel(gameChannel);
+            if (lobbyChannel) supabase.removeChannel(lobbyChannel);
         };
     }, [supabase, battle?.id, currentUser.id, onLeave, isHost, battle?.is_public, participants.length]);
 

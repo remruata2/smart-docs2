@@ -39,7 +39,9 @@ export function ChallengeModal({ targetUser, isOpen, onClose, onSendChallenge }:
                 .then((data) => {
                     if (data && data.enrollments) {
                         const allSubjects = data.enrollments.flatMap((e) => e.course.subjects);
-                        setSubjects(allSubjects);
+                        // Deduplicate subjects
+                        const uniqueSubjects = Array.from(new Map(allSubjects.map(s => [s.id, s])).values());
+                        setSubjects(uniqueSubjects);
                     }
                 })
                 .catch(console.error)

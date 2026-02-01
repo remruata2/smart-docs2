@@ -1,7 +1,7 @@
 "use client";
 
 import { useSession } from "next-auth/react";
-import { useRouter } from "next/navigation";
+import { useRouter, usePathname } from "next/navigation";
 import { useEffect, useRef, useState } from "react";
 import UserSidebar from "@/components/layout/UserSidebar";
 import { Toaster } from "@/components/ui/sonner";
@@ -21,6 +21,7 @@ export default function DashboardLayout({
 }) {
     const { data: session, status } = useSession();
     const router = useRouter();
+    const pathname = usePathname();
     const { sendChallenge } = useSupabase();
     const hasRedirected = useRef(false);
 
@@ -121,8 +122,10 @@ export default function DashboardLayout({
             {/* Mobile Bottom Navigation */}
             <MobileBottomNav />
 
-            {/* Global Battle Widgets */}
-            <FloatingOnlineWidget onChallengeUser={handleOpenChallengeModal} />
+            {/* Global Battle Widgets (Show ONLY on Battle Dashboard) */}
+            {pathname === "/app/practice/battle" && (
+                <FloatingOnlineWidget onChallengeUser={handleOpenChallengeModal} />
+            )}
             <ChallengeModal
                 targetUser={targetUser}
                 isOpen={challengeModalOpen}

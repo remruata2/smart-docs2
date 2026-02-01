@@ -68,3 +68,54 @@ export async function POST(
         return NextResponse.json({ error: "Internal server error" }, { status: 500 });
     }
 }
+
+// GET: List messages for a conversation
+export async function GET(
+    request: NextRequest,
+    { params }: { params: Promise<{ id: string }> }
+) {
+    try {
+        const user = await getMobileUser(request);
+        const userId = Number(user.id);
+        const { id } = await params;
+        const conversationId = parseInt(id);
+
+        // Verify ownership
+        const conversation = await prisma.conversation.findUnique({
+            where: {
+                id: conversationId,
+                user_id: userId
+            }
+        });
+
+        if (!conversation) {
+            return NextResponse.json({ error: "Conversation not found" }, { status: 404 });
+        }
+
+        const messages = await prisma.conversationMessage.findMany({
+            where: { conversation_id: conversationId },
+            orderBy: { created_at: 'asc' },
+            select: {
+                id: true,
+                role: true,
+                content: true,
+                created_at: true,
+                metadata: true
+            }
+        });
+
+        const formatted = messages.map(m => ({
+            id: m.id.toString(),
+            role: m.role,
+            content: m.content,
+            timestamp: m.created_at.toISOString(),
+            metadata: m.metadata
+        }));
+
+        return NextResponse.json({ messages: formatted });
+
+    } catch (error) {
+        console.error("[MOBILE MESSAGES GET] Error:", error);
+        return NextResponse.json({ error: "Internal server error" }, { status: 500 });
+    }
+}

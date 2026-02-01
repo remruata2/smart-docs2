@@ -39,10 +39,29 @@ export async function POST(req: Request) {
         const isHost = battle.created_by === userId;
 
         if (isHost) {
-            // Host is leaving -> Cancel the battle
-            await prisma.battle.delete({
-                where: { id: battleId }
-            });
+            // Host is leaving
+            // If battle is WAITING, cancel it (delete)
+            // If IN_PROGRESS or COMPLETED, just mark host as left or do nothing (allow rejoin on refresh)
+            if (battle.status === 'WAITING') {
+                await prisma.battle.delete({
+                    where: { id: battleId }
+                });
+
+                // Broadcast cancellation
+                await supabase.channel(`battle:${battleId}`).send({
+                    type: 'broadcast',
+                    event: 'BATTLE_UPDATE',
+                    payload: { type: 'BATTLE_CANCELLED' }
+                });
+
+                return NextResponse.json({ message: "Battle cancelled" });
+            } else {
+                // If battle is in progress, do NOT delete.
+                // We might want to mark them as 'disconnected' but for now, just 200 OK.
+                // The frontend will handle the redirect if strictly leaving.
+                // If it's just a refresh, nothing bad happens.
+                return NextResponse.json({ message: "Host left (Battle continues)" });
+            }
 
             // Broadcast cancellation
             await supabase.channel(`battle:${battleId}`).send({

@@ -30,7 +30,10 @@ export function BattleLobby({ initialSubjects = [], courseId }: BattleLobbyProps
     const [loading, setLoading] = useState(false);
 
     // Selection state for Create Battle card
-    const [subjects, setSubjects] = useState<any[]>(initialSubjects);
+    const [subjects, setSubjects] = useState<any[]>(() => {
+        // Deduplicate initial subjects
+        return Array.from(new Map(initialSubjects.map(s => [s.id, s])).values());
+    });
     const [chapters, setChapters] = useState<any[]>([]);
     const [selectedSubject, setSelectedSubject] = useState<string>("");
     const [selectedChapter, setSelectedChapter] = useState<string>("");
@@ -74,7 +77,9 @@ export function BattleLobby({ initialSubjects = [], courseId }: BattleLobbyProps
             getSubjectsForUserProgram().then(data => {
                 if (data && data.enrollments) {
                     const allSubjects = data.enrollments.flatMap(e => e.course.subjects);
-                    setSubjects(allSubjects);
+                    // Deduplicate subjects
+                    const uniqueSubjects = Array.from(new Map(allSubjects.map(s => [s.id, s])).values());
+                    setSubjects(uniqueSubjects);
                 }
             }).catch(console.error);
         }

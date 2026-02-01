@@ -1,6 +1,7 @@
 import { NextResponse } from "next/server";
 import { getServerSession } from "next-auth";
 import { authOptions } from "@/lib/auth-options";
+import { BattleService } from "@/lib/battle-service";
 import { prisma } from "@/lib/prisma";
 import { z } from "zod";
 
@@ -19,19 +20,8 @@ export async function POST(req: Request) {
         const body = await req.json();
         const { battleId, isReady } = readySchema.parse(body);
 
-        // Update participant status
-        const updated = await prisma.battleParticipant.update({
-            where: {
-                battle_id_user_id: {
-                    battle_id: battleId,
-                    user_id: parseInt(session.user.id),
-                }
-            },
-            data: {
-                is_ready: isReady,
-                last_active: new Date()
-            }
-        });
+        // Update participant status via Service (handles broadcast)
+        const updated = await BattleService.setReady(battleId, parseInt(session.user.id), isReady);
 
         return NextResponse.json({ success: true, isReady: updated.is_ready });
     } catch (error) {

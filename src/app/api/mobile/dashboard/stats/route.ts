@@ -110,12 +110,20 @@ export async function GET(request: NextRequest) {
             }
         }
 
+        // Get badges count
+        const badgesCount = await prisma.userBadge.count({
+            where: {
+                user_id: userId
+            }
+        });
+
         const stats = {
             tests_completed: quizzesCompleted,
             accuracy: accuracy,
             battles_won: winsCount,
             total_points: totalScore,
             current_streak: currentStreak,
+            badges_count: badgesCount,
         };
 
         return NextResponse.json({ stats });

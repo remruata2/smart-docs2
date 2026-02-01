@@ -20,7 +20,10 @@ export async function GET(request: NextRequest) {
                 title: true,
                 updated_at: true,
                 last_message_at: true,
+                subject_id: true,
+                chapter_id: true,
                 subject: { select: { name: true } },
+                chapter: { select: { title: true } },
                 messages: {
                     take: 1,
                     orderBy: { created_at: 'desc' },
@@ -32,7 +35,10 @@ export async function GET(request: NextRequest) {
         const formatted = conversations.map(c => ({
             id: c.id,
             title: c.title,
+            subjectId: c.subject_id,
+            chapterId: c.chapter_id?.toString(),
             subjectName: c.subject?.name,
+            chapterTitle: c.chapter?.title,
             lastMessage: c.messages[0]?.content.substring(0, 60) + '...',
             updatedAt: c.updated_at,
             lastMessageAt: c.last_message_at

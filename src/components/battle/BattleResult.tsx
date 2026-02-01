@@ -21,8 +21,10 @@ export function BattleResult({ battle, currentUser }: BattleResultProps) {
     const myParticipant = battle.participants.find((p: any) => p.user_id === currentUser.id);
     const opponent = battle.participants.find((p: any) => p.user_id !== currentUser.id);
 
-    const iWon = myParticipant?.score > (opponent?.score || 0);
-    const isDraw = myParticipant?.score === (opponent?.score || 0);
+    // Use RANK to determine winner (Rank 1 is winner, regardless of score ties)
+    // Ranking logic in backend handles score > time tie-breakers
+    const iWon = myParticipant?.rank === 1;
+    const isDraw = false; // "Draw" concept is removed in favor of strict ranking (Time tie-breaker)
     const opponentFinished = opponent?.finished;
     const battleCompleted = battle.status === "COMPLETED";
 
@@ -79,8 +81,13 @@ export function BattleResult({ battle, currentUser }: BattleResultProps) {
 
             <div className="max-w-2xl w-full space-y-8 relative z-10">
                 <div className="text-center space-y-2 animate-in slide-in-from-bottom-4 fade-in duration-700">
-                    <h1 className="text-5xl md:text-7xl font-black tracking-tight bg-gradient-to-r from-indigo-400 via-purple-400 to-pink-400 bg-clip-text text-transparent drop-shadow-sm">
-                        {battleCompleted ? (iWon ? "VICTORY!" : isDraw ? "DRAW!" : "DEFEAT") : "FINISHED!"}
+                    <h1 className="text-5xl md:text-7xl font-black tracking-tight bg-gradient-to-r from-indigo-400 via-purple-400 to-pink-400 bg-clip-text text-transparent drop-shadow-sm flex flex-col items-center gap-2">
+                        <span>{battleCompleted ? (iWon ? "VICTORY!" : isDraw ? "DRAW!" : "DEFEAT") : "FINISHED!"}</span>
+                        {battleCompleted && myParticipant?.points_change !== undefined && (
+                            <span className={`text-2xl md:text-4xl ${myParticipant.points_change > 0 ? 'text-emerald-400' : 'text-red-400'}`}>
+                                {myParticipant.points_change > 0 ? '+' : ''}{myParticipant.points_change} pts
+                            </span>
+                        )}
                     </h1>
                     <p className="text-xl text-slate-400">
                         {battleCompleted
@@ -143,7 +150,14 @@ export function BattleResult({ battle, currentUser }: BattleResultProps) {
                                             <div className="text-2xl md:text-3xl font-black text-white leading-none">
                                                 {p.score}
                                             </div>
-                                            <div className="text-[10px] text-slate-500 uppercase font-bold tracking-wider">Points</div>
+                                            <div className="text-[10px] text-slate-500 uppercase font-bold tracking-wider mb-1">Score</div>
+
+                                            {/* Points Change Display */}
+                                            {p.points_change !== undefined && (
+                                                <div className={`text-xs font-bold ${p.points_change > 0 ? 'text-emerald-400' : 'text-red-400'}`}>
+                                                    {p.points_change > 0 ? '+' : ''}{p.points_change} pts
+                                                </div>
+                                            )}
                                         </div>
                                     </div>
                                 );

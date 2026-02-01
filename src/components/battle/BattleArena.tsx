@@ -53,6 +53,11 @@ export function BattleArena({ battle: initialBattle, currentUser, courseId, supa
         }
     }, [supabaseConfig.url, supabaseConfig.anonKey, supabase]);
 
+    // Sync state with props when router.refresh() updates the server component
+    useEffect(() => {
+        setBattle(initialBattle);
+    }, [initialBattle]);
+
     // Track presence status separately from client initialization
     useEffect(() => {
         if (!supabase) return;
@@ -80,6 +85,7 @@ export function BattleArena({ battle: initialBattle, currentUser, courseId, supa
     // Refs to track latest state for intervals/callbacks
     const battleRef = useRef(battle);
     const isLeavingRef = useRef(false);
+    const hasShownCompletionToast = useRef(false);
     useEffect(() => { battleRef.current = battle; }, [battle]);
 
     // Derived state
@@ -143,7 +149,8 @@ export function BattleArena({ battle: initialBattle, currentUser, courseId, supa
 
                     // Also update waiting status if changed
                     if (data.battle.status === 'IN_PROGRESS') setWaiting(false);
-                    if (data.battle.status === 'COMPLETED') {
+                    if (data.battle.status === 'COMPLETED' && !hasShownCompletionToast.current) {
+                        hasShownCompletionToast.current = true;
                         toast.success("Battle Completed!");
                         // Redirect to results or show summary
                     }
@@ -194,9 +201,35 @@ export function BattleArena({ battle: initialBattle, currentUser, courseId, supa
                     return;
                 }
 
+                if (payload.payload?.type === 'PLAYER_JOINED') {
+                    const joinedUser = payload.payload.user;
+                    if (joinedUser) {
+                        toast.success(`${joinedUser.username} joined the battle!`);
+                    }
+                    if (waiting) {
+                        // Force fetch to update participant list in Lobby
+                        fetchBattleData();
+                        router.refresh();
+                    }
+                    return;
+                }
+
+                if (payload.payload?.type === 'PLAYER_KICKED') {
+                    const kickedId = payload.payload.userId;
+                    if (Number(kickedId) === currentUser.id) {
+                        toast.error("You have been kicked from the battle.");
+                        router.push('/app/practice/battle');
+                    } else {
+                        toast.info("A player was kicked.");
+                        fetchBattleData();
+                    }
+                    return;
+                }
+
                 // Optimistic status updates
-                if (payload.payload?.status === 'IN_PROGRESS') {
+                if (payload.payload?.status === 'IN_PROGRESS' || payload.payload?.type === 'START') {
                     setBattle((prev: any) => ({ ...prev, status: 'IN_PROGRESS' }));
+                    setWaiting(false);
                 }
 
                 // Don't fetch if we know it's completed

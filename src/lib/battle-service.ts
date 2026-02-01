@@ -118,9 +118,29 @@ export class BattleService {
         }
 
         // Check if already joined (ensure type safety)
+        // Check if already joined (ensure type safety)
         const isJoined = battle.participants.some((p: any) => Number(p.user_id) === Number(userId));
         if (isJoined) {
             console.log(`[BATTLE SERVICE] User ${userId} already in battle ${battle.id}`);
+
+            // Reset ready status for re-joiners to ensure correct UI state
+            await prisma.battleParticipant.updateMany({
+                where: {
+                    battle_id: battle.id,
+                    user_id: userId
+                },
+                data: {
+                    is_ready: false,
+                    last_active: new Date()
+                }
+            });
+
+            // Broadcast the reset/join update
+            await this.broadcast(battle.id, 'BATTLE_UPDATE', {
+                type: 'PLAYER_JOINED',
+                user: battle.participants.find(p => Number(p.user_id) === Number(userId))?.user
+            });
+
             return battle;
         }
 
@@ -150,8 +170,14 @@ export class BattleService {
                 }
             });
 
+            // Find the joined user to broadcast details
+            const joinedParticipant = updatedBattle.participants.find(p => p.user_id === userId);
+
             // Broadcast player join to notify all participants
-            await this.broadcast(battle.id, 'BATTLE_UPDATE', { type: 'PLAYER_JOINED', userId });
+            await this.broadcast(battle.id, 'BATTLE_UPDATE', {
+                type: 'PLAYER_JOINED',
+                user: joinedParticipant?.user
+            });
 
             return updatedBattle;
         } catch (error: any) {
@@ -177,6 +203,33 @@ export class BattleService {
             throw error;
         }
 
+    }
+
+    /**
+     * Updates participant ready status
+     */
+    static async setReady(battleId: string, userId: number, isReady: boolean) {
+        const participant = await prisma.battleParticipant.update({
+            where: {
+                battle_id_user_id: {
+                    battle_id: battleId,
+                    user_id: userId
+                }
+            },
+            data: {
+                is_ready: isReady,
+                last_active: new Date()
+            }
+        });
+
+        // Broadcast ready update
+        await this.broadcast(battleId, 'BATTLE_UPDATE', {
+            type: 'READY_UPDATE',
+            userId,
+            isReady
+        });
+
+        return participant;
     }
 
     /**
@@ -292,6 +345,7 @@ export class BattleService {
             const totalPointsChange = basePoints + participationBonus;
             const rank = i + 1;
 
+            // 1. Update Participant Record
             await prisma.battleParticipant.update({
                 where: { id: participant.id },
                 data: {
@@ -299,6 +353,40 @@ export class BattleService {
                     points_change: totalPointsChange
                 }
             });
+
+            // 2. Apply to User's GLobal Points (with integer overflow/negative protection)
+            // First, calculate current total points to ensure we don't drop below 0
+            const userPointsSum = await prisma.userPoints.aggregate({
+                where: { user_id: participant.user_id },
+                _sum: { points: true }
+            });
+
+            const currentTotal = userPointsSum._sum.points || 0;
+            let finalPointsChange = totalPointsChange;
+
+            // If losing points, ensure we don't go below 0
+            if (finalPointsChange < 0 && (currentTotal + finalPointsChange < 0)) {
+                finalPointsChange = -currentTotal; // Lose all remaining points to reach exactly 0
+            }
+
+            // Only insert if there's a change (or if we want to log 0 gain/loss)
+            if (finalPointsChange !== 0 || totalPointsChange !== 0) {
+                await prisma.userPoints.create({
+                    data: {
+                        user_id: participant.user_id,
+                        points: finalPointsChange,
+                        reason: 'battle_result',
+                        metadata: {
+                            battle_id: battleId,
+                            rank: rank,
+                            original_change: totalPointsChange // Track what they *would* have lost
+                        }
+                    }
+                });
+            }
+
+            // Update local object for logging/UI return if needed
+            participant.points_change = finalPointsChange;
 
             console.log(`[BATTLE RESULTS] User ${participant.user_id} Rank ${rank}: ${totalPointsChange} pts (${basePoints} + ${participationBonus})`);
         }
@@ -325,7 +413,10 @@ export class BattleService {
             }
         });
 
-        await this.broadcast(battleId, 'BATTLE_UPDATE', { status: 'IN_PROGRESS' });
+        await this.broadcast(battleId, 'BATTLE_UPDATE', {
+            type: 'START',
+            status: 'IN_PROGRESS'
+        });
 
         return updatedBattle;
     }
