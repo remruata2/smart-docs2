@@ -439,14 +439,27 @@ export const quizService = {
                     const correctArray = Array.isArray(correctAnswerNormalized) ? correctAnswerNormalized : [correctAnswerNormalized];
 
                     // Compare as sets (order-independent, handles both single and multi-select)
-                    const correctSet = new Set(correctArray.map((a: any) => String(a).trim()));
-                    const userSet = new Set(userArray.map((a: any) => String(a).trim()));
+                    // Normalize to lowercase for case-insensitive comparison
+                    const correctSet = new Set(correctArray.map((a: any) => String(a).trim().toLowerCase()));
+                    const userSet = new Set(userArray.map((a: any) => String(a).trim().toLowerCase()));
 
                     // Check if sets are equal (works for single-select AND multi-select)
                     if (correctSet.size === userSet.size &&
                         [...correctSet].every(item => userSet.has(item))) {
                         isCorrect = true;
                         pointsAwarded = question.points;
+                    } else if ((question.question_type as string) === "FILL_IN_BLANK") {
+                        // FALLBACK: If strict match fails, try AI grading for Fill in the Blanks
+                        // This handles cases like "domain" vs "Domain Name"
+                        questionsToGrade.push({
+                            id: question.id,
+                            question_text: question.question_text,
+                            user_answer: String(userAnswer),
+                            correct_answer: String(question.correct_answer),
+                            type: question.question_type,
+                            max_points: question.points,
+                        });
+                        continue; // Skip immediate update
                     }
                 }
 

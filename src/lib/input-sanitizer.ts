@@ -14,7 +14,7 @@ export interface SanitizationResult {
  * Sanitize user input before sending to AI
  * Removes potentially malicious patterns while preserving legitimate queries
  */
-export function sanitizeAIInput(input: string, maxLength: number = 1000): SanitizationResult {
+export function sanitizeAIInput(input: string, maxLength: number = 6000): SanitizationResult {
   const removedPatterns: string[] = [];
   let sanitized = input;
   const original = input;
@@ -89,7 +89,7 @@ export interface ConversationMessage {
 export function validateConversationHistory(
   history: any[],
   maxLength: number = 20,
-  maxMessageLength: number = 1000
+  maxMessageLength: number = 6000
 ): { valid: boolean; error?: string; sanitized?: ConversationMessage[] } {
   if (!Array.isArray(history)) {
     return { valid: false, error: 'conversationHistory must be an array' };

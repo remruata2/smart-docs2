@@ -27,7 +27,9 @@ export function QuizGenerator({
     const router = useRouter();
     const [loading, setLoading] = useState(false);
     const [currentStep, setCurrentStep] = useState(1);
-    const [subjects, setSubjects] = useState<any[]>(initialSubjects);
+    // Deduplicate initialSubjects to ensure unique keys
+    const uniqueInitialSubjects = Array.from(new Map(initialSubjects.map(s => [s.id, s])).values());
+    const [subjects, setSubjects] = useState<any[]>(uniqueInitialSubjects);
     const [chapters, setChapters] = useState<any[]>([]);
 
     const [selectedSubject, setSelectedSubject] = useState<string>(initialSubjectId || "");

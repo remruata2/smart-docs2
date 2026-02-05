@@ -97,15 +97,15 @@ export async function POST(request: NextRequest) {
 			);
 		}
 
-		if (message.length > 1000) {
+		if (message.length > 6000) {
 			return NextResponse.json(
-				{ error: "Message is too long (max 1000 characters)" },
+				{ error: "Message is too long (max 6000 characters)" },
 				{ status: 400 }
 			);
 		}
 
 		// Sanitize message input
-		const sanitizationResult = sanitizeAIInput(message, 1000);
+		const sanitizationResult = sanitizeAIInput(message, 6000);
 		if (sanitizationResult.removedPatterns.length > 0) {
 			console.warn(
 				`[SECURITY] Sanitized input for user ${userIdentifier}. Removed patterns:`,
@@ -119,7 +119,7 @@ export async function POST(request: NextRequest) {
 			const historyValidation = validateConversationHistory(
 				conversationHistory,
 				50,
-				1000
+				6000
 			);
 			if (!historyValidation.valid) {
 				return NextResponse.json(

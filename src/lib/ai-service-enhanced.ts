@@ -4487,7 +4487,7 @@ export async function gradeQuiz(
 	try {
 		// Filter for subjective questions that need AI grading
 		const subjectiveQuestions = questions.filter((q) =>
-			["SHORT_ANSWER", "LONG_ANSWER"].includes(q.type)
+			["SHORT_ANSWER", "LONG_ANSWER", "FILL_IN_BLANK"].includes(q.type)
 		);
 
 		if (subjectiveQuestions.length === 0) {
@@ -4546,7 +4546,14 @@ export async function gradeQuiz(
             Questions:
             ${JSON.stringify(subjectiveQuestions, null, 2)}
             
-            Provide a score (0-100) and feedback for each. Be lenient on phrasing but strict on factual accuracy.`;
+            Provide a score (0-100) and feedback for each. 
+            
+            GRADING RULES:
+            1. **Numerical Ranges**: If the answer is a range (e.g., "2-3"), accept any number within that range (e.g., "2", "3", "2.5") as 100% correct.
+            2. **Spelling**: Accept minor spelling mistakes if the meaning is clear.
+            3. **Phrasing**: Be lenient on phrasing. Focus on the core meaning.
+            4. **Strictness**: Be strict on factual accuracy, but lenient on format.
+            `;
 
 			try {
 				const result = await generateObject({
@@ -4631,7 +4638,7 @@ export async function generateStudyMaterials(
 		// Use priority: 1) opts.model, 2) Preferred (Gemini 3 Flash), 3) admin-configured models, 4) .env fallback
 		const dbModels = await getActiveModelNames("gemini");
 		const textModels = dbModels.filter(m => !m.includes("-image"));
-		const fallbackModel = process.env.GEMINI_DEFAULT_MODEL || "gemini-2.0-flash";
+		const fallbackModel = process.env.GEMINI_DEFAULT_MODEL || "gemini-3.0-flash";
 
 		const configModel = await getSettingString("ai.model.study_material", "");
 		const preferredModel = "gemini-3-flash-preview";

@@ -17,7 +17,9 @@ export async function POST(request: NextRequest) {
         const { data: { user }, error: authError } = await supabaseAdmin.auth.getUser(token);
 
         if (authError || !user) {
+            console.error("[MOBILE CHAT] Invalid token", authError);
             return NextResponse.json({ error: "Invalid token" }, { status: 401 });
+
         }
 
         // 2. Parse Body
@@ -29,13 +31,13 @@ export async function POST(request: NextRequest) {
         }
 
         // 3. Sanitize Input
-        const sanitizationResult = sanitizeAIInput(message, 1000);
+        const sanitizationResult = sanitizeAIInput(message, 6000);
         const sanitizedMessage = sanitizationResult.sanitized;
 
         // 4. Validate History
         let validHistory: any[] = [];
         if (conversationHistory) {
-            const historyValidation = validateConversationHistory(conversationHistory, 50, 1000);
+            const historyValidation = validateConversationHistory(conversationHistory, 50, 6000);
             if (historyValidation.valid && historyValidation.sanitized) {
                 validHistory = historyValidation.sanitized;
             }
