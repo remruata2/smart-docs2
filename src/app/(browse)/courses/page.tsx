@@ -15,8 +15,8 @@ export default async function CoursesPage({
     const params = await searchParams;
     const query = params.q;
 
-    const data = await getCatalogData(query);
-    const { courses, isAuthenticated } = data;
+    const data: any = await getCatalogData(query);
+    const { categories, upcoming, isAuthenticated, allCourses } = data;
 
     return (
         <div className="min-h-screen bg-white">
@@ -26,27 +26,83 @@ export default async function CoursesPage({
 
                 {/* Section Header */}
                 <div className="mb-8">
-                    <h2 className="text-3xl font-bold text-gray-900">All Courses</h2>
-                    <p className="text-gray-500 mt-2">Browse our comprehensive collection of courses.</p>
+                    <h2 className="text-3xl font-bold text-gray-900">
+                        {query ? `Search Results for "${query}"` : "All Courses"}
+                    </h2>
+                    <p className="text-gray-500 mt-2">
+                        {query ? "Browse matching courses." : "Browse our comprehensive collection of courses by category."}
+                    </p>
                 </div>
 
-                {/* Course Grid */}
-                <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-8">
-                    {courses.map((course) => (
-                        <CourseCard key={course.id} course={course} isAuthenticated={isAuthenticated} />
-                    ))}
-                </div>
-
-                {courses.length === 0 && (
-                    <div className="text-center py-24 bg-gray-50 rounded-2xl border-2 border-dashed border-gray-200">
-                        <div className="mx-auto w-16 h-16 bg-gray-100 rounded-full flex items-center justify-center mb-4">
-                            <BookOpen className="w-8 h-8 text-gray-400" />
+                {query ? (
+                    // Flat Search Results
+                    <>
+                        <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-8">
+                            {allCourses?.map((course: any) => (
+                                <CourseCard key={course.id} course={course} isAuthenticated={isAuthenticated} />
+                            ))}
                         </div>
-                        <h3 className="text-lg font-semibold text-gray-900">No courses found</h3>
-                        <p className="text-gray-500 mt-1">Try adjusting your search terms.</p>
+                        {(!allCourses || allCourses.length === 0) && (
+                            <EmptyState />
+                        )}
+                    </>
+                ) : (
+                    // Categorized View
+                    <div className="space-y-16">
+                        {/* Active Categories */}
+                        {categories?.map((category: any) => (
+                            <section key={category.id}>
+                                <div className="flex items-center gap-4 mb-6">
+                                    <h3 className="text-2xl font-bold text-gray-900">{category.name}</h3>
+                                    <div className="h-px flex-1 bg-gray-200"></div>
+                                </div>
+                                <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-8">
+                                    {category.courses.map((course: any) => (
+                                        <CourseCard key={course.id} course={course} isAuthenticated={isAuthenticated} />
+                                    ))}
+                                </div>
+                            </section>
+                        ))}
+
+                        {/* Upcoming Categories */}
+                        {upcoming && upcoming.length > 0 && (
+                            <section>
+                                <div className="flex items-center gap-4 mb-6">
+                                    <h3 className="text-2xl font-bold text-gray-900">Coming Soon</h3>
+                                    <div className="h-px flex-1 bg-gray-200"></div>
+                                </div>
+                                <div className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 lg:grid-cols-4 gap-4">
+                                    {upcoming.map((category: any) => (
+                                        <div key={category.id} className="p-6 bg-gray-50 rounded-2xl border border-gray-200 text-center opacity-75 hover:opacity-100 transition-opacity">
+                                            <div className="mx-auto w-12 h-12 bg-gray-100 rounded-full flex items-center justify-center mb-3">
+                                                <GraduationCap className="w-6 h-6 text-gray-400" />
+                                            </div>
+                                            <h4 className="font-semibold text-gray-900 mb-1">{category.name}</h4>
+                                            <p className="text-xs font-medium text-emerald-600 bg-emerald-50 inline-block px-2 py-1 rounded-full mt-2">Coming Soon</p>
+                                        </div>
+                                    ))}
+                                </div>
+                            </section>
+                        )}
+
+                        {categories?.length === 0 && upcoming?.length === 0 && (
+                            <EmptyState />
+                        )}
                     </div>
                 )}
             </main>
+        </div>
+    );
+}
+
+function EmptyState() {
+    return (
+        <div className="text-center py-24 bg-gray-50 rounded-2xl border-2 border-dashed border-gray-200">
+            <div className="mx-auto w-16 h-16 bg-gray-100 rounded-full flex items-center justify-center mb-4">
+                <BookOpen className="w-8 h-8 text-gray-400" />
+            </div>
+            <h3 className="text-lg font-semibold text-gray-900">No courses found</h3>
+            <p className="text-gray-500 mt-1">Try adjusting your search terms.</p>
         </div>
     );
 }

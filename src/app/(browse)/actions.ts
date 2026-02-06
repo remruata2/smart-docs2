@@ -13,7 +13,12 @@ export async function getCatalogData(query?: string) {
     const session = await getServerSession(authOptions);
     const userId = session?.user?.id ? parseInt(session.user.id as string) : null;
 
-    // Fetch all published Courses
+    // 1. Fetch all active boards
+    const boards = await prisma.board.findMany({
+        where: { is_active: true },
+    });
+
+    // 2. Fetch all published Courses
     const courses = await prisma.course.findMany({
         where: {
             is_published: true,
@@ -50,15 +55,65 @@ export async function getCatalogData(query?: string) {
         }
     });
 
+    // 3. Process Courses
+    const coursesWithExtra = courses.map(c => ({
+        ...c,
+        price: c.price?.toString() || null,
+        created_at: c.created_at.toISOString(),
+        updated_at: c.updated_at.toISOString(),
+        isEnrolled: userId ? (c as any).enrollments?.length > 0 : false
+    }));
+
+    // 4. Group by Board
+    // Define preferred order
+    const PREFERRED_ORDER = ['MPSC', 'Departmental', 'MBSE', 'CBSE', 'Banking', 'Entrance', 'UPSC'];
+
+    const categoriesMap = new Map<string, { id: string, name: string, courses: typeof coursesWithExtra }>();
+
+    // Initialize map with all boards
+    boards.forEach(b => {
+        categoriesMap.set(b.id, {
+            id: b.id,
+            name: b.name,
+            courses: []
+        });
+    });
+
+    // Distribute courses
+    coursesWithExtra.forEach(course => {
+        // If board exists in map, add it. If not (and not filtered out), maybe ignore or add to "Others"?
+        // For now, assume seed data covers it.
+        if (categoriesMap.has(course.board_id)) {
+            categoriesMap.get(course.board_id)!.courses.push(course);
+        } else {
+            // Optional: Handle unknown boards if necessary.
+            // For now we skip or let them be 'uncategorized' if we cared, but let's stick to strict boards.
+        }
+    });
+
+    const allCategories = Array.from(categoriesMap.values());
+
+    // Sort categories
+    allCategories.sort((a, b) => {
+        const idxA = PREFERRED_ORDER.indexOf(a.id);
+        const idxB = PREFERRED_ORDER.indexOf(b.id);
+        const valA = idxA === -1 ? 999 : idxA;
+        const valB = PREFERRED_ORDER.indexOf(b.id) === -1 ? 999 : PREFERRED_ORDER.indexOf(b.id);
+
+        if (valA !== valB) return valA - valB;
+        return a.name.localeCompare(b.name);
+    });
+
+    const populatedCategories = allCategories.filter(c => c.courses.length > 0);
+    const upcomingCategories = allCategories.filter(c => c.courses.length === 0);
+
     return {
-        courses: courses.map(c => ({
-            ...c,
-            price: c.price?.toString() || null,
-            created_at: c.created_at.toISOString(),
-            updated_at: c.updated_at.toISOString(),
-            isEnrolled: userId ? (c as any).enrollments?.length > 0 : false
-        })),
-        isAuthenticated: !!userId
+        categories: populatedCategories,
+        upcoming: upcomingCategories,
+        isAuthenticated: !!userId,
+        // Keep flat list for search fallback or legacy if needed
+        allCourses: coursesWithExtra,
+        courses: coursesWithExtra // Backward compatibility for (browse)/page.tsx
     };
 }
 

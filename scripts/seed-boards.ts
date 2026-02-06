@@ -1,42 +1,35 @@
-import { PrismaClient } from '../src/generated/prisma';
 
-const prisma = new PrismaClient();
+import { prisma } from '../src/lib/prisma';
+
+const BOARDS_TO_ENSURE = [
+    { id: 'MPSC', name: 'Mizoram Public Service Commission', type: 'competitive_exam' },
+    { id: 'Departmental', name: 'Departmental Exams', type: 'competitive_exam' },
+    { id: 'MBSE', name: 'Mizoram Board of School Education', type: 'academic' },
+    { id: 'CBSE', name: 'Central Board of Secondary Education', type: 'academic' },
+    { id: 'Banking', name: 'Banking Exams (IBPS/SBI)', type: 'competitive_exam' },
+    { id: 'Entrance', name: 'Entrance Exams (JEE/NEET/Technical)', type: 'competitive_exam' },
+    { id: 'UPSC', name: 'Union Public Service Commission', type: 'competitive_exam' },
+];
 
 async function main() {
-    console.log('Seeding Countries and Boards...');
+    console.log('Seeding Boards...');
 
-    // Seed Countries
-    const countries = [
-        { id: 'IN', name: 'India', currency: '₹', locale: 'en-IN' },
-        { id: 'NG', name: 'Nigeria', currency: '₦', locale: 'en-NG' },
-        { id: 'PK', name: 'Pakistan', currency: 'Rs', locale: 'en-PK' },
-        { id: 'PH', name: 'Philippines', currency: '₱', locale: 'en-PH' },
-    ];
-
-    for (const c of countries) {
-        await prisma.country.upsert({
-            where: { id: c.id },
-            update: {},
-            create: c,
-        });
-    }
-
-    // Seed Boards
-    const boards = [
-        { id: 'CBSE', name: 'Central Board of Secondary Education', country_id: 'IN' },
-        { id: 'MBSE', name: 'Mizoram Board of School Education', country_id: 'IN', state: 'Mizoram' },
-        { id: 'WAEC', name: 'West African Examinations Council', country_id: 'NG' },
-    ];
-
-    for (const b of boards) {
+    for (const board of BOARDS_TO_ENSURE) {
         await prisma.board.upsert({
-            where: { id: b.id },
-            update: {},
-            create: b,
+            where: { id: board.id },
+            update: {
+                name: board.name,
+                type: board.type,
+            },
+            create: {
+                id: board.id,
+                name: board.name,
+                country_id: 'IN', // Default country
+                type: board.type,
+            },
         });
+        console.log(`Ensured board: ${board.id}`);
     }
-
-    console.log('Seeding completed.');
 }
 
 main()
