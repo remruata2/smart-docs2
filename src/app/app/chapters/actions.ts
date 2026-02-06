@@ -64,6 +64,33 @@ export async function getChaptersForSubject(subjectId: number) {
 		})
 	]);
 
+	// Fetch question counts grouping for all these chapters
+	const chapterIds = chaptersData.map(c => c.id);
+	const questionCounts = await prisma.question.groupBy({
+		by: ['chapter_id', 'question_type'],
+		where: {
+			chapter_id: { in: chapterIds }
+		},
+		_count: {
+			_all: true
+		}
+	});
+
+	// Create a map for easy lookup
+	// Map<chapterId, Record<QuestionType, number>>
+	const questionsByChapter = new Map<string, Record<string, number>>();
+
+	questionCounts.forEach(count => {
+		const cId = count.chapter_id.toString();
+		const type = count.question_type;
+		const num = count._count._all;
+
+		if (!questionsByChapter.has(cId)) {
+			questionsByChapter.set(cId, {});
+		}
+		questionsByChapter.get(cId)![type] = num;
+	});
+
 	if (!enrollment || chaptersData.length === 0) {
 		return { chapters: [], subjectInfo: null, enrollment: null };
 	}
@@ -83,7 +110,11 @@ export async function getChaptersForSubject(subjectId: number) {
 			}
 		}
 
-		return { ...chapter, isLocked };
+		return {
+			...chapter,
+			isLocked,
+			question_counts: questionsByChapter.get(chapter.id.toString()) || {}
+		};
 	});
 
 	// Update last_accessed in background (non-blocking)

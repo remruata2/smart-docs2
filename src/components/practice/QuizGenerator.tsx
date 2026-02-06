@@ -280,11 +280,30 @@ export function QuizGenerator({
                 }
 
                 return (
-                    <div className="space-y-4">
-                        <Label className="text-base md:text-lg font-semibold">✏️ Question Types</Label>
-                        <p className="text-xs md:text-sm text-muted-foreground mb-4">Select at least one question type</p>
-                        <div className="grid grid-cols-2 gap-3">
-                            {questionTypeOptions.map(type => (
+                    <div className="space-y-6">
+                        <div className="space-y-3">
+                            <Label className="text-base md:text-lg font-semibold">📝 Question Formats</Label>
+                            <CardDescription>
+                                Select the types of questions you want to practice.
+                                {selectedChapter && (
+                                    <span className="block mt-1 text-xs text-amber-600">
+                                        * Only showing formats available in this chapter
+                                    </span>
+                                )}
+                            </CardDescription>
+                        </div>
+                        <div className="grid grid-cols-1 md:grid-cols-2 gap-3">
+                            {questionTypeOptions.filter(type => {
+                                // Filter based on available counts
+                                const currentChapterData = chapters.find(c => c.id.toString() === selectedChapter);
+                                const counts = currentChapterData?.question_counts;
+
+                                // If no counts data available (or empty), show all (fallback)
+                                if (!counts || Object.keys(counts).length === 0) return true;
+
+                                // Otherwise, only show if count > 0
+                                return (counts[type.id] || 0) > 0;
+                            }).map(type => (
                                 <Button
                                     key={type.id}
                                     type="button"
@@ -297,6 +316,18 @@ export function QuizGenerator({
                                     <span className="font-medium text-xs">{type.label}</span>
                                 </Button>
                             ))}
+
+                            {/* Empty State if all filtered out */}
+                            {questionTypeOptions.filter(type => {
+                                const currentChapterData = chapters.find(c => c.id.toString() === selectedChapter);
+                                const counts = currentChapterData?.question_counts;
+                                if (!counts || Object.keys(counts).length === 0) return true;
+                                return (counts[type.id] || 0) > 0;
+                            }).length === 0 && (
+                                    <div className="col-span-2 p-6 text-center text-gray-500 bg-gray-50 rounded-lg border border-dashed">
+                                        <p>No questions available for this chapter yet.</p>
+                                    </div>
+                                )}
                         </div>
                     </div>
                 );
