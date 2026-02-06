@@ -80,6 +80,7 @@ export default async function ChaptersPage({
                         program: {
                             select: {
                                 name: true,
+                                exam_category: true,
                                 board: {
                                     select: {
                                         name: true,
@@ -140,6 +141,7 @@ export default async function ChaptersPage({
         select: {
             id: true,
             name: true,
+            exam_id: true,
             program: {
                 select: {
                     name: true,
@@ -199,6 +201,7 @@ export default async function ChaptersPage({
                 onDelete={deleteChapters}
                 onUpdate={updateChapter}
                 subjects={allSubjects}
+                exams={exams}
                 pagination={{
                     currentPage: page,
                     pageSize: pageSize,

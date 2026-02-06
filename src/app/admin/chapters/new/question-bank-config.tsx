@@ -7,12 +7,21 @@ import { QuestionType, QuestionBankConfigState, DEFAULT_CONFIG } from "@/lib/que
 export type { QuestionType, QuestionBankConfigState };
 
 export function QuestionBankConfig({
+    value,
     onChange
 }: {
+    value?: QuestionBankConfigState | null;
     onChange: (config: QuestionBankConfigState) => void;
 }) {
-    const [config, setConfig] = useState<QuestionBankConfigState>(DEFAULT_CONFIG);
+    const [config, setConfig] = useState<QuestionBankConfigState>(value || DEFAULT_CONFIG);
     const [isOpen, setIsOpen] = useState(false);
+
+    // Sync from prop if provided
+    useEffect(() => {
+        if (value) {
+            setConfig(value);
+        }
+    }, [value]);
 
     useEffect(() => {
         onChange(config);
@@ -52,6 +61,44 @@ export function QuestionBankConfig({
 
             {isOpen && (
                 <div className="mt-4 space-y-6">
+                    {/* Global Question Type Toggles */}
+                    <div className="bg-gray-50 p-3 rounded-md border border-gray-200">
+                        <h4 className="text-xs font-semibold text-gray-500 uppercase mb-3">Enable Question Types</h4>
+                        <div className="flex flex-wrap gap-4">
+                            {(['MCQ', 'TRUE_FALSE', 'FILL_IN_BLANK', 'SHORT_ANSWER', 'LONG_ANSWER'] as const).map((type) => {
+                                const isEnabled = (['easy', 'medium', 'hard'] as const).some(d => (config[d][type] || 0) > 0);
+                                return (
+                                    <label key={type} className="flex items-center space-x-2 cursor-pointer">
+                                        <input
+                                            type="checkbox"
+                                            checked={isEnabled}
+                                            onChange={(e) => {
+                                                const checked = e.target.checked;
+                                                setConfig(prev => {
+                                                    const next = { ...prev };
+                                                    (['easy', 'medium', 'hard'] as const).forEach(diff => {
+                                                        if (checked) {
+                                                            // Restore from default or provided value if 0
+                                                            const baseVal = value?.[diff][type] || DEFAULT_CONFIG[diff][type];
+                                                            next[diff] = { ...next[diff], [type]: baseVal > 0 ? baseVal : (type === 'MCQ' ? 5 : 2) };
+                                                        } else {
+                                                            // Disable (set to 0)
+                                                            next[diff] = { ...next[diff], [type]: 0 };
+                                                        }
+                                                    });
+                                                    return next;
+                                                });
+                                            }}
+                                            className="rounded border-gray-300 text-indigo-600 focus:ring-indigo-500 h-4 w-4"
+                                        />
+                                        <span className="text-sm text-gray-700 capitalize">
+                                            {type.replace(/_/g, " ").toLowerCase()}
+                                        </span>
+                                    </label>
+                                );
+                            })}
+                        </div>
+                    </div>
                     {(['easy', 'medium', 'hard'] as const).map((difficulty) => (
                         <div key={difficulty}>
                             <h4 className="text-xs font-semibold text-gray-500 uppercase mb-2">{difficulty} Difficulty</h4>

@@ -3778,13 +3778,28 @@ export async function generateBatchQuestions(input: BatchQuestionConfig) {
 
 	if (totalQuestions === 0) return [];
 
-	const prompt = `You are an expert educational content creator specializing in ${examCategory || 'Academic'} level content.
+
+	// Get grade-appropriate difficulty guidelines for each difficulty level
+	// We combine guidelines for all requested difficulties
+	const relevantDifficulties = (['easy', 'medium', 'hard'] as const).filter(d =>
+		Object.values(config[d]).some(c => (c || 0) > 0)
+	);
+
+	const difficultyInstructions = relevantDifficulties.map(diff =>
+		getGradeDifficultyGuidelines(examCategory || "General", diff, examCategory)
+	).join("\n\n");
+
+	const prompt = `You are an expert educational content creator specialized in ${examCategory || 'Academic'} level content.
 Your task is to generate exactly ${totalQuestions} questions for the chapter section: "${chapterTitle}".
 The target audience level is: ${examCategory || 'General Academic'}.
 
 === SOURCE MATERIAL ===
 ${context}
 === END SOURCE MATERIAL ===
+
+=== DIFFICULTY GUIDELINES (STRICT ADHERENCE REQUIRED) ===
+${difficultyInstructions}
+=====================================================
 
 REQUIREMENTS:
 Generate the following mix of questions based STRICTLY on the source material above:
@@ -3793,26 +3808,51 @@ ${requestList.map(r => `• ${r}`).join('\n')}
 RULES:
 1. Questions must be high-quality, clear, and unambiguous.
 2. COVERAGE: Ensure questions cover different parts of the text, not just the first paragraph.
-3. DIFFICULTY:
-   - EASY: Recall facts, definitions, simple concepts.
-   - MEDIUM: Apply concepts, compare/contrast, explain "why".
-   - HARD: Analyze, synthesize, evaluate, complex scenarios.
-4. TYPES:
+3. TYPES:
    - MCQ: Provide 4 distinct options. One correct.
    - TRUE_FALSE: Provide "True" and "False" as options.
    - FILL_IN_BLANK: The answer should be a specific word or short phrase from the text.
    - SHORT_ANSWER: Model answer should be 1-3 sentences.
    - LONG_ANSWER: Model answer should be a detailed paragraph.
-5. EXPLANATION: Provide a helpful explanation for the correct answer.
-6. SELF-CONTAINED QUESTIONS:
+4. EXPLANATION: Provide a helpful explanation for the correct answer.
+5. SELF-CONTAINED QUESTIONS:
    - DO NOT reference external materials like "the provided algorithm", "the given diagram", "the figure", "the table", "Case 1/2/3", "the image", "the flowchart", "Exercise 1.2", "Note to Reader", etc.
    - Questions must be fully self-contained and understandable without any visual aids or external references.
    - Include all necessary context within the question itself.
-7. PHRASING:
-   - AVOID: "According to the text, ...", "The text states that ...", "In the exercise...", "According to the note..."
-   - PREFER: Direct questions (e.g., "What is the time complexity of...?") OR "According to the chapter, ..." if needed.
-   - Questions should sound natural and professional, as if from an exam paper.
-8. NO META-QUESTIONS: Do not ask "What does the text say about...", just ask the question directly.
+
+	// HOTS (Higher Order Thinking Skills) Enforcement for HARD difficulty
+	// Only for ACADEMIC BOARD exams (Schools)
+	${(config.hard && Object.keys(config.hard).length > 0) && (examCategory as string) === "academic_board" ? `
+=== SPECIAL INSTRUCTION FOR HARD QUESTIONS (HOTS) ===
+You are generating questions for the "HARD" category, which is synonymous with **HOTS (Higher Order Thinking Skills)**.
+Do NOT just make the questions obscure or trivial. instead, focus on:
+1.  **Analysis**: Break down potential information into parts.
+2.  **Evaluation**: Justify a stand or decision.
+3.  **Creation**: Create a new product or point of view.
+4.  **Application**: Use information in a new situation.
+
+Examples of HOTS phrasing:
+- "Analyze the impact of..."
+- "Determine the best course of action when..."
+- "Critique the theory that..."
+- "Design a solution for..."
+- "What would happen if..."
+=====================================================
+` : ""}
+
+	// NON-ACADEMIC HARD Difficulty (Competitive, Professional, Entrance, etc.)
+	${(config.hard && Object.keys(config.hard).length > 0) && (examCategory as string) !== "academic_board" ? `
+=== SPECIAL INSTRUCTION FOR HARD QUESTIONS ===
+You are generating questions for a high-complexity exam.
+Focus on:
+1.  **Complexity**: Multi-step problems or deeper conceptual understanding.
+2.  **Distractors**: For MCQs, ensure distractors are plausible and test common misconceptions.
+3.  **Speed/Trick**: Questions that reward understanding shortcuts or avoiding common traps.
+4.  **Application**: Test ability to apply concepts to robust scenarios.
+=====================================================
+` : ""}
+
+7. NO META-QUESTIONS: Do not ask "What does the text say about...", just ask the question directly.
 
 Output a JSON object with a "questions" array.`;
 
@@ -4091,11 +4131,11 @@ function getGradeDifficultyGuidelines(level?: string, difficulty?: string, expli
 - NO meta-analysis (don't ask WHY rules exist, just test APPLICATION)`,
 			hard: `
 **HARD (Secondary School - Class 9-10)**:
-- Apply multiple concepts together
-- Multi-step problems (3-4 steps)
-- Identify exceptions or tricky cases
+- HOTS (Higher Order Thinking Skills) REQUIRED
+- Apply multiple concepts to real-world scenarios
+- "Assertion-Reasoning" style logic
 - Compare and contrast related concepts
-- Board exam level challenging questions
+- NO direct definitions or simple recall
 - Answerable in 2-3 minutes`
 		},
 		senior: {
@@ -4304,6 +4344,38 @@ STRICTLY PROHIBITED - DO NOT CREATE:
 ✗ Meta-questions about the text itself rather than the subject matter
 ✗ Questions asking students to EXPLAIN grammar rules (for Easy/Medium - just test APPLICATION)
 ✗ Questions using advanced academic terminology inappropriate for the grade level
+
+	// HOTS (Higher Order Thinking Skills) Enforcement for HARD difficulty
+	// Only for ACADEMIC BOARD exams (Schools)
+	${config.difficulty === "hard" && opts.examCategory === "academic_board" ? `
+=== SPECIAL INSTRUCTION FOR HARD QUESTIONS (HOTS) ===
+You are generating questions for the "HARD" category, which is synonymous with **HOTS (Higher Order Thinking Skills)**.
+Do NOT just make the questions obscure or trivial. instead, focus on:
+1.  **Analysis**: Break down potential information into parts.
+2.  **Evaluation**: Justify a stand or decision.
+3.  **Creation**: Create a new product or point of view.
+4.  **Application**: Use information in a new situation.
+
+Examples of HOTS phrasing:
+- "Analyze the impact of..."
+- "Determine the best course of action when..."
+- "Critique the theory that..."
+- "Design a solution for..."
+- "What would happen if..."
+=====================================================
+` : ""}
+
+	// NON-ACADEMIC HARD Difficulty (Competitive, Professional, Entrance, etc.)
+	${config.difficulty === "hard" && opts.examCategory !== "academic_board" ? `
+=== SPECIAL INSTRUCTION FOR HARD QUESTIONS ===
+You are generating questions for a high-complexity exam.
+Focus on:
+1.  **Complexity**: Multi-step problems or deeper conceptual understanding.
+2.  **Distractors**: For MCQs, ensure distractors are plausible and test common misconceptions.
+3.  **Speed/Trick**: Questions that reward understanding shortcuts or avoiding common traps.
+4.  **Application**: Test ability to apply concepts to robust scenarios.
+=====================================================
+` : ""}
 
 PHRASING GUIDELINES:
 ✓ GOOD: Direct questions (e.g., "What is the time complexity of binary search?")

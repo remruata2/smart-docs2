@@ -109,6 +109,7 @@ export async function createProgram(formData: FormData) {
     const code = formData.get("code") as string;
     const level = formData.get("level") as string;
     const durationYears = formData.get("durationYears") as string;
+    const examCategory = formData.get("examCategory") as string;
 
     if (!name || !boardId) {
         throw new Error("Missing required fields");
@@ -123,6 +124,7 @@ export async function createProgram(formData: FormData) {
                 code: code || null,
                 level: level || null,
                 duration_years: durationYears ? parseInt(durationYears) : null,
+                exam_category: examCategory || null,
             },
         });
         revalidatePath("/admin/programs");
@@ -144,6 +146,7 @@ export async function updateProgram(programId: number, formData: FormData) {
     const code = formData.get("code") as string;
     const level = formData.get("level") as string;
     const durationYears = formData.get("durationYears") as string;
+    const examCategory = formData.get("examCategory") as string;
 
     if (!name || !boardId) {
         throw new Error("Missing required fields");
@@ -159,6 +162,7 @@ export async function updateProgram(programId: number, formData: FormData) {
                 code: code || null,
                 level: level || null,
                 duration_years: durationYears ? parseInt(durationYears) : null,
+                exam_category: examCategory || null,
             },
         });
         revalidatePath("/admin/programs");

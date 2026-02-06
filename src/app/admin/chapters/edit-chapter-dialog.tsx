@@ -57,6 +57,7 @@ interface Chapter {
 interface EditChapterDialogProps {
     chapter: Chapter;
     subjects: Subject[];
+    exams: any[];
     onUpdate: (
         chapterId: string,
         data: {
@@ -72,6 +73,7 @@ interface EditChapterDialogProps {
 export default function EditChapterDialog({
     chapter,
     subjects,
+    exams,
     onUpdate,
 }: EditChapterDialogProps) {
     const [open, setOpen] = useState(false);
@@ -87,6 +89,9 @@ export default function EditChapterDialog({
     const [isActive, setIsActive] = useState(chapter.is_active);
     const [isGlobal, setIsGlobal] = useState(chapter.is_global);
 
+    // Exam filter state (not saved, just UI helper)
+    const [filterExamId, setFilterExamId] = useState<string>("ALL");
+
     // Reset form when chapter changes or dialog opens
     useEffect(() => {
         if (open) {
@@ -95,8 +100,24 @@ export default function EditChapterDialog({
             setChapterNumber(chapter.chapter_number?.toString() || "");
             setIsActive(chapter.is_active);
             setIsGlobal(chapter.is_global);
+
+            // Try to auto-set filter based on current subject
+            const currentSub = subjects.find(s => s.id === chapter.subject_id);
+            /* @ts-ignore */
+            if (currentSub?.exam_id) {
+                /* @ts-ignore */
+                setFilterExamId(currentSub.exam_id);
+            } else {
+                setFilterExamId("ALL");
+            }
         }
-    }, [open, chapter]);
+    }, [open, chapter, subjects]);
+
+    // Filter subjects
+    const filteredSubjects = filterExamId === "ALL"
+        ? subjects
+        /* @ts-ignore */
+        : subjects.filter(s => s.exam_id === filterExamId);
 
     const handleSubmit = async (e: React.FormEvent) => {
         e.preventDefault();
@@ -179,36 +200,57 @@ export default function EditChapterDialog({
                         />
                     </div>
 
-                    {/* Subject Selection */}
-                    <div className="space-y-2">
-                        <Label htmlFor="subject" className="text-sm font-medium">
-                            Subject <span className="text-red-500">*</span>
-                        </Label>
-                        <Select value={subjectId} onValueChange={setSubjectId}>
-                            <SelectTrigger id="subject" className="h-10">
-                                <SelectValue placeholder="Select a subject" />
-                            </SelectTrigger>
-                            <SelectContent className="max-h-[300px]">
-                                {subjects.map((subject) => (
-                                    <SelectItem
-                                        key={subject.id}
-                                        value={subject.id.toString()}
-                                    >
-                                        <div className="flex flex-col">
-                                            <span className="font-medium">{subject.name}</span>
-                                            <span className="text-xs text-gray-500">
-                                                {subject.program.name} • {subject.program.board.name}
-                                            </span>
-                                        </div>
-                                    </SelectItem>
-                                ))}
-                            </SelectContent>
-                        </Select>
-                        {subjectId !== chapter.subject_id.toString() && (
-                            <p className="text-xs text-amber-600 mt-1">
-                                ⚠️ Changing the subject will move this chapter to a different subject.
-                            </p>
-                        )}
+                    {/* Exam Filter & Subject Selection */}
+                    <div className="space-y-4 bg-gray-50 p-3 rounded-md border">
+                        <div className="space-y-2">
+                            <Label className="text-xs font-semibold text-gray-500 uppercase">
+                                Step 1: Filter by Exam (Optional)
+                            </Label>
+                            <Select value={filterExamId} onValueChange={setFilterExamId}>
+                                <SelectTrigger className="h-9 text-sm">
+                                    <SelectValue placeholder="All Exams" />
+                                </SelectTrigger>
+                                <SelectContent>
+                                    <SelectItem value="ALL">All Exams</SelectItem>
+                                    {exams.map((exam: any) => (
+                                        <SelectItem key={exam.id} value={exam.id}>
+                                            {exam.short_name || exam.name}
+                                        </SelectItem>
+                                    ))}
+                                </SelectContent>
+                            </Select>
+                        </div>
+
+                        <div className="space-y-2">
+                            <Label htmlFor="subject" className="text-sm font-medium">
+                                Step 2: Select Subject <span className="text-red-500">*</span>
+                            </Label>
+                            <Select value={subjectId} onValueChange={setSubjectId}>
+                                <SelectTrigger id="subject" className="h-10">
+                                    <SelectValue placeholder="Select a subject" />
+                                </SelectTrigger>
+                                <SelectContent className="max-h-[300px]">
+                                    {filteredSubjects.map((subject) => (
+                                        <SelectItem
+                                            key={subject.id}
+                                            value={subject.id.toString()}
+                                        >
+                                            <div className="flex flex-col">
+                                                <span className="font-medium">{subject.name}</span>
+                                                <span className="text-xs text-gray-500">
+                                                    {subject.program.name} • {subject.program.board.name}
+                                                </span>
+                                            </div>
+                                        </SelectItem>
+                                    ))}
+                                </SelectContent>
+                            </Select>
+                            {subjectId !== chapter.subject_id.toString() && (
+                                <p className="text-xs text-amber-600 mt-1">
+                                    ⚠️ Changing the subject will move this chapter to a different subject.
+                                </p>
+                            )}
+                        </div>
                     </div>
 
                     {/* Chapter Number */}

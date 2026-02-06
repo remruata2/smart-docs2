@@ -96,6 +96,20 @@ export default function ProgramForm({
                     </select>
                 </div>
                 <div>
+                    <label className="block text-sm font-medium text-gray-700">Exam Category (Critical for AI)</label>
+                    <select name="examCategory" className="mt-1 block w-full rounded-md border-gray-300 shadow-sm focus:border-indigo-500 focus:ring-indigo-500 sm:text-sm border p-2">
+                        <option value="">Select Category</option>
+                        <option value="academic_board">School (Academic Board)</option>
+                        <option value="government_prelims">Govt Prelims (UPSC/SSC)</option>
+                        <option value="government_mains">Govt Mains</option>
+                        <option value="engineering">Engineering (JEE/GATE)</option>
+                        <option value="medical">Medical (NEET)</option>
+                        <option value="banking">Banking</option>
+                        <option value="university">University</option>
+                        <option value="general">General</option>
+                    </select>
+                </div>
+                <div>
                     <label className="block text-sm font-medium text-gray-700">Duration (years)</label>
                     <input type="number" name="durationYears" min="1" className="mt-1 block w-full rounded-md border-gray-300 shadow-sm focus:border-indigo-500 focus:ring-indigo-500 sm:text-sm border p-2" />
                 </div>

@@ -8,9 +8,9 @@ import { isAdmin } from "@/lib/auth";
 import { supabaseAdmin } from "@/lib/supabase";
 import { clearChapterCache } from "@/lib/response-cache";
 import { generateQuestionBank } from "@/lib/question-bank-service";
-import { DEFAULT_CONFIG } from "@/lib/question-bank-defaults";
+import { getQuestionDefaults, QuestionBankConfigState } from "@/lib/question-bank-defaults";
 
-export async function regenerateChapterQuizAction(chapterId: string) {
+export async function regenerateChapterQuizAction(chapterId: string, config?: QuestionBankConfigState) {
     const session = await getServerSession(authOptions);
     if (!session?.user || !isAdmin((session.user as any).role)) {
         throw new Error("Unauthorized");
@@ -19,23 +19,44 @@ export async function regenerateChapterQuizAction(chapterId: string) {
     try {
         const bigIntId = BigInt(chapterId);
 
-        // 1. Set status to GENERATING
+        // 1. Fetch Chapter Metadata for defaults
+        const chapter = await prisma.chapter.findUnique({
+            where: { id: bigIntId },
+            include: {
+                subject: {
+                    include: {
+                        program: true
+                    }
+                }
+            }
+        });
+
+        if (!chapter) throw new Error("Chapter not found");
+
+        // 2. Resolve Configuration
+        // Use provided config, or calculate defaults based on chapter context
+        const finalConfig = config || getQuestionDefaults(
+            chapter.subject.program.exam_category,
+            chapter.subject.name
+        );
+
+        // 3. Set status to GENERATING
         await prisma.chapter.update({
             where: { id: bigIntId },
             data: { quiz_regen_status: 'GENERATING' }
         });
 
-        // 2. Delete all existing questions for this chapter
+        // 4. Delete all existing questions for this chapter
         const deletedCount = await prisma.question.deleteMany({
             where: { chapter_id: bigIntId }
         });
 
         console.log(`[QUIZ-REGEN] Deleted ${deletedCount.count} existing questions for chapter ${chapterId}`);
 
-        // 3. Trigger regeneration in background with the current defaults
+        // 5. Trigger regeneration in background
         setImmediate(async () => {
             try {
-                await generateQuestionBank(chapterId, DEFAULT_CONFIG as any);
+                await generateQuestionBank(chapterId, finalConfig as any);
 
                 // Set status to COMPLETED
                 await prisma.chapter.update({

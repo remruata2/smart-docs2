@@ -6,12 +6,15 @@ import { toast } from "sonner";
 import { Wand2, Sparkles, Loader2, Trash2, FileSearch, Zap, Dices } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import EditChapterDialog from "./edit-chapter-dialog";
+import RegenerateQuizDialog from "./regenerate-quiz-dialog";
 
 interface Subject {
     id: number;
     name: string;
+    exam_id: string | null;
     program: {
         name: string;
+        exam_category?: string | null;
         board: {
             name: string;
         };
@@ -32,6 +35,7 @@ interface ChapterListClientProps {
         }
     ) => Promise<{ success: boolean; error?: string }>;
     subjects: Subject[];
+    exams: any[]; // Using any[] to match Prisma result, or could define interface
     pagination: {
         currentPage: number;
         pageSize: number;
@@ -40,7 +44,7 @@ interface ChapterListClientProps {
     };
 }
 
-export default function ChapterListClient({ chapters, onDelete, onUpdate, subjects, pagination }: ChapterListClientProps) {
+export default function ChapterListClient({ chapters, onDelete, onUpdate, subjects, exams, pagination }: ChapterListClientProps) {
     const [selectedIds, setSelectedIds] = useState<Set<string>>(new Set());
     const [isPending, startTransition] = useTransition();
     const [generatingChapters, setGeneratingChapters] = useState<Set<string>>(new Set());
@@ -125,26 +129,7 @@ export default function ChapterListClient({ chapters, onDelete, onUpdate, subjec
         }
     };
 
-    const handleRegenerateQuiz = async (chapterId: string, title: string) => {
-        if (!confirm(`This will delete ALL existing questions for "${title}" and generate new ones using current settings. Continue?`)) {
-            return;
-        }
 
-        startTransition(async () => {
-            try {
-                const { regenerateChapterQuizAction } = await import("./actions");
-                const result = await regenerateChapterQuizAction(chapterId);
-
-                // Track this chapter as generating
-                setGeneratingChapters(prev => new Set([...prev, chapterId]));
-
-                toast.success(`Quiz regeneration started! Deleted ${result.deletedCount} old questions.`);
-                router.refresh();
-            } catch (error: any) {
-                toast.error(error.message || "Failed to start quiz regeneration");
-            }
-        });
-    };
 
     const handleBulkGenerate = async () => {
         if (selectedIds.size === 0) return;
@@ -406,25 +391,18 @@ export default function ChapterListClient({ chapters, onDelete, onUpdate, subjec
                                                     Generating Quiz...
                                                 </div>
                                             ) : (
-                                                <Button
-                                                    variant="outline"
-                                                    size="sm"
-                                                    onClick={(e) => {
-                                                        e.stopPropagation();
-                                                        handleRegenerateQuiz(chapter.id.toString(), chapter.title);
-                                                    }}
-                                                    disabled={isPending}
-                                                    className="h-8 border-green-200 text-green-700 hover:bg-green-50"
-                                                    title="Regenerate Quiz Questions"
-                                                >
-                                                    <Dices className="w-4 h-4 mr-2" />
-                                                    Regen Quiz
-                                                </Button>
+                                                <RegenerateQuizDialog
+                                                    chapterId={chapter.id.toString()}
+                                                    chapterTitle={chapter.title}
+                                                    examCategory={chapter.subject?.program?.exam_category}
+                                                    subjectName={chapter.subject?.name}
+                                                />
                                             )}
 
                                             <EditChapterDialog
                                                 chapter={chapter}
                                                 subjects={subjects}
+                                                exams={exams}
                                                 onUpdate={onUpdate}
                                             />
 

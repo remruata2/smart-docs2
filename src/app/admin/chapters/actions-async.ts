@@ -8,6 +8,7 @@ import { prisma } from "@/lib/prisma";
 import { getServerSession } from "next-auth";
 import { authOptions } from "@/lib/auth-options";
 import { isAdmin } from "@/lib/auth";
+import { getQuestionDefaults } from "@/lib/question-bank-defaults";
 
 /**
  * Create chapters with PENDING status and trigger background processing
@@ -98,8 +99,7 @@ export async function batchCreateChaptersAsync(formData: FormData) {
 				pdfBuffer,
 				fileName: file.name,
 				startPage: detectedChapter.startPage,
-				endPage: detectedChapter.endPage,
-				questionConfig,
+				questionConfig: questionConfig || getQuestionDefaults(subject.program.exam_category, subject.name),
 			});
 		}
 
@@ -212,7 +212,7 @@ export async function ingestChapterAsync(formData: FormData) {
 					pdfBuffer,
 					fileName: file.name,
 					// No start/end page means process whole document
-					questionConfig,
+					questionConfig: questionConfig || getQuestionDefaults(subject.program.exam_category, subject.name),
 				});
 			} catch (error) {
 				console.error(`Failed to process chapter ${chapter.id}:`, error);

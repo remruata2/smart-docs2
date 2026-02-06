@@ -7,6 +7,7 @@ import { useRouter } from "next/navigation";
 import { toast } from "sonner";
 import { TextbookSplitter, DetectedChapter, LlamaParsePageResult } from "@/lib/textbook-splitter";
 import { QuestionBankConfig, QuestionBankConfigState } from "./question-bank-config";
+import { getQuestionDefaults, DEFAULT_CONFIG } from "@/lib/question-bank-defaults";
 
 interface Board {
     id: string;
@@ -18,6 +19,7 @@ interface Program {
     name: string;
     board: { id: string; name: string };
     institution: { id: bigint; name: string } | null;
+    exam_category?: string | null;
 }
 
 interface Subject {
@@ -28,6 +30,7 @@ interface Subject {
         id: number;
         name: string;
         board: { id: string; name: string };
+        exam_category?: string | null;
     };
 }
 
@@ -547,8 +550,15 @@ export default function ChapterIngestForm({
                                                     updated[index].subjectHasExam = true;
                                                 } else {
                                                     updated[index].subjectHasExam = false;
-                                                    // Don't reset exam if user already selected one
                                                 }
+
+                                                // Auto-update Question Config based on Exam Category
+                                                if (selectedSubject?.program?.exam_category) {
+                                                    const newConfig = getQuestionDefaults(selectedSubject.program.exam_category);
+                                                    setQuestionConfig(newConfig);
+                                                    toast.info(`Updated question config for ${selectedSubject.program.name}`);
+                                                }
+
                                                 setUploadingFiles(updated);
                                             }}
                                             disabled={isLoading}
@@ -799,7 +809,20 @@ export default function ChapterIngestForm({
                                 <label className="block text-sm font-medium text-gray-700 mb-2">Subject *</label>
                                 <select
                                     value={textbookSubjectId}
-                                    onChange={(e) => setTextbookSubjectId(e.target.value)}
+                                    onChange={(e) => {
+                                        const sid = e.target.value;
+                                        setTextbookSubjectId(sid);
+
+                                        // Auto-update Question Config
+                                        if (sid) {
+                                            const selectedSubject = subjects.find(s => s.id.toString() === sid);
+                                            if (selectedSubject?.program?.exam_category) {
+                                                const newConfig = getQuestionDefaults(selectedSubject.program.exam_category, selectedSubject.name);
+                                                setQuestionConfig(newConfig);
+                                                toast.info(`Updated question config for ${selectedSubject.program.name}`);
+                                            }
+                                        }
+                                    }}
                                     className="block w-full rounded-md border-gray-300 shadow-sm focus:border-indigo-500 focus:ring-indigo-500 text-sm border p-2"
                                 >
                                     <option value="">Select Subject</option>
@@ -835,7 +858,7 @@ export default function ChapterIngestForm({
                                 </p>
                             </div>
 
-                            <QuestionBankConfig onChange={setQuestionConfig} />
+                            <QuestionBankConfig value={questionConfig} onChange={setQuestionConfig} />
 
                             <div className="flex justify-end gap-3">
                                 <button

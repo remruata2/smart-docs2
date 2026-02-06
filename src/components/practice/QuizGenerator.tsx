@@ -222,7 +222,7 @@ export function QuizGenerator({
                                         }`}
                                 >
                                     <span className="mr-2 text-xl">🔥</span>
-                                    Hard
+                                    Hard {selectedSubject && subjects.find(s => s.id.toString() === selectedSubject)?.program?.exam_category === "academic_board" ? "(HOTS)" : ""}
                                 </Button>
                                 <Button
                                     type="button"
