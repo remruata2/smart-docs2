@@ -205,6 +205,41 @@ export async function enrollInCourse(courseId: number, institutionId?: string, i
 }
 
 /**
+ * Unenroll from a course
+ */
+export async function unenrollFromCourse(courseId: number) {
+    const session = await getServerSession(authOptions);
+
+    if (!session?.user?.id) {
+        throw new Error("Unauthorized");
+    }
+
+    const userId = parseInt(session.user.id as string);
+
+    try {
+        await prisma.userEnrollment.delete({
+            where: {
+                user_id_course_id: {
+                    user_id: userId,
+                    course_id: courseId,
+                }
+            }
+        });
+
+        revalidatePath("/");
+        revalidatePath("/my-courses");
+        revalidatePath("/app/catalog");
+        revalidatePath("/app/subjects");
+        revalidatePath(`/courses/${courseId}`);
+
+        return { success: true };
+    } catch (error) {
+        console.error("Unenrollment error:", error);
+        throw new Error("Failed to unenroll");
+    }
+}
+
+/**
  * Get my enrolled courses
  */
 export async function getMyLearningData() {

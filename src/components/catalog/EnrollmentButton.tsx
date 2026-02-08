@@ -30,8 +30,11 @@ export function EnrollmentButton({
     price,
     currency = "INR",
     upgradeMode = false,
-}: EnrollmentButtonProps & { upgradeMode?: boolean }) {
-    const [loadingAction, setLoadingAction] = useState<"free" | "paid" | null>(null);
+    isEnrolled = false,
+    isAdmin = false,
+    className = "",
+}: EnrollmentButtonProps & { upgradeMode?: boolean; isEnrolled?: boolean; isAdmin?: boolean; className?: string }) {
+    const [loadingAction, setLoadingAction] = useState<"free" | "paid" | "unenroll" | null>(null);
     const router = useRouter();
 
     const handleFreeEnroll = async () => {
@@ -121,15 +124,34 @@ export function EnrollmentButton({
         }
     };
 
+    const handleUnenroll = async () => {
+        if (!confirm("Are you sure you want to unenroll? All progress will be lost.")) return;
+        setLoadingAction("unenroll");
+        try {
+            // Dynamically import to avoid circular dependency issues if any
+            const { unenrollFromCourse } = await import("@/app/(browse)/actions");
+            const result = await unenrollFromCourse(courseId);
+            if (result.success) {
+                toast.success(`Unenrolled from ${courseTitle}`);
+                router.refresh();
+            }
+        } catch (error) {
+            toast.error("Failed to unenroll");
+            console.error(error);
+        } finally {
+            setLoadingAction(null);
+        }
+    };
+
     return (
         <>
             <Script
                 id="razorpay-checkout-js"
                 src="https://checkout.razorpay.com/v1/checkout.js"
             />
-            <div className="flex flex-col gap-3 w-full">
-                {/* 1. Free Course / Trial Option - Hidden in Upgrade Mode */}
-                {!upgradeMode && (
+            <div className={`flex flex-col gap-3 w-full ${className}`}>
+                {/* 1. Free Course / Trial Option - Hidden in Upgrade Mode or if already Enrolled */}
+                {!upgradeMode && !isEnrolled && (
                     <Button
                         onClick={handleFreeEnroll}
                         disabled={loadingAction !== null}
@@ -147,8 +169,8 @@ export function EnrollmentButton({
                     </Button>
                 )}
 
-                {/* 2. Paid Option (Only for paid courses) */}
-                {!isFree && (
+                {/* 2. Paid Option (Only for paid courses) - Hidden if already enrolled */}
+                {!isFree && !isEnrolled && (
                     <Button
                         onClick={handlePaidEnroll}
                         disabled={loadingAction !== null}
@@ -164,6 +186,23 @@ export function EnrollmentButton({
                             <CreditCard className="mr-2 h-4 w-4 shrink-0" />
                         )}
                         <span>{upgradeMode ? `Upgrade Now - ${currency} ${price}` : `Buy Now - ${currency} ${price}`}</span>
+                    </Button>
+                )}
+
+                {/* 3. Unenroll Option (For testing/admin) */}
+                {isEnrolled && isAdmin && (
+                    <Button
+                        onClick={handleUnenroll}
+                        disabled={loadingAction !== null}
+                        variant="ghost"
+                        className="w-full text-red-500 hover:text-red-700 hover:bg-red-50"
+                    >
+                        {loadingAction === "unenroll" ? (
+                            <Loader2 className="mr-2 h-4 w-4 animate-spin" />
+                        ) : (
+                            <span className="mr-2">✕</span>
+                        )}
+                        Unenroll (Testing)
                     </Button>
                 )}
             </div>

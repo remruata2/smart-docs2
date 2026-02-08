@@ -14,11 +14,18 @@ export async function getDashboardData() {
 
     const userId = parseInt(session.user.id as string);
 
-    // 1. Fetch Profile & Active Enrollments
-    const [profile, enrollments] = await Promise.all([
+    // Calculate date 30 days ago for streak calculation
+    const thirtyDaysAgo = new Date();
+    thirtyDaysAgo.setDate(thirtyDaysAgo.getDate() - 30);
+
+    // Run independent heavy queries in parallel
+    const [profile, enrollments, recentActivity, allQuizStats, userPoints, badges] = await Promise.all([
+        // 1. Fetch Profile
         prisma.profile.findUnique({
             where: { user_id: userId },
         }),
+
+        // 2. Fetch Active Enrollments (Optimized: Get counts instead of all chapters)
         prisma.userEnrollment.findMany({
             where: {
                 user_id: userId,
@@ -29,11 +36,14 @@ export async function getDashboardData() {
                     include: {
                         subjects: {
                             where: { is_active: true },
-                            include: {
-                                chapters: {
-                                    where: { is_active: true },
-                                },
-                            },
+                            select: {
+                                id: true,
+                                name: true,
+                                code: true,
+                                _count: {
+                                    select: { chapters: { where: { is_active: true } } }
+                                }
+                            }
                         },
                     },
                 },
@@ -45,6 +55,46 @@ export async function getDashboardData() {
                 }
             },
             orderBy: { last_accessed_at: 'desc' }
+        }),
+
+        // 3. Recent Activity (Directly Limited to 5)
+        prisma.quiz.findMany({
+            where: { user_id: userId, status: "COMPLETED" },
+            include: { chapter: true, subject: true },
+            orderBy: { completed_at: 'desc' },
+            take: 5
+        }),
+
+        // 4. All Quiz Stats (Lightweight Selection for Metrics/Radar/Weakness)
+        prisma.quiz.findMany({
+            where: { user_id: userId, status: "COMPLETED" },
+            select: {
+                id: true,
+                score: true,
+                total_points: true,
+                subject_id: true,
+                chapter_id: true,
+                chapter: { select: { title: true } },
+                subject: { select: { name: true } }
+            },
+            orderBy: { completed_at: 'desc' }
+        }),
+
+        // 5. User Points (Last 30 Days Only for Streak)
+        prisma.userPoints.findMany({
+            where: {
+                user_id: userId,
+                created_at: { gte: thirtyDaysAgo }
+            },
+            orderBy: { created_at: 'desc' },
+            select: { created_at: true }
+        }),
+
+        // 6. Badges
+        prisma.userBadge.findMany({
+            where: { user_id: userId },
+            include: { badge: true },
+            orderBy: { earned_at: 'desc' }
         })
     ]);
 
@@ -52,53 +102,42 @@ export async function getDashboardData() {
         redirect("/");
     }
 
-    // 2. Fetch User Activity Data
-    const [quizzes, userPoints] = await Promise.all([
-        prisma.quiz.findMany({
-            where: { user_id: userId, status: "COMPLETED" },
-            include: { chapter: true, subject: true },
-            orderBy: { completed_at: 'desc' }
-        }),
-        prisma.userPoints.findMany({
-            where: { user_id: userId },
-            orderBy: { created_at: 'desc' },
-            select: { created_at: true }
-        })
-    ]);
+    // --- Process Data In-Memory ---
 
-    const activeProgramIds = Array.from(new Set(enrollments.map(e => e.program_id).filter(Boolean))) as number[];
-
-    // 3. Calculate Metrics
-
-    // A. Syllabus Completion (Aggregate across all enrolled programs)
+    // A. Syllabus Completion
     let totalChapters = 0;
     const enrolledSubjects: any[] = [];
 
     enrollments.forEach(e => {
         e.program?.subjects.forEach(subject => {
-            totalChapters += subject.chapters?.length || 0;
+            // Use the Count we fetched efficiently
+            totalChapters += subject._count.chapters || 0;
             enrolledSubjects.push(subject);
         });
     });
 
-    const completedChapterIds = new Set(quizzes.map(q => q.chapter_id?.toString()).filter(Boolean));
+    const completedChapterIds = new Set(allQuizStats.map(q => q.chapter_id?.toString()).filter(Boolean));
     const completedChaptersCount = completedChapterIds.size;
     const syllabusCompletion = totalChapters > 0 ? (completedChaptersCount / totalChapters) * 100 : 0;
 
     // B. Quiz Performance
-    const totalQuizScore = quizzes.reduce((acc: number, q: any) => acc + (q.score / q.total_points) * 100, 0);
-    const quizAverage = quizzes.length > 0 ? totalQuizScore / quizzes.length : 0;
+    const totalQuizScore = allQuizStats.reduce((acc, q) => acc + (q.score / q.total_points) * 100, 0);
+    const quizAverage = allQuizStats.length > 0 ? totalQuizScore / allQuizStats.length : 0;
 
-    // C. Readiness Score (Weighted: 70% Quiz Avg, 30% Syllabus)
+    // C. Readiness Score
     const readinessScore = Math.round((quizAverage * 0.7) + (syllabusCompletion * 0.3));
 
-    // D. Weakness List (Bottom 3 chapters with score < 60%)
+    // D. Weakness List
     const chapterPerformance = new Map<string, { total: number, count: number, title: string, subject: string }>();
 
-    quizzes.forEach(q => {
+    allQuizStats.forEach(q => {
         if (!q.chapter_id || !q.chapter) return;
         const key = q.chapter_id.toString();
-        const current = chapterPerformance.get(key) || { total: 0, count: 0, title: q.chapter.title, subject: q.subject.name };
+        // Fallback title/subject if missing (shouldn't happen with inner joins, but safe to default)
+        const title = q.chapter?.title || "Unknown Chapter";
+        const subjectName = q.subject?.name || "Unknown Subject";
+
+        const current = chapterPerformance.get(key) || { total: 0, count: 0, title, subject: subjectName };
         const percentage = (q.score / q.total_points) * 100;
 
         chapterPerformance.set(key, {
@@ -142,8 +181,8 @@ export async function getDashboardData() {
         }
     }
 
-    // F. Resume Learning
-    const lastQuiz = quizzes[0];
+    // F. Resume Learning (Use recent activity)
+    const lastQuiz = recentActivity[0];
     const resumeData = lastQuiz ? {
         subject: lastQuiz.subject.name,
         chapter: lastQuiz.chapter?.title || "General Practice",
@@ -151,37 +190,27 @@ export async function getDashboardData() {
         quizId: lastQuiz.id
     } : null;
 
-    // G. Upcoming Exams - Feature removed (Exam model redesigned for categorization)
-    // If you need exam schedules, consider creating a separate ExamSchedule model
-
-    // H. Badges
-    const badges = await prisma.userBadge.findMany({
-        where: { user_id: userId },
-        include: { badge: true },
-        orderBy: { earned_at: 'desc' }
-    });
-
-    // I. Radar Chart Data
-    const subjectPerformance = new Map<number, { total: number, count: number }>();
-    quizzes.forEach(q => {
+    // G. Radar Chart Data
+    const subjectStats = new Map<number, { total: number, count: number }>();
+    allQuizStats.forEach(q => {
         if (!q.subject_id) return;
-        const current = subjectPerformance.get(q.subject_id) || { total: 0, count: 0 };
+        const current = subjectStats.get(q.subject_id) || { total: 0, count: 0 };
         const percentage = (q.score / q.total_points) * 100;
-        subjectPerformance.set(q.subject_id, {
+        subjectStats.set(q.subject_id, {
             total: current.total + percentage,
             count: current.count + 1
         });
     });
 
     const radarData = enrolledSubjects.map(sub => {
-        const stats = subjectPerformance.get(sub.id);
+        const stats = subjectStats.get(sub.id);
         const avgScore = stats ? Math.round(stats.total / stats.count) : 0;
         return {
             subject: sub.code || sub.name.substring(0, 3).toUpperCase(),
             score: avgScore,
             fullMark: 100
         };
-    }).slice(0, 6); // Limit to 6 for radar visualization
+    }).slice(0, 6);
 
     return {
         profile,
@@ -195,7 +224,7 @@ export async function getDashboardData() {
         },
         weaknessList,
         resumeData,
-        recentActivity: quizzes.slice(0, 5),
+        recentActivity, // Already limited to 5
         badges,
         radarData,
         enrollments

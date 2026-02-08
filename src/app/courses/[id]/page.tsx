@@ -17,6 +17,9 @@ import Image from "next/image";
 import Link from "next/link";
 import { notFound, redirect } from "next/navigation";
 
+import { getServerSession } from "next-auth";
+import { authOptions } from "@/lib/auth-options";
+
 export default async function CourseDetailsPage({
     params,
 }: {
@@ -24,6 +27,8 @@ export default async function CourseDetailsPage({
 }) {
     const { id } = await params;
     const course = await getCourseDetails(parseInt(id));
+    const session = await getServerSession(authOptions);
+    const isAdmin = session?.user?.role === "admin";
 
     if (!course) {
         notFound();
@@ -129,6 +134,7 @@ export default async function CourseDetailsPage({
                                             price={course.price || undefined}
                                             currency={course.currency}
                                             upgradeMode={true}
+                                            isAdmin={isAdmin}
                                         />
                                     )}
                                 </div>
@@ -139,6 +145,8 @@ export default async function CourseDetailsPage({
                                     isFree={course.is_free}
                                     price={course.price || undefined}
                                     currency={course.currency}
+                                    isEnrolled={course.isEnrolled}
+                                    isAdmin={isAdmin}
                                 />
                             ) : (
                                 <Link href={`/login?callbackUrl=/courses/${course.id}`} className="block">

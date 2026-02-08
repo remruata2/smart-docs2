@@ -17,14 +17,23 @@ export async function GET(req: NextRequest) {
 		}
 
 		// Flatten subjects from enrollments
-		const subjects = data.enrollments.flatMap(e => e.course.subjects);
+		const allSubjects = data.enrollments.flatMap(e => e.course.subjects);
+
+		// De-duplicate subjects by ID
+		const uniqueSubjectsMap = new Map();
+		allSubjects.forEach(s => {
+			if (!uniqueSubjectsMap.has(s.id)) {
+				uniqueSubjectsMap.set(s.id, {
+					id: s.id,
+					name: s.name,
+					program_id: s.program_id,
+				});
+			}
+		});
+		const subjects = Array.from(uniqueSubjectsMap.values());
 
 		return NextResponse.json({
-			subjects: subjects.map((s) => ({
-				id: s.id,
-				name: s.name,
-				program_id: s.program_id,
-			})),
+			subjects,
 			boardId: data.programInfo?.board?.id || null,
 		});
 	} catch (error) {
