@@ -1,0 +1,1 @@
+const { PrismaClient } = require('@prisma/client'); const prisma = new PrismaClient(); prisma.chapter.findFirst({ where: { NOT: { content_json: { equals: null } } }, select: { content_json: true } }).then(c => console.log(JSON.stringify(c, null, 2))).catch(console.error).finally(() => prisma.$disconnect());

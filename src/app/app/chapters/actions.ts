@@ -44,6 +44,11 @@ export async function getChaptersForSubject(subjectId: number) {
 				},
 				_count: {
 					select: { chunks: true }
+				},
+				study_materials: {
+					select: {
+						summary: true
+					}
 				}
 			},
 			orderBy: [{ chapter_number: "asc" }, { title: "asc" }],

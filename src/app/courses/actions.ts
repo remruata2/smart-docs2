@@ -26,7 +26,10 @@ export async function getCourseDetails(courseId: number) {
                             id: true,
                             title: true,
                             chapter_number: true,
-                        }
+                            study_materials: {
+                                select: { summary: true }
+                            }
+                        },
                     },
                     _count: {
                         select: { chapters: true }
@@ -72,6 +75,7 @@ export async function getCourseDetails(courseId: number) {
                 id: chapter.id.toString(),
                 title: chapter.title,
                 chapter_number: chapter.chapter_number,
+                study_materials: chapter.study_materials
             }))
         })),
         isEnrolled: !!enrollment,

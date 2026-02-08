@@ -195,7 +195,14 @@ function SubjectAccordion({ subject }: { subject: any }) {
                                 <span className="w-6 h-6 flex items-center justify-center text-xs font-medium bg-gray-200 text-gray-600 rounded-full">
                                     {index + 1}
                                 </span>
-                                <span className="text-sm text-gray-700">{chapter.title}</span>
+                                <div className="flex flex-col">
+                                    <span className="text-sm text-gray-700 font-medium">{chapter.title}</span>
+                                    {chapter.study_materials?.summary?.key_points && Array.isArray(chapter.study_materials.summary.key_points) && chapter.study_materials.summary.key_points.length > 0 && (
+                                        <span className="text-xs text-gray-400 mt-0.5 line-clamp-1">
+                                            {chapter.study_materials.summary.key_points.slice(0, 4).join(" • ")}
+                                        </span>
+                                    )}
+                                </div>
                             </li>
                         ))}
                     </ul>

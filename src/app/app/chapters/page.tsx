@@ -166,6 +166,12 @@ function ChapterRow({ chapter, isNewTextbook, textbookId, subjectId, trialAccess
                                         <span>Active Learning</span>
                                     </div>
                                 </div>
+                                {/* Topics / Key Points */}
+                                {chapter.study_materials?.summary?.key_points && Array.isArray(chapter.study_materials.summary.key_points) && chapter.study_materials.summary.key_points.length > 0 && (
+                                    <div className="mt-2 text-xs text-gray-500 font-medium line-clamp-1">
+                                        {chapter.study_materials.summary.key_points.slice(0, 4).join(" • ")}
+                                    </div>
+                                )}
                             </div>
 
                             <div className="flex flex-wrap items-center gap-3">
