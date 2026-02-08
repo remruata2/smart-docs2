@@ -88,7 +88,8 @@ export default async function ChaptersPage({
                                 }
                             }
                         },
-                        exam: true // Include exam info if needed for display
+                        exam: true, // Include exam info if needed for display
+                        quizzes_enabled: true
                     }
                 },
                 // Only count if we're actually using it in the UI
@@ -142,6 +143,7 @@ export default async function ChaptersPage({
             id: true,
             name: true,
             exam_id: true,
+            quizzes_enabled: true,
             program: {
                 select: {
                     name: true,

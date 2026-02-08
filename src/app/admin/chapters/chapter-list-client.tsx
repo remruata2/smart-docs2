@@ -12,6 +12,7 @@ interface Subject {
     id: number;
     name: string;
     exam_id: string | null;
+    quizzes_enabled: boolean;
     program: {
         name: string;
         exam_category?: string | null;
@@ -390,13 +391,17 @@ export default function ChapterListClient({ chapters, onDelete, onUpdate, subjec
                                                     <Loader2 className="w-4 h-4 mr-2 animate-spin" />
                                                     Generating Quiz...
                                                 </div>
-                                            ) : (
+                                            ) : chapter.subject.quizzes_enabled ? (
                                                 <RegenerateQuizDialog
                                                     chapterId={chapter.id.toString()}
                                                     chapterTitle={chapter.title}
                                                     examCategory={chapter.subject?.program?.exam_category}
                                                     subjectName={chapter.subject?.name}
                                                 />
+                                            ) : (
+                                                <div className="flex items-center px-3 py-1.5 bg-gray-50 text-gray-500 rounded-lg border border-gray-200 text-sm italic" title="Quizzes are disabled for this subject">
+                                                    Quizzes Disabled
+                                                </div>
                                             )}
 
                                             <EditChapterDialog

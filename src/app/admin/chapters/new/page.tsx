@@ -31,6 +31,7 @@ export default async function NewChapterPage() {
             id: true,
             name: true,
             exam_id: true,
+            quizzes_enabled: true,
             program: {
                 select: {
                     id: true,

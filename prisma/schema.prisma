@@ -458,6 +458,7 @@ model Subject {
   name       String // 'Physics', 'Data Structures', 'General Studies', 'Pharmacology'
   code       String? // 'PHY', 'DS', 'GS', 'PHARM'
   is_active  Boolean  @default(true)
+  quizzes_enabled Boolean @default(true)
   created_at DateTime @default(now())
 
   program       Program        @relation(fields: [program_id], references: [id])

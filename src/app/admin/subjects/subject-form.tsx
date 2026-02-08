@@ -101,6 +101,19 @@ export default function SubjectForm({ programs }: { programs: Program[] }) {
                     <label className="block text-sm font-medium text-gray-700">Term/Semester (Optional)</label>
                     <input type="text" name="term" className="mt-1 block w-full rounded-md border-gray-300 shadow-sm focus:border-indigo-500 focus:ring-indigo-500 sm:text-sm border p-2" placeholder="Semester 1" />
                 </div>
+                <div className="flex items-center gap-2 py-2">
+                    <input
+                        type="checkbox"
+                        id="quizzesEnabled"
+                        name="quizzesEnabled"
+                        value="true"
+                        defaultChecked
+                        className="h-4 w-4 text-indigo-600 focus:ring-indigo-500 border-gray-300 rounded"
+                    />
+                    <label htmlFor="quizzesEnabled" className="text-sm font-medium text-gray-700">
+                        Quizzes Enabled
+                    </label>
+                </div>
                 <button type="submit" disabled={isLoading} className="bg-indigo-600 text-white px-4 py-2 rounded-md hover:bg-indigo-700 disabled:opacity-50">
                     {isLoading ? "Adding..." : "Add Subject"}
                 </button>

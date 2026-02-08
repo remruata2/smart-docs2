@@ -26,6 +26,7 @@ interface Subject {
     id: number;
     name: string;
     exam_id?: string | null;
+    quizzes_enabled: boolean;
     program: {
         id: number;
         name: string;
@@ -572,6 +573,12 @@ export default function ChapterIngestForm({
                                                 </option>
                                             ))}
                                         </select>
+                                        {fileRecord.subjectId && !subjects.find(s => s.id.toString() === fileRecord.subjectId)?.quizzes_enabled && (
+                                            <p className="text-xs text-amber-600 mt-1 flex items-center gap-1">
+                                                <span className="inline-block w-2 h-2 bg-amber-500 rounded-full animate-pulse"></span>
+                                                Mock tests are disabled for this subject. Quiz generation will be skipped.
+                                            </p>
+                                        )}
                                         {individualModeSubjects.length === 0 && (selectedProgram || selectedExamId) && (
                                             <p className="text-xs text-amber-600 mt-1">
                                                 No subjects match the selected filters.
@@ -828,10 +835,16 @@ export default function ChapterIngestForm({
                                     <option value="">Select Subject</option>
                                     {examFilteredSubjects.map((s) => (
                                         <option key={s.id} value={s.id}>
-                                            {s.name} ({s.program.name} - {s.program.board.name})
+                                            {s.name} ({s.program.name} - {s.program.board.name}) {!s.quizzes_enabled && " [Tests Disabled]"}
                                         </option>
                                     ))}
                                 </select>
+                                {textbookSubjectId && !subjects.find(s => s.id.toString() === textbookSubjectId)?.quizzes_enabled && (
+                                    <p className="text-xs text-amber-600 mt-1 flex items-center gap-1">
+                                        <span className="inline-block w-2 h-2 bg-amber-500 rounded-full animate-pulse"></span>
+                                        Mock tests are disabled for this subject. Quiz generation will be skipped for all chapters.
+                                    </p>
+                                )}
                                 <p className="mt-1 text-xs text-gray-500">
                                     {selectedExamId ? 'Showing subjects for selected exam' : 'All detected chapters will be created under this subject.'}
                                 </p>

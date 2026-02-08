@@ -27,8 +27,8 @@ export function QuizGenerator({
     const router = useRouter();
     const [loading, setLoading] = useState(false);
     const [currentStep, setCurrentStep] = useState(1);
-    // Deduplicate initialSubjects to ensure unique keys
-    const uniqueInitialSubjects = Array.from(new Map(initialSubjects.map(s => [s.id, s])).values());
+    // Deduplicate initialSubjects to ensure unique keys and filter by quizzes_enabled
+    const uniqueInitialSubjects = Array.from(new Map(initialSubjects.filter(s => s.quizzes_enabled !== false).map(s => [s.id, s])).values());
     const [subjects, setSubjects] = useState<any[]>(uniqueInitialSubjects);
     const [chapters, setChapters] = useState<any[]>([]);
 
@@ -43,8 +43,8 @@ export function QuizGenerator({
         if (initialSubjects.length === 0) {
             getSubjectsForUserProgram().then(data => {
                 if (data && data.enrollments) {
-                    // Flatten subjects from all course enrollments
-                    const allSubjects = data.enrollments.flatMap(e => e.course.subjects);
+                    // Flatten subjects from all course enrollments and filter by quizzes_enabled
+                    const allSubjects = data.enrollments.flatMap(e => e.course.subjects).filter(s => s.quizzes_enabled !== false);
 
                     // Deduplicate subjects by ID
                     const uniqueSubjects = Array.from(new Map(allSubjects.map(s => [s.id, s])).values());
