@@ -55,7 +55,7 @@ interface Chapter {
 }
 
 interface EditChapterDialogProps {
-    chapter: Chapter;
+    chapter: Chapter & { quizzes_enabled: boolean };
     subjects: Subject[];
     exams: any[];
     onUpdate: (
@@ -66,6 +66,7 @@ interface EditChapterDialogProps {
             chapter_number: number | null;
             is_active: boolean;
             is_global: boolean;
+            quizzes_enabled: boolean;
         }
     ) => Promise<{ success: boolean; error?: string }>;
 }
@@ -88,6 +89,7 @@ export default function EditChapterDialog({
     );
     const [isActive, setIsActive] = useState(chapter.is_active);
     const [isGlobal, setIsGlobal] = useState(chapter.is_global);
+    const [quizzesEnabled, setQuizzesEnabled] = useState(chapter.quizzes_enabled);
 
     // Exam filter state (not saved, just UI helper)
     const [filterExamId, setFilterExamId] = useState<string>("ALL");
@@ -100,6 +102,7 @@ export default function EditChapterDialog({
             setChapterNumber(chapter.chapter_number?.toString() || "");
             setIsActive(chapter.is_active);
             setIsGlobal(chapter.is_global);
+            setQuizzesEnabled(chapter.quizzes_enabled);
 
             // Try to auto-set filter based on current subject
             const currentSub = subjects.find(s => s.id === chapter.subject_id);
@@ -141,6 +144,7 @@ export default function EditChapterDialog({
                 chapter_number: chapterNumber ? parseInt(chapterNumber) : null,
                 is_active: isActive,
                 is_global: isGlobal,
+                quizzes_enabled: quizzesEnabled,
             });
 
             if (result.success) {
@@ -162,7 +166,8 @@ export default function EditChapterDialog({
         subjectId !== chapter.subject_id.toString() ||
         chapterNumber !== (chapter.chapter_number?.toString() || "") ||
         isActive !== chapter.is_active ||
-        isGlobal !== chapter.is_global;
+        isGlobal !== chapter.is_global ||
+        quizzesEnabled !== chapter.quizzes_enabled;
 
     return (
         <Dialog open={open} onOpenChange={setOpen}>
@@ -299,6 +304,22 @@ export default function EditChapterDialog({
                                 </Label>
                                 <span className="text-xs text-gray-500">
                                     Global chapters are accessible across all boards
+                                </span>
+                            </div>
+                        </div>
+
+                        <div className="flex items-center space-x-3">
+                            <Checkbox
+                                id="quizzesEnabled"
+                                checked={quizzesEnabled}
+                                onCheckedChange={(checked) => setQuizzesEnabled(checked === true)}
+                            />
+                            <div className="flex flex-col">
+                                <Label htmlFor="quizzesEnabled" className="text-sm font-medium cursor-pointer">
+                                    Quizzes Enabled
+                                </Label>
+                                <span className="text-xs text-gray-500">
+                                    Allow students to take mock tests for this chapter
                                 </span>
                             </div>
                         </div>

@@ -34,7 +34,7 @@ import {
     AlertDialogHeader,
     AlertDialogTitle,
 } from "@/components/ui/alert-dialog";
-import { ScrollArea } from "@/components/ui/scroll-area";
+
 
 // Re-using interface (consider moving to types file)
 interface Conversation {
@@ -162,12 +162,12 @@ export default function ConversationHistoryModal({
                         </DialogTitle>
                     </DialogHeader>
 
-                    <ScrollArea className="flex-1 px-2">
+                    <div className="flex-1 overflow-y-auto px-2 min-h-0">
                         <div className="px-4 py-4">
                             {filteredConversations.length === 0 ? (
                                 <div className="text-center py-12 text-gray-500">
                                     {searchQuery ? (
-                                        <span>No conversations found matching "{searchQuery}"</span>
+                                        <span>No conversations found matching &quot;{searchQuery}&quot;</span>
                                     ) : (
                                         <span>No conversation history found.</span>
                                     )}
@@ -297,7 +297,7 @@ export default function ConversationHistoryModal({
                                 ))
                             )}
                         </div>
-                    </ScrollArea>
+                    </div>
 
                     {conversations.length > 0 && (
                         <div className="p-4 border-t bg-gray-50 flex justify-between items-center">

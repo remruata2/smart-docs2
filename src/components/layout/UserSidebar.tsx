@@ -207,7 +207,7 @@ export default function UserSidebar({ setSidebarOpen }: UserSidebarProps) {
 			<div className="flex-1 min-h-0 overflow-hidden flex flex-col">
 				{!displayCollapsed && (
 					<div className="px-4 py-2 text-xs font-semibold text-white/60 uppercase tracking-wider">
-						History
+						AI Tutor
 					</div>
 				)}
 				<ConversationList isCollapsed={displayCollapsed} refreshTrigger={refreshTrigger} />

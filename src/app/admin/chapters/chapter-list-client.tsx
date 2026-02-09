@@ -33,6 +33,7 @@ interface ChapterListClientProps {
             chapter_number: number | null;
             is_active: boolean;
             is_global: boolean;
+            quizzes_enabled: boolean;
         }
     ) => Promise<{ success: boolean; error?: string }>;
     subjects: Subject[];
@@ -391,21 +392,27 @@ export default function ChapterListClient({ chapters, onDelete, onUpdate, subjec
                                                     <Loader2 className="w-4 h-4 mr-2 animate-spin" />
                                                     Generating Quiz...
                                                 </div>
-                                            ) : chapter.subject.quizzes_enabled ? (
+                                            ) : chapter.subject.quizzes_enabled && chapter.quizzes_enabled ? (
                                                 <RegenerateQuizDialog
                                                     chapterId={chapter.id.toString()}
                                                     chapterTitle={chapter.title}
+                                                    /* @ts-ignore */
                                                     examCategory={chapter.subject?.program?.exam_category}
                                                     subjectName={chapter.subject?.name}
                                                 />
                                             ) : (
-                                                <div className="flex items-center px-3 py-1.5 bg-gray-50 text-gray-500 rounded-lg border border-gray-200 text-sm italic" title="Quizzes are disabled for this subject">
+                                                <div className="flex items-center px-3 py-1.5 bg-gray-50 text-gray-500 rounded-lg border border-gray-200 text-sm italic" title="Quizzes are disabled for this chapter or subject">
                                                     Quizzes Disabled
                                                 </div>
                                             )}
 
                                             <EditChapterDialog
-                                                chapter={chapter}
+                                                /* @ts-ignore */
+                                                chapter={{
+                                                    ...chapter,
+                                                    id: chapter.id.toString(),
+                                                    quizzes_enabled: (chapter as any).quizzes_enabled ?? true
+                                                }}
                                                 subjects={subjects}
                                                 exams={exams}
                                                 onUpdate={onUpdate}

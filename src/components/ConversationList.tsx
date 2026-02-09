@@ -186,8 +186,8 @@ export default function ConversationList({
 	const currentIdParam = searchParams.get("id");
 	const currentConversationId = selectedId !== undefined ? selectedId : (currentIdParam ? parseInt(currentIdParam) : null);
 
-	// Show only 5 recent conversations in sidebar
-	const recentConversations = conversations.slice(0, 5);
+	// Show only 3 recent conversations in sidebar
+	const recentConversations = conversations.slice(0, 3);
 
 	return (
 		<div className="flex flex-col h-full">
@@ -209,109 +209,16 @@ export default function ConversationList({
 			</div>
 
 			{!isCollapsed && (
-				<>
-					{/* Recent List */}
-					<div className="flex-1 overflow-y-auto px-2 custom-scrollbar">
-						{isLoading ? (
-							<div className="flex items-center justify-center h-20">
-								<Loader2 className="h-4 w-4 animate-spin text-white/50" />
-							</div>
-						) : recentConversations.length === 0 ? (
-							<div className="p-4 text-center text-white/50 text-md">
-								No conversations yet.
-							</div>
-						) : (
-							<div className="mb-3">
-								<div className="px-2 py-1 text-[10px] font-semibold text-white/60 uppercase tracking-wider flex justify-between items-center">
-									<span>Conversation History</span>
-								</div>
-								<div className="space-y-0.5">
-									{recentConversations.map((conv) => (
-										<div
-											key={conv.id}
-											className={`group relative rounded-md transition-colors ${currentConversationId === conv.id ? "bg-white/20" : "hover:bg-white/10"
-												}`}
-										>
-											{editingId === conv.id ? (
-												<div className="p-1">
-													<Input
-														value={editTitle}
-														onChange={(e) => setEditTitle(e.target.value)}
-														onBlur={() => renameConversation(conv.id, editTitle)}
-														onKeyDown={(e) => {
-															if (e.key === "Enter") renameConversation(conv.id, editTitle);
-															else if (e.key === "Escape") {
-																setEditingId(null);
-																setEditTitle("");
-															}
-														}}
-														autoFocus
-														className="h-6 text-sm bg-white text-gray-900"
-													/>
-												</div>
-											) : (
-												<>
-													<button
-														onClick={() => handleSelectConversation(conv.id)}
-														className="w-full text-left px-2 py-1.5 pr-6"
-													>
-														<div className="flex items-center gap-2">
-															{conv.isPinned && (
-																<Pin className="h-3 w-3 text-white/70 flex-shrink-0" />
-															)}
-															<div className="flex-1 min-w-0">
-																<div className="text-sm font-medium text-white truncate group-hover:text-white">
-																	{conv.title}
-																</div>
-															</div>
-														</div>
-													</button>
-
-													{/* Actions */}
-													<div className="absolute right-1 top-1 opacity-0 group-hover:opacity-100 transition-opacity">
-														<DropdownMenu>
-															<DropdownMenuTrigger asChild>
-																<Button
-																	variant="ghost"
-																	size="icon"
-																	className="h-5 w-5 text-white/50 hover:text-white hover:bg-white/20"
-																>
-																	<MoreVertical className="h-3 w-3" />
-																</Button>
-															</DropdownMenuTrigger>
-															<DropdownMenuContent
-																align="end"
-																className="w-32 bg-white border border-gray-200 text-gray-800"
-															>
-																<DropdownMenuItem
-																	onClick={() => {
-																		setEditingId(conv.id);
-																		setEditTitle(conv.title);
-																	}}
-																	className="text-xs focus:bg-gray-100 focus:text-gray-900"
-																>
-																	<Edit2 className="h-3 w-3 mr-2" />
-																	Rename
-																</DropdownMenuItem>
-																<DropdownMenuItem
-																	onClick={() => togglePin(conv.id, conv.isPinned)}
-																	className="text-xs focus:bg-gray-100 focus:text-gray-900"
-																>
-																	<Pin className="h-3 w-3 mr-2" />
-																	{conv.isPinned ? "Unpin" : "Pin"}
-																</DropdownMenuItem>
-															</DropdownMenuContent>
-														</DropdownMenu>
-													</div>
-												</>
-											)}
-										</div>
-									))}
-								</div>
-							</div>
-						)}
-					</div>
-				</>
+				<div className="px-2 mt-2">
+					<Button
+						variant="ghost"
+						className="w-full justify-start text-white/70 hover:text-white hover:bg-white/10"
+						onClick={() => setIsHistoryModalOpen(true)}
+					>
+						<History className="mr-2 h-4 w-4" />
+						Conversation History
+					</Button>
+				</div>
 			)}
 
 			{/* Collapsed State */}
@@ -342,26 +249,6 @@ export default function ConversationList({
 							<List className="h-4 w-4" />
 						</button>
 					)}
-				</div>
-			)}
-
-			{/* All History Button */}
-			{!isCollapsed && conversations.length > 0 && (
-				<div className="p-2 border-t border-white/10">
-					<Button
-						variant="ghost"
-						size="sm"
-						className="w-full text-xs text-white/70 hover:text-white hover:bg-white/10 justify-between px-2"
-						onClick={() => setIsHistoryModalOpen(true)}
-					>
-						<span className="flex items-center">
-							<List className="h-3 w-3 mr-2" />
-							Show all conversations
-						</span>
-						<span className="bg-white/10 text-white text-[10px] px-1.5 py-0.5 rounded-full">
-							{conversations.length}
-						</span>
-					</Button>
 				</div>
 			)}
 

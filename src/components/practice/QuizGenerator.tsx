@@ -65,13 +65,26 @@ export function QuizGenerator({
             // Fetch chapters when subject changes
             getChaptersForSubject(parseInt(selectedSubject)).then(data => {
                 if (data && data.chapters && data.chapters.length > 0) {
-                    setChapters(data.chapters);
-                    // Preselect first chapter only if no initialChapterId provided OR if user manually changed subject
-                    const isInitialSubject = selectedSubject === initialSubjectId;
-                    if (!isInitialSubject || !initialChapterId) {
-                        setSelectedChapter(data.chapters[0].id.toString());
-                    } else if (initialChapterId) {
-                        setSelectedChapter(initialChapterId);
+                    // Filter out chapters where quizzes_enabled is false
+                    const validChapters = data.chapters.filter((c: any) => c.quizzes_enabled !== false);
+                    setChapters(validChapters);
+
+                    if (validChapters.length > 0) {
+                        // Preselect first chapter only if no initialChapterId provided OR if user manually changed subject
+                        const isInitialSubject = selectedSubject === initialSubjectId;
+                        if (!isInitialSubject || !initialChapterId) {
+                            setSelectedChapter(validChapters[0].id.toString());
+                        } else if (initialChapterId) {
+                            // Verify initial chapter is still valid
+                            const initialValid = validChapters.find((c: any) => c.id.toString() === initialChapterId);
+                            if (initialValid) {
+                                setSelectedChapter(initialChapterId);
+                            } else {
+                                setSelectedChapter(validChapters[0].id.toString());
+                            }
+                        }
+                    } else {
+                        setSelectedChapter("");
                     }
                 }
             }).catch(console.error);

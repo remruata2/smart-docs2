@@ -504,6 +504,7 @@ model Chapter {
   accessible_boards String[] // For cross-board content (e.g., NCERT used by multiple boards)
   is_global         Boolean       @default(false) // true = accessible to all boards
   is_active         Boolean       @default(true)
+  quizzes_enabled   Boolean       @default(true) // New field for chapter-level control
   processing_status ChapterStatus @default(PENDING)
   error_message     String?       @db.Text
   processed_at      DateTime?
