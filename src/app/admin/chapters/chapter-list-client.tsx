@@ -402,9 +402,9 @@ export default function ChapterListClient({ chapters, onDelete, onUpdate, subjec
                                                         subjectName={chapter.subject?.name}
                                                     />
                                                     <Button
-                                                        variant="ghost"
+                                                        variant="outline"
                                                         size="sm"
-                                                        className="h-8 text-gray-400 hover:text-red-600 hover:bg-red-50"
+                                                        className="h-8 border-red-100 text-red-600 hover:bg-red-50 hover:border-red-200"
                                                         title="Disable Quizzes for this Chapter"
                                                         onClick={(e) => {
                                                             e.stopPropagation();

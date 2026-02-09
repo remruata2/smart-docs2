@@ -202,8 +202,28 @@ export const quizService = {
 
                 if (chapterId) {
                     whereClause.chapter_id = BigInt(chapterId);
+
+                    // Validation: Ensure chapter allows quizzes
+                    const chapter = await prisma.chapter.findUnique({
+                        where: { id: BigInt(chapterId) },
+                        select: { quizzes_enabled: true, subject: { select: { quizzes_enabled: true } } }
+                    });
+
+                    if (chapter && (!chapter.quizzes_enabled || !chapter.subject.quizzes_enabled)) {
+                        throw new Error("Quizzes are disabled for this chapter.");
+                    }
                 } else if (subjectId) {
                     whereClause.chapter = { subject_id: subjectId };
+
+                    // Validation: Ensure subject allows quizzes
+                    const subject = await prisma.subject.findUnique({
+                        where: { id: subjectId },
+                        select: { quizzes_enabled: true }
+                    });
+
+                    if (subject && !subject.quizzes_enabled) {
+                        throw new Error("Quizzes are disabled for this subject.");
+                    }
                 }
 
                 // If difficulty is "exam", ONLY fetch exam questions and ignore types

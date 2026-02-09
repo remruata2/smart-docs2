@@ -57,8 +57,10 @@ function ChatPageContent() {
 	} | null>(null);
 	const [copiedMessageId, setCopiedMessageId] = useState<string | null>(null);
 
-	// Subject and Chapter filters
-	const [subjects, setSubjects] = useState<Array<{ id: number; name: string }>>(
+	// Course, Subject and Chapter filters
+	const [courses, setCourses] = useState<Array<{ id: number; title: string }>>([]);
+	const [selectedCourseId, setSelectedCourseId] = useState<string>("all");
+	const [subjects, setSubjects] = useState<Array<{ id: number; name: string; courseIds?: number[] }>>(
 		[]
 	);
 	const [subjectsLoading, setSubjectsLoading] = useState<boolean>(false);
@@ -121,7 +123,9 @@ function ChatPageContent() {
 				if (!res.ok) throw new Error("Failed to load subjects");
 				const data = await res.json();
 				const loadedSubjects = data.subjects || [];
+				const loadedCourses = data.courses || [];
 				setSubjects(loadedSubjects);
+				setCourses(loadedCourses);
 
 				// Auto-select first subject if none selected and not loading from URL
 				if (loadedSubjects.length > 0 && !urlSubjectId && !selectedSubjectId) {
@@ -200,6 +204,10 @@ function ChatPageContent() {
 			}
 		}
 	}, [urlSubjectId, subjects]);
+
+	const filteredSubjects = selectedCourseId === "all"
+		? subjects
+		: subjects.filter(s => s.courseIds?.includes(parseInt(selectedCourseId)));
 
 	const messagesEndRef = useRef<HTMLDivElement>(null);
 	const inputRef = useRef<HTMLInputElement>(null);
@@ -938,6 +946,38 @@ function ChatPageContent() {
 									<div className="flex flex-wrap items-center justify-center gap-2">
 										<select
 											className="h-9 text-sm border rounded-md px-3 bg-white dark:bg-gray-800 focus:ring-2 focus:ring-primary/20 outline-none disabled:opacity-50 disabled:cursor-not-allowed"
+											value={selectedCourseId}
+											onChange={(e) => {
+												const val = e.target.value;
+												setSelectedCourseId(val);
+												// Reset subject if not in course
+												if (val !== "all" && selectedSubjectId) {
+													const sub = subjects.find(s => s.id === selectedSubjectId);
+													if (sub && !sub.courseIds?.includes(parseInt(val))) {
+														// Find first subject in new course
+														const firstInCourse = subjects.find(s => s.courseIds?.includes(parseInt(val)));
+														if (firstInCourse) {
+															setSelectedSubjectId(firstInCourse.id);
+															setSelectedSubjectName(firstInCourse.name);
+														} else {
+															setSelectedSubjectId(null);
+															setSelectedSubjectName("");
+														}
+													}
+												}
+											}}
+											disabled={subjectsLoading}
+										>
+											<option value="all">All Courses</option>
+											{courses.map((c) => (
+												<option key={c.id} value={c.id}>
+													{c.title}
+												</option>
+											))}
+										</select>
+
+										<select
+											className="h-9 text-sm border rounded-md px-3 bg-white dark:bg-gray-800 focus:ring-2 focus:ring-primary/20 outline-none disabled:opacity-50 disabled:cursor-not-allowed"
 											value={selectedSubjectId || ""}
 											onChange={(e) => {
 												const val = e.target.value;
@@ -954,7 +994,7 @@ function ChatPageContent() {
 											}}
 											disabled={subjectsLoading}
 										>
-											{subjects.map((s) => (
+											{filteredSubjects.map((s) => (
 												<option key={s.id} value={s.id}>
 													{s.name}
 												</option>
@@ -1358,6 +1398,23 @@ function ChatPageContent() {
 									)}
 									<select
 										className="h-9 text-sm border rounded-md px-3 bg-white dark:bg-gray-800 focus:ring-2 focus:ring-primary/20 outline-none disabled:opacity-50 disabled:cursor-not-allowed"
+										value={selectedCourseId}
+										onChange={(e) => {
+											setSelectedCourseId(e.target.value);
+											// Subject sync handled by filteredSubjects and effect
+										}}
+										disabled={subjectsLoading || !!currentConversationId}
+									>
+										<option value="all">All Courses</option>
+										{courses.map((c) => (
+											<option key={c.id} value={c.id}>
+												{c.title}
+											</option>
+										))}
+									</select>
+
+									<select
+										className="h-9 text-sm border rounded-md px-3 bg-white dark:bg-gray-800 focus:ring-2 focus:ring-primary/20 outline-none disabled:opacity-50 disabled:cursor-not-allowed"
 										value={selectedSubjectId || ""}
 
 										onChange={(e) => {
@@ -1378,7 +1435,7 @@ function ChatPageContent() {
 										}}
 										disabled={subjectsLoading || !!currentConversationId}
 									>
-										{subjects.map((s) => (
+										{filteredSubjects.map((s) => (
 											<option key={s.id} value={s.id}>
 												{s.name}
 											</option>

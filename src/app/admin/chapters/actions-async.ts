@@ -28,6 +28,7 @@ export async function batchCreateChaptersAsync(formData: FormData) {
 		const questionConfigStr = formData.get("questionConfig") as string;
 		const questionConfig = questionConfigStr ? JSON.parse(questionConfigStr) : undefined;
 		const examId = formData.get("examId") as string;
+		const quizzesEnabled = formData.get("quizzesEnabled") === "true";
 
 		if (!file || !subjectId || !chapters || chapters.length === 0) {
 			return { success: false, error: "Missing required fields" };
@@ -87,6 +88,7 @@ export async function batchCreateChaptersAsync(formData: FormData) {
 					accessible_boards: finalAccessibleBoards,
 					is_global: isGlobal,
 					is_active: true, // Explicitly set to true
+					quizzes_enabled: quizzesEnabled, // Set from form data
 					processing_status: "PENDING",
 				},
 			});
@@ -99,7 +101,8 @@ export async function batchCreateChaptersAsync(formData: FormData) {
 				pdfBuffer,
 				fileName: file.name,
 				startPage: detectedChapter.startPage,
-				questionConfig: questionConfig || getQuestionDefaults(subject.program.exam_category, subject.name),
+				// Only pass questionConfig if quizzes are enabled
+				questionConfig: quizzesEnabled ? (questionConfig || getQuestionDefaults(subject.program.exam_category, subject.name)) : undefined,
 			});
 		}
 
@@ -149,6 +152,7 @@ export async function ingestChapterAsync(formData: FormData) {
 		const questionConfigStr = formData.get("questionConfig") as string;
 		const questionConfig = questionConfigStr ? JSON.parse(questionConfigStr) : undefined;
 		const examId = formData.get("examId") as string;
+		const quizzesEnabled = formData.get("quizzesEnabled") === "true";
 
 		if (!file || !title || !subjectId) {
 			return { success: false, error: "Missing required fields" };
@@ -200,6 +204,7 @@ export async function ingestChapterAsync(formData: FormData) {
 				accessible_boards: finalAccessibleBoards,
 				is_global: isGlobal,
 				is_active: true,
+				quizzes_enabled: quizzesEnabled, // Set from form data
 				processing_status: "PENDING",
 			},
 		});
@@ -212,7 +217,8 @@ export async function ingestChapterAsync(formData: FormData) {
 					pdfBuffer,
 					fileName: file.name,
 					// No start/end page means process whole document
-					questionConfig: questionConfig || getQuestionDefaults(subject.program.exam_category, subject.name),
+					// Only pass questionConfig if quizzes are enabled
+					questionConfig: quizzesEnabled ? (questionConfig || getQuestionDefaults(subject.program.exam_category, subject.name)) : undefined,
 				});
 			} catch (error) {
 				console.error(`Failed to process chapter ${chapter.id}:`, error);

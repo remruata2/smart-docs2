@@ -15,11 +15,40 @@ export default async function PracticePage({
 
     // Prefetch subjects without mastery for faster loading
     const subjectsData = await getSubjectsForUserProgram(undefined, false);
-    const initialSubjects = subjectsData?.enrollments.flatMap(e => e.course.subjects) || [];
+
+    const initialCourses = subjectsData?.enrollments.map(e => ({
+        id: e.course.id,
+        title: e.course.title
+    })) || [];
+
+    // Map subjects and include their course IDs
+    const subjectMap = new Map();
+    subjectsData?.enrollments.forEach(e => {
+        e.course.subjects.forEach(s => {
+            if (subjectMap.has(s.id)) {
+                const existing = subjectMap.get(s.id);
+                if (!existing.courseIds.includes(e.course.id)) {
+                    existing.courseIds.push(e.course.id);
+                }
+            } else {
+                subjectMap.set(s.id, {
+                    ...s,
+                    courseIds: [e.course.id]
+                });
+            }
+        });
+    });
+
+    const initialSubjects = Array.from(subjectMap.values());
 
     return (
         <div className="container max-w-4xl mx-auto py-8">
-            <QuizGenerator initialSubjectId={subjectId} initialChapterId={chapterId} initialSubjects={initialSubjects} />
+            <QuizGenerator
+                initialSubjectId={subjectId}
+                initialChapterId={chapterId}
+                initialSubjects={initialSubjects}
+                initialCourses={initialCourses}
+            />
         </div>
     );
 }

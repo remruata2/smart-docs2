@@ -20,14 +20,15 @@ async def convert_document(file: UploadFile = File(...)):
         # 3. Convert directly using the stream (API changed - no DocumentConversionInput needed)
         result = converter.convert(doc_stream)
         
-        # 4. Export to Markdown
-        markdown_output = result.document.export_to_markdown()
-        
-        return {"filename": file.filename, "markdown": markdown_output}
-
     except Exception as e:
         print(f"Error converting document: {e}")
         raise HTTPException(status_code=500, detail=str(e))
+
+    # 4. Export to Markdown
+    # Reverting to original state as we are now using docling_server.py
+    markdown_output = result.document.export_to_markdown()
+    
+    return {"filename": file.filename, "markdown": markdown_output}
 
 if __name__ == "__main__":
     # Run on port 8000

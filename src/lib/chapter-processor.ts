@@ -319,9 +319,13 @@ export async function processChapterBackground(job: ChapterProcessingJob) {
 
 		// 9. Upload PDF to Supabase Storage
 		console.log(`[BG-PROCESSOR] Uploading chapter PDF to Supabase...`);
+
+		// Sanitize filename to avoid "Invalid key" errors with special characters
+		const sanitizedFileName = fileName.replace(/[^a-zA-Z0-9.-]/g, "_");
+
 		const pdfUrl = await uploadChapterPdf(
 			pdfBuffer,
-			`chapter-${chapterId}/${fileName}`
+			`chapter-${chapterId}/${sanitizedFileName}`
 		);
 
 		// 10. Update chapter with pdf_url

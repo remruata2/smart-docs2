@@ -72,6 +72,7 @@ export default function ChapterIngestForm({
         accessibleBoards: string[];
         examId: string;
         subjectHasExam: boolean;
+        quizzesEnabled: boolean;
     }>>([]);
 
     // Textbook mode state
@@ -81,6 +82,7 @@ export default function ChapterIngestForm({
     const [fullPages, setFullPages] = useState<LlamaParsePageResult[]>([]);
     const [textbookSubjectId, setTextbookSubjectId] = useState<string>("");
     const [textbookBoards, setTextbookBoards] = useState<string[]>([]);
+    const [textbookQuizzesEnabled, setTextbookQuizzesEnabled] = useState(true);
 
     // Question Bank Config
     const [questionConfig, setQuestionConfig] = useState<QuestionBankConfigState | null>(null);
@@ -168,6 +170,7 @@ export default function ChapterIngestForm({
             accessibleBoards: [] as string[],
             examId: "",
             subjectHasExam: false,
+            quizzesEnabled: true,
         }));
 
         setUploadingFiles(fileRecords);
@@ -263,6 +266,8 @@ export default function ChapterIngestForm({
                     formData.append("questionConfig", JSON.stringify(questionConfig));
                 }
 
+                formData.append("quizzesEnabled", String(fileRecord.quizzesEnabled));
+
                 // Use async action
                 const result = await ingestChapterAsync(formData);
 
@@ -347,6 +352,8 @@ export default function ChapterIngestForm({
             if (questionConfig) {
                 formData.append("questionConfig", JSON.stringify(questionConfig));
             }
+
+            formData.append("quizzesEnabled", String(textbookQuizzesEnabled));
 
             // Use async action - creates chapters immediately with PENDING status
             const { batchCreateChaptersAsync } = await import('../actions-async');
@@ -637,6 +644,29 @@ export default function ChapterIngestForm({
                                         </select>
                                     </div>
 
+                                    {/* Disable Quizzes Checkbox */}
+                                    <div className="md:col-span-2">
+                                        <label className="flex items-center space-x-2 cursor-pointer">
+                                            <input
+                                                type="checkbox"
+                                                checked={!fileRecord.quizzesEnabled}
+                                                onChange={(e) => {
+                                                    const updated = [...uploadingFiles];
+                                                    updated[index].quizzesEnabled = !e.target.checked;
+                                                    setUploadingFiles(updated);
+                                                }}
+                                                disabled={isLoading || (!!fileRecord.subjectId && !subjects.find(s => s.id.toString() === fileRecord.subjectId)?.quizzes_enabled)}
+                                                className="h-4 w-4 text-red-600 focus:ring-red-500 border-gray-300 rounded"
+                                            />
+                                            <span className="text-sm font-medium text-gray-700">Disable Quizzes</span>
+                                        </label>
+                                        {(!!fileRecord.subjectId && !subjects.find(s => s.id.toString() === fileRecord.subjectId)?.quizzes_enabled) && (
+                                            <p className="text-xs text-amber-600 ml-6 mt-1">
+                                                Quizzes are already disabled at the subject level.
+                                            </p>
+                                        )}
+                                    </div>
+
                                     {fileRecord.error && (
                                         <div className="text-xs text-red-600 bg-red-50 p-2 rounded">
                                             Error: {fileRecord.error}
@@ -743,6 +773,9 @@ export default function ChapterIngestForm({
                                             <div className="w-2 h-2 bg-blue-600 rounded-full animate-bounce" style={{ animationDelay: '0.4s' }}></div>
                                         </div>
                                     </div>
+
+                                    {/* Disable Quizzes Checkbox */}
+
                                 </div>
                             )}
                         </div>
@@ -869,6 +902,25 @@ export default function ChapterIngestForm({
                                 <p className="mt-1 text-xs text-gray-500">
                                     applies to all chapters in this textbook.
                                 </p>
+                            </div>
+
+                            {/* Disable Quizzes Checkbox (Textbook) */}
+                            <div>
+                                <label className="flex items-center space-x-2 cursor-pointer">
+                                    <input
+                                        type="checkbox"
+                                        checked={!textbookQuizzesEnabled}
+                                        onChange={(e) => setTextbookQuizzesEnabled(!e.target.checked)}
+                                        disabled={isLoading || (!!textbookSubjectId && !subjects.find(s => s.id.toString() === textbookSubjectId)?.quizzes_enabled)}
+                                        className="h-4 w-4 text-red-600 focus:ring-red-500 border-gray-300 rounded"
+                                    />
+                                    <span className="text-sm font-medium text-gray-700">Disable Quizzes for all chapters</span>
+                                </label>
+                                {(!!textbookSubjectId && !subjects.find(s => s.id.toString() === textbookSubjectId)?.quizzes_enabled) && (
+                                    <p className="text-xs text-amber-600 ml-6 mt-1">
+                                        Quizzes are already disabled at the subject level.
+                                    </p>
+                                )}
                             </div>
 
                             <QuestionBankConfig value={questionConfig} onChange={setQuestionConfig} />

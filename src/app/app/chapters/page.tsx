@@ -188,19 +188,21 @@ function ChapterRow({ chapter, isNewTextbook, textbookId, subjectId, trialAccess
                                         Study Hub
                                     </Button>
                                 </Link>
-                                <Link href={isLocked ? "#" : `/app/practice?subjectId=${subjectId || chapter.subject_id}&chapterId=${chapter.id}`} className="flex-1 md:flex-initial">
-                                    <Button
-                                        variant="outline"
-                                        disabled={isLocked}
-                                        className={cn(
-                                            "w-full border-green-200 hover:border-green-300 hover:bg-green-50 text-green-700 font-bold px-6",
-                                            isLocked && "opacity-50 cursor-not-allowed border-gray-200 text-gray-400"
-                                        )}
-                                    >
-                                        <Brain className="h-4 w-4 mr-2" />
-                                        Practice
-                                    </Button>
-                                </Link>
+                                {(!chapter.subject?.quizzes_enabled || !chapter.quizzes_enabled) ? null : (
+                                    <Link href={isLocked ? "#" : `/app/practice?subjectId=${subjectId || chapter.subject_id}&chapterId=${chapter.id}`} className="flex-1 md:flex-initial">
+                                        <Button
+                                            variant="outline"
+                                            disabled={isLocked}
+                                            className={cn(
+                                                "w-full border-green-200 hover:border-green-300 hover:bg-green-50 text-green-700 font-bold px-6",
+                                                isLocked && "opacity-50 cursor-not-allowed border-gray-200 text-gray-400"
+                                            )}
+                                        >
+                                            <Brain className="h-4 w-4 mr-2" />
+                                            Practice
+                                        </Button>
+                                    </Link>
+                                )}
                                 <Link href={isLocked ? "#" : `/app/chat?chapterId=${chapter.id}${textbookId ? `&textbookId=${textbookId}` : `&subjectId=${subjectId}`}`} className="flex-1 md:flex-initial">
                                     <Button
                                         variant="outline"

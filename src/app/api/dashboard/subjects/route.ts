@@ -16,24 +16,42 @@ export async function GET(req: NextRequest) {
 			return NextResponse.json({ error: "No subjects found" }, { status: 404 });
 		}
 
-		// Flatten subjects from enrollments
-		const allSubjects = data.enrollments.flatMap(e => e.course.subjects);
+		// Extract courses and flatten subjects from enrollments
+		const coursesMap = new Map();
+		const allSubjectsWithCourse = data.enrollments.flatMap(e => {
+			if (!coursesMap.has(e.course.id)) {
+				coursesMap.set(e.course.id, {
+					id: e.course.id,
+					title: e.course.title
+				});
+			}
+			return e.course.subjects.map(s => ({ ...s, courseId: e.course.id }));
+		});
 
-		// De-duplicate subjects by ID
+		const courses = Array.from(coursesMap.values());
+
+		// De-duplicate subjects by ID and collect their courseIds
 		const uniqueSubjectsMap = new Map();
-		allSubjects.forEach(s => {
+		allSubjectsWithCourse.forEach(s => {
 			if (!uniqueSubjectsMap.has(s.id)) {
 				uniqueSubjectsMap.set(s.id, {
 					id: s.id,
 					name: s.name,
 					program_id: s.program_id,
+					courseIds: [s.courseId]
 				});
+			} else {
+				const existing = uniqueSubjectsMap.get(s.id);
+				if (!existing.courseIds.includes(s.courseId)) {
+					existing.courseIds.push(s.courseId);
+				}
 			}
 		});
 		const subjects = Array.from(uniqueSubjectsMap.values());
 
 		return NextResponse.json({
 			subjects,
+			courses,
 			boardId: data.programInfo?.board?.id || null,
 		});
 	} catch (error) {

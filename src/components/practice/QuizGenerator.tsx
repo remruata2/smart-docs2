@@ -17,19 +17,25 @@ export interface QuizGeneratorProps {
     initialSubjectId?: string;
     initialChapterId?: string;
     initialSubjects?: any[];
+    initialCourses?: any[];
 }
 
 export function QuizGenerator({
     initialSubjectId,
     initialChapterId,
-    initialSubjects = []
+    initialSubjects = [],
+    initialCourses = []
 }: QuizGeneratorProps) {
     const router = useRouter();
+    const { subjectId, chapterId } = { subjectId: initialSubjectId, chapterId: initialChapterId };
     const [loading, setLoading] = useState(false);
     const [currentStep, setCurrentStep] = useState(1);
+
     // Deduplicate initialSubjects to ensure unique keys and filter by quizzes_enabled
     const uniqueInitialSubjects = Array.from(new Map(initialSubjects.filter(s => s.quizzes_enabled !== false).map(s => [s.id, s])).values());
     const [subjects, setSubjects] = useState<any[]>(uniqueInitialSubjects);
+    const [courses, setCourses] = useState<any[]>(initialCourses || []);
+    const [selectedCourseId, setSelectedCourseId] = useState<string>("all");
     const [chapters, setChapters] = useState<any[]>([]);
 
     const [selectedSubject, setSelectedSubject] = useState<string>(initialSubjectId || "");
@@ -39,16 +45,39 @@ export function QuizGenerator({
     const [questionTypes, setQuestionTypes] = useState<string[]>(["MCQ"]);
 
     useEffect(() => {
-        // Only fetch if subjects not provided
-        if (initialSubjects.length === 0) {
+        // Only fetch if subjects or courses not provided
+        if (initialSubjects.length === 0 || !initialCourses || initialCourses.length === 0) {
             getSubjectsForUserProgram().then(data => {
                 if (data && data.enrollments) {
+                    // Extract unique courses
+                    const uniqueCourses = data.enrollments.map(e => ({
+                        id: e.course.id,
+                        title: e.course.title
+                    }));
+                    setCourses(uniqueCourses);
+
                     // Flatten subjects from all course enrollments and filter by quizzes_enabled
-                    const allSubjects = data.enrollments.flatMap(e => e.course.subjects).filter(s => s.quizzes_enabled !== false);
+                    // Also attach courseIds to each subject for filtering
+                    const subjectGroupMap = new Map();
+                    data.enrollments.forEach(e => {
+                        e.course.subjects.forEach(s => {
+                            if (s.quizzes_enabled !== false) {
+                                if (subjectGroupMap.has(s.id)) {
+                                    const existing = subjectGroupMap.get(s.id);
+                                    if (!existing.courseIds.includes(e.course.id)) {
+                                        existing.courseIds.push(e.course.id);
+                                    }
+                                } else {
+                                    subjectGroupMap.set(s.id, {
+                                        ...s,
+                                        courseIds: [e.course.id]
+                                    });
+                                }
+                            }
+                        });
+                    });
 
-                    // Deduplicate subjects by ID
-                    const uniqueSubjects = Array.from(new Map(allSubjects.map(s => [s.id, s])).values());
-
+                    const uniqueSubjects = Array.from(subjectGroupMap.values());
                     setSubjects(uniqueSubjects);
 
                     // Preselect first subject only if no initialSubjectId provided
@@ -139,8 +168,12 @@ export function QuizGenerator({
     const canProceedStep1 = selectedSubject && selectedChapter;
     const canProceedStep3 = difficulty === "exam" || questionTypes.length > 0;
 
+    const filteredSubjects = selectedCourseId === "all"
+        ? subjects
+        : subjects.filter(s => s.courseIds?.includes(parseInt(selectedCourseId)));
+
     const steps = [
-        { number: 1, title: "Select Topic", description: "Choose subject & chapter" },
+        { number: 1, title: "Select Topic", description: "Choose course, subject & chapter" },
         { number: 2, title: "Set Difficulty", description: "Configure test settings" },
         { number: 3, title: "Question Types", description: "Pick question formats" },
         { number: 4, title: "Review & Start", description: "Confirm and begin" },
@@ -160,13 +193,39 @@ export function QuizGenerator({
                 return (
                     <div className="space-y-6">
                         <div className="space-y-3">
+                            <Label className="text-base md:text-lg font-semibold">📖 Course</Label>
+                            <Select value={selectedCourseId} onValueChange={(val) => {
+                                setSelectedCourseId(val);
+                                // Reset subject if it's not in the new course
+                                if (val !== "all" && selectedSubject) {
+                                    const sub = subjects.find(s => s.id.toString() === selectedSubject);
+                                    if (sub && !sub.courseIds?.includes(parseInt(val))) {
+                                        setSelectedSubject("");
+                                    }
+                                }
+                            }}>
+                                <SelectTrigger className="h-10 md:h-14 text-sm md:text-base border-2">
+                                    <SelectValue placeholder="All Courses" />
+                                </SelectTrigger>
+                                <SelectContent>
+                                    <SelectItem value="all" className="text-base py-3">All Courses</SelectItem>
+                                    {courses.map(c => (
+                                        <SelectItem key={c.id} value={c.id.toString()} className="text-base py-3">
+                                            {c.title}
+                                        </SelectItem>
+                                    ))}
+                                </SelectContent>
+                            </Select>
+                        </div>
+
+                        <div className="space-y-3">
                             <Label className="text-base md:text-lg font-semibold">📚 Subject</Label>
                             <Select value={selectedSubject} onValueChange={setSelectedSubject}>
                                 <SelectTrigger className="h-10 md:h-14 text-sm md:text-base border-2">
                                     <SelectValue placeholder="Select a subject" />
                                 </SelectTrigger>
                                 <SelectContent>
-                                    {subjects.map(s => (
+                                    {filteredSubjects.map(s => (
                                         <SelectItem key={s.id} value={s.id.toString()} className="text-base py-3">
                                             {s.name}
                                         </SelectItem>

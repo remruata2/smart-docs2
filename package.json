@@ -26,7 +26,8 @@
     "fix:images": "tsx scripts/fix-image-filenames.ts",
     "migrate:chunks": "tsx scripts/migrate-to-page-level-chunks.ts",
     "migrate:chapter-chunks": "tsx scripts/migrate-chapter-chunks-to-page-level.ts",
-    "test:supabase": "tsx scripts/test-supabase-connection.ts"
+    "test:supabase": "tsx scripts/test-supabase-connection.ts",
+    "start:docling": "bash scripts/start-docling.sh"
   },
   "dependencies": {
     "@ai-sdk/google": "^2.0.39",
