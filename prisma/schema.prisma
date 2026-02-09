@@ -36,14 +36,12 @@ model FileList {
   updated_at      DateTime?                @updatedAt @db.Timestamptz(6)
   semantic_vector Unsupported("vector")?
   user_id         Int?
-  user            user?                    @relation(fields: [user_id], references: [id], onDelete: Cascade)
-  parsing_status  String?                  @default("pending") @db.VarChar(20) // 'pending' | 'processing' | 'completed' | 'failed'
-  parsing_error   String?                  @db.Text
   parsed_at       DateTime?                @db.Timestamptz(6)
-
-  // Relations for Split-Screen Citations
-  pages  DocumentPage[]
-  chunks FileChunk[]
+  parsing_error   String?
+  parsing_status  String?                  @default("pending") @db.VarChar(20)
+  pages           DocumentPage[]
+  chunks          FileChunk[]
+  user            user?                    @relation(fields: [user_id], references: [id], onDelete: Cascade)
 
   @@index([category], map: "idx_file_list_category")
   @@index([entry_date_real], map: "idx_file_list_entry_date")
@@ -59,12 +57,11 @@ model DocumentPage {
   id          Int      @id @default(autoincrement())
   file_id     Int
   page_number Int
-  image_url   String // URL to storage (e.g., "/files/101/page_4.jpg")
-  width       Int? // Original width
-  height      Int? // Original height
+  image_url   String
+  width       Int?
+  height      Int?
   created_at  DateTime @default(now()) @db.Timestamptz(6)
-
-  file FileList @relation(fields: [file_id], references: [id], onDelete: Cascade)
+  file        FileList @relation(fields: [file_id], references: [id], onDelete: Cascade)
 
   @@index([file_id, page_number], map: "idx_document_pages_file_page")
   @@map("document_pages")
@@ -77,13 +74,12 @@ model FileChunk {
   chunk_index     Int
   content         String
   page_number     Int?
-  bbox            Json? // [x, y, w, h] in percentage (0-1)
+  bbox            Json?
   token_count     Int?
   search_vector   Unsupported("tsvector")?
   semantic_vector Unsupported("vector")?
   created_at      DateTime                 @default(now()) @db.Timestamptz(6)
-
-  file FileList @relation(fields: [file_id], references: [id], onDelete: Cascade)
+  file            FileList                 @relation(fields: [file_id], references: [id], onDelete: Cascade)
 
   @@index([file_id], map: "idx_file_chunks_file")
   @@index([search_vector], map: "idx_file_chunks_search_vector", type: Gin)
@@ -94,56 +90,51 @@ model FileChunk {
 model user {
   id                    Int                 @id @default(autoincrement())
   username              String              @unique @db.VarChar(100)
-  name                  String?             @db.VarChar(255)
-  image                 String?
   password_hash         String?             @db.VarChar(255)
   role                  UserRole            @default(student)
   is_active             Boolean?            @default(true)
   last_login            DateTime?           @db.Timestamptz(6)
   created_at            DateTime?           @default(now()) @db.Timestamptz(6)
   email                 String?             @unique @db.VarChar(255)
+  image                 String?
+  name                  String?             @db.VarChar(255)
+  battle_participations BattleParticipant[]
+  created_battles       Battle[]
   categories            CategoryList[]
   conversations         Conversation[]
   files                 FileList[]
-  usage_tracking        UsageTracking[]
-  subscription          UserSubscription?
+  instructor_profile    Instructor?
+  learning_sessions     LearningSession[]
   profile               Profile?
   quizzes               Quiz[]
-  points                UserPoints[]
-  badges                UserBadge[]
-  learning_sessions     LearningSession[]
-  created_battles       Battle[]
-  battle_participations BattleParticipant[]
-  enrollments           UserEnrollment[]
   textbooks_created     Textbook[]          @relation("TextbookCreator")
-  instructor_profile    Instructor?
+  usage_tracking        UsageTracking[]
+  badges                UserBadge[]
+  enrollments           UserEnrollment[]
+  points                UserPoints[]
+  subscription          UserSubscription?
 
   @@index([email], map: "idx_user_email")
 }
 
 model UserEnrollment {
-  id               Int       @id @default(autoincrement())
+  id               Int          @id @default(autoincrement())
   user_id          Int
   course_id        Int
-  status           String    @default("active") // active, completed, archived
-  progress         Int       @default(0) // 0-100
-  last_accessed_at DateTime? @db.Timestamptz(6)
-  enrolled_at      DateTime  @default(now()) @db.Timestamptz(6)
-  completed_at     DateTime? @db.Timestamptz(6)
-
-  // Trial & Payment fields
-  is_paid       Boolean   @default(false) // Has user purchased the course?
-  trial_ends_at DateTime? @db.Timestamptz(6) // When trial expires (null for free courses)
-  payment_id    String?   @db.VarChar(255) // Razorpay payment reference
-
-  // Enrollment context
-  institution_id BigInt?
-  program_id     Int?
-
-  user        user         @relation(fields: [user_id], references: [id], onDelete: Cascade)
-  course      Course       @relation(fields: [course_id], references: [id], onDelete: Cascade)
-  institution Institution? @relation(fields: [institution_id], references: [id])
-  program     Program?     @relation(fields: [program_id], references: [id])
+  status           String       @default("active")
+  progress         Int          @default(0)
+  last_accessed_at DateTime?    @db.Timestamptz(6)
+  enrolled_at      DateTime     @default(now()) @db.Timestamptz(6)
+  completed_at     DateTime?    @db.Timestamptz(6)
+  institution_id   BigInt?
+  program_id       Int?
+  is_paid          Boolean      @default(false)
+  payment_id       String?      @db.VarChar(255)
+  trial_ends_at    DateTime?    @db.Timestamptz(6)
+  course           Course       @relation(fields: [course_id], references: [id], onDelete: Cascade)
+  institution      Institution? @relation(fields: [institution_id], references: [id])
+  program          Program?     @relation(fields: [program_id], references: [id])
+  user             user         @relation(fields: [user_id], references: [id], onDelete: Cascade)
 
   @@unique([user_id, course_id])
   @@index([user_id])
@@ -154,23 +145,22 @@ model UserEnrollment {
 }
 
 model Course {
-  id            Int      @id @default(autoincrement())
-  title         String   @db.VarChar(255)
-  description   String?  @db.Text
+  id            Int              @id @default(autoincrement())
+  title         String           @db.VarChar(255)
+  description   String?
   thumbnail_url String?
   board_id      String
-  is_published  Boolean  @default(false)
-  is_free       Boolean  @default(true)
-  price         Decimal? @db.Decimal(10, 2)
-  currency      String   @default("INR") @db.VarChar(3)
+  is_published  Boolean          @default(false)
+  is_free       Boolean          @default(true)
+  price         Decimal?         @db.Decimal(10, 2)
+  currency      String           @default("INR") @db.VarChar(3)
   instructor_id Int?
-  created_at    DateTime @default(now()) @db.Timestamptz(6)
-  updated_at    DateTime @updatedAt @db.Timestamptz(6)
-
-  board       Board            @relation(fields: [board_id], references: [id])
-  instructor  Instructor?      @relation(fields: [instructor_id], references: [id])
-  subjects    Subject[]
-  enrollments UserEnrollment[]
+  created_at    DateTime         @default(now()) @db.Timestamptz(6)
+  updated_at    DateTime         @updatedAt @db.Timestamptz(6)
+  board         Board            @relation(fields: [board_id], references: [id])
+  instructor    Instructor?      @relation(fields: [instructor_id], references: [id])
+  enrollments   UserEnrollment[]
+  subjects      Subject[]        @relation("CourseToSubject")
 
   @@map("courses")
 }
@@ -178,15 +168,14 @@ model Course {
 model Instructor {
   id           Int      @id @default(autoincrement())
   user_id      Int      @unique
-  bio          String?  @db.Text
+  bio          String?
   avatar_url   String?
   title        String?  @db.VarChar(100)
   social_links Json?    @default("{}")
   created_at   DateTime @default(now()) @db.Timestamptz(6)
   updated_at   DateTime @updatedAt @db.Timestamptz(6)
-
-  user    user     @relation(fields: [user_id], references: [id], onDelete: Cascade)
-  courses Course[]
+  courses      Course[]
+  user         user     @relation(fields: [user_id], references: [id], onDelete: Cascade)
 
   @@map("instructors")
 }
@@ -202,12 +191,12 @@ model Conversation {
   message_count   Int                   @default(0)
   is_pinned       Boolean               @default(false)
   is_archived     Boolean               @default(false)
-  subject_id      Int?
   chapter_id      BigInt?
+  subject_id      Int?
   messages        ConversationMessage[]
-  user            user                  @relation(fields: [user_id], references: [id], onDelete: Cascade)
-  subject         Subject?              @relation(fields: [subject_id], references: [id], onDelete: Cascade)
   chapter         Chapter?              @relation(fields: [chapter_id], references: [id])
+  subject         Subject?              @relation(fields: [subject_id], references: [id], onDelete: Cascade)
+  user            user                  @relation(fields: [user_id], references: [id], onDelete: Cascade)
 
   @@index([user_id, updated_at(sort: Desc)], map: "idx_conversations_user_updated")
   @@index([user_id, is_pinned, updated_at(sort: Desc)], map: "idx_conversations_user_pinned")
@@ -268,19 +257,19 @@ model AiModel {
 
 /// Cache for AI chat responses to reduce API calls
 model AiResponseCache {
-  id            Int       @id @default(autoincrement())
-  cache_key     String    @unique @db.VarChar(255)
-  query_type    String    @db.VarChar(50)
+  id            Int      @id @default(autoincrement())
+  cache_key     String   @unique @db.VarChar(255)
+  query_type    String   @db.VarChar(50)
   chapter_id    BigInt?
   subject_id    BigInt?
-  question      String    @db.Text
-  response_text String    @db.Text
+  question      String
+  response_text String
   input_tokens  Int
   output_tokens Int
-  images        String[]  @default([])
-  hit_count     Int       @default(1)
-  created_at    DateTime  @default(now()) @db.Timestamptz(6)
-  expires_at    DateTime  @db.Timestamptz(6)
+  hit_count     Int      @default(1)
+  created_at    DateTime @default(now()) @db.Timestamptz(6)
+  expires_at    DateTime @db.Timestamptz(6)
+  images        String[] @default([])
 
   @@index([expires_at], map: "idx_ai_response_cache_expires")
   @@index([chapter_id], map: "idx_ai_response_cache_chapter")
@@ -358,81 +347,70 @@ model UsageTracking {
   @@map("usage_tracking")
 }
 
-// --- Bharat-Tutor Multi-Tenancy Models ---
-
 model Country {
-  id        String  @id // 'IN', 'NG', 'PK', 'PH'
-  name      String // 'India', 'Nigeria'...
-  currency  String // '₹', '₦'...
+  id        String  @id
+  name      String
+  currency  String
   locale    String  @default("en")
   is_active Boolean @default(true)
-
-  boards Board[]
+  boards    Board[]
 
   @@map("countries")
 }
 
 model Board {
-  id         String   @id // 'CBSE', 'MBSE', 'WAEC', 'IIT-JEE', 'UPSC', etc.
-  name       String // 'Central Board of Secondary Education', 'Union Public Service Commission'
-  country_id String   @default("IN")
-  state      String? // 'Mizoram' (null for national/central)
-  type       String   @default("academic") // 'academic', 'competitive_exam', 'professional'
-  is_active  Boolean  @default(true)
-  created_at DateTime @default(now())
-  updated_at DateTime @updatedAt
-
+  id           String              @id
+  name         String
+  country_id   String              @default("IN")
+  state        String?
+  is_active    Boolean             @default(true)
+  created_at   DateTime            @default(now())
+  updated_at   DateTime            @updatedAt
+  type         String              @default("academic")
   country      Country             @relation(fields: [country_id], references: [id])
+  chunkBoards  ChapterChunkBoard[]
+  courses      Course[]
   institutions Institution[]
   programs     Program[]
-  courses      Course[]
-  chunkBoards  ChapterChunkBoard[]
 
   @@index([country_id, is_active])
   @@index([type])
   @@map("boards")
 }
 
-// Replaces old "School" model - supports schools, colleges, universities, coaching centers
 model Institution {
-  id             BigInt    @id @default(autoincrement())
+  id             BigInt           @id @default(autoincrement())
   board_id       String
   name           String
-  type           String // 'school', 'college', 'university', 'coaching_center'
+  type           String
   district       String?
   state          String?
   license_expiry DateTime?
-  is_active      Boolean   @default(true)
-  created_at     DateTime  @default(now())
-
-  board       Board            @relation(fields: [board_id], references: [id])
-  programs    Program[]
-  enrollments UserEnrollment[]
+  is_active      Boolean          @default(true)
+  created_at     DateTime         @default(now())
+  board          Board            @relation(fields: [board_id], references: [id])
+  programs       Program[]
+  enrollments    UserEnrollment[]
 
   @@index([board_id, is_active])
   @@map("institutions")
 }
 
-// New model: represents Class 10, B.Tech IT, MBBS Year 2, UPSC Prelims, etc.
 model Program {
-  id             Int      @id @default(autoincrement())
+  id             Int              @id @default(autoincrement())
   board_id       String
-  institution_id BigInt? // null for board-level programs (e.g., UPSC CSE)
-  name           String // 'Class 10', 'B.Tech - Computer Science', 'MBBS - Year 2', 'UPSC Civil Services'
-  code           String? // 'CLS10', 'BTECH_CS', 'MBBS_Y2', 'UPSC_CSE'
-  level          String? // 'secondary', 'undergraduate', 'postgraduate', 'competitive'
-  duration_years Int? // 1, 4, 5, etc. (null for one-time exams)
-  is_active      Boolean  @default(true)
-  created_at     DateTime @default(now())
-
-  // Exam Category for quiz difficulty calibration
-  // Values: academic_board, engineering, medical, government_prelims, government_mains, banking, university, general
-  exam_category String? @db.VarChar(50)
-
-  board       Board            @relation(fields: [board_id], references: [id])
-  institution Institution?     @relation(fields: [institution_id], references: [id])
-  subjects    Subject[]
-  enrollments UserEnrollment[]
+  institution_id BigInt?
+  name           String
+  code           String?
+  level          String?
+  duration_years Int?
+  is_active      Boolean          @default(true)
+  created_at     DateTime         @default(now())
+  exam_category  String?          @db.VarChar(50)
+  board          Board            @relation(fields: [board_id], references: [id])
+  institution    Institution?     @relation(fields: [institution_id], references: [id])
+  subjects       Subject[]
+  enrollments    UserEnrollment[]
 
   @@unique([board_id, institution_id, name])
   @@index([board_id, level])
@@ -443,37 +421,532 @@ model Profile {
   id           Int     @id @default(autoincrement())
   user_id      Int     @unique
   is_premium   Boolean @default(false)
-  last_sync_at BigInt? // Unix ms for mobile sync
-
-  user user @relation(fields: [user_id], references: [id], onDelete: Cascade)
+  last_sync_at BigInt?
+  user         user    @relation(fields: [user_id], references: [id], onDelete: Cascade)
 
   @@map("profiles")
 }
 
-// Subjects now linked to Programs instead of Boards
 model Subject {
-  id         Int      @id @default(autoincrement())
-  program_id Int // Required: subjects belong to programs
-  exam_id    String?  // Optional: categorize by target exam (UPSC, JEE, etc.)
-  name       String // 'Physics', 'Data Structures', 'General Studies', 'Pharmacology'
-  code       String? // 'PHY', 'DS', 'GS', 'PHARM'
-  is_active  Boolean  @default(true)
-  quizzes_enabled Boolean @default(true)
-  created_at DateTime @default(now())
-
-  program       Program        @relation(fields: [program_id], references: [id])
-  exam          Exam?          @relation(fields: [exam_id], references: [id])
-  term          String? // e.g. "Semester 1", "Year 2", or null for annual
-  chapters      Chapter[]
-  quizzes       Quiz[]
-  conversations Conversation[]
-  courses       Course[]
-  textbooks     Textbook[]
+  id              Int            @id @default(autoincrement())
+  name            String
+  code            String?
+  is_active       Boolean        @default(true)
+  created_at      DateTime       @default(now())
+  program_id      Int
+  term            String?
+  exam_id         String?
+  quizzes_enabled Boolean        @default(true)
+  chapters        Chapter[]
+  conversations   Conversation[]
+  quizzes         Quiz[]
+  exam            Exam?          @relation(fields: [exam_id], references: [id])
+  program         Program        @relation(fields: [program_id], references: [id])
+  textbooks       Textbook[]
+  courses         Course[]       @relation("CourseToSubject")
 
   @@unique([program_id, name])
   @@index([program_id])
   @@index([exam_id])
   @@map("subjects")
+}
+
+model Chapter {
+  id                BigInt            @id @default(autoincrement())
+  subject_id        Int
+  title             String
+  chapter_number    Int?
+  content_json      Json
+  version_id        String            @default(cuid())
+  accessible_boards String[]
+  is_global         Boolean           @default(false)
+  is_active         Boolean           @default(true)
+  created_at        DateTime          @default(now())
+  updated_at        DateTime          @updatedAt
+  parsed_at         DateTime?
+  error_message     String?
+  processed_at      DateTime?
+  processing_status ChapterStatus     @default(PENDING)
+  pdf_url           String?
+  quiz_regen_status QuizRegenStatus   @default(IDLE)
+  quizzes_enabled   Boolean           @default(true)
+  chunks            ChapterChunk[]
+  subject           Subject           @relation(fields: [subject_id], references: [id], onDelete: Cascade)
+  conversations     Conversation[]
+  learning_sessions LearningSession[]
+  questions         Question[]
+  quizzes           Quiz[]
+  study_materials   StudyMaterial?
+
+  @@index([subject_id, chapter_number])
+  @@index([accessible_boards], type: Gin)
+  @@index([processing_status])
+  @@map("chapters")
+}
+
+model ChapterChunk {
+  id              BigInt                   @id @default(autoincrement())
+  chapter_id      BigInt
+  chunk_index     Int
+  content         String
+  page_number     Int?
+  search_vector   Unsupported("tsvector")?
+  semantic_vector Unsupported("vector")?
+  subject_id      Int?
+  created_at      DateTime                 @default(now())
+  chunkBoards     ChapterChunkBoard[]
+  chapter         Chapter                  @relation(fields: [chapter_id], references: [id], onDelete: Cascade)
+
+  @@index([chapter_id, chunk_index])
+  @@index([search_vector], type: Gin)
+  @@index([semantic_vector])
+  @@index([subject_id])
+  @@map("chapter_chunks")
+}
+
+model ChapterChunkBoard {
+  chunk_id BigInt
+  board_id String
+  board    Board        @relation(fields: [board_id], references: [id])
+  chunk    ChapterChunk @relation(fields: [chunk_id], references: [id], onDelete: Cascade)
+
+  @@id([chunk_id, board_id])
+  @@index([board_id])
+  @@map("chapter_chunk_boards")
+}
+
+/// System-wide settings for quiz configuration
+model SystemSetting {
+  id         Int      @id @default(autoincrement())
+  key        String   @unique @db.VarChar(255)
+  value      String
+  type       String   @db.VarChar(50)
+  created_at DateTime @default(now()) @db.Timestamptz(6)
+  updated_at DateTime @updatedAt @db.Timestamptz(6)
+
+  @@map("system_settings")
+}
+
+model Quiz {
+  id           String         @id @default(cuid())
+  user_id      Int
+  subject_id   Int
+  chapter_id   BigInt?
+  title        String
+  description  String?
+  status       QuizStatus     @default(IN_PROGRESS)
+  score        Int            @default(0)
+  total_points Int            @default(0)
+  created_at   DateTime       @default(now())
+  updated_at   DateTime       @updatedAt
+  completed_at DateTime?
+  battles      Battle[]
+  questions    QuizQuestion[]
+  chapter      Chapter?       @relation(fields: [chapter_id], references: [id])
+  subject      Subject        @relation(fields: [subject_id], references: [id], onDelete: Cascade)
+  user         user           @relation(fields: [user_id], references: [id], onDelete: Cascade)
+
+  @@index([user_id])
+  @@index([subject_id])
+  @@map("quizzes")
+}
+
+model QuizQuestion {
+  id             String       @id @default(cuid())
+  quiz_id        String
+  question_text  String
+  question_type  QuestionType
+  options        Json?
+  correct_answer Json
+  user_answer    Json?
+  is_correct     Boolean?
+  points         Int          @default(1)
+  explanation    String?
+  feedback       String?
+  quiz           Quiz         @relation(fields: [quiz_id], references: [id], onDelete: Cascade)
+
+  @@index([quiz_id])
+  @@map("quiz_questions")
+}
+
+/// Question Bank Model - Stores pre-generated questions for chapters
+model Question {
+  id             String       @id @default(cuid())
+  chapter_id     BigInt
+  question_text  String
+  question_type  QuestionType
+  difficulty     String
+  options        Json?
+  correct_answer Json
+  explanation    String?
+  points         Int          @default(1)
+  is_active      Boolean      @default(true)
+  created_at     DateTime     @default(now())
+  updated_at     DateTime     @updatedAt
+  chapter        Chapter      @relation(fields: [chapter_id], references: [id], onDelete: Cascade)
+
+  @@index([chapter_id, difficulty, question_type])
+  @@map("questions")
+}
+
+model UserPoints {
+  id         String   @id @default(cuid())
+  user_id    Int
+  points     Int
+  reason     String
+  metadata   Json?
+  created_at DateTime @default(now())
+  user       user     @relation(fields: [user_id], references: [id], onDelete: Cascade)
+
+  @@index([user_id])
+  @@map("user_points")
+}
+
+model StudyMaterial {
+  id             BigInt   @id @default(autoincrement())
+  chapter_id     BigInt   @unique
+  summary        Json?
+  definitions    Json?
+  flashcards     Json?
+  mind_map       String?
+  video_queries  String[]
+  curated_videos Json?
+  created_at     DateTime @default(now())
+  updated_at     DateTime @updatedAt
+  chapter        Chapter  @relation(fields: [chapter_id], references: [id], onDelete: Cascade)
+
+  @@index([chapter_id])
+  @@map("study_materials")
+}
+
+model Exam {
+  id            String     @id @default(cuid())
+  name          String     @db.VarChar(255)
+  description   String?
+  is_active     Boolean    @default(true)
+  created_at    DateTime   @default(now())
+  updated_at    DateTime   @updatedAt
+  code          String     @unique @db.VarChar(50)
+  short_name    String?    @db.VarChar(100)
+  exam_type     String     @default("board") @db.VarChar(30)
+  parent_id     String?
+  display_order Int        @default(0)
+  parent        Exam?      @relation("ExamHierarchy", fields: [parent_id], references: [id])
+  children      Exam[]     @relation("ExamHierarchy")
+  subjects      Subject[]
+  syllabi       Syllabus[]
+  textbooks     Textbook[]
+
+  @@index([exam_type])
+  @@index([is_active, display_order])
+  @@map("exams")
+}
+
+model StreakBadge {
+  id          String      @id @default(cuid())
+  name        String
+  icon        String
+  min_streak  Int         @unique
+  is_active   Boolean     @default(true)
+  created_at  DateTime    @default(now())
+  updated_at  DateTime    @updatedAt
+  user_badges UserBadge[]
+
+  @@map("streak_badges")
+}
+
+model UserBadge {
+  id        String      @id @default(cuid())
+  user_id   Int
+  badge_id  String
+  earned_at DateTime    @default(now())
+  badge     StreakBadge @relation(fields: [badge_id], references: [id], onDelete: Cascade)
+  user      user        @relation(fields: [user_id], references: [id], onDelete: Cascade)
+
+  @@unique([user_id, badge_id])
+  @@index([user_id])
+  @@index([badge_id])
+  @@map("user_badges")
+}
+
+model LearningSession {
+  id            String   @id @default(cuid())
+  user_id       Int
+  chapter_id    BigInt
+  status        String   @default("active")
+  current_topic String?
+  progress      Int      @default(0)
+  created_at    DateTime @default(now())
+  updated_at    DateTime @updatedAt
+  chapter       Chapter  @relation(fields: [chapter_id], references: [id], onDelete: Cascade)
+  user          user     @relation(fields: [user_id], references: [id], onDelete: Cascade)
+
+  @@index([user_id, chapter_id])
+  @@map("learning_sessions")
+}
+
+model Battle {
+  id               String              @id @default(cuid())
+  quiz_id          String
+  code             String              @unique @db.VarChar(10)
+  status           BattleStatus        @default(WAITING)
+  created_by       Int
+  created_at       DateTime            @default(now())
+  started_at       DateTime?
+  ended_at         DateTime?
+  settings         Json?
+  duration_minutes Int                 @default(5)
+  is_public        Boolean             @default(true)
+  participants     BattleParticipant[]
+  creator          user                @relation(fields: [created_by], references: [id])
+  quiz             Quiz                @relation(fields: [quiz_id], references: [id], onDelete: Cascade)
+
+  @@index([code])
+  @@index([status])
+  @@index([created_by])
+  @@map("battles")
+}
+
+model BattleParticipant {
+  id              String    @id @default(cuid())
+  battle_id       String
+  user_id         Int
+  score           Int       @default(0)
+  current_q_index Int       @default(0)
+  finished        Boolean   @default(false)
+  joined_at       DateTime  @default(now())
+  last_active     DateTime  @default(now())
+  is_ready        Boolean   @default(false)
+  completed_at    DateTime?
+  points_change   Int       @default(0)
+  rank            Int       @default(0)
+  battle          Battle    @relation(fields: [battle_id], references: [id], onDelete: Cascade)
+  user            user      @relation(fields: [user_id], references: [id], onDelete: Cascade)
+
+  @@unique([battle_id, user_id])
+  @@map("battle_participants")
+}
+
+model Syllabus {
+  id                 Int            @id @default(autoincrement())
+  title              String         @db.VarChar(255)
+  description        String?
+  board              String         @default("MBSE")
+  class_level        String         @db.VarChar(20)
+  stream             String?        @db.VarChar(50)
+  subject            String         @db.VarChar(255)
+  academic_year      String?        @db.VarChar(20)
+  raw_text           String?
+  status             SyllabusStatus @default(DRAFT)
+  created_at         DateTime       @default(now()) @db.Timestamptz(6)
+  updated_at         DateTime       @updatedAt @db.Timestamptz(6)
+  exam_category      String?        @default("academic_board") @db.VarChar(50)
+  parent_syllabus_id Int?
+  syllabus_mode      String?        @default("single") @db.VarChar(20)
+  exam_id            String?
+  exam               Exam?          @relation(fields: [exam_id], references: [id])
+  parent             Syllabus?      @relation("SyllabusSplit", fields: [parent_syllabus_id], references: [id])
+  children           Syllabus[]     @relation("SyllabusSplit")
+  units              SyllabusUnit[]
+  textbooks          Textbook[]
+
+  @@index([exam_id])
+  @@index([parent_syllabus_id])
+  @@map("syllabi")
+}
+
+model SyllabusUnit {
+  id          Int               @id @default(autoincrement())
+  syllabus_id Int
+  title       String            @db.VarChar(255)
+  order       Int
+  description String?
+  chapters    SyllabusChapter[]
+  syllabus    Syllabus          @relation(fields: [syllabus_id], references: [id], onDelete: Cascade)
+
+  @@unique([syllabus_id, order])
+  @@map("syllabus_units")
+}
+
+model SyllabusChapter {
+  id             Int          @id @default(autoincrement())
+  unit_id        Int
+  chapter_number String       @db.VarChar(10)
+  title          String       @db.VarChar(255)
+  order          Int
+  subtopics      Json?
+  unit           SyllabusUnit @relation(fields: [unit_id], references: [id], onDelete: Cascade)
+
+  @@unique([unit_id, order])
+  @@map("syllabus_chapters")
+}
+
+/// Represents a complete textbook project
+model Textbook {
+  id               Int                     @id @default(autoincrement())
+  title            String                  @db.VarChar(255)
+  description      String?
+  class_level      String                  @db.VarChar(20)
+  stream           String?                 @db.VarChar(50)
+  subject_name     String?                 @db.VarChar(255)
+  board_id         String?                 @default("MBSE")
+  academic_year    String?                 @db.VarChar(20)
+  author           String?                 @db.VarChar(255)
+  raw_syllabus     String?
+  status           TextbookStatus          @default(DRAFT)
+  progress         Int                     @default(0)
+  cover_image_url  String?
+  pdf_url          String?
+  created_at       DateTime                @default(now()) @db.Timestamptz(6)
+  updated_at       DateTime                @updatedAt @db.Timestamptz(6)
+  created_by       Int
+  compiled_pdf_url String?
+  subject_id       Int?
+  syllabus_id      Int?
+  content_style    String?                 @default("academic") @db.VarChar(30)
+  exam_id          String?
+  generation_jobs  TextbookGenerationJob[]
+  units            TextbookUnit[]
+  creator          user                    @relation("TextbookCreator", fields: [created_by], references: [id])
+  exam             Exam?                   @relation(fields: [exam_id], references: [id])
+  subject          Subject?                @relation(fields: [subject_id], references: [id], onDelete: Cascade)
+  syllabus         Syllabus?               @relation(fields: [syllabus_id], references: [id])
+
+  @@index([exam_id])
+  @@index([status, created_at(sort: Desc)])
+  @@index([board_id, class_level])
+  @@index([created_by])
+  @@map("textbooks")
+}
+
+/// Represents a unit/part within a textbook
+model TextbookUnit {
+  id          Int               @id @default(autoincrement())
+  textbook_id Int
+  order       Int
+  title       String            @db.VarChar(255)
+  description String?
+  created_at  DateTime          @default(now()) @db.Timestamptz(6)
+  updated_at  DateTime          @updatedAt @db.Timestamptz(6)
+  chapters    TextbookChapter[]
+  textbook    Textbook          @relation(fields: [textbook_id], references: [id], onDelete: Cascade)
+
+  @@unique([textbook_id, order])
+  @@map("textbook_units")
+}
+
+/// Represents a chapter within a unit
+model TextbookChapter {
+  id                 Int               @id @default(autoincrement())
+  unit_id            Int
+  chapter_number     String            @db.VarChar(10)
+  title              String            @db.VarChar(255)
+  order              Int
+  raw_syllabus_text  String?
+  subtopics          Json?
+  content_markdown   String?
+  content_html       String?
+  learning_outcomes  Json?
+  key_takeaways      Json?
+  neet_relevant      Boolean           @default(false)
+  jee_relevant       Boolean           @default(false)
+  cuet_relevant      Boolean           @default(false)
+  exam_highlights    Json?
+  mcq_questions      Json?
+  short_questions    Json?
+  long_questions     Json?
+  model_used         String?           @db.VarChar(100)
+  tokens_used        Json?
+  generation_time_ms Int?
+  status             ChapterGenStatus  @default(PENDING)
+  generation_error   String?
+  created_at         DateTime          @default(now()) @db.Timestamptz(6)
+  updated_at         DateTime          @updatedAt @db.Timestamptz(6)
+  content            String?
+  generated_at       DateTime?         @db.Timestamptz(6)
+  pdf_url            String?
+  summary            String?
+  image_count        Int?
+  long_answer_count  Int?
+  max_words          Int?
+  mcq_count          Int?
+  min_words          Int?
+  short_answer_count Int?
+  unit               TextbookUnit      @relation(fields: [unit_id], references: [id], onDelete: Cascade)
+  images             TextbookImage[]
+  sections           TextbookSection[]
+
+  @@unique([unit_id, order])
+  @@index([status])
+  @@map("textbook_chapters")
+}
+
+/// Represents a recursive section within a chapter (Topic -> Subtopic -> Detail)
+model TextbookSection {
+  id         String            @id @default(cuid())
+  chapter_id Int
+  parent_id  String?
+  order      Int
+  title      String            @db.VarChar(255)
+  level      Int               @default(1)
+  content    String?
+  status     ChapterGenStatus  @default(PENDING)
+  created_at DateTime          @default(now()) @db.Timestamptz(6)
+  updated_at DateTime          @updatedAt @db.Timestamptz(6)
+  chapter    TextbookChapter   @relation(fields: [chapter_id], references: [id], onDelete: Cascade)
+  parent     TextbookSection?  @relation("SectionHierarchy", fields: [parent_id], references: [id], onDelete: Cascade)
+  children   TextbookSection[] @relation("SectionHierarchy")
+
+  @@index([chapter_id])
+  @@index([parent_id])
+  @@map("textbook_sections")
+}
+
+/// Stores generated images/diagrams for chapters
+model TextbookImage {
+  id                 Int               @id @default(autoincrement())
+  chapter_id         Int
+  type               TextbookImageType
+  prompt             String?
+  alt_text           String?           @db.VarChar(255)
+  image_url          String?
+  order              Int               @default(0)
+  model_used         String?           @db.VarChar(100)
+  generation_time_ms Int?
+  created_at         DateTime          @default(now()) @db.Timestamptz(6)
+  generated_at       DateTime?         @db.Timestamptz(6)
+  placement          String?           @db.VarChar(255)
+  status             ImageGenStatus    @default(PENDING)
+  url                String?
+  caption            String?           @db.VarChar(500)
+  chapter            TextbookChapter   @relation(fields: [chapter_id], references: [id], onDelete: Cascade)
+
+  @@index([chapter_id, type])
+  @@index([status])
+  @@map("textbook_images")
+}
+
+/// Tracks generation jobs for async processing
+model TextbookGenerationJob {
+  id            Int                       @id @default(autoincrement())
+  textbook_id   Int
+  job_type      TextbookGenerationJobType
+  status        TextbookJobStatus         @default(QUEUED)
+  target_id     Int?
+  input_data    Json?
+  output_data   Json?
+  error_message String?
+  progress      Int                       @default(0)
+  started_at    DateTime?                 @db.Timestamptz(6)
+  completed_at  DateTime?                 @db.Timestamptz(6)
+  attempts      Int                       @default(0)
+  max_attempts  Int                       @default(3)
+  created_at    DateTime                  @default(now()) @db.Timestamptz(6)
+  textbook      Textbook                  @relation(fields: [textbook_id], references: [id], onDelete: Cascade)
+
+  @@index([status, created_at])
+  @@index([textbook_id, job_type])
+  @@map("textbook_generation_jobs")
 }
 
 enum ChapterStatus {
@@ -494,75 +967,6 @@ enum QuizRegenStatus {
   @@map("quiz_regen_status")
 }
 
-model Chapter {
-  id                BigInt        @id @default(autoincrement())
-  subject_id        Int
-  title             String // 'Chapter 6: Life Processes'
-  chapter_number    Int?
-  content_json      Json // LlamaParse output
-  version_id        String        @default(cuid()) // For sync
-  accessible_boards String[] // For cross-board content (e.g., NCERT used by multiple boards)
-  is_global         Boolean       @default(false) // true = accessible to all boards
-  is_active         Boolean       @default(true)
-  quizzes_enabled   Boolean       @default(true) // New field for chapter-level control
-  processing_status ChapterStatus @default(PENDING)
-  error_message     String?       @db.Text
-  processed_at      DateTime?
-  created_at        DateTime      @default(now())
-  updated_at        DateTime      @updatedAt
-  parsed_at         DateTime?
-  pdf_url           String?
-
-  quiz_regen_status QuizRegenStatus @default(IDLE) // For tracking quiz regeneration
-
-  subject           Subject           @relation(fields: [subject_id], references: [id], onDelete: Cascade)
-  chunks            ChapterChunk[]
-  quizzes           Quiz[]
-  study_materials   StudyMaterial?
-  learning_sessions LearningSession[]
-  conversations     Conversation[]
-  questions         Question[]
-
-  @@index([subject_id, chapter_number])
-  @@index([accessible_boards], type: Gin) // For RLS
-  @@index([processing_status])
-  @@map("chapters")
-}
-
-model ChapterChunk {
-  id              BigInt                   @id @default(autoincrement())
-  chapter_id      BigInt
-  chunk_index     Int
-  content         String
-  page_number     Int?
-  search_vector   Unsupported("tsvector")?
-  semantic_vector Unsupported("vector")?
-  subject_id      Int? // Denormalized
-  created_at      DateTime                 @default(now())
-
-  chapter     Chapter             @relation(fields: [chapter_id], references: [id], onDelete: Cascade)
-  chunkBoards ChapterChunkBoard[]
-
-  @@index([chapter_id, chunk_index])
-  @@index([search_vector], type: Gin)
-  @@index([semantic_vector])
-  @@index([subject_id])
-  @@map("chapter_chunks")
-}
-
-// Junction table for board access (scales better than array)
-model ChapterChunkBoard {
-  chunk_id BigInt
-  board_id String
-  chunk    ChapterChunk @relation(fields: [chunk_id], references: [id], onDelete: Cascade)
-  board    Board        @relation(fields: [board_id], references: [id])
-
-  @@id([chunk_id, board_id])
-  @@index([board_id])
-  @@map("chapter_chunk_boards")
-}
-
-
 enum MessageRole {
   user
   assistant
@@ -572,9 +976,9 @@ enum MessageRole {
 
 enum UserRole {
   admin
-  instructor
-  student
   institution
+  student
+  instructor
 
   @@map("user_role")
 }
@@ -619,8 +1023,6 @@ enum Provider {
   openrouter
 }
 
-// --- Exam Prep & Gamification Models ---
-
 enum QuestionType {
   MCQ
   TRUE_FALSE
@@ -635,362 +1037,13 @@ enum QuizStatus {
   ABANDONED
 }
 
-/// System-wide settings for quiz configuration
-model SystemSetting {
-  id    Int    @id @default(autoincrement())
-  key   String @unique @db.VarChar(255)
-  value String @db.Text
-  type  String @db.VarChar(50) // 'number', 'string', 'boolean', 'json'
-
-  created_at DateTime @default(now()) @db.Timestamptz(6)
-  updated_at DateTime @updatedAt @db.Timestamptz(6)
-
-  @@map("system_settings")
-}
-
-model Quiz {
-  id          String  @id @default(cuid())
-  user_id     Int
-  subject_id  Int
-  chapter_id  BigInt? // Optional: quiz can be for a whole subject or specific chapter
-  title       String
-  description String?
-
-  status       QuizStatus @default(IN_PROGRESS)
-  score        Int        @default(0)
-  total_points Int        @default(0)
-
-  created_at   DateTime  @default(now())
-  updated_at   DateTime  @updatedAt
-  completed_at DateTime?
-
-  user    user     @relation(fields: [user_id], references: [id], onDelete: Cascade)
-  subject Subject  @relation(fields: [subject_id], references: [id], onDelete: Cascade)
-  chapter Chapter? @relation(fields: [chapter_id], references: [id])
-
-  questions QuizQuestion[]
-  battles   Battle[]
-
-  @@index([user_id])
-  @@index([subject_id])
-  @@map("quizzes")
-}
-
-model QuizQuestion {
-  id            String       @id @default(cuid())
-  quiz_id       String
-  question_text String       @db.Text
-  question_type QuestionType
-
-  // For MCQ/TF: JSON array of options e.g. ["Option A", "Option B"]
-  options Json?
-
-  // The correct answer(s). For MCQ: index or string. For FITB: correct word.
-  correct_answer Json
-
-  // User's submitted answer
-  user_answer Json?
-
-  is_correct Boolean?
-  points     Int      @default(1)
-
-  // AI-generated explanation for the answer
-  explanation String? @db.Text
-
-  // AI feedback for subjective questions (Short/Long answer)
-  feedback String? @db.Text
-
-  quiz Quiz @relation(fields: [quiz_id], references: [id], onDelete: Cascade)
-
-  @@index([quiz_id])
-  @@map("quiz_questions")
-}
-
-/// Question Bank Model - Stores pre-generated questions for chapters
-model Question {
-  id            String       @id @default(cuid())
-  chapter_id    BigInt
-  question_text String       @db.Text
-  question_type QuestionType
-  difficulty    String // 'easy', 'medium', 'hard'
-
-  // For MCQ/TF: JSON array of options e.g. ["Option A", "Option B"]
-  options Json?
-
-  // The correct answer
-  correct_answer Json
-
-  // AI-generated explanation
-  explanation String? @db.Text
-
-  points     Int      @default(1)
-  is_active  Boolean  @default(true)
-  created_at DateTime @default(now())
-  updated_at DateTime @updatedAt
-
-  chapter Chapter @relation(fields: [chapter_id], references: [id], onDelete: Cascade)
-
-  @@index([chapter_id, difficulty, question_type])
-  @@map("questions")
-}
-
-model UserPoints {
-  id       String @id @default(cuid())
-  user_id  Int
-  points   Int
-  reason   String // e.g. "quiz_completion", "daily_streak", "bonus"
-  metadata Json? // e.g. { quiz_id: "..." }
-
-  created_at DateTime @default(now())
-
-  user user @relation(fields: [user_id], references: [id], onDelete: Cascade)
-
-  @@index([user_id])
-  @@map("user_points")
-}
-
-model StudyMaterial {
-  id         BigInt @id @default(autoincrement())
-  chapter_id BigInt @unique
-
-  // AI-generated content as JSON
-  summary     Json? // { brief: "", key_points: [], important_formulas: [] }
-  definitions Json? // [{ term: "", definition: "" }]
-  flashcards  Json? // [{ front: "", back: "" }]
-  mind_map    String? @db.Text // Mermaid.js syntax
-
-  // YouTube integration  
-  video_queries  String[] // Search queries used
-  curated_videos Json? // [{ title: "", videoId: "", duration: "", thumbnail: "" }]
-
-  created_at DateTime @default(now())
-  updated_at DateTime @updatedAt
-
-  chapter Chapter @relation(fields: [chapter_id], references: [id], onDelete: Cascade)
-
-  @@index([chapter_id])
-  @@map("study_materials")
-}
-
-// Exam Category Model - For categorizing content by target exam
-// Examples: UPSC, JEE Main, NEET, MBSE Class 10, SSC CGL, etc.
-model Exam {
-  id          String   @id @default(cuid())
-  code        String   @unique @db.VarChar(50) // 'UPSC', 'JEE_MAIN', 'NEET', 'MBSE_10'
-  name        String   @db.VarChar(255) // 'Union Public Service Commission Civil Services'
-  short_name  String?  @db.VarChar(100) // 'UPSC CSE' - for display
-  description String?  @db.Text
-  
-  // Exam type for content generation calibration
-  // Values: board, entrance, competitive, professional, university
-  exam_type   String   @default("board") @db.VarChar(30)
-  
-  // Optional grouping
-  parent_id   String?  // For sub-exams like 'UPSC_PRELIMS' under 'UPSC'
-  parent      Exam?    @relation("ExamHierarchy", fields: [parent_id], references: [id])
-  children    Exam[]   @relation("ExamHierarchy")
-  
-  is_active   Boolean  @default(true)
-  display_order Int    @default(0) // For sorting in dropdowns
-  created_at  DateTime @default(now())
-  updated_at  DateTime @updatedAt
-
-  // Relations - content categorized by this exam
-  syllabi     Syllabus[]
-  subjects    Subject[]
-  textbooks   Textbook[]
-
-  @@index([exam_type])
-  @@index([is_active, display_order])
-  @@map("exams")
-}
-
-model StreakBadge {
-  id         String   @id @default(cuid())
-  name       String
-  icon       String // Emoji or icon name
-  min_streak Int      @unique // 7, 14, 30 etc.
-  is_active  Boolean  @default(true)
-  created_at DateTime @default(now())
-  updated_at DateTime @updatedAt
-
-  user_badges UserBadge[]
-
-  @@map("streak_badges")
-}
-
-model UserBadge {
-  id        String   @id @default(cuid())
-  user_id   Int
-  badge_id  String
-  earned_at DateTime @default(now())
-
-  user  user        @relation(fields: [user_id], references: [id], onDelete: Cascade)
-  badge StreakBadge @relation(fields: [badge_id], references: [id], onDelete: Cascade)
-
-  @@unique([user_id, badge_id])
-  @@index([user_id])
-  @@index([badge_id])
-  @@map("user_badges")
-}
-
-model LearningSession {
-  id            String   @id @default(cuid())
-  user_id       Int
-  chapter_id    BigInt
-  status        String   @default("active") // active, completed, paused
-  current_topic String? // e.g., "Balancing Chemical Equations"
-  progress      Int      @default(0) // 0-100%
-  created_at    DateTime @default(now())
-  updated_at    DateTime @updatedAt
-
-  user    user    @relation(fields: [user_id], references: [id], onDelete: Cascade)
-  chapter Chapter @relation(fields: [chapter_id], references: [id], onDelete: Cascade)
-
-  @@index([user_id, chapter_id])
-  @@map("learning_sessions")
-}
-
-// --- P2P Battle Models ---
-
 enum BattleStatus {
-  WAITING // Waiting for opponent
-  STARTING // Countdown
-  IN_PROGRESS // Battle is live
-  COMPLETED // Battle finished
-  ABANDONED // Someone left or timed out
-  EXPIRED // Created but never joined
-}
-
-model Battle {
-  id      String       @id @default(cuid())
-  quiz_id String
-  code    String       @unique @db.VarChar(10) // 6-digit join code
-  status  BattleStatus @default(WAITING)
-  
-  is_public Boolean @default(true) // Whether to show in public lobby
-
-  created_by Int
-  created_at DateTime  @default(now())
-  started_at DateTime?
-  ended_at   DateTime?
-
-  // Settings snapshot
-  settings Json? // { timePerQuestion: 15, ... }
-  duration_minutes Int @default(5)
-
-  quiz    Quiz @relation(fields: [quiz_id], references: [id], onDelete: Cascade)
-  creator user @relation(fields: [created_by], references: [id])
-
-  participants BattleParticipant[]
-
-  @@index([code])
-  @@index([status])
-  @@index([created_by])
-  @@map("battles")
-}
-
-model BattleParticipant {
-  id        String @id @default(cuid())
-  battle_id String
-  user_id   Int
-
-  score           Int      @default(0)
-  current_q_index Int      @default(0) // Which question they are on
-  finished        Boolean  @default(false)
-  is_ready        Boolean  @default(false)
-  joined_at       DateTime @default(now())
-  completed_at    DateTime?
-  
-  // Results
-  points_change   Int      @default(0) // Points won/lost from this battle
-  rank            Int      @default(0) // Final rank in this battle
-
-  // Realtime state
-  last_active DateTime @default(now())
-
-  battle Battle @relation(fields: [battle_id], references: [id], onDelete: Cascade)
-  user   user   @relation(fields: [user_id], references: [id], onDelete: Cascade)
-
-  @@unique([battle_id, user_id])
-  @@map("battle_participants")
-}
-
-// ============================================
-// SYLLABUS MANAGEMENT MODELS
-// ============================================
-
-model Syllabus {
-  id          Int     @id @default(autoincrement())
-  title       String  @db.VarChar(255) // e.g., "MBSE Physics Class XI 2024"
-  description String? @db.Text
-
-  // Metadata matching Textbook
-  board         String  @default("MBSE")
-  class_level   String  @db.VarChar(20)
-  stream        String? @db.VarChar(50)
-  subject       String  @db.VarChar(255)
-  academic_year String? @db.VarChar(20)
-
-  // Exam categorization - links to Exam model
-  exam_id       String? // Optional: categorize by target exam (UPSC, JEE, etc.)
-  exam          Exam?   @relation(fields: [exam_id], references: [id])
-
-  // Exam Category for textbook generation prompts (legacy string field)
-  // Values: academic_board, engineering, medical, government_prelims, government_mains, banking, university, general
-  exam_category String? @default("academic_board") @db.VarChar(50)
-
-  // Syllabus Mode: "single" (default) or "multi_split" (for competitive exams)
-  syllabus_mode      String?   @default("single") @db.VarChar(20)
-  parent_syllabus_id Int?      // For split syllabi, points to parent
-  parent             Syllabus?  @relation("SyllabusSplit", fields: [parent_syllabus_id], references: [id])
-  children           Syllabus[] @relation("SyllabusSplit")
-
-  // Content
-  raw_text String? @db.Text
-
-  // Status
-  status SyllabusStatus @default(DRAFT)
-
-  // Timestamps
-  created_at DateTime @default(now()) @db.Timestamptz(6)
-  updated_at DateTime @updatedAt @db.Timestamptz(6)
-
-  // Relations
-  units     SyllabusUnit[]
-  textbooks Textbook[] // Textbooks created from this syllabus
-
-  @@index([exam_id])
-  @@index([parent_syllabus_id])
-  @@map("syllabi")
-}
-
-model SyllabusUnit {
-  id          Int     @id @default(autoincrement())
-  syllabus_id Int
-  title       String  @db.VarChar(255)
-  order       Int
-  description String? @db.Text
-
-  syllabus Syllabus          @relation(fields: [syllabus_id], references: [id], onDelete: Cascade)
-  chapters SyllabusChapter[]
-
-  @@unique([syllabus_id, order])
-  @@map("syllabus_units")
-}
-
-model SyllabusChapter {
-  id             Int    @id @default(autoincrement())
-  unit_id        Int
-  chapter_number String @db.VarChar(10)
-  title          String @db.VarChar(255)
-  order          Int
-  subtopics      Json? // Array of strings
-
-  unit SyllabusUnit @relation(fields: [unit_id], references: [id], onDelete: Cascade)
-
-  @@unique([unit_id, order])
-  @@map("syllabus_chapters")
+  WAITING
+  STARTING
+  IN_PROGRESS
+  COMPLETED
+  ABANDONED
+  EXPIRED
 }
 
 enum SyllabusStatus {
@@ -1001,240 +1054,6 @@ enum SyllabusStatus {
 
   @@map("syllabus_status")
 }
-
-// ============================================
-// TEXTBOOK GENERATOR MODELS (Zirna-AI)
-// ============================================
-
-/// Represents a complete textbook project
-model Textbook {
-  id           Int     @id @default(autoincrement())
-  title        String  @db.VarChar(255)
-  description  String? @db.Text
-  class_level  String  @db.VarChar(20) // "XI", "XII"
-  stream       String? @db.VarChar(50) // "Arts", "Science", "Commerce"
-  subject_name String? @db.VarChar(255) // Subject name for reference
-  board_id     String? @default("MBSE")
-  subject_id   Int?
-
-  // Exam categorization - links to Exam model
-  exam_id      String? // Can inherit from Syllabus or set directly
-  exam         Exam?   @relation(fields: [exam_id], references: [id])
-
-  // Metadata
-  academic_year String? @db.VarChar(20) // "2024-2025"
-  author        String? @db.VarChar(255)
-
-  // Syllabus Link (New)
-  syllabus_id Int?
-  syllabus    Syllabus? @relation(fields: [syllabus_id], references: [id])
-
-  // Raw syllabus input (keeping for backward compat or manual override)
-  raw_syllabus String? @db.Text
-
-  // Content Style for generation (academic, quick_reference, qa_practice, summary, case_study)
-  content_style String? @default("academic") @db.VarChar(30)
-
-  // Status tracking
-  status   TextbookStatus @default(DRAFT)
-  progress Int            @default(0) // 0-100 percentage
-
-  // Generated content
-  cover_image_url  String?
-  pdf_url          String?
-  compiled_pdf_url String? // URL to the compiled full book PDF
-
-  // Timestamps
-  created_at DateTime @default(now()) @db.Timestamptz(6)
-  updated_at DateTime @updatedAt @db.Timestamptz(6)
-  created_by Int
-
-  // Relations
-  creator         user                    @relation("TextbookCreator", fields: [created_by], references: [id])
-  subject         Subject?                @relation(fields: [subject_id], references: [id], onDelete: Cascade)
-  units           TextbookUnit[]
-  generation_jobs TextbookGenerationJob[]
-
-  @@index([exam_id])
-  @@index([status, created_at(sort: Desc)])
-  @@index([board_id, class_level])
-  @@index([created_by])
-  @@map("textbooks")
-}
-
-/// Represents a unit/part within a textbook
-model TextbookUnit {
-  id          Int     @id @default(autoincrement())
-  textbook_id Int
-  order       Int
-  title       String  @db.VarChar(255) // e.g., "Part A: INDIAN CONSTITUTION AT WORK"
-  description String? @db.Text
-
-  created_at DateTime @default(now()) @db.Timestamptz(6)
-  updated_at DateTime @updatedAt @db.Timestamptz(6)
-
-  textbook Textbook          @relation(fields: [textbook_id], references: [id], onDelete: Cascade)
-  chapters TextbookChapter[]
-
-  @@unique([textbook_id, order])
-  @@map("textbook_units")
-}
-
-/// Represents a chapter within a unit
-model TextbookChapter {
-  id             Int    @id @default(autoincrement())
-  unit_id        Int
-  chapter_number String @db.VarChar(10) // "1", "1.1", etc.
-  title          String @db.VarChar(255)
-  order          Int
-
-  // Raw syllabus input
-  raw_syllabus_text String? @db.Text
-  subtopics         Json? // Array of subtopic strings
-
-  // Generated content
-  content           String? @db.Text // Full chapter content in Markdown
-  content_markdown  String? @db.Text // Legacy - use content instead
-  content_html      String? @db.Text // Rendered HTML for preview
-  summary           String? @db.Text // Brief chapter summary
-  learning_outcomes Json? // Array of learning outcomes
-  key_takeaways     Json? // Array of key points
-
-  // PDF generation
-  pdf_url      String? // URL to chapter PDF in Supabase
-  generated_at DateTime? @db.Timestamptz(6)
-
-  // Competitive exam highlights
-  neet_relevant   Boolean @default(false)
-  jee_relevant    Boolean @default(false)
-  cuet_relevant   Boolean @default(false)
-  exam_highlights Json? // Specific exam-relevant points
-
-  // Practice questions
-  mcq_questions   Json? // Array of MCQ objects
-  short_questions Json? // Array of short answer questions
-  long_questions  Json? // Array of long answer questions
-
-  // Generation overrides (customizable by admin)
-  min_words          Int?
-  max_words          Int?
-  mcq_count          Int?
-  short_answer_count Int?
-  long_answer_count  Int?
-  image_count        Int?
-
-  // Generation metadata
-  model_used         String? @db.VarChar(100)
-  tokens_used        Json? // { input: number, output: number }
-  generation_time_ms Int?
-
-  // Status
-  status           ChapterGenStatus @default(PENDING)
-  generation_error String?          @db.Text
-
-  created_at DateTime @default(now()) @db.Timestamptz(6)
-  updated_at DateTime @updatedAt @db.Timestamptz(6)
-
-  unit   TextbookUnit    @relation(fields: [unit_id], references: [id], onDelete: Cascade)
-  images TextbookImage[]
-  sections TextbookSection[]
-
-  @@unique([unit_id, order])
-  @@index([status])
-  @@map("textbook_chapters")
-}
-
-/// Represents a recursive section within a chapter (Topic -> Subtopic -> Detail)
-model TextbookSection {
-  id          String   @id @default(cuid())
-  chapter_id  Int
-  parent_id   String?
-  order       Int
-  title       String   @db.VarChar(255)
-  level       Int      @default(1) // 1=Topic, 2=Subtopic, etc.
-  
-  // Content
-  content     String?  @db.Text
-  
-  // Status
-  status      ChapterGenStatus @default(PENDING)
-  
-  created_at  DateTime @default(now()) @db.Timestamptz(6)
-  updated_at  DateTime @updatedAt @db.Timestamptz(6)
-
-  chapter     TextbookChapter @relation(fields: [chapter_id], references: [id], onDelete: Cascade)
-  parent      TextbookSection? @relation("SectionHierarchy", fields: [parent_id], references: [id], onDelete: Cascade)
-  children    TextbookSection[] @relation("SectionHierarchy")
-
-  @@index([chapter_id])
-  @@index([parent_id])
-  @@map("textbook_sections")
-}
-
-/// Stores generated images/diagrams for chapters
-model TextbookImage {
-  id         Int               @id @default(autoincrement())
-  chapter_id Int
-  type       TextbookImageType // DIAGRAM, CHART, MAP, ILLUSTRATION, COVER
-  prompt     String?           @db.Text // The prompt used to generate
-  alt_text   String?           @db.VarChar(255)
-  url        String? // Generated image URL in Supabase
-  image_url  String? // Legacy - use url instead
-  order      Int               @default(0)
-  placement  String?           @db.VarChar(255) // Where in the chapter
-  caption    String?           @db.VarChar(500) // Caption text below the image
-
-  // Generation status
-  status ImageGenStatus @default(PENDING)
-
-  // Generation metadata
-  model_used         String?   @db.VarChar(100)
-  generation_time_ms Int?
-  generated_at       DateTime? @db.Timestamptz(6)
-
-  created_at DateTime @default(now()) @db.Timestamptz(6)
-
-  chapter TextbookChapter @relation(fields: [chapter_id], references: [id], onDelete: Cascade)
-
-  @@index([chapter_id, type])
-  @@index([status])
-  @@map("textbook_images")
-}
-
-/// Tracks generation jobs for async processing
-model TextbookGenerationJob {
-  id          Int                       @id @default(autoincrement())
-  textbook_id Int
-  job_type    TextbookGenerationJobType
-  status      TextbookJobStatus         @default(QUEUED)
-
-  // Job details
-  target_id     Int? // chapter_id or unit_id depending on job_type
-  input_data    Json?
-  output_data   Json?
-  error_message String? @db.Text
-
-  // Progress tracking
-  progress     Int       @default(0)
-  started_at   DateTime? @db.Timestamptz(6)
-  completed_at DateTime? @db.Timestamptz(6)
-
-  // Retry logic
-  attempts     Int @default(0)
-  max_attempts Int @default(3)
-
-  created_at DateTime @default(now()) @db.Timestamptz(6)
-
-  textbook Textbook @relation(fields: [textbook_id], references: [id], onDelete: Cascade)
-
-  @@index([status, created_at])
-  @@index([textbook_id, job_type])
-  @@map("textbook_generation_jobs")
-}
-
-// ============================================
-// TEXTBOOK GENERATOR ENUMS
-// ============================================
 
 enum TextbookStatus {
   DRAFT
@@ -1251,9 +1070,9 @@ enum ChapterGenStatus {
   PENDING
   GENERATING
   GENERATED
-  COMPLETED // Added for consistency with other status checks
   FAILED
   REVIEWED
+  COMPLETED
 
   @@map("chapter_gen_status")
 }
@@ -1268,25 +1087,25 @@ enum ImageGenStatus {
 }
 
 enum TextbookImageType {
-  DIAGRAM // General conceptual diagram
-  FLOWCHART // Process flow, decision trees
-  CHART // Bar charts, pie charts, comparison charts
-  GRAPH // Mathematical graphs, line graphs
-  ILLUSTRATION // General illustrations, scenes
-  INFOGRAPHIC // Information graphics, summary visuals
-  MINDMAP // Concept maps, relationship diagrams
-  MOLECULAR // Chemical structures, molecular models
-  ANATOMICAL // Biology/human body diagrams
-  EXPERIMENTAL // Lab setups, experimental procedures
-  GEOMETRIC // Mathematical shapes, geometric proofs
-  TIMELINE // Historical timelines, process sequences
-  COMPARISON // Side-by-side comparisons, Venn diagrams
-  MAP // Geographic or concept maps
-  COVER // Book/chapter covers
-  ANATOMY // Legacy - use ANATOMICAL
-  CIRCUIT // Electronic circuit diagrams
-  PHOTO // Realistic photos/representations
-  ICON // Simple iconographic elements
+  DIAGRAM
+  CHART
+  MAP
+  ILLUSTRATION
+  COVER
+  GRAPH
+  ANATOMY
+  CIRCUIT
+  FLOWCHART
+  INFOGRAPHIC
+  MINDMAP
+  MOLECULAR
+  ANATOMICAL
+  EXPERIMENTAL
+  GEOMETRIC
+  TIMELINE
+  COMPARISON
+  PHOTO
+  ICON
 
   @@map("textbook_image_type")
 }

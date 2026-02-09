@@ -15,14 +15,14 @@ import EntityActions from "@/components/admin/EntityActions";
 export default async function SubjectsPage({
     searchParams,
 }: {
-    searchParams: Promise<{ programId?: string; examId?: string }>;
+    searchParams: Promise<{ programId?: string; examId?: string; courseId?: string }>;
 }) {
     const session = await getServerSession(authOptions);
     if (!session?.user || !isAdmin((session.user as any).role)) {
         redirect("/");
     }
 
-    const { programId, examId } = await searchParams;
+    const { programId, examId, courseId } = await searchParams;
 
     const where: any = {};
     if (programId) {
@@ -30,6 +30,16 @@ export default async function SubjectsPage({
     }
     if (examId) {
         where.exam_id = examId;
+    }
+    if (courseId) {
+        const id = parseInt(courseId);
+        if (!isNaN(id)) {
+            where.courses = {
+                some: {
+                    id: id
+                }
+            };
+        }
     }
 
     const subjects = await prisma.subject.findMany({
@@ -61,6 +71,11 @@ export default async function SubjectsPage({
         orderBy: { display_order: "asc" },
     });
 
+    const courses = await prisma.course.findMany({
+        orderBy: { title: "asc" },
+        select: { id: true, title: true }
+    });
+
     return (
         <div className="container mx-auto py-10">
             <div className="flex justify-between items-center mb-8">
@@ -80,6 +95,11 @@ export default async function SubjectsPage({
                     name="programId"
                     placeholder="All Programs"
                     options={programs.map(p => ({ value: p.id.toString(), label: `${p.name} (${p.board.name})` }))}
+                />
+                <FilterSelect
+                    name="courseId"
+                    placeholder="All Courses"
+                    options={courses.map(c => ({ value: c.id.toString(), label: c.title }))}
                 />
             </div>
 

@@ -73,6 +73,7 @@ export default async function ChaptersPage({
                 error_message: true,
                 pdf_url: true,
                 created_at: true,
+                quizzes_enabled: true,
                 // Flatten nested relations - only get what we display
                 subject: {
                     select: {

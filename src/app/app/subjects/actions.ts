@@ -36,7 +36,8 @@ export async function getSubjectsForUserProgram(courseId?: number, includeMaster
                             chapters: {
                                 select: {
                                     id: true,
-                                    title: true
+                                    title: true,
+                                    quizzes_enabled: true
                                 },
                                 orderBy: {
                                     id: 'asc'

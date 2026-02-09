@@ -29,6 +29,7 @@ export async function getChaptersForSubject(subjectId: number) {
 				id: true,
 				title: true,
 				chapter_number: true,
+				quizzes_enabled: true,
 				subject: {
 					select: {
 						id: true,

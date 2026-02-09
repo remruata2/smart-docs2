@@ -3,7 +3,7 @@
 import { useState, useTransition, useEffect } from "react";
 import { useRouter } from "next/navigation";
 import { toast } from "sonner";
-import { Wand2, Sparkles, Loader2, Trash2, FileSearch, Zap, Dices } from "lucide-react";
+import { Wand2, Sparkles, Loader2, Trash2, FileSearch, Zap, Dices, Ban } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import EditChapterDialog from "./edit-chapter-dialog";
 import RegenerateQuizDialog from "./regenerate-quiz-dialog";
@@ -393,17 +393,76 @@ export default function ChapterListClient({ chapters, onDelete, onUpdate, subjec
                                                     Generating Quiz...
                                                 </div>
                                             ) : chapter.subject.quizzes_enabled && chapter.quizzes_enabled ? (
-                                                <RegenerateQuizDialog
-                                                    chapterId={chapter.id.toString()}
-                                                    chapterTitle={chapter.title}
-                                                    /* @ts-ignore */
-                                                    examCategory={chapter.subject?.program?.exam_category}
-                                                    subjectName={chapter.subject?.name}
-                                                />
-                                            ) : (
-                                                <div className="flex items-center px-3 py-1.5 bg-gray-50 text-gray-500 rounded-lg border border-gray-200 text-sm italic" title="Quizzes are disabled for this chapter or subject">
-                                                    Quizzes Disabled
+                                                <div className="flex items-center gap-1">
+                                                    <RegenerateQuizDialog
+                                                        chapterId={chapter.id.toString()}
+                                                        chapterTitle={chapter.title}
+                                                        /* @ts-ignore */
+                                                        examCategory={chapter.subject?.program?.exam_category}
+                                                        subjectName={chapter.subject?.name}
+                                                    />
+                                                    <Button
+                                                        variant="ghost"
+                                                        size="sm"
+                                                        className="h-8 text-gray-400 hover:text-red-600 hover:bg-red-50"
+                                                        title="Disable Quizzes for this Chapter"
+                                                        onClick={(e) => {
+                                                            e.stopPropagation();
+                                                            startTransition(async () => {
+                                                                try {
+                                                                    await onUpdate(chapter.id.toString(), {
+                                                                        title: chapter.title,
+                                                                        subject_id: chapter.subject_id,
+                                                                        chapter_number: chapter.chapter_number,
+                                                                        is_active: chapter.is_active,
+                                                                        is_global: chapter.is_global,
+                                                                        quizzes_enabled: false
+                                                                    });
+                                                                    toast.success("Quizzes disabled for this chapter");
+                                                                    router.refresh();
+                                                                } catch (error) {
+                                                                    toast.error("Failed to disable quizzes");
+                                                                }
+                                                            });
+                                                        }}
+                                                    >
+                                                        <Ban className="h-4 w-4 mr-2" />
+                                                        Disable Quizzes
+                                                    </Button>
                                                 </div>
+                                            ) : (
+                                                <button
+                                                    onClick={(e) => {
+                                                        e.stopPropagation();
+                                                        if (!chapter.subject.quizzes_enabled) {
+                                                            toast.error("Quizzes are disabled for the entire subject. Enable them in Subject settings.");
+                                                            return;
+                                                        }
+                                                        startTransition(async () => {
+                                                            try {
+                                                                await onUpdate(chapter.id.toString(), {
+                                                                    title: chapter.title,
+                                                                    subject_id: chapter.subject_id,
+                                                                    chapter_number: chapter.chapter_number,
+                                                                    is_active: chapter.is_active,
+                                                                    is_global: chapter.is_global,
+                                                                    quizzes_enabled: true
+                                                                });
+                                                                toast.success("Quizzes enabled for this chapter");
+                                                                router.refresh();
+                                                            } catch (error) {
+                                                                toast.error("Failed to enable quizzes");
+                                                            }
+                                                        });
+                                                    }}
+                                                    className={`flex items-center px-3 py-1.5 rounded-lg border text-sm transition-colors ${!chapter.subject.quizzes_enabled
+                                                        ? "bg-gray-100 text-gray-400 border-gray-200 cursor-not-allowed"
+                                                        : "bg-red-50 text-red-600 border-red-200 hover:bg-red-100 cursor-pointer"
+                                                        }`}
+                                                    title={!chapter.subject.quizzes_enabled ? "Disabled at Subject level" : "Click to Enable Quizzes"}
+                                                >
+                                                    {!chapter.subject.quizzes_enabled ? "Subject Disabled" : "Enable Quizzes"}
+                                                </button>
                                             )}
 
                                             <EditChapterDialog
