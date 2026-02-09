@@ -9,13 +9,16 @@ interface Video {
 
 interface VideoGalleryProps {
     videos: Video[];
+    hasApiKey?: boolean;
 }
 
-export function VideoGallery({ videos }: VideoGalleryProps) {
+export function VideoGallery({ videos, hasApiKey = true }: VideoGalleryProps) {
     if (!videos || videos.length === 0) {
         return (
             <div className="text-center py-12 text-muted-foreground">
-                No curated videos available. Add YOUTUBE_API_KEY to environment variables.
+                {hasApiKey
+                    ? "No educational videos found for this specific topic."
+                    : "No curated videos available. Add YOUTUBE_API_KEY to environment variables."}
             </div>
         );
     }

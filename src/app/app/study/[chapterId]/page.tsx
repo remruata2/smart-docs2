@@ -124,6 +124,7 @@ export default async function StudyMaterialsPage({
                 materials={materials}
                 chapterId={chapterId}
                 pdfUrl={chapter.pdf_url || undefined}
+                hasApiKey={!!process.env.YOUTUBE_API_KEY}
             />
         </div>
     );

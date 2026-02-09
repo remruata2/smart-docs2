@@ -34,15 +34,16 @@ export async function searchYouTubeVideos(config: YouTubeSearchConfig): Promise<
     const {
         query,
         maxResults = 3,
-        maxDuration = 15, // 15 minutes default
-        minViews = 1000,
+        maxDuration = 25, // Relaxed from 15 to 25 minutes
+        minViews = 500,  // Relaxed from 1000 to 500
     } = config;
 
     try {
         // Step 1: Search for videos
+        const searchQuery = query.toLowerCase().includes('english') ? query : `${query} English`;
         const searchParams = new URLSearchParams({
             part: 'snippet',
-            q: query,
+            q: searchQuery,
             type: 'video',
             maxResults: String(maxResults * 2), // Get more to filter
             key: apiKey,

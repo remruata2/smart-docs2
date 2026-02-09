@@ -17,9 +17,10 @@ interface StudyMaterialsClientProps {
     materials: any;
     chapterId: string;
     pdfUrl?: string;
+    hasApiKey?: boolean;
 }
 
-export function StudyMaterialsClient({ materials, chapterId, pdfUrl }: StudyMaterialsClientProps) {
+export function StudyMaterialsClient({ materials, chapterId, pdfUrl, hasApiKey = true }: StudyMaterialsClientProps) {
 
     const [activeTab, setActiveTab] = useState("summary");
 
@@ -170,7 +171,7 @@ export function StudyMaterialsClient({ materials, chapterId, pdfUrl }: StudyMate
 
             <TabsContent value="videos" className="mt-0 outline-none">
                 {materials?.curated_videos ? (
-                    <VideoGallery videos={materials.curated_videos || []} />
+                    <VideoGallery videos={materials.curated_videos || []} hasApiKey={hasApiKey} />
                 ) : (
                     <Card className="border-none shadow-xl bg-card">
                         <CardContent className="pt-6">
