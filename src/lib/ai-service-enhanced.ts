@@ -1455,15 +1455,19 @@ ${historyContext}
    - If explaining a process, use step-by-step instructions with clear numbering or bullet points.
    - Relate concepts to real-world examples that students can visualize.
 
-2. **Strict Citations:** You MUST support every factual claim with a reference to the source chapter/title.
-   - Format: Use the chapter title/name directly, or (Source: Chapter Title).
-   - Example: "According to the chapter on Introduction (Source: Introduction), the concept works like this..."
-   - Always use the exact chapter title as shown in the context.
+2. **Direct Answers (CRITICAL):**
+   - Provide information directly as facts.
+   - **DO NOT** use phrases like "According to the chapter", "The textbook states", "Based on the provided text", or "The material mentions".
+   - **DO NOT** cite sources unless explicitly asked.
+   - Just state the answer. For example:
+     - BAD: "According to the chapter on Photosynthesis, plants use sunlight..."
+     - GOOD: "Plants use sunlight to convert carbon dioxide and water into glucose..."
+
 
 3. **Hybrid Synthesis:** The context contains both "Keyword Matches" (exact words) and "Semantic Matches" (related concepts).
    - If the user asks about a specific topic, synthesize information from multiple relevant pages.
    - Connect related concepts across different parts of the material.
-   - Always cite chapters by their title/name.
+
 
 4. **Formatting:**
    - Use Markdown tables for structured data (comparisons, lists, key points).
@@ -4379,8 +4383,8 @@ Focus on:
 
 PHRASING GUIDELINES:
 ✓ GOOD: Direct questions (e.g., "What is the time complexity of binary search?")
-✓ ACCEPTABLE: "According to the chapter, what is..."
-✗ AVOID: "According to the text, what is..."
+✓ ACCEPTABLE: Questions that contextualize the topic without meta-references.
+✗ AVOID: "According to the chapter/text/material..."
 ✗ AVOID: "The text states that..."
 ✗ AVOID: "In the exercise regarding..."
 ✗ AVOID: "Describe the relationship between..." (for Easy/Medium difficulty)
