@@ -19,6 +19,7 @@ export async function GET(request: NextRequest) {
         const chapters = await prisma.chapter.findMany({
             where: {
                 subject_id: parseInt(subjectId),
+                is_active: true,
             },
             orderBy: {
                 chapter_number: "asc",
@@ -27,6 +28,12 @@ export async function GET(request: NextRequest) {
                 id: true,
                 title: true,
                 chapter_number: true,
+                quizzes_enabled: true,
+                study_materials: {
+                    select: {
+                        summary: true
+                    }
+                }
             }
         });
 
@@ -59,11 +66,20 @@ export async function GET(request: NextRequest) {
         });
 
         return NextResponse.json({
-            chapters: chapters.map(c => ({
-                ...c,
-                id: c.id.toString(),
-                question_counts: questionsByChapter.get(c.id.toString()) || {}
-            }))
+            chapters: chapters.map(c => {
+                // Extract topics from summary if available
+                const summary: any = c.study_materials?.summary;
+                const topics = summary?.key_points || summary?.topics || [];
+
+                return {
+                    id: c.id.toString(),
+                    title: c.title,
+                    chapter_number: c.chapter_number,
+                    quizzes_enabled: c.quizzes_enabled,
+                    topics: topics.slice(0, 3), // Return top 3 topics
+                    question_counts: questionsByChapter.get(c.id.toString()) || {}
+                };
+            })
         });
 
     } catch (error: any) {

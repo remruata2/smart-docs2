@@ -31,6 +31,18 @@ export async function GET(request: NextRequest) {
                 select: {
                     id: true,
                     name: true,
+                    quizzes_enabled: true,
+                    courses: {
+                        where: {
+                            enrollments: {
+                                some: {
+                                    user_id: userId,
+                                    status: 'active'
+                                }
+                            }
+                        },
+                        select: { id: true }
+                    },
                     program: {
                         select: {
                             board: {
@@ -44,11 +56,37 @@ export async function GET(request: NextRequest) {
                 orderBy: { name: 'asc' }
             });
 
+            const enrolledCourses = await prisma.course.findMany({
+                where: {
+                    enrollments: {
+                        some: {
+                            user_id: userId,
+                            status: 'active'
+                        }
+                    }
+                },
+                select: {
+                    id: true,
+                    title: true,
+                    subjects: {
+                        where: { is_active: true },
+                        select: { id: true }
+                    }
+                }
+            });
+
             return NextResponse.json({
                 subjects: enrolledSubjects.map(s => ({
                     id: s.id,
                     name: s.name,
-                    board: s.program?.board?.name || ''
+                    board: s.program?.board?.name || '',
+                    quizzes_enabled: s.quizzes_enabled,
+                    courseIds: s.courses.map((c: any) => c.id)
+                })),
+                courses: enrolledCourses.map(c => ({
+                    id: c.id,
+                    title: c.title,
+                    subjectIds: c.subjects.map(s => s.id)
                 }))
             });
         }
@@ -68,7 +106,8 @@ export async function GET(request: NextRequest) {
                 select: {
                     id: true,
                     title: true,
-                    chapter_number: true
+                    chapter_number: true,
+                    quizzes_enabled: true
                 },
                 orderBy: { chapter_number: 'asc' }
             });
@@ -80,6 +119,7 @@ export async function GET(request: NextRequest) {
                     id: chapter.id.toString(),
                     title: chapter.title,
                     chapterNumber: chapter.chapter_number,
+                    quizzes_enabled: chapter.quizzes_enabled,
                     isLocked: !access.allowed,
                     reason: access.reason
                 };
