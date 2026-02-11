@@ -354,22 +354,28 @@ function ChatPageContent() {
 
 			// Load messages
 			const loadedMessages: ChatMessage[] = conversation.messages.map(
-				(msg: any) => ({
-					id: msg.id.toString(),
-					role: msg.role,
-					content: msg.content,
-					timestamp: new Date(msg.timestamp),
-					sources: msg.sources || [],
-					tokenCount: msg.tokenCount,
-					chartData: msg.metadata?.chartData || null, // Extract chartData from metadata
-					// For assistant messages, always show filters
-					filters:
-						msg.role === "assistant" ? msg.metadata?.filters || {} : undefined,
-					// Image data
-					imageUrl: msg.metadata?.imageUrl,
-					imageAlt: msg.metadata?.imageAlt,
-					imageLimitReached: msg.metadata?.imageLimitReached,
-				})
+				(msg: any) => {
+					const baseMessage = {
+						id: msg.id.toString(),
+						role: msg.role,
+						content: msg.content,
+						timestamp: new Date(msg.timestamp),
+						sources: msg.sources || [],
+						tokenCount: msg.tokenCount,
+						chartData: msg.metadata?.chartData || null,
+						filters:
+							msg.role === "assistant" ? msg.metadata?.filters || {} : undefined,
+						imageUrl: msg.metadata?.imageUrl,
+						imageAlt: msg.metadata?.imageAlt,
+						imageLimitReached: msg.metadata?.imageLimitReached,
+					};
+					// Parse suggested responses from assistant messages
+					if (msg.role === "assistant" && msg.content) {
+						const { cleanedContent, suggestedResponses } = parseSuggestedResponses(msg.content);
+						return { ...baseMessage, content: cleanedContent, suggestedResponses };
+					}
+					return baseMessage;
+				}
 			);
 
 			setMessages(loadedMessages);
