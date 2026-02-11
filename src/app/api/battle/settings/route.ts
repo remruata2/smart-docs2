@@ -60,6 +60,17 @@ export async function POST(req: Request) {
             const targetChapterId = chapterId !== undefined ? chapterId : (currentQuiz.chapter_id ? Number(currentQuiz.chapter_id) : null);
             const targetCount = questionCount !== undefined ? questionCount : (await prisma.quizQuestion.count({ where: { quiz_id: currentQuiz.id } }));
 
+            // EXCLUSION: Prevent usage of custom subjects in Battle Mode
+            if (targetSubjectId) {
+                const checkedSubject = await prisma.subject.findUnique({
+                    where: { id: targetSubjectId },
+                    select: { created_by_user_id: true }
+                });
+                if (checkedSubject?.created_by_user_id) {
+                    return NextResponse.json({ error: "Custom subjects are not allowed in Battle Mode" }, { status: 400 });
+                }
+            }
+
             // Use existing question types if possible (or default to MCQ for battles)
             // Ideally we'd parse types from existing questions, but sticking to MCQ/TrueFalse is safe for battles
             const questionTypes: QuestionType[] = ["MCQ", "TRUE_FALSE"];

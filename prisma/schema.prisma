@@ -113,6 +113,7 @@ model user {
   enrollments           UserEnrollment[]
   points                UserPoints[]
   subscription          UserSubscription?
+  custom_subjects       Subject[]           @relation("UserCustomSubjects")
 
   @@index([email], map: "idx_user_email")
 }
@@ -437,15 +438,18 @@ model Subject {
   term            String?
   exam_id         String?
   quizzes_enabled Boolean        @default(true)
+  created_by_user_id Int?
   chapters        Chapter[]
   conversations   Conversation[]
   quizzes         Quiz[]
   exam            Exam?          @relation(fields: [exam_id], references: [id])
   program         Program        @relation(fields: [program_id], references: [id])
+  created_by_user user?          @relation("UserCustomSubjects", fields: [created_by_user_id], references: [id], onDelete: Cascade)
   textbooks       Textbook[]
   courses         Course[]       @relation("CourseToSubject")
 
-  @@unique([program_id, name])
+  @@unique([program_id, name, created_by_user_id])
+  @@index([created_by_user_id])
   @@index([program_id])
   @@index([exam_id])
   @@map("subjects")

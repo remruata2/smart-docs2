@@ -37,14 +37,25 @@ export async function POST(request: NextRequest) {
         // Note: questionCount checking is loose here, we always regenerate if count passed for safety
 
         if (needsRegeneration) {
-            const targetSubject = subjectId !== undefined ? subjectId : currentQuiz.subject_id;
-            const targetChapter = chapterId !== undefined ? chapterId : (currentQuiz.chapter_id ? Number(currentQuiz.chapter_id) : null);
+            const targetSubjectId = subjectId !== undefined ? subjectId : currentQuiz.subject_id;
+            const targetChapterId = chapterId !== undefined ? chapterId : (currentQuiz.chapter_id ? Number(currentQuiz.chapter_id) : null);
             const targetCount = questionCount || 5;
+
+            // EXCLUSION: Prevent usage of custom subjects in Battle Mode
+            if (targetSubjectId) {
+                const checkedSubject = await prisma.subject.findUnique({
+                    where: { id: targetSubjectId },
+                    select: { created_by_user_id: true }
+                });
+                if (checkedSubject?.created_by_user_id) {
+                    return NextResponse.json({ error: "Custom subjects are not allowed in Battle Mode" }, { status: 400 });
+                }
+            }
 
             const newQuiz = await quizService.generateQuiz(
                 userId,
-                targetSubject,
-                targetChapter,
+                targetSubjectId,
+                targetChapterId,
                 "medium",
                 targetCount,
                 ["MCQ", "TRUE_FALSE"]

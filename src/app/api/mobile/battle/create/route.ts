@@ -21,7 +21,9 @@ export async function POST(request: NextRequest) {
         let targetChapterId = chapterId;
 
         if (!targetSubjectId) {
-            const defaultSubject = await prisma.subject.findFirst();
+            const defaultSubject = await prisma.subject.findFirst({
+                where: { created_by_user_id: null }
+            });
             if (defaultSubject) targetSubjectId = defaultSubject.id;
         }
 

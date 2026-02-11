@@ -85,6 +85,14 @@ export default async function SubjectsPage({
                             courses={courses}
                             selectedCourseId={courseIdParam}
                         />
+                        {courseId && (
+                            <Link href={`/app/custom/${courseId}`}>
+                                <Button className="bg-indigo-600 hover:bg-indigo-700 text-white font-bold px-6 py-6 h-auto text-base shadow-lg shadow-indigo-500/20">
+                                    <FileText className="w-5 h-5 mr-2" />
+                                    Custom Chapters
+                                </Button>
+                            </Link>
+                        )}
                         {!courseId && (
                             <Link href="/courses">
                                 <Button className="bg-blue-600 hover:bg-blue-700 text-white font-bold px-6 py-6 h-auto text-base shadow-lg shadow-blue-500/20">
@@ -129,74 +137,105 @@ export default async function SubjectsPage({
                     </CardContent>
                 </Card>
             ) : (
-                <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-8">
-                    {enrolledSubjects.map((subject: any) => (
-                        <Card
-                            key={`${subject.courseId}-${subject.id}`}
-                            className="group hover:shadow-2xl transition-all duration-300 overflow-hidden border-gray-100 hover:border-blue-200 h-full flex flex-col"
-                        >
-                            <div className="h-2 w-full bg-gradient-to-r from-blue-500 to-indigo-600" />
-                            <CardHeader className="pb-4">
-                                <div className="flex justify-between items-start mb-3">
-                                    <Badge variant="secondary" className="bg-blue-50 text-blue-700 border-none font-bold">
-                                        {subject.courseTitle}
-                                    </Badge>
-                                    <Link href={`/app/chapters?subjectId=${subject.id}`} className="p-1.5 rounded-lg bg-gray-50 text-gray-400 group-hover:text-blue-600 transition-colors">
-                                        <ChevronRight className="h-5 w-5" />
-                                    </Link>
-                                </div>
-                                <Link href={`/app/chapters?subjectId=${subject.id}`}>
-                                    <CardTitle className="text-xl font-bold text-gray-900 leading-tight group-hover:text-blue-600 transition-colors">
-                                        {subject.name}
-                                    </CardTitle>
-                                </Link>
-                                <p className="text-xs text-gray-400 font-medium flex items-center gap-1">
-                                    <Layers className="h-3 w-3" />
-                                    {subject.program?.name}
-                                </p>
-                            </CardHeader>
-                            <CardContent className="flex-1">
-                                <div className="space-y-4 pt-2">
-                                    <div className="space-y-1.5">
-                                        <div className="flex items-center justify-between text-xs font-bold">
-                                            <span className="text-gray-400 uppercase tracking-wider">Mastery Level</span>
-                                            <span className={subject.mastery >= 80 ? "text-emerald-600" : "text-blue-600"}>
-                                                {subject.mastery}%
-                                            </span>
-                                        </div>
-                                        <div className="w-full bg-gray-100 rounded-full h-2 overflow-hidden shadow-inner">
-                                            <div
-                                                className={`h-full rounded-full transition-all duration-1000 ${subject.mastery >= 80 ? 'bg-emerald-500' : 'bg-blue-600'
-                                                    }`}
-                                                style={{ width: `${subject.mastery}%` }}
-                                            />
-                                        </div>
-                                    </div>
-                                    <div className="flex items-center gap-4 text-xs font-semibold text-gray-500 pt-2 border-t border-gray-50">
-                                        <div className="flex items-center gap-1.5">
-                                            <FileText className="h-4 w-4" />
-                                            <span>{subject._count.chapters} Chapters</span>
-                                        </div>
-                                        <div className="flex items-center gap-1.5">
-                                            <Clock className="h-4 w-4" />
-                                            <span>Self-paced</span>
-                                        </div>
-                                    </div>
-                                </div>
-                            </CardContent>
-                            <div className="p-5 pt-0 mt-auto">
-                                <div className="flex gap-2">
-                                    <Link href={`/app/chapters?subjectId=${subject.id}`} className="flex-1">
-                                        <Button className="w-full bg-gray-50 text-gray-700 hover:bg-blue-50 hover:text-blue-700 border-gray-100 hover:border-blue-100 transition-all font-bold group-hover:bg-blue-600 group-hover:text-white" variant="outline">
-                                            Open Subject
-                                        </Button>
-                                    </Link>
-                                </div>
+                <div className="space-y-12">
+                    {/* Official Subjects */}
+                    {enrolledSubjects.filter((s: any) => !s.created_by_user_id).length > 0 && (
+                        <div className="space-y-6">
+                            <div className="flex items-center gap-2">
+                                <div className="h-6 w-1 bg-blue-600 rounded-full" />
+                                <h3 className="text-lg font-bold text-gray-900 uppercase tracking-wider">Official Subjects</h3>
                             </div>
-                        </Card>
-                    ))}
+                            <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-8">
+                                {enrolledSubjects.filter((s: any) => !s.created_by_user_id).map((subject: any) => (
+                                    <SubjectCard key={`${subject.courseId}-${subject.id}`} subject={subject} />
+                                ))}
+                            </div>
+                        </div>
+                    )}
+
+                    {/* Personalised Subjects */}
+                    {enrolledSubjects.filter((s: any) => s.created_by_user_id).length > 0 && (
+                        <div className="space-y-6 pt-6 border-t border-gray-100">
+                            <div className="flex items-center gap-2">
+                                <div className="h-6 w-1 bg-indigo-600 rounded-full" />
+                                <h3 className="text-lg font-bold text-gray-900 uppercase tracking-wider">Personalised Subjects</h3>
+                            </div>
+                            <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-8">
+                                {enrolledSubjects.filter((s: any) => s.created_by_user_id).map((subject: any) => (
+                                    <SubjectCard key={`${subject.courseId}-${subject.id}`} subject={subject} />
+                                ))}
+                            </div>
+                        </div>
+                    )}
                 </div>
             )}
         </div>
+    );
+}
+
+function SubjectCard({ subject }: { subject: any }) {
+    return (
+        <Card
+            className="group hover:shadow-2xl transition-all duration-300 overflow-hidden border-gray-100 hover:border-blue-200 h-full flex flex-col"
+        >
+            <div className={`h-2 w-full bg-gradient-to-r ${subject.created_by_user_id ? 'from-indigo-500 to-purple-600' : 'from-blue-500 to-indigo-600'}`} />
+            <CardHeader className="pb-4">
+                <div className="flex justify-between items-start mb-3">
+                    <Badge variant="secondary" className={`${subject.created_by_user_id ? 'bg-indigo-50 text-indigo-700' : 'bg-blue-50 text-blue-700'} border-none font-bold`}>
+                        {subject.courseTitle}
+                    </Badge>
+                    <Link href={`/app/chapters?subjectId=${subject.id}`} className="p-1.5 rounded-lg bg-gray-50 text-gray-400 group-hover:text-blue-600 transition-colors">
+                        <ChevronRight className="h-5 w-5" />
+                    </Link>
+                </div>
+                <Link href={`/app/chapters?subjectId=${subject.id}`}>
+                    <CardTitle className="text-xl font-bold text-gray-900 leading-tight group-hover:text-blue-600 transition-colors">
+                        {subject.name}
+                    </CardTitle>
+                </Link>
+                <p className="text-xs text-gray-400 font-medium flex items-center gap-1">
+                    <Layers className="h-3 w-3" />
+                    {subject.program?.name}
+                </p>
+            </CardHeader>
+            <CardContent className="flex-1">
+                <div className="space-y-4 pt-2">
+                    <div className="space-y-1.5">
+                        <div className="flex items-center justify-between text-xs font-bold">
+                            <span className="text-gray-400 uppercase tracking-wider">Mastery Level</span>
+                            <span className={subject.mastery >= 80 ? "text-emerald-600" : "text-blue-600"}>
+                                {subject.mastery}%
+                            </span>
+                        </div>
+                        <div className="w-full bg-gray-100 rounded-full h-2 overflow-hidden shadow-inner">
+                            <div
+                                className={`h-full rounded-full transition-all duration-1000 ${subject.mastery >= 80 ? 'bg-emerald-500' : 'bg-blue-600'
+                                    }`}
+                                style={{ width: `${subject.mastery}%` }}
+                            />
+                        </div>
+                    </div>
+                    <div className="flex items-center gap-4 text-xs font-semibold text-gray-500 pt-2 border-t border-gray-50">
+                        <div className="flex items-center gap-1.5">
+                            <FileText className="h-4 w-4" />
+                            <span>{subject._count.chapters} Chapters</span>
+                        </div>
+                        <div className="flex items-center gap-1.5">
+                            <Clock className="h-4 w-4" />
+                            <span>Self-paced</span>
+                        </div>
+                    </div>
+                </div>
+            </CardContent>
+            <div className="p-5 pt-0 mt-auto">
+                <div className="flex gap-2">
+                    <Link href={`/app/chapters?subjectId=${subject.id}`} className="flex-1">
+                        <Button className="w-full bg-gray-50 text-gray-700 hover:bg-blue-50 hover:text-blue-700 border-gray-100 hover:border-blue-100 transition-all font-bold group-hover:bg-blue-600 group-hover:text-white" variant="outline">
+                            Open Subject
+                        </Button>
+                    </Link>
+                </div>
+            </div>
+        </Card>
     );
 }

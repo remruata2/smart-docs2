@@ -51,6 +51,10 @@ export async function GET(request: NextRequest) {
             subjects = await prisma.subject.findMany({
                 where: {
                     is_active: true,
+                    OR: [
+                        { created_by_user_id: null },
+                        { created_by_user_id: Number(user.id) }
+                    ],
                     courses: {
                         some: {
                             enrollments: {
@@ -91,7 +95,13 @@ export async function GET(request: NextRequest) {
                 where: { id: parseInt(courseId) },
                 include: {
                     subjects: {
-                        where: { is_active: true },
+                        where: {
+                            is_active: true,
+                            OR: [
+                                { created_by_user_id: null },
+                                { created_by_user_id: Number(user.id) }
+                            ]
+                        },
                         orderBy: { name: 'asc' },
                         include: {
                             program: {
@@ -127,7 +137,13 @@ export async function GET(request: NextRequest) {
         } else {
             console.log(`[DEBUG-MOBILE-SUBJECTS] Fetching ALL active subjects...`);
             subjects = await prisma.subject.findMany({
-                where: { is_active: true },
+                where: {
+                    is_active: true,
+                    OR: [
+                        { created_by_user_id: null },
+                        { created_by_user_id: Number(user.id) }
+                    ]
+                },
                 orderBy: { name: 'asc' },
                 include: {
                     program: {
@@ -167,6 +183,7 @@ export async function GET(request: NextRequest) {
             courseIds: s.courses.map((c: any) => c.id),
             _count: s._count,
             mastery: 0,
+            isCustom: !!s.created_by_user_id,
         }));
 
         return NextResponse.json({

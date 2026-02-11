@@ -162,12 +162,12 @@ export const quizService = {
                 // Prisma doesn't support random native easily. 
                 // Let's fetch IDs and pick one.
                 select: { id: true },
-                where: { is_active: true }
+                where: { is_active: true, created_by_user_id: null }
             });
 
             // Better: Get all active subjects and pick one
             const subjects = await prisma.subject.findMany({
-                where: { is_active: true },
+                where: { is_active: true, created_by_user_id: null },
                 select: { id: true }
             });
 
