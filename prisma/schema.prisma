@@ -470,6 +470,7 @@ model Chapter {
   pdf_url           String?
   quiz_regen_status QuizRegenStatus   @default(IDLE)
   quizzes_enabled   Boolean           @default(true)
+  key_points        String?           @db.Text
   chunks            ChapterChunk[]
   subject           Subject           @relation(fields: [subject_id], references: [id], onDelete: Cascade)
   conversations     Conversation[]

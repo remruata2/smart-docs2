@@ -26,6 +26,7 @@ export async function getCourseDetails(courseId: number) {
                             id: true,
                             title: true,
                             chapter_number: true,
+                            key_points: true,
                             study_materials: {
                                 select: { summary: true }
                             }
@@ -75,6 +76,7 @@ export async function getCourseDetails(courseId: number) {
                 id: chapter.id.toString(),
                 title: chapter.title,
                 chapter_number: chapter.chapter_number,
+                key_points: chapter.key_points,
                 study_materials: chapter.study_materials
             }))
         })),

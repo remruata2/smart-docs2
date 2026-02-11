@@ -152,6 +152,7 @@ export async function updateChapter(
         is_active: boolean;
         is_global: boolean;
         quizzes_enabled: boolean;
+        key_points?: string | null;
     }
 ) {
     const session = await getServerSession(authOptions);
@@ -182,6 +183,7 @@ export async function updateChapter(
                 is_active: data.is_active,
                 is_global: data.is_global,
                 quizzes_enabled: data.quizzes_enabled,
+                key_points: data.key_points,
                 // If not global, update accessible_boards to include the new subject's board
                 accessible_boards: data.is_global ? [] : [subject.program.board_id],
             }

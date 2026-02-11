@@ -48,13 +48,25 @@ export async function GET(
 
         // 5. Build materials response (matching web structure)
         const summary = studyMaterial?.summary as any || null;
+
+        // Prioritize manual key points
+        const manualPoints = chapter.key_points ? chapter.key_points.split('\n').filter((p: string) => p.trim()) : [];
+        const aiPoints = summary?.key_points || [];
+        // const keyPoints = manualPoints.length > 0 ? manualPoints : aiPoints;
+        const keyPoints = manualPoints;
+
         const materials = {
             // Summary tab
             summary: summary ? {
+                ...summary,
                 brief: summary.brief || null,
-                key_points: summary.key_points || [],
+                key_points: keyPoints,
                 important_formulas: summary.important_formulas || [],
-            } : null,
+            } : {
+                brief: null,
+                key_points: keyPoints,
+                important_formulas: [],
+            },
             // Key Terms tab (definitions)
             key_terms: studyMaterial?.definitions || [],
             // Flashcards tab

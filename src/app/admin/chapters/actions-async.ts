@@ -22,13 +22,14 @@ export async function batchCreateChaptersAsync(formData: FormData) {
 	try {
 		const subjectId = formData.get("subjectId") as string;
 		const chapters = JSON.parse(formData.get("chapters") as string);
-		const fullPages = JSON.parse(formData.get("fullPages") as string);
+		const fullPages = formData.get("fullPages") ? JSON.parse(formData.get("fullPages") as string) : [];
 		const file = formData.get("file") as File;
 		const accessibleBoards = formData.getAll("accessibleBoards") as string[];
 		const questionConfigStr = formData.get("questionConfig") as string;
 		const questionConfig = questionConfigStr ? JSON.parse(questionConfigStr) : undefined;
 		const examId = formData.get("examId") as string;
 		const quizzesEnabled = formData.get("quizzesEnabled") === "true";
+		const keyPoints = formData.get("keyPoints") as string || null;
 
 		if (!file || !subjectId || !chapters || chapters.length === 0) {
 			return { success: false, error: "Missing required fields" };
@@ -89,6 +90,7 @@ export async function batchCreateChaptersAsync(formData: FormData) {
 					is_global: isGlobal,
 					is_active: true, // Explicitly set to true
 					quizzes_enabled: quizzesEnabled, // Set from form data
+					key_points: keyPoints,
 					processing_status: "PENDING",
 				},
 			});
@@ -153,6 +155,7 @@ export async function ingestChapterAsync(formData: FormData) {
 		const questionConfig = questionConfigStr ? JSON.parse(questionConfigStr) : undefined;
 		const examId = formData.get("examId") as string;
 		const quizzesEnabled = formData.get("quizzesEnabled") === "true";
+		const keyPoints = formData.get("keyPoints") as string || null;
 
 		if (!file || !title || !subjectId) {
 			return { success: false, error: "Missing required fields" };
@@ -177,7 +180,7 @@ export async function ingestChapterAsync(formData: FormData) {
 		const subjectBoardId = subject.program.board_id;
 		const isGlobal = accessibleBoards.includes("GLOBAL");
 
-		// Option B: Propagate exam to subject if subject has no exam and examId is provided
+		// Option B: Propagate exam to search result logic
 		if (examId && !subject.exam_id) {
 			await prisma.subject.update({
 				where: { id: parseInt(subjectId) },
@@ -205,6 +208,7 @@ export async function ingestChapterAsync(formData: FormData) {
 				is_global: isGlobal,
 				is_active: true,
 				quizzes_enabled: quizzesEnabled, // Set from form data
+				key_points: keyPoints,
 				processing_status: "PENDING",
 			},
 		});

@@ -29,6 +29,7 @@ export async function GET(request: NextRequest) {
                 title: true,
                 chapter_number: true,
                 quizzes_enabled: true,
+                key_points: true,
                 study_materials: {
                     select: {
                         summary: true
@@ -67,9 +68,8 @@ export async function GET(request: NextRequest) {
 
         return NextResponse.json({
             chapters: chapters.map(c => {
-                // Extract topics from summary if available
-                const summary: any = c.study_materials?.summary;
-                const topics = summary?.key_points || summary?.topics || [];
+                const manualPoints = c.key_points ? c.key_points.split('\n').filter((p: string) => p.trim()) : [];
+                const topics = manualPoints;
 
                 return {
                     id: c.id.toString(),

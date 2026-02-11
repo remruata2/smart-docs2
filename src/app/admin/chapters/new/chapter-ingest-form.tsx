@@ -73,6 +73,7 @@ export default function ChapterIngestForm({
         examId: string;
         subjectHasExam: boolean;
         quizzesEnabled: boolean;
+        keyPoints: string;
     }>>([]);
 
     // Textbook mode state
@@ -83,6 +84,7 @@ export default function ChapterIngestForm({
     const [textbookSubjectId, setTextbookSubjectId] = useState<string>("");
     const [textbookBoards, setTextbookBoards] = useState<string[]>([]);
     const [textbookQuizzesEnabled, setTextbookQuizzesEnabled] = useState(true);
+    const [textbookKeyPoints, setTextbookKeyPoints] = useState("");
 
     // Question Bank Config
     const [questionConfig, setQuestionConfig] = useState<QuestionBankConfigState | null>(null);
@@ -171,6 +173,7 @@ export default function ChapterIngestForm({
             examId: "",
             subjectHasExam: false,
             quizzesEnabled: true,
+            keyPoints: "",
         }));
 
         setUploadingFiles(fileRecords);
@@ -267,6 +270,9 @@ export default function ChapterIngestForm({
                 }
 
                 formData.append("quizzesEnabled", String(fileRecord.quizzesEnabled));
+                if (fileRecord.keyPoints) {
+                    formData.append("keyPoints", fileRecord.keyPoints);
+                }
 
                 // Use async action
                 const result = await ingestChapterAsync(formData);
@@ -354,6 +360,9 @@ export default function ChapterIngestForm({
             }
 
             formData.append("quizzesEnabled", String(textbookQuizzesEnabled));
+            if (textbookKeyPoints) {
+                formData.append("keyPoints", textbookKeyPoints);
+            }
 
             // Use async action - creates chapters immediately with PENDING status
             const { batchCreateChaptersAsync } = await import('../actions-async');
@@ -487,7 +496,6 @@ export default function ChapterIngestForm({
                         </p>
                     </div>
 
-                    {/* File List - Same as before (keeping existing code) */}
                     {uploadingFiles.length > 0 && (
                         <div className="space-y-4">
                             <h3 className="font-medium text-gray-900">Files to Upload</h3>
@@ -573,7 +581,6 @@ export default function ChapterIngestForm({
                                             className="block w-full rounded-md border-gray-300 shadow-sm focus:border-indigo-500 focus:ring-indigo-500 text-sm border p-2"
                                         >
                                             <option value="">Select Subject</option>
-                                            {/* Show subjects filtered by program and exam */}
                                             {individualModeSubjects.map((s) => (
                                                 <option key={s.id} value={s.id}>
                                                     {s.name} ({s.program.name} - {s.program.board.name})
@@ -586,14 +593,8 @@ export default function ChapterIngestForm({
                                                 Mock tests are disabled for this subject. Quiz generation will be skipped.
                                             </p>
                                         )}
-                                        {individualModeSubjects.length === 0 && (selectedProgram || selectedExamId) && (
-                                            <p className="text-xs text-amber-600 mt-1">
-                                                No subjects match the selected filters.
-                                            </p>
-                                        )}
                                     </div>
 
-                                    {/* Exam Selection - Auto-filled from subject */}
                                     <div>
                                         <label className="block text-xs font-medium text-gray-700 mb-1">
                                             Target Exam {fileRecord.subjectHasExam && <span className="text-amber-600">(from subject)</span>}
@@ -615,16 +616,10 @@ export default function ChapterIngestForm({
                                                 </option>
                                             ))}
                                         </select>
-                                        {fileRecord.subjectHasExam ? (
-                                            <p className="text-xs text-amber-600 mt-1">Exam inherited from subject</p>
-                                        ) : (
-                                            <p className="text-xs text-gray-500 mt-1">Optional: Categorize by exam</p>
-                                        )}
                                     </div>
 
                                     <div>
                                         <label className="block text-xs font-medium text-gray-700 mb-1">Accessible Boards</label>
-                                        <p className="text-xs text-gray-500 mb-1">Hold Ctrl/Cmd to select multiple.</p>
                                         <select
                                             multiple
                                             value={fileRecord.accessibleBoards}
@@ -644,7 +639,6 @@ export default function ChapterIngestForm({
                                         </select>
                                     </div>
 
-                                    {/* Disable Quizzes Checkbox */}
                                     <div className="md:col-span-2">
                                         <label className="flex items-center space-x-2 cursor-pointer">
                                             <input
@@ -665,6 +659,21 @@ export default function ChapterIngestForm({
                                                 Quizzes are already disabled at the subject level.
                                             </p>
                                         )}
+                                    </div>
+
+                                    <div>
+                                        <label className="block text-xs font-medium text-gray-700 mb-1">Key Points (one per line)</label>
+                                        <textarea
+                                            value={fileRecord.keyPoints}
+                                            onChange={(e) => {
+                                                const updated = [...uploadingFiles];
+                                                updated[index].keyPoints = e.target.value;
+                                                setUploadingFiles(updated);
+                                            }}
+                                            disabled={isLoading}
+                                            placeholder="Optional: Enter key points, one per line..."
+                                            className="block w-full rounded-md border-gray-300 shadow-sm focus:border-indigo-500 focus:ring-indigo-500 text-xs border p-2 h-20"
+                                        />
                                     </div>
 
                                     {fileRecord.error && (
@@ -743,7 +752,6 @@ export default function ChapterIngestForm({
                             ) : (
                                 <div className="w-full border border-blue-200 rounded-lg p-6 bg-blue-50">
                                     <div className="flex flex-col items-center space-y-4">
-                                        {/* Animated Spinner */}
                                         <div className="relative">
                                             <div className="w-16 h-16 border-4 border-blue-200 border-t-blue-600 rounded-full animate-spin"></div>
                                             <div className="absolute inset-0 flex items-center justify-center">
@@ -752,198 +760,87 @@ export default function ChapterIngestForm({
                                                 </svg>
                                             </div>
                                         </div>
-
-                                        {/* Progress Text */}
                                         <div className="text-center">
-                                            <h3 className="text-lg font-medium text-gray-900 mb-1">
-                                                Analyzing Textbook...
-                                            </h3>
-                                            <p className="text-sm text-gray-600 mb-2">
-                                                Processing PDF with LlamaParse AI
-                                            </p>
-                                            <p className="text-xs text-gray-500">
-                                                This may take 1-3 minutes for large files. Please wait...
-                                            </p>
+                                            <h3 className="text-lg font-medium text-gray-900 mb-1">Analyzing Textbook...</h3>
+                                            <p className="text-sm text-gray-600 mb-2">Processing PDF with AI</p>
+                                            <p className="text-xs text-gray-500">This may take a few minutes. Please wait...</p>
                                         </div>
-
-                                        {/* Animated Progress Dots */}
                                         <div className="flex space-x-2">
                                             <div className="w-2 h-2 bg-blue-600 rounded-full animate-bounce" style={{ animationDelay: '0s' }}></div>
                                             <div className="w-2 h-2 bg-blue-600 rounded-full animate-bounce" style={{ animationDelay: '0.2s' }}></div>
                                             <div className="w-2 h-2 bg-blue-600 rounded-full animate-bounce" style={{ animationDelay: '0.4s' }}></div>
                                         </div>
                                     </div>
-
-                                    {/* Disable Quizzes Checkbox */}
-
                                 </div>
                             )}
                         </div>
                     )}
 
-                    {/* Detected Chapters Preview */}
                     {detectedChapters.length > 0 && (
                         <>
                             <div>
-                                <h3 className="font-medium text-gray-900 mb-4">
-                                    Detected {detectedChapters.length} Chapter(s)
-                                </h3>
-
+                                <h3 className="font-medium text-gray-900 mb-4">Detected {detectedChapters.length} Chapter(s)</h3>
                                 <div className="grid grid-cols-2 gap-4 max-h-96 overflow-y-auto">
                                     {detectedChapters.map((chapter, index) => (
                                         <div key={chapter.id} className="border rounded-lg p-4 bg-gray-50 space-y-2">
                                             <div className="flex justify-between items-start">
                                                 <span className="text-xs font-semibold text-gray-500">Chapter {index + 1}</span>
-                                                <button
-                                                    type="button"
-                                                    onClick={() => deleteChapter(chapter.id)}
-                                                    className="text-red-600 hover:text-red-800 text-xs"
-                                                >
-                                                    Delete
-                                                </button>
+                                                <button type="button" onClick={() => deleteChapter(chapter.id)} className="text-red-600 hover:text-red-800 text-xs">Delete</button>
                                             </div>
-
-                                            <input
-                                                type="text"
-                                                value={chapter.title}
-                                                onChange={(e) => updateChapter(chapter.id, { title: e.target.value })}
-                                                className="w-full text-sm font-medium border rounded px-2 py-1"
-                                            />
-
-                                            <div className="text-xs text-gray-600">
-                                                Pages {chapter.startPage}-{chapter.endPage}
-                                            </div>
-
-                                            <p className="text-xs text-gray-500 line-clamp-3">
-                                                {chapter.previewText}
-                                            </p>
+                                            <input type="text" value={chapter.title} onChange={(e) => updateChapter(chapter.id, { title: e.target.value })} className="w-full text-sm font-medium border rounded px-2 py-1" />
+                                            <div className="text-xs text-gray-600">Pages {chapter.startPage}-{chapter.endPage}</div>
+                                            <p className="text-xs text-gray-500 line-clamp-3">{chapter.previewText}</p>
                                         </div>
                                     ))}
                                 </div>
                             </div>
 
-                            {/* Target Exam - Select first to filter subjects */}
                             <div>
-                                <label className="block text-sm font-medium text-gray-700 mb-2">
-                                    Target Exam
-                                </label>
-                                <select
-                                    value={selectedExamId || ''}
-                                    onChange={(e) => setSelectedExamId(e.target.value)}
-                                    className="block w-full rounded-md border-gray-300 shadow-sm focus:border-indigo-500 focus:ring-indigo-500 text-sm border p-2"
-                                >
+                                <label className="block text-sm font-medium text-gray-700 mb-2">Target Exam</label>
+                                <select value={selectedExamId || ''} onChange={(e) => setSelectedExamId(e.target.value)} className="block w-full rounded-md border-gray-300 shadow-sm focus:border-indigo-500 focus:ring-indigo-500 text-sm border p-2">
                                     <option value="">All Exams</option>
-                                    {exams.map((exam) => (
-                                        <option key={exam.id} value={exam.id}>
-                                            {exam.short_name || exam.name} ({exam.code})
-                                        </option>
-                                    ))}
+                                    {exams.map((exam) => (<option key={exam.id} value={exam.id}>{exam.short_name || exam.name}</option>))}
                                 </select>
-                                <p className="mt-1 text-xs text-gray-500">
-                                    Filter subjects by target exam, or select "All Exams" to see all
-                                </p>
                             </div>
 
-                            {/* Subject - Filtered by selected exam */}
                             <div>
                                 <label className="block text-sm font-medium text-gray-700 mb-2">Subject *</label>
-                                <select
-                                    value={textbookSubjectId}
-                                    onChange={(e) => {
-                                        const sid = e.target.value;
-                                        setTextbookSubjectId(sid);
-
-                                        // Auto-update Question Config
-                                        if (sid) {
-                                            const selectedSubject = subjects.find(s => s.id.toString() === sid);
-                                            if (selectedSubject?.program?.exam_category) {
-                                                const newConfig = getQuestionDefaults(selectedSubject.program.exam_category, selectedSubject.name);
-                                                setQuestionConfig(newConfig);
-                                                toast.info(`Updated question config for ${selectedSubject.program.name}`);
-                                            }
-                                        }
-                                    }}
-                                    className="block w-full rounded-md border-gray-300 shadow-sm focus:border-indigo-500 focus:ring-indigo-500 text-sm border p-2"
-                                >
+                                <select value={textbookSubjectId} onChange={(e) => setTextbookSubjectId(e.target.value)} className="block w-full rounded-md border-gray-300 shadow-sm focus:border-indigo-500 focus:ring-indigo-500 text-sm border p-2">
                                     <option value="">Select Subject</option>
-                                    {examFilteredSubjects.map((s) => (
-                                        <option key={s.id} value={s.id}>
-                                            {s.name} ({s.program.name} - {s.program.board.name}) {!s.quizzes_enabled && " [Tests Disabled]"}
-                                        </option>
-                                    ))}
+                                    {examFilteredSubjects.map((s) => (<option key={s.id} value={s.id}>{s.name} ({s.program.name})</option>))}
                                 </select>
-                                {textbookSubjectId && !subjects.find(s => s.id.toString() === textbookSubjectId)?.quizzes_enabled && (
-                                    <p className="text-xs text-amber-600 mt-1 flex items-center gap-1">
-                                        <span className="inline-block w-2 h-2 bg-amber-500 rounded-full animate-pulse"></span>
-                                        Mock tests are disabled for this subject. Quiz generation will be skipped for all chapters.
-                                    </p>
-                                )}
-                                <p className="mt-1 text-xs text-gray-500">
-                                    {selectedExamId ? 'Showing subjects for selected exam' : 'All detected chapters will be created under this subject.'}
-                                </p>
                             </div>
 
                             <div>
                                 <label className="block text-sm font-medium text-gray-700 mb-2">Accessible Boards</label>
-                                <select
-                                    multiple
-                                    value={textbookBoards}
-                                    onChange={(e) => {
-                                        const selected = Array.from(e.target.selectedOptions, option => option.value);
-                                        setTextbookBoards(selected);
-                                    }}
-                                    className="block w-full rounded-md border-gray-300 shadow-sm text-sm border p-2 h-24"
-                                >
+                                <select multiple value={textbookBoards} onChange={(e) => setTextbookBoards(Array.from(e.target.selectedOptions, o => o.value))} className="block w-full rounded-md border-gray-300 shadow-sm text-sm border p-2 h-24">
                                     <option value="GLOBAL">GLOBAL (All Boards)</option>
-                                    {boards.map((b) => (
-                                        <option key={b.id} value={b.id}>{b.name}</option>
-                                    ))}
+                                    {boards.map((b) => (<option key={b.id} value={b.id}>{b.name}</option>))}
                                 </select>
-                                <p className="mt-1 text-xs text-gray-500">
-                                    applies to all chapters in this textbook.
-                                </p>
                             </div>
 
-                            {/* Disable Quizzes Checkbox (Textbook) */}
                             <div>
                                 <label className="flex items-center space-x-2 cursor-pointer">
-                                    <input
-                                        type="checkbox"
-                                        checked={!textbookQuizzesEnabled}
-                                        onChange={(e) => setTextbookQuizzesEnabled(!e.target.checked)}
-                                        disabled={isLoading || (!!textbookSubjectId && !subjects.find(s => s.id.toString() === textbookSubjectId)?.quizzes_enabled)}
-                                        className="h-4 w-4 text-red-600 focus:ring-red-500 border-gray-300 rounded"
-                                    />
+                                    <input type="checkbox" checked={!textbookQuizzesEnabled} onChange={(e) => setTextbookQuizzesEnabled(!e.target.checked)} className="h-4 w-4 text-red-600 focus:ring-red-500 border-gray-300 rounded" />
                                     <span className="text-sm font-medium text-gray-700">Disable Quizzes for all chapters</span>
                                 </label>
-                                {(!!textbookSubjectId && !subjects.find(s => s.id.toString() === textbookSubjectId)?.quizzes_enabled) && (
-                                    <p className="text-xs text-amber-600 ml-6 mt-1">
-                                        Quizzes are already disabled at the subject level.
-                                    </p>
-                                )}
+                            </div>
+
+                            <div>
+                                <label className="block text-sm font-medium text-gray-700 mb-2">Key Points for all chapters (one per line)</label>
+                                <textarea
+                                    value={textbookKeyPoints}
+                                    onChange={(e) => setTextbookKeyPoints(e.target.value)}
+                                    placeholder="Optional: Enter key points for these chapters..."
+                                    className="block w-full rounded-md border-gray-300 shadow-sm focus:border-indigo-500 focus:ring-indigo-500 text-sm border p-2 h-24"
+                                />
                             </div>
 
                             <QuestionBankConfig value={questionConfig} onChange={setQuestionConfig} />
 
                             <div className="flex justify-end gap-3">
-                                <button
-                                    type="button"
-                                    onClick={() => {
-                                        setDetectedChapters([]);
-                                        setTextbookFile(null);
-                                    }}
-                                    disabled={isLoading}
-                                    className="px-4 py-2 border border-gray-300 rounded-md shadow-sm text-sm font-medium text-gray-700 bg-white hover:bg-gray-50 disabled:opacity-50"
-                                >
-                                    Start Over
-                                </button>
-                                <button
-                                    type="submit"
-                                    disabled={isLoading || !textbookSubjectId}
-                                    className="inline-flex justify-center py-2 px-4 border border-transparent shadow-sm text-sm font-medium rounded-md text-white bg-indigo-600 hover:bg-indigo-700 disabled:opacity-50 disabled:cursor-not-allowed"
-                                >
-                                    {isLoading ? "Creating..." : `Create ${detectedChapters.length} Chapters`}
-                                </button>
+                                <button type="button" onClick={() => { setDetectedChapters([]); setTextbookFile(null); }} className="px-4 py-2 border border-gray-300 rounded-md shadow-sm text-sm font-medium text-gray-700 bg-white hover:bg-gray-50">Start Over</button>
+                                <button type="submit" disabled={isLoading || !textbookSubjectId} className="inline-flex justify-center py-2 px-4 border border-transparent shadow-sm text-sm font-medium rounded-md text-white bg-indigo-600 hover:bg-indigo-700 disabled:opacity-50">Ingest Textbook</button>
                             </div>
                         </>
                     )}

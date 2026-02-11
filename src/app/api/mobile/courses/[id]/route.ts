@@ -29,7 +29,7 @@ export async function GET(
                         chapters: {
                             where: { is_active: true },
                             orderBy: { chapter_number: 'asc' },
-                            select: { id: true, title: true, chapter_number: true }
+                            select: { id: true, title: true, chapter_number: true, key_points: true }
                         }
                     }
                 }
@@ -59,11 +59,15 @@ export async function GET(
         const mappedSubjects = course.subjects.map(subject => ({
             id: subject.id,
             name: subject.name,
-            chapters: subject.chapters.map(ch => ({
-                id: ch.id.toString(),
-                title: ch.title,
-                chapter_number: ch.chapter_number || 0
-            })),
+            chapters: subject.chapters.map(ch => {
+                const manualPoints = ch.key_points ? ch.key_points.split('\n').filter((p: string) => p.trim()) : [];
+                return {
+                    id: ch.id.toString(),
+                    title: ch.title,
+                    chapter_number: ch.chapter_number || 0,
+                    topics: manualPoints
+                };
+            }),
             chapterCount: subject.chapters.length
         }));
 

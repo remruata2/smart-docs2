@@ -30,11 +30,18 @@ export async function GET(
 
         console.log(`[DEBUG-MOBILE-CHAPTER] Found chapter: ${chapter.title}`);
 
+        const manualPoints = chapter.key_points ? chapter.key_points.split('\n').filter((p: string) => p.trim()) : [];
+        // const summary: any = (chapter as any).study_materials?.summary;
+        // const aiPoints = summary?.key_points || summary?.topics || [];
+        // const topics = manualPoints.length > 0 ? manualPoints : aiPoints;
+        const topics = manualPoints;
+
         return NextResponse.json({
             chapter: {
                 ...chapter,
                 id: chapter.id.toString(),
-                subject_id: chapter.subject_id.toString()
+                subject_id: chapter.subject_id.toString(),
+                topics: topics
             }
         });
 

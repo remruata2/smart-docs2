@@ -43,6 +43,7 @@ interface Chapter {
     chapter_number: number | null;
     is_active: boolean;
     is_global: boolean;
+    key_points?: string | null;
     subject: {
         name: string;
         program: {
@@ -67,6 +68,7 @@ interface EditChapterDialogProps {
             is_active: boolean;
             is_global: boolean;
             quizzes_enabled: boolean;
+            key_points?: string | null;
         }
     ) => Promise<{ success: boolean; error?: string }>;
 }
@@ -90,6 +92,7 @@ export default function EditChapterDialog({
     const [isActive, setIsActive] = useState(chapter.is_active);
     const [isGlobal, setIsGlobal] = useState(chapter.is_global);
     const [quizzesEnabled, setQuizzesEnabled] = useState(chapter.quizzes_enabled);
+    const [keyPoints, setKeyPoints] = useState(chapter.key_points || "");
 
     // Exam filter state (not saved, just UI helper)
     const [filterExamId, setFilterExamId] = useState<string>("ALL");
@@ -103,6 +106,7 @@ export default function EditChapterDialog({
             setIsActive(chapter.is_active);
             setIsGlobal(chapter.is_global);
             setQuizzesEnabled(chapter.quizzes_enabled);
+            setKeyPoints(chapter.key_points || "");
 
             // Try to auto-set filter based on current subject
             const currentSub = subjects.find(s => s.id === chapter.subject_id);
@@ -145,6 +149,7 @@ export default function EditChapterDialog({
                 is_active: isActive,
                 is_global: isGlobal,
                 quizzes_enabled: quizzesEnabled,
+                key_points: keyPoints ? keyPoints.trim() : null,
             });
 
             if (result.success) {
@@ -167,7 +172,8 @@ export default function EditChapterDialog({
         chapterNumber !== (chapter.chapter_number?.toString() || "") ||
         isActive !== chapter.is_active ||
         isGlobal !== chapter.is_global ||
-        quizzesEnabled !== chapter.quizzes_enabled;
+        quizzesEnabled !== chapter.quizzes_enabled ||
+        keyPoints !== (chapter.key_points || "");
 
     return (
         <Dialog open={open} onOpenChange={setOpen}>
@@ -182,7 +188,7 @@ export default function EditChapterDialog({
                     <Pencil className="w-4 h-4" />
                 </Button>
             </DialogTrigger>
-            <DialogContent className="sm:max-w-[525px]" onClick={(e) => e.stopPropagation()}>
+            <DialogContent className="sm:max-w-[525px] max-h-[85vh] overflow-y-auto" onClick={(e) => e.stopPropagation()}>
                 <DialogHeader>
                     <DialogTitle className="text-xl font-semibold">Edit Chapter</DialogTitle>
                     <DialogDescription>
@@ -260,7 +266,7 @@ export default function EditChapterDialog({
 
                     {/* Chapter Number */}
                     <div className="space-y-2">
-                        <Label htmlFor="chapterNumber" className="text-sm font-medium">
+                        <Label htmlFor="topic" className="text-sm font-medium">
                             Chapter Number
                         </Label>
                         <Input
@@ -272,6 +278,23 @@ export default function EditChapterDialog({
                             min={1}
                             className="h-10"
                         />
+                    </div>
+
+                    {/* Key Points */}
+                    <div className="space-y-2">
+                        <Label htmlFor="keyPoints" className="text-sm font-medium">
+                            Key Points (one per line)
+                        </Label>
+                        <textarea
+                            id="keyPoints"
+                            value={keyPoints}
+                            onChange={(e) => setKeyPoints(e.target.value)}
+                            placeholder="Enter key points, one per line..."
+                            className="flex min-h-[100px] w-full rounded-md border border-input bg-background px-3 py-2 text-sm ring-offset-background placeholder:text-muted-foreground focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring focus-visible:ring-offset-2 disabled:cursor-not-allowed disabled:opacity-50"
+                        />
+                        <p className="text-xs text-gray-500">
+                            Enter points separated by newlines. These will be shown on the Mobile app and Web dashboard.
+                        </p>
                     </div>
 
                     {/* Status Toggles */}
