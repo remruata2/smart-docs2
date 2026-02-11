@@ -34,6 +34,11 @@ export async function GET(request: NextRequest) {
                     select: {
                         summary: true
                     }
+                },
+                subject: {
+                    select: {
+                        quizzes_enabled: true
+                    }
                 }
             }
         });
@@ -77,6 +82,7 @@ export async function GET(request: NextRequest) {
                     chapter_number: c.chapter_number,
                     quizzes_enabled: c.quizzes_enabled,
                     topics: topics.slice(0, 3), // Return top 3 topics
+                    subject_quizzes_enabled: c.subject?.quizzes_enabled,
                     question_counts: questionsByChapter.get(c.id.toString()) || {}
                 };
             })

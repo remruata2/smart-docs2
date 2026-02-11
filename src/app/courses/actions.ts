@@ -27,6 +27,7 @@ export async function getCourseDetails(courseId: number) {
                             title: true,
                             chapter_number: true,
                             key_points: true,
+                            quizzes_enabled: true,
                             study_materials: {
                                 select: { summary: true }
                             }

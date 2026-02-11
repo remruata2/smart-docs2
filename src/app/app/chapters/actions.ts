@@ -35,6 +35,7 @@ export async function getChaptersForSubject(subjectId: number) {
 					select: {
 						id: true,
 						name: true,
+						quizzes_enabled: true,
 						program: {
 							select: {
 								id: true,
@@ -288,7 +289,8 @@ export async function getTextbookContent(textbookId: number) {
 			units: {
 				include: {
 					chapters: {
-						orderBy: { order: 'asc' }
+						orderBy: { order: 'asc' },
+						include: { subject: true }
 					}
 				},
 				orderBy: { order: 'asc' }
