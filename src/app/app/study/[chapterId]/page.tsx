@@ -144,5 +144,4 @@ export default async function StudyMaterialsPage({
         </div>
     );
 }
-}
 
