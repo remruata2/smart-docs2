@@ -25,14 +25,26 @@ export default async function StudyMaterialsPage({
         redirect("/auth/register");
     }
 
-    // Get chapter info
+    // Get chapter info with board details
     const chapter = await prisma.chapter.findUnique({
         where: { id: BigInt(chapterId) },
         include: {
-            subject: { select: { id: true, name: true } }
+            subject: {
+                select: {
+                    id: true,
+                    name: true,
+                    program: {
+                        select: {
+                            board_id: true
+                        }
+                    }
+                }
+            }
         },
-        // Include pdf_url for textbook viewer
     });
+
+    // ... (rest of the file) ...
+
     // Explicitly select pdf_url (it's on the Chapter model)
     const chapterWithPdf = chapter ? { ...chapter, pdf_url: chapter.pdf_url } : null;
 
@@ -102,6 +114,8 @@ export default async function StudyMaterialsPage({
     });
     const trialAccess = getTrialAccess(enrollment, enrollment?.course || null);
 
+    const isMbse = chapter?.subject.program.board_id === "MBSE";
+
     return (
         <div className="container mx-auto py-8 px-4 max-w-6xl">
             {/* Header */}
@@ -125,7 +139,10 @@ export default async function StudyMaterialsPage({
                 chapterId={chapterId}
                 pdfUrl={chapter.pdf_url || undefined}
                 hasApiKey={!!process.env.YOUTUBE_API_KEY}
+                hideTextbook={isMbse}
             />
         </div>
     );
 }
+}
+

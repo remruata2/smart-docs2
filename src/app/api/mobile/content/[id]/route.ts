@@ -29,7 +29,11 @@ export async function GET(
         const chapter = await prisma.chapter.findUnique({
             where: { id: chapterId },
             include: {
-                subject: true,
+                subject: {
+                    include: {
+                        program: true
+                    }
+                },
             }
         });
 
@@ -93,6 +97,7 @@ export async function GET(
             title: chapter.title,
             subject: chapter.subject,
             pdf_url: chapter.pdf_url,
+            is_mbse: chapter.subject.program.board_id === "MBSE", // Helper flag for client
         });
 
         return NextResponse.json({

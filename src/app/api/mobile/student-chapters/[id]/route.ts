@@ -35,11 +35,18 @@ export async function GET(
 
         return NextResponse.json({
             chapter: {
-                ...chapter,
                 id: chapter.id.toString(),
+                title: chapter.title,
                 subject_id: chapter.subject_id.toString(),
+                processing_status: chapter.processing_status,
+                created_at: chapter.created_at,
                 hasStudyMaterial: !!chapter.study_materials,
-                questionCount: chapter._count.questions
+                questionCount: chapter._count.questions,
+                error_message: chapter.error_message,
+                subject: {
+                    id: chapter.subject.id.toString(),
+                    name: chapter.subject.name
+                }
             }
         });
     } catch (error: any) {

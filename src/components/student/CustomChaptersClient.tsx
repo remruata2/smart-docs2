@@ -275,6 +275,9 @@ export function CustomChaptersClient({ courseId, courseTitle }: CustomChaptersCl
                                                     <p className="text-[10px] text-gray-400 font-bold uppercase tracking-wider text-center">
                                                         Analyzing content & generating questions...
                                                     </p>
+                                                    <p className="text-[11px] text-indigo-600 font-medium text-center bg-indigo-50 px-3 py-1 rounded-full border border-indigo-100/50 mt-1.5">
+                                                        Processing takes 1-5 mins. You can safely leave this page.
+                                                    </p>
                                                 </div>
                                             )}
                                         </div>

@@ -18,12 +18,14 @@ interface StudyMaterialsClientProps {
     chapterId: string;
     pdfUrl?: string;
     hasApiKey?: boolean;
+    hideTextbook?: boolean;
 }
 
-export function StudyMaterialsClient({ materials, chapterId, pdfUrl, hasApiKey = true }: StudyMaterialsClientProps) {
+export function StudyMaterialsClient({ materials, chapterId, pdfUrl, hasApiKey = true, hideTextbook = false }: StudyMaterialsClientProps) {
+
+    // ... (rest of the component) ...
 
     const [activeTab, setActiveTab] = useState("summary");
-
 
     const renderSummary = () => {
         if (!materials?.summary) return null;
