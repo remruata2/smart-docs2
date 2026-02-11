@@ -99,7 +99,11 @@ export default async function ChaptersPage({
                                 {unit.chapters.map((chapter: any) => (
                                     <ChapterRow
                                         key={chapter.id}
-                                        chapter={chapter}
+                                        chapter={{
+                                            ...chapter,
+                                            subject: textbookData.textbook.subject,
+                                            quizzes_enabled: true // Fallback for textbooks
+                                        }}
                                         isNewTextbook={true}
                                         textbookId={textbookId}
                                         trialAccess={trialAccess}
@@ -194,7 +198,7 @@ function ChapterRow({ chapter, isNewTextbook, textbookId, subjectId, trialAccess
                                         Study Hub
                                     </Button>
                                 </Link>
-                                {(!chapter.subject?.quizzes_enabled || !chapter.quizzes_enabled) ? null : (
+                                {chapter.subject?.quizzes_enabled === false || chapter.quizzes_enabled === false ? null : (
                                     <Link href={isLocked ? "#" : `/app/practice?subjectId=${subjectId || chapter.subject_id}&chapterId=${chapter.id}`} className="flex-1 md:flex-initial">
                                         <Button
                                             variant="outline"

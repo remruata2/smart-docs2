@@ -286,11 +286,11 @@ export async function getTextbookContent(textbookId: number) {
 	const textbook = await prisma.textbook.findUnique({
 		where: { id: textbookId },
 		include: {
+			subject: true,
 			units: {
 				include: {
 					chapters: {
-						orderBy: { order: 'asc' },
-						include: { subject: true }
+						orderBy: { order: 'asc' }
 					}
 				},
 				orderBy: { order: 'asc' }
