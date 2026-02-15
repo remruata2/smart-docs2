@@ -44,7 +44,7 @@ export function EnrollmentButton({
             if (result.success) {
                 toast.success(`Successfully enrolled in ${courseTitle}`);
                 router.refresh();
-                router.push("/app/subjects");
+                router.push(`/app/subjects?courseId=${courseId}`);
             }
         } catch (error) {
             toast.error("Failed to enroll in course");
@@ -92,7 +92,7 @@ export function EnrollmentButton({
                         if (verifyResult.success) {
                             toast.success(`Payment successful! Enrolled in ${courseTitle}`);
                             router.refresh();
-                            router.push("/app/subjects");
+                            router.push(`/app/subjects?courseId=${courseId}`);
                         }
                     } catch (error: any) {
                         toast.error(error.message || "Payment verification failed");

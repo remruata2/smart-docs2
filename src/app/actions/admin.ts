@@ -18,6 +18,7 @@ export async function createBoard(formData: FormData) {
     const name = formData.get("name") as string;
     const countryId = formData.get("countryId") as string;
     const state = formData.get("state") as string;
+    const hideTextbook = formData.get("hideTextbook") === "on";
 
     if (!id || !name || !countryId) {
         return { success: false, error: "Missing required fields" };
@@ -30,6 +31,7 @@ export async function createBoard(formData: FormData) {
                 name,
                 country_id: countryId,
                 state: state || null,
+                hide_textbook: hideTextbook,
             },
         });
         revalidatePath("/admin/boards");
@@ -50,6 +52,7 @@ export async function updateBoard(formData: FormData) {
     const name = formData.get("name") as string;
     const countryId = formData.get("countryId") as string;
     const state = formData.get("state") as string;
+    const hideTextbook = formData.get("hideTextbook") === "on";
 
     if (!id || !name || !countryId) {
         return { success: false, error: "Missing required fields" };
@@ -62,6 +65,7 @@ export async function updateBoard(formData: FormData) {
                 name,
                 country_id: countryId,
                 state: state || null,
+                hide_textbook: hideTextbook,
             },
         });
         revalidatePath("/admin/boards");

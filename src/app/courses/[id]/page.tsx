@@ -108,7 +108,7 @@ export default async function CourseDetailsPage({
 
                             {course.isEnrolled ? (
                                 <div className="space-y-3">
-                                    <Link href="/app/subjects" className="block">
+                                    <Link href={`/app/subjects?courseId=${course.id}`} className="block">
                                         <Button className={`w-full py-4 h-auto whitespace-normal font-bold text-lg shadow-lg transition-all active:scale-95 ${course.enrollmentStatus === 'trial'
                                             ? "bg-indigo-600 hover:bg-indigo-700 shadow-indigo-500/20"
                                             : "bg-emerald-600 hover:bg-emerald-700 shadow-emerald-500/20"

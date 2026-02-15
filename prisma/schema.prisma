@@ -368,6 +368,7 @@ model Board {
   created_at   DateTime            @default(now())
   updated_at   DateTime            @updatedAt
   type         String              @default("academic")
+  hide_textbook Boolean            @default(false)
   country      Country             @relation(fields: [country_id], references: [id])
   chunkBoards  ChapterChunkBoard[]
   courses      Course[]

@@ -35,7 +35,11 @@ export default async function StudyMaterialsPage({
                     name: true,
                     program: {
                         select: {
-                            board_id: true
+                            board: {
+                                select: {
+                                    hide_textbook: true
+                                }
+                            }
                         }
                     }
                 }
@@ -114,7 +118,7 @@ export default async function StudyMaterialsPage({
     });
     const trialAccess = getTrialAccess(enrollment, enrollment?.course || null);
 
-    const isMbse = chapter?.subject.program.board_id === "MBSE";
+    const hideTextbook = chapter?.subject.program.board.hide_textbook || false;
 
     return (
         <div className="container mx-auto py-8 px-4 max-w-6xl">
@@ -139,7 +143,7 @@ export default async function StudyMaterialsPage({
                 chapterId={chapterId}
                 pdfUrl={chapter.pdf_url || undefined}
                 hasApiKey={!!process.env.YOUTUBE_API_KEY}
-                hideTextbook={isMbse}
+                hideTextbook={hideTextbook}
             />
         </div>
     );

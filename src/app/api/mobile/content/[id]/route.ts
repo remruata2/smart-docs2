@@ -31,9 +31,13 @@ export async function GET(
             include: {
                 subject: {
                     include: {
-                        program: true
-                    }
-                },
+                        program: {
+                            include: {
+                                board: true
+                            }
+                        }
+                    },
+                }
             }
         });
 
@@ -97,7 +101,8 @@ export async function GET(
             title: chapter.title,
             subject: chapter.subject,
             pdf_url: chapter.pdf_url,
-            is_mbse: chapter.subject.program.board_id === "MBSE", // Helper flag for client
+            is_mbse: chapter.subject.program.board.hide_textbook, // Using the flag directly
+            hide_textbook: chapter.subject.program.board.hide_textbook, // Explicit new field
         });
 
         return NextResponse.json({

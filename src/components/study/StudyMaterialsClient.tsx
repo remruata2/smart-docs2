@@ -83,7 +83,7 @@ export function StudyMaterialsClient({ materials, chapterId, pdfUrl, hasApiKey =
                                 <Video className="w-5 h-5" />
                                 Videos
                             </TabsTrigger>
-                            {pdfUrl && (
+                            {pdfUrl && !hideTextbook && (
                                 <TabsTrigger
                                     value="textbook"
                                     className="px-6 py-3 rounded-lg data-[state=active]:bg-indigo-600 data-[state=active]:text-white data-[state=active]:shadow-lg transition-all duration-200 gap-2 text-base font-medium cursor-pointer"
@@ -183,7 +183,7 @@ export function StudyMaterialsClient({ materials, chapterId, pdfUrl, hasApiKey =
                 )}
             </TabsContent>
 
-            {pdfUrl && (
+            {pdfUrl && !hideTextbook && (
                 <TabsContent value="textbook" className="mt-0 outline-none">
                     <SecurePdfViewer pdfUrl={pdfUrl} />
                 </TabsContent>

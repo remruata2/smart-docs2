@@ -24,6 +24,7 @@ interface Board {
     name: string;
     country_id: string;
     state: string | null;
+    hide_textbook: boolean;
 }
 
 interface EditBoardDialogProps {
@@ -108,6 +109,19 @@ export default function EditBoardDialog({ board, countries }: EditBoardDialogPro
                             defaultValue={board.state || ''}
                             className="mt-1 block w-full rounded-md border-gray-300 shadow-sm focus:border-indigo-500 focus:ring-indigo-500 sm:text-sm border p-2"
                         />
+                    </div>
+
+                    <div className="flex items-center">
+                        <input
+                            id="editHideTextbook"
+                            name="hideTextbook"
+                            type="checkbox"
+                            defaultChecked={board.hide_textbook}
+                            className="h-4 w-4 text-indigo-600 focus:ring-indigo-500 border-gray-300 rounded"
+                        />
+                        <label htmlFor="editHideTextbook" className="ml-2 block text-sm text-gray-900">
+                            Hide Textbook Tab
+                        </label>
                     </div>
 
                     <div className="flex justify-end gap-3 pt-4">
