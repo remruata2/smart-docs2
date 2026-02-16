@@ -13,10 +13,11 @@ export function ChallengeNotification({ currentUserId }: { currentUserId: number
     useEffect(() => {
         if (!supabase || !currentUserId) return;
 
+        console.log('[CHALLENGE_NOTIF] Mounting and subscribing for user:', currentUserId);
         const channel = supabase.channel(`notifications:user:${currentUserId}`)
             .on('broadcast', { event: 'CHALLENGE_INVITE' }, (payload: any) => {
                 console.log('[CHALLENGE] Received invite:', payload);
-                const { senderId, senderName, battleId, quizId, battleCode } = payload.payload;
+                const { senderId, senderName, battleId, battleCode } = payload.payload;
 
                 toast.custom((t) => (
                     <div className="bg-slate-900 border border-indigo-500/50 rounded-xl p-4 shadow-2xl flex flex-col gap-3 w-80">

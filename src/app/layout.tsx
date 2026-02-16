@@ -18,18 +18,23 @@ export const metadata: Metadata = {
 	description: "Zirna IO",
 };
 
-export default function RootLayout({
+import { getServerSession } from "next-auth";
+import { authOptions } from "@/lib/auth-options";
+
+export default async function RootLayout({
 	children,
 }: Readonly<{
 	children: React.ReactNode;
 }>) {
+	const session = await getServerSession(authOptions);
+
 	return (
 		<html lang="en" suppressHydrationWarning>
 			<body
 				className={`${geistSans.variable} ${geistMono.variable} antialiased`}
 				suppressHydrationWarning
 			>
-				<ClientProviders>{children}</ClientProviders>
+				<ClientProviders session={session}>{children}</ClientProviders>
 			</body>
 		</html>
 	);
