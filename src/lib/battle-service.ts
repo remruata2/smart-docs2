@@ -76,6 +76,13 @@ export class BattleService {
                 }
             },
             include: {
+                participants: {
+                    include: {
+                        user: {
+                            select: { username: true, id: true }
+                        }
+                    }
+                },
                 quiz: {
                     select: {
                         title: true,
