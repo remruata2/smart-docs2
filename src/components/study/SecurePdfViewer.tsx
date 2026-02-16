@@ -34,9 +34,10 @@ pdfjs.GlobalWorkerOptions.workerSrc = `//unpkg.com/pdfjs-dist@${pdfjs.version}/b
 interface SecurePdfViewerProps {
     pdfUrl: string;
     title?: string;
+    userName?: string;
 }
 
-export function SecurePdfViewer({ pdfUrl, title }: SecurePdfViewerProps) {
+export function SecurePdfViewer({ pdfUrl, title, userName = "Student" }: SecurePdfViewerProps) {
     const [numPages, setNumPages] = useState<number>(0);
     const [pageNumber, setPageNumber] = useState<number>(1);
     const [scale, setScale] = useState<number>(1.0);
@@ -51,22 +52,34 @@ export function SecurePdfViewer({ pdfUrl, title }: SecurePdfViewerProps) {
     const [selectedVoice, setSelectedVoice] = useState<string>("");
     const [pageText, setPageText] = useState<string>("");
     const [isAutoReading, setIsAutoReading] = useState<boolean>(false);
+    const [isFocused, setIsFocused] = useState<boolean>(true);
 
     const containerRef = useRef<HTMLDivElement>(null);
     const speechRef = useRef<SpeechSynthesisUtterance | null>(null);
     const isAutoReadingRef = useRef<boolean>(false);
+    const [isMouseOver, setIsMouseOver] = useState<boolean>(true);
 
     // Load available voices
     useEffect(() => {
         const loadVoices = () => {
             const availableVoices = window.speechSynthesis.getVoices();
-            // Filter for English voices
-            const englishVoices = availableVoices.filter(
-                (v) => v.lang.startsWith("en") || v.lang.startsWith("hi")
-            );
-            setVoices(englishVoices.length > 0 ? englishVoices : availableVoices);
-            if (englishVoices.length > 0 && !selectedVoice) {
-                setSelectedVoice(englishVoices[0].name);
+            // Blacklist of macOS novelty/funny voices
+            const funnyVoices = [
+                "Bubbles", "Boing", "Bells", "Cellos", "Bad News", "Bahh",
+                "Albert", "Good News", "Jester", "Organ", "Superstar",
+                "Trinoids", "Whisper", "Zarvox", "Pipe Organ", "Hysterical"
+            ];
+
+            // Filter for English/Hindi voices and remove funny ones
+            const professionalVoices = availableVoices.filter((v) => {
+                const isEnglishOrHindi = v.lang.startsWith("en") || v.lang.startsWith("hi");
+                const isFunny = funnyVoices.some(funny => v.name.includes(funny));
+                return isEnglishOrHindi && !isFunny;
+            });
+
+            setVoices(professionalVoices.length > 0 ? professionalVoices : availableVoices);
+            if (professionalVoices.length > 0 && !selectedVoice) {
+                setSelectedVoice(professionalVoices[0].name);
             }
         };
 
@@ -78,7 +91,7 @@ export function SecurePdfViewer({ pdfUrl, title }: SecurePdfViewerProps) {
         };
     }, []);
 
-    // Security: Prevent right-click
+    // Security: Prevent right-click and detect focus
     useEffect(() => {
         const handleContextMenu = (e: MouseEvent) => {
             e.preventDefault();
@@ -89,24 +102,32 @@ export function SecurePdfViewer({ pdfUrl, title }: SecurePdfViewerProps) {
             // Block Cmd+C, Ctrl+C, Cmd+P, Ctrl+P
             if (
                 (e.metaKey || e.ctrlKey) &&
-                (e.key === "c" || e.key === "C" || e.key === "p" || e.key === "P")
+                (e.key === "c" || e.key === "C" || e.key === "p" || e.key === "P" || e.key === "s" || e.key === "S")
             ) {
                 e.preventDefault();
+                setIsFocused(false); // Trigger blur protection on shortcut attempt
                 return false;
             }
-            // Block PrintScreen
-            if (e.key === "PrintScreen") {
-                e.preventDefault();
+            // Block PrintScreen and other common capture shortcuts
+            if (e.key === "PrintScreen" || (e.shiftKey && (e.metaKey || e.ctrlKey) && (e.key === "4" || e.key === "3" || e.key === "5"))) {
+                setIsFocused(false);
                 return false;
             }
         };
 
+        const handleBlur = () => setIsFocused(false);
+        const handleFocus = () => setIsFocused(true);
+
         document.addEventListener("contextmenu", handleContextMenu);
         document.addEventListener("keydown", handleKeyDown);
+        window.addEventListener("blur", handleBlur);
+        window.addEventListener("focus", handleFocus);
 
         return () => {
             document.removeEventListener("contextmenu", handleContextMenu);
             document.removeEventListener("keydown", handleKeyDown);
+            window.removeEventListener("blur", handleBlur);
+            window.removeEventListener("focus", handleFocus);
         };
     }, []);
 
@@ -381,17 +402,43 @@ export function SecurePdfViewer({ pdfUrl, title }: SecurePdfViewerProps) {
                     </div>
                 </div>
 
-                {/* PDF Viewer */}
                 <div
                     ref={containerRef}
-                    className="relative overflow-auto bg-gray-100 dark:bg-gray-900"
+                    onMouseEnter={() => setIsMouseOver(true)}
+                    onMouseLeave={() => setIsMouseOver(false)}
+                    className="relative overflow-auto bg-gray-100 dark:bg-gray-900 transition-all duration-300"
                     style={{
                         height: "calc(100vh - 300px)",
                         minHeight: "500px",
                         userSelect: "none",
                         WebkitUserSelect: "none",
+                        filter: (isFocused && isMouseOver) ? "none" : "blur(20px)",
                     }}
                 >
+                    {/* Security Styles - Prevents Printing & Selection */}
+                    <style jsx global>{`
+                        @media print {
+                            .no-print {
+                                display: none !important;
+                            }
+                            canvas, .react-pdf__Page, .react-pdf__Document, .watermark {
+                                display: none !important;
+                            }
+                        }
+                        .react-pdf__Page__textContent, .react-pdf__Page__annotations {
+                            user-select: none !important;
+                            pointer-events: none !important;
+                        }
+                    `}</style>
+
+                    {/* Dynamic Watermark Layer */}
+                    <div className="watermark absolute inset-0 z-10 pointer-events-none overflow-hidden opacity-[0.01] select-none flex flex-wrap justify-center items-center gap-20 py-20">
+                        {Array.from({ length: 12 }).map((_, i) => (
+                            <div key={i} className="text-4xl font-bold -rotate-45 whitespace-nowrap uppercase tracking-widest">
+                                {userName} - PRIVATE - {userName}
+                            </div>
+                        ))}
+                    </div>
                     {/* Security Overlay - prevents easy selection */}
                     <div
                         className="absolute inset-0 z-10 pointer-events-none"

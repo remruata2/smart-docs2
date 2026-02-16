@@ -144,6 +144,7 @@ export default async function StudyMaterialsPage({
                 pdfUrl={chapter.pdf_url || undefined}
                 hasApiKey={!!process.env.YOUTUBE_API_KEY}
                 hideTextbook={hideTextbook}
+                userName={session.user.username || session.user.email || "Student"}
             />
         </div>
     );

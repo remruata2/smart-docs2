@@ -5,13 +5,25 @@ import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { FlashcardViewer } from "./FlashcardViewer";
 import { VideoGallery } from "./VideoGallery";
-import { SecurePdfViewer } from "./SecurePdfViewer";
-import { BookOpen, Video, FileText, Sparkles, Brain, BookMarked } from "lucide-react";
+import { BookOpen, Video, FileText, Sparkles, Brain, BookMarked, Loader2 } from "lucide-react";
+import dynamic from "next/dynamic";
 import ReactMarkdown from "react-markdown";
 import remarkMath from "remark-math";
 import rehypeKatex from "rehype-katex";
 import "katex/dist/katex.min.css";
 import { GenerateStudyMaterialsButton } from "./GenerateStudyMaterialsButton";
+
+const SecurePdfViewer = dynamic(
+    () => import("./SecurePdfViewer").then((mod) => mod.SecurePdfViewer),
+    {
+        ssr: false,
+        loading: () => (
+            <div className="flex items-center justify-center p-20">
+                <Loader2 className="h-8 w-8 animate-spin text-indigo-600" />
+            </div>
+        ),
+    }
+);
 
 interface StudyMaterialsClientProps {
     materials: any;
@@ -19,9 +31,10 @@ interface StudyMaterialsClientProps {
     pdfUrl?: string;
     hasApiKey?: boolean;
     hideTextbook?: boolean;
+    userName?: string;
 }
 
-export function StudyMaterialsClient({ materials, chapterId, pdfUrl, hasApiKey = true, hideTextbook = false }: StudyMaterialsClientProps) {
+export function StudyMaterialsClient({ materials, chapterId, pdfUrl, hasApiKey = true, hideTextbook = false, userName = "Student" }: StudyMaterialsClientProps) {
 
     // ... (rest of the component) ...
 
@@ -185,7 +198,7 @@ export function StudyMaterialsClient({ materials, chapterId, pdfUrl, hasApiKey =
 
             {pdfUrl && !hideTextbook && (
                 <TabsContent value="textbook" className="mt-0 outline-none">
-                    <SecurePdfViewer pdfUrl={pdfUrl} />
+                    <SecurePdfViewer pdfUrl={pdfUrl} userName={userName} />
                 </TabsContent>
             )}
         </Tabs>
