@@ -24,29 +24,29 @@ export class BattleService {
      * Helper to broadcast events via Supabase Admin (server-side)
      * Uses httpSend for stateless server-to-client broadcasts
      */
-    private static async broadcast(battleId: string, event: string, payload: any = {}) {
+    /**
+     * Helper to broadcast events via Supabase Admin (server-side)
+     * Uses httpSend for stateless server-to-client broadcasts
+     */
+    static async broadcast(battleId: string, event: string, payload: any = {}) {
         if (!supabaseAdmin) {
             console.warn('[BATTLE-BROADCAST] supabaseAdmin not available');
             return;
         }
 
-        console.log('[BATTLE-BROADCAST] Broadcasting:', { battleId, event, payloadType: payload?.type || payload?.status });
-
         const channel = supabaseAdmin.channel(`battle:${battleId}`);
 
         try {
-            // @ts-ignore - httpSend is available but not in types
-            if (typeof channel.httpSend === 'function') {
+            // @ts-ignore - httpSend is available in v2 but not typed in all versions
+            if (typeof (channel as any).httpSend === 'function') {
                 // @ts-ignore
-                const result = await channel.httpSend(event, payload);
-                console.log('[BATTLE-BROADCAST] httpSend result:', result);
+                await channel.httpSend(event, payload);
             } else {
-                const result = await channel.send({
+                await channel.send({
                     type: 'broadcast',
                     event,
                     payload
                 });
-                console.log('[BATTLE-BROADCAST] send result:', result);
             }
         } catch (error) {
             console.error('[BATTLE-BROADCAST] Error broadcasting:', error);

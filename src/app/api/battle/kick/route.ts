@@ -2,7 +2,7 @@ import { NextRequest, NextResponse } from "next/server";
 import { getServerSession } from "next-auth";
 import { authOptions } from "@/lib/auth-options";
 import { prisma } from "@/lib/prisma";
-import { supabaseAdmin } from "@/lib/supabase";
+import { BattleService } from "@/lib/battle-service";
 
 export async function POST(request: NextRequest) {
     try {
@@ -44,14 +44,9 @@ export async function POST(request: NextRequest) {
         });
 
         // Broadcast KICK event
-        const channel = supabaseAdmin!.channel(`battle:${battleId}`);
-        await channel.send({
-            type: 'broadcast',
-            event: 'BATTLE_UPDATE',
-            payload: {
-                type: 'PLAYER_KICKED',
-                userId: targetUserId
-            }
+        await BattleService.broadcast(battleId, 'BATTLE_UPDATE', {
+            type: 'PLAYER_KICKED',
+            userId: targetUserId
         });
 
         return NextResponse.json({ success: true });
