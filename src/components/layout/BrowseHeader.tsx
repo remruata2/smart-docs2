@@ -14,7 +14,7 @@ export function BrowseHeader() {
             <div className="container mx-auto px-4 py-4 flex items-center justify-between">
                 <Link href="/" className="flex flex-col items-center group">
                     <Image
-                        src="/zirnalogosmallnew.png"
+                        src="/zirna-brand-logo.png"
                         alt="Zirna"
                         width={120}
                         height={40}

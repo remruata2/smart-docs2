@@ -27,7 +27,7 @@ export default function AdminSidebar({ setSidebarOpen }: AdminSidebarProps) {
 			<div className="flex-shrink-0 px-4 py-4 border-b border-slate-700">
 				<Link href="/admin" className="flex items-center">
 					<Image
-						src="/zirnalogosmallnew.png"
+						src="/zirna-brand-logo.png"
 						alt="Zirna"
 						width={100}
 						height={32}

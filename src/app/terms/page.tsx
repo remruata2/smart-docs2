@@ -13,7 +13,7 @@ export default function TermsOfService() {
                 <div className="container mx-auto px-4 py-4">
                     <Link href="/" className="inline-block">
                         <Image
-                            src="/zirnalogosmallnew.png"
+                            src="/zirna-brand-logo.png"
                             alt="Zirna"
                             width={120}
                             height={40}

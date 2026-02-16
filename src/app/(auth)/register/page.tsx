@@ -96,7 +96,7 @@ export default function RegisterPage() {
 				<div className="flex flex-col items-center pt-8">
 					<Link href="/" className="mb-2">
 						<Image
-							src="/zirnalogosmallnew.png"
+							src="/zirna-brand-logo.png"
 							alt="Zirna"
 							width={140}
 							height={46}
@@ -134,7 +134,7 @@ export default function RegisterPage() {
 						<div className="mb-10">
 							<Link href="/" className="inline-block">
 								<Image
-									src="/zirnalogosmallnew.png"
+									src="/zirna-brand-logo.png"
 									alt="Zirna"
 									width={180}
 									height={60}

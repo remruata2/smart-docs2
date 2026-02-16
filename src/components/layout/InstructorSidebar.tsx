@@ -54,7 +54,7 @@ export default function InstructorSidebar({ setSidebarOpen }: InstructorSidebarP
                 {!displayCollapsed ? (
                     <Link href="/instructor/dashboard" className="flex items-center">
                         <Image
-                            src="/zirnalogosmallnew.png"
+                            src="/zirna-brand-logo.png"
                             alt="Zirna"
                             width={100}
                             height={32}
