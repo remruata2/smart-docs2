@@ -29,6 +29,12 @@ export async function getSubjectsForUserProgram(courseId?: number, includeMaster
             course: {
                 include: {
                     subjects: {
+                        where: {
+                            OR: [
+                                { created_by_user_id: null },
+                                { created_by_user_id: userId }
+                            ]
+                        },
                         include: {
                             program: {
                                 include: { board: true }

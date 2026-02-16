@@ -36,7 +36,7 @@ export function LiveLeaderboard({ participants, currentUserId, totalQuestions }:
 
             <div className="space-y-3">
                 {sortedParticipants.map((p, index) => {
-                    const isCurrentUser = p.user_id === currentUserId;
+                    const isCurrentUser = String(p.user_id) === String(currentUserId);
                     const progress = ((p.current_q_index) / totalQuestions) * 100;
 
                     return (
@@ -79,7 +79,7 @@ export function LiveLeaderboard({ participants, currentUserId, totalQuestions }:
                                     <p className="font-mono text-lg font-bold text-emerald-400 leading-none">
                                         {p.score}
                                     </p>
-                                    <p className="text-[10px] text-slate-500 uppercase tracking-wider">pts</p>
+                                    <p className="text-[10px] text-slate-500 uppercase tracking-wider">Score</p>
                                 </div>
                             </div>
 

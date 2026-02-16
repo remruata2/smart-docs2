@@ -14,7 +14,7 @@ import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@
 import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar";
 import { Swords, Loader2 } from "lucide-react";
 import { getSubjectsForUserProgram } from "@/app/app/subjects/actions";
-import { getChaptersForSubject } from "@/app/app/chapters/actions";
+import { getChaptersForBattle } from "@/app/app/chapters/actions";
 
 interface ChallengeModalProps {
     targetUser: any | null;
@@ -53,12 +53,11 @@ export function ChallengeModal({ targetUser, isOpen, onClose, onSendChallenge }:
     useEffect(() => {
         if (selectedSubject) {
             setIsLoading(true);
-            getChaptersForSubject(parseInt(selectedSubject))
-                .then((data) => {
-                    if (data && data.chapters && data.chapters.length > 0) {
-                        setChapters(data.chapters);
-                        const firstUnlocked = data.chapters.find((c: any) => !c.isLocked);
-                        setSelectedChapter(firstUnlocked ? firstUnlocked.id.toString() : data.chapters[0].id.toString());
+            getChaptersForBattle(parseInt(selectedSubject))
+                .then((chapters) => {
+                    if (chapters && chapters.length > 0) {
+                        setChapters(chapters);
+                        setSelectedChapter(chapters[0].id.toString());
                     } else {
                         setChapters([]);
                         setSelectedChapter("");

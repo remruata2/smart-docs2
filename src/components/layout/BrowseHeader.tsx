@@ -14,7 +14,7 @@ export function BrowseHeader() {
             <div className="container mx-auto px-4 py-4 flex items-center justify-between">
                 <Link href="/" className="flex flex-col items-center group">
                     <Image
-                        src="/zirnalogosmall.png"
+                        src="/zirnalogosmallnew.png"
                         alt="Zirna"
                         width={120}
                         height={40}
@@ -35,9 +35,14 @@ export function BrowseHeader() {
                         Features
                     </Link>
                     {session && (
-                        <Link href="/my-courses" className="text-gray-600 hover:text-gray-900 font-medium">
-                            My Courses
-                        </Link>
+                        <>
+                            <Link href="/my-courses" className="text-gray-600 hover:text-gray-900 font-medium">
+                                My Courses
+                            </Link>
+                            <Link href="/subscriptions" className="text-gray-600 hover:text-gray-900 font-medium">
+                                My Subscriptions
+                            </Link>
+                        </>
                     )}
                 </nav>
 

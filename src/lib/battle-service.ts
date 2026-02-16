@@ -21,7 +21,8 @@ export class BattleService {
     }
 
     /**
-     * Helper to broadcast events via Supabase
+     * Helper to broadcast events via Supabase Admin (server-side)
+     * Uses httpSend for stateless server-to-client broadcasts
      */
     private static async broadcast(battleId: string, event: string, payload: any = {}) {
         if (!supabaseAdmin) {
@@ -29,13 +30,12 @@ export class BattleService {
             return;
         }
 
-        console.log('[BATTLE-BROADCAST] Broadcasting:', { battleId, event, payload });
+        console.log('[BATTLE-BROADCAST] Broadcasting:', { battleId, event, payloadType: payload?.type || payload?.status });
 
         const channel = supabaseAdmin.channel(`battle:${battleId}`);
 
         try {
-            // Use httpSend if available to avoid fallback warning
-            // @ts-ignore
+            // @ts-ignore - httpSend is available but not in types
             if (typeof channel.httpSend === 'function') {
                 // @ts-ignore
                 const result = await channel.httpSend(event, payload);
@@ -262,16 +262,15 @@ export class BattleService {
             }
         });
 
-        // Broadcast progress update IMMEDIATELY so clients see the score/finished status
-        await this.broadcast(battleId, 'BATTLE_UPDATE', {
-            type: 'PROGRESS',
-            userId,
-            score,
-            finished
-        });
-
         // Check if all participants finished
         if (finished) {
+            // Broadcast that this player finished (so opponent's Result page updates)
+            await this.broadcast(battleId, 'BATTLE_UPDATE', {
+                type: 'PLAYER_FINISHED',
+                userId,
+                score,
+            });
+
             const battle = await prisma.battle.findUnique({
                 where: { id: battleId },
                 include: { participants: true }
@@ -289,12 +288,10 @@ export class BattleService {
                 // Calculate Results (Ranks and Point Changes)
                 await this.calculateBattleResults(battleId);
 
-                // Broadcast completion after the individual progress was sent
+                // Broadcast completion so both clients transition to final results
                 await this.broadcast(battleId, 'BATTLE_UPDATE', { status: 'COMPLETED' });
             }
         }
-
-        return participant;
 
         return participant;
     }

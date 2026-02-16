@@ -18,8 +18,8 @@ export function BattleResult({ battle, currentUser }: BattleResultProps) {
     const router = useRouter();
     const { sendChallenge, updatePresenceStatus } = useSupabase();
     const [rematchLoading, setRematchLoading] = useState(false);
-    const myParticipant = battle.participants.find((p: any) => p.user_id === currentUser.id);
-    const opponent = battle.participants.find((p: any) => p.user_id !== currentUser.id);
+    const myParticipant = battle.participants.find((p: any) => String(p.user_id) === String(currentUser.id));
+    const opponent = battle.participants.find((p: any) => String(p.user_id) !== String(currentUser.id));
 
     // Use RANK to determine winner (Rank 1 is winner, regardless of score ties)
     // Ranking logic in backend handles score > time tie-breakers
@@ -88,7 +88,7 @@ export function BattleResult({ battle, currentUser }: BattleResultProps) {
                         <span>{battleCompleted ? (iWon ? "VICTORY!" : isDraw ? "DRAW!" : "DEFEAT") : "FINISHED!"}</span>
                         {battleCompleted && myParticipant?.points_change !== undefined && (
                             <span className={`text-2xl md:text-4xl ${myParticipant.points_change > 0 ? 'text-emerald-400' : 'text-red-400'}`}>
-                                {myParticipant.points_change > 0 ? '+' : ''}{myParticipant.points_change} pts
+                                {myParticipant.points_change > 0 ? '+' : ''}{myParticipant.points_change} League Pts
                             </span>
                         )}
                     </h1>
@@ -111,7 +111,7 @@ export function BattleResult({ battle, currentUser }: BattleResultProps) {
                                 return aTime - bTime;
                             })
                             .map((p: any, index: number) => {
-                                const isMe = p.user_id === currentUser.id;
+                                const isMe = String(p.user_id) === String(currentUser.id);
                                 const isWinner = index === 0;
                                 const place = index + 1;
 
@@ -162,7 +162,10 @@ export function BattleResult({ battle, currentUser }: BattleResultProps) {
                                                             )}
                                                         </span>
                                                     ) : (
-                                                        "Still playing..."
+                                                        <span className="text-amber-400 flex items-center gap-1.5">
+                                                            <Loader2 className="h-3 w-3 animate-spin" />
+                                                            Still playing... (Q {p.current_q_index + 1})
+                                                        </span>
                                                     )}
                                                 </p>
                                             </div>
@@ -178,7 +181,7 @@ export function BattleResult({ battle, currentUser }: BattleResultProps) {
                                             {/* Points Change Display - Only if Battle Completed */}
                                             {battleCompleted && p.points_change !== undefined && (
                                                 <div className={`text-xs font-bold ${p.points_change > 0 ? 'text-emerald-400' : 'text-red-400'}`}>
-                                                    {p.points_change > 0 ? '+' : ''}{p.points_change} pts
+                                                    {p.points_change > 0 ? '+' : ''}{p.points_change} League Pts
                                                 </div>
                                             )}
                                         </div>

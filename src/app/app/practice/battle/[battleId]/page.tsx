@@ -78,10 +78,6 @@ export default async function BattleRoomPage({ params }: PageProps) {
                 username: session.user.name || session.user.email,
             }}
             courseId={courseId}
-            supabaseConfig={{
-                url: process.env.NEXT_PUBLIC_SUPABASE_URL || "",
-                anonKey: process.env.NEXT_PUBLIC_SUPABASE_ANON_KEY || ""
-            }}
         />
     );
 }

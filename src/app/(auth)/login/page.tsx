@@ -114,7 +114,7 @@ export default function LoginPage() {
 				<div className="flex flex-col items-center pt-8">
 					<Link href="/" className="mb-2">
 						<Image
-							src="/zirnalogosmall.png"
+							src="/zirnalogosmallnew.png"
 							alt="Zirna"
 							width={140}
 							height={46}
@@ -152,7 +152,7 @@ export default function LoginPage() {
 						<div className="mb-10">
 							<Link href="/" className="inline-block">
 								<Image
-									src="/zirnalogosmall.png"
+									src="/zirnalogosmallnew.png"
 									alt="Zirna"
 									width={180}
 									height={60}

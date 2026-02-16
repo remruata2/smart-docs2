@@ -1,6 +1,6 @@
 "use client";
 
-import { useState, useEffect, useCallback } from "react";
+import { useState, useEffect, useCallback, useRef } from "react";
 import { useRouter } from "next/navigation";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
@@ -11,7 +11,7 @@ import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
 import { toast } from "sonner";
 import { Swords, Users, Zap, Loader2, LogIn, Search } from "lucide-react";
 import { getSubjectsForUserProgram } from "@/app/app/subjects/actions";
-import { getChaptersForSubject } from "@/app/app/chapters/actions";
+import { getChaptersForBattle } from "@/app/app/chapters/actions";
 import { generateQuizAction } from "@/app/app/practice/actions";
 
 import { useSupabase } from "@/components/providers/supabase-provider";
@@ -30,11 +30,10 @@ export function BattleLobby({ initialSubjects = [], courseId }: BattleLobbyProps
     const [loading, setLoading] = useState(false);
 
     // Selection state for Create Battle card
-    const [subjects, setSubjects] = useState<any[]>(() => {
-        // Deduplicate initial subjects
-        return Array.from(new Map(initialSubjects.map(s => [s.id, s])).values());
-    });
+    const [courses, setCourses] = useState<any[]>([]);
+    const [subjects, setSubjects] = useState<any[]>([]);
     const [chapters, setChapters] = useState<any[]>([]);
+    const [selectedCourse, setSelectedCourse] = useState<string>("");
     const [selectedSubject, setSelectedSubject] = useState<string>("");
     const [selectedChapter, setSelectedChapter] = useState<string>("");
     const [isPublic, setIsPublic] = useState(true);
@@ -71,29 +70,64 @@ export function BattleLobby({ initialSubjects = [], courseId }: BattleLobbyProps
         };
     }, [pendingBattle, supabase]);
 
-    // Fetch subjects
+    // Cache for chapters to avoid redundant fetches
+    const chaptersCache = useRef<Record<string, any[]>>({});
+
+    // Fetch subjects (optimized: no mastery calculation)
     useEffect(() => {
-        if (initialSubjects.length === 0) {
-            getSubjectsForUserProgram().then(data => {
-                if (data && data.enrollments) {
-                    const allSubjects = data.enrollments.flatMap(e => e.course.subjects);
-                    // Deduplicate subjects
-                    const uniqueSubjects = Array.from(new Map(allSubjects.map(s => [s.id, s])).values());
-                    setSubjects(uniqueSubjects);
+        getSubjectsForUserProgram(undefined, false).then(data => {
+            if (data && data.enrollments) {
+                // Extract courses from enrollments
+                const fetchedCourses = data.enrollments.map(e => e.course);
+                setCourses(fetchedCourses);
+
+                // Initialize with first course if available
+                if (fetchedCourses.length > 0) {
+                    setSelectedCourse(fetchedCourses[0].id.toString());
                 }
-            }).catch(console.error);
+            }
+        }).catch(console.error);
+    }, []);
+
+    // Filter Subjects when Course changes
+    useEffect(() => {
+        if (selectedCourse) {
+            const course = courses.find(c => c.id.toString() === selectedCourse);
+            // Assuming course.subjects is already populated with nested subjects
+            const courseSubjects = course ? course.subjects : [];
+            setSubjects(courseSubjects);
+
+            // Auto Select First Subject
+            if (courseSubjects.length > 0) {
+                setSelectedSubject(courseSubjects[0].id.toString());
+            } else {
+                setSelectedSubject("");
+            }
+        } else {
+            setSubjects([]);
+            setSelectedSubject("");
         }
-    }, [initialSubjects]);
+    }, [selectedCourse, courses]);
 
     // Fetch chapters when subject changes
     useEffect(() => {
         if (selectedSubject) {
-            getChaptersForSubject(parseInt(selectedSubject)).then(data => {
-                if (data && data.chapters && data.chapters.length > 0) {
-                    setChapters(data.chapters);
-                    const firstUnlocked = data.chapters.find((c: any) => !c.isLocked);
-                    setSelectedChapter(firstUnlocked ? firstUnlocked.id.toString() : data.chapters[0].id.toString());
+            // Check cache first
+            if (chaptersCache.current[selectedSubject]) {
+                const cachedChapters = chaptersCache.current[selectedSubject];
+                setChapters(cachedChapters);
+                setSelectedChapter(cachedChapters[0]?.id.toString() || "");
+                return;
+            }
+
+            // Fetch if not in cache
+            getChaptersForBattle(parseInt(selectedSubject)).then(chapters => {
+                if (chapters && chapters.length > 0) {
+                    chaptersCache.current[selectedSubject] = chapters;
+                    setChapters(chapters);
+                    setSelectedChapter(chapters[0].id.toString());
                 } else {
+                    chaptersCache.current[selectedSubject] = [];
                     setChapters([]);
                     setSelectedChapter("");
                 }
@@ -191,9 +225,9 @@ export function BattleLobby({ initialSubjects = [], courseId }: BattleLobbyProps
             <div className="fixed inset-0 bg-[radial-gradient(ellipse_at_top,_var(--tw-gradient-stops))] from-indigo-900/40 via-slate-950 to-slate-950 pointer-events-none" />
             <div className="absolute inset-0 bg-[url('/grid.svg')] bg-center [mask-image:linear-gradient(180deg,white,rgba(255,255,255,0))] opacity-20 pointer-events-none" />
 
-            <div className="container max-w-4xl mx-auto py-4 md:py-6 px-4 relative z-10">
+            <div className="container max-w-4xl mx-auto py-1 md:py-6 px-4 relative z-10">
                 {/* Header */}
-                <div className="text-center mb-4 space-y-2 animate-in slide-in-from-top-4 fade-in duration-700">
+                <div className="text-center mb-2 space-y-2 animate-in slide-in-from-top-4 fade-in duration-700">
                     <div className="inline-flex items-center justify-center p-2 bg-indigo-500/10 rounded-2xl border border-indigo-500/20 shadow-[0_0_20px_rgba(99,102,241,0.2)]">
                         <Swords className="h-6 w-6 text-indigo-400" />
                     </div>
@@ -268,6 +302,9 @@ export function BattleLobby({ initialSubjects = [], courseId }: BattleLobbyProps
 
                         <TabsContent value="create" className="mt-0 animate-in fade-in slide-in-from-bottom-4 duration-500">
                             <CreateBattleCard
+                                courses={courses}
+                                selectedCourse={selectedCourse}
+                                setSelectedCourse={setSelectedCourse}
                                 subjects={subjects}
                                 chapters={chapters}
                                 selectedSubject={selectedSubject}
@@ -295,12 +332,26 @@ export function BattleLobby({ initialSubjects = [], courseId }: BattleLobbyProps
 }
 
 // Sub-components
-function CreateBattleCard({ subjects, chapters, selectedSubject, setSelectedSubject, selectedChapter, setSelectedChapter, isPublic, setIsPublic, loading, handleCreate }: any) {
+function CreateBattleCard({
+    courses,
+    selectedCourse,
+    setSelectedCourse,
+    subjects,
+    chapters,
+    selectedSubject,
+    setSelectedSubject,
+    selectedChapter,
+    setSelectedChapter,
+    isPublic,
+    setIsPublic,
+    loading,
+    handleCreate
+}: any) {
     return (
         <div className="group relative w-full max-w-2xl mx-auto">
             <div className="absolute -inset-0.5 bg-gradient-to-r from-yellow-500 to-orange-600 rounded-3xl blur opacity-20 group-hover:opacity-40 transition duration-500" />
             <Card className="relative h-full bg-slate-900/90 border-slate-800 hover:border-yellow-500/30 transition-all duration-300 backdrop-blur-xl rounded-2xl shadow-2xl">
-                <CardHeader className="pb-4 border-b border-slate-800/50 py-4">
+                <CardHeader className="pb-2 border-b border-slate-800/50 py-2">
                     <CardTitle className="flex items-center gap-3 text-xl text-white">
                         <div className="p-2 bg-gradient-to-br from-yellow-500/20 to-orange-500/20 rounded-xl border border-orange-500/20">
                             <Zap className="h-5 w-5 text-orange-400" />
@@ -311,11 +362,31 @@ function CreateBattleCard({ subjects, chapters, selectedSubject, setSelectedSubj
                         Configure your match settings and challenge others
                     </CardDescription>
                 </CardHeader>
-                <CardContent className="space-y-4 pt-4">
+                <CardContent className="space-y-4 pt-2">
+                    <div className="space-y-2">
+                        <label className="text-xs font-semibold text-slate-300 uppercase tracking-wider ml-1">Course</label>
+                        <Select value={selectedCourse} onValueChange={setSelectedCourse}>
+                            <SelectTrigger className="bg-slate-800/50 border-slate-700 text-slate-100 h-10 text-base rounded-lg focus:ring-orange-500/50">
+                                <SelectValue placeholder="Select Course" />
+                            </SelectTrigger>
+                            <SelectContent className="bg-slate-800 border-slate-700 text-slate-100">
+                                {courses?.map((c: any) => (
+                                    <SelectItem key={c.id} value={c.id.toString()} className="focus:bg-orange-500 focus:text-white py-2">
+                                        {c.title}
+                                    </SelectItem>
+                                ))}
+                            </SelectContent>
+                        </Select>
+                    </div>
+
                     <div className="space-y-2">
                         <label className="text-xs font-semibold text-slate-300 uppercase tracking-wider ml-1">Subject</label>
-                        <Select value={selectedSubject} onValueChange={setSelectedSubject}>
-                            <SelectTrigger className="bg-slate-800/50 border-slate-700 text-slate-100 h-10 text-base rounded-lg focus:ring-orange-500/50">
+                        <Select
+                            value={selectedSubject}
+                            onValueChange={setSelectedSubject}
+                            disabled={!selectedCourse || subjects.length === 0}
+                        >
+                            <SelectTrigger className="bg-slate-800/50 border-slate-700 text-slate-100 h-10 text-base rounded-lg disabled:opacity-50 focus:ring-orange-500/50">
                                 <SelectValue placeholder="Select Subject" />
                             </SelectTrigger>
                             <SelectContent className="bg-slate-800 border-slate-700 text-slate-100">
@@ -373,6 +444,7 @@ function CreateBattleCard({ subjects, chapters, selectedSubject, setSelectedSubj
                     >
                         {loading ? (
                             <>
+                                <Loader2 className="mr-2 h-4 w-4 animate-spin" />
                                 <Loader2 className="mr-2 h-4 w-4 animate-spin" />
                                 Creating Arena...
                             </>

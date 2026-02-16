@@ -54,7 +54,7 @@ export function FloatingOnlineWidget({ onChallengeUser, defaultStatus = 'ONLINE'
     }, [isExpanded]);
 
     return (
-        <div className="fixed bottom-24 right-4 md:bottom-4 md:right-4 z-[100] flex flex-col items-end gap-2">
+        <div className="fixed bottom-32 right-4 md:bottom-4 md:right-4 z-[100] flex flex-col items-end gap-2">
             {/* Expanded Panel */}
             <div
                 className={cn(

@@ -35,7 +35,7 @@ export function QuizGenerator({
     const uniqueInitialSubjects = Array.from(new Map(initialSubjects.filter(s => s.quizzes_enabled !== false).map(s => [s.id, s])).values());
     const [subjects, setSubjects] = useState<any[]>(uniqueInitialSubjects);
     const [courses, setCourses] = useState<any[]>(initialCourses || []);
-    const [selectedCourseId, setSelectedCourseId] = useState<string>("all");
+    const [selectedCourseId, setSelectedCourseId] = useState<string>(initialCourses?.[0]?.id?.toString() || "all");
     const [chapters, setChapters] = useState<any[]>([]);
 
     const [selectedSubject, setSelectedSubject] = useState<string>(initialSubjectId || "");
@@ -80,14 +80,22 @@ export function QuizGenerator({
                     const uniqueSubjects = Array.from(subjectGroupMap.values());
                     setSubjects(uniqueSubjects);
 
-                    // Preselect first subject only if no initialSubjectId provided
-                    if (!initialSubjectId && uniqueSubjects.length > 0) {
+                    // Auto-select first course and its first subject
+                    if (uniqueCourses.length > 0 && selectedCourseId === "all") {
+                        const firstCourseId = uniqueCourses[0].id.toString();
+                        setSelectedCourseId(firstCourseId);
+
+                        const firstCourseSubjects = uniqueSubjects.filter(s => s.courseIds?.includes(parseInt(firstCourseId)));
+                        if (firstCourseSubjects.length > 0 && !initialSubjectId) {
+                            setSelectedSubject(firstCourseSubjects[0].id.toString());
+                        }
+                    } else if (!initialSubjectId && uniqueSubjects.length > 0) {
                         setSelectedSubject(uniqueSubjects[0].id.toString());
                     }
                 }
             }).catch(console.error);
         }
-    }, [initialSubjects, initialSubjectId]);
+    }, [initialSubjects, initialCourses, initialSubjectId, selectedCourseId]);
 
     useEffect(() => {
         if (selectedSubject) {
@@ -122,6 +130,23 @@ export function QuizGenerator({
             setSelectedChapter("");
         }
     }, [selectedSubject, initialSubjectId, initialChapterId]);
+
+    // Auto-select first subject when course changes
+    useEffect(() => {
+        if (selectedCourseId !== "all" && subjects.length > 0) {
+            const filtered = subjects.filter(s => s.courseIds?.includes(parseInt(selectedCourseId)));
+            if (filtered.length > 0) {
+                // Only auto-select if current subject is not in the filtered list 
+                // OR if it's the first time we're filtering
+                const currentSubjectIsValid = filtered.some(s => s.id.toString() === selectedSubject);
+                if (!currentSubjectIsValid) {
+                    setSelectedSubject(filtered[0].id.toString());
+                }
+            } else {
+                setSelectedSubject("");
+            }
+        }
+    }, [selectedCourseId, subjects]);
 
     const handleGenerate = async () => {
         if (!selectedSubject) {

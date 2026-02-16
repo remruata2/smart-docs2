@@ -27,18 +27,27 @@ export default async function SubjectsPage({
     const userId = parseInt(session.user.id as string);
     const courseId = courseIdParam ? parseInt(courseIdParam) : undefined;
 
-    // 1. Fetch data for subjects display (with heavy mastery calculation)
-    const data = await getSubjectsForUserProgram(courseId);
-
-    // 2. Fetch ALL enrolled courses lightly for the filter
+    // 1. Fetch ALL enrolled courses lightly for the filter and redirect
     const allEnrollments = await prisma.userEnrollment.findMany({
         where: { user_id: userId, status: "active" },
         select: { course: { select: { id: true, title: true } } }
     });
-    const courses = allEnrollments.map(e => e.course);
+    const courses = allEnrollments.map(e => e.course).sort((a, b) => a.title.localeCompare(b.title));
 
     // If user has no enrollments, redirect to catalog
-    if (!data || courses.length === 0) {
+    if (courses.length === 0) {
+        redirect("/");
+    }
+
+    // If no courseId is provided, redirect to the first one alphabetically
+    if (!courseId) {
+        redirect(`/app/subjects?courseId=${courses[0].id}`);
+    }
+
+    // 2. Fetch data for subjects display (with heavy mastery calculation)
+    const data = await getSubjectsForUserProgram(courseId);
+
+    if (!data) {
         redirect("/");
     }
 

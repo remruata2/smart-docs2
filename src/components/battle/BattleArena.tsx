@@ -7,11 +7,9 @@ import { Progress } from "@/components/ui/progress";
 import { toast } from "sonner";
 import { Loader2, Trophy, Clock, Users, Copy, Swords, LogOut } from "lucide-react";
 import { QuestionCard } from "@/components/practice/QuestionCard";
-import { createClient } from "@supabase/supabase-js";
 
 import { BattleResult } from "@/components/battle/BattleResult";
 import { BattleLobbyRoom } from "@/components/battle/BattleLobbyRoom";
-import { LiveLeaderboard } from "@/components/battle/LiveLeaderboard";
 import { useSupabase } from "@/components/providers/supabase-provider";
 import { cn } from "@/lib/utils";
 import ReactMarkdown from "react-markdown";
@@ -23,16 +21,12 @@ interface BattleArenaProps {
     battle: any;
     currentUser: any;
     courseId?: string;
-    supabaseConfig: {
-        url: string;
-        anonKey: string;
-    };
 }
 
-export function BattleArena({ battle: initialBattle, currentUser, courseId, supabaseConfig }: BattleArenaProps) {
+export function BattleArena({ battle: initialBattle, currentUser, courseId }: BattleArenaProps) {
     // Opponent state (derived early for initialization)
-    const initialMyParticipant = initialBattle.participants.find((p: any) => p.user_id === currentUser.id);
-    const { updatePresenceStatus, joinCourseRoom, leaveCourseRoom } = useSupabase();
+    const initialMyParticipant = initialBattle.participants.find((p: any) => String(p.user_id) === String(currentUser.id));
+    const { updatePresenceStatus, joinCourseRoom, leaveCourseRoom, supabase } = useSupabase();
 
     const router = useRouter();
     const [battle, setBattle] = useState(initialBattle);
@@ -43,15 +37,6 @@ export function BattleArena({ battle: initialBattle, currentUser, courseId, supa
     const [timeLeft, setTimeLeft] = useState(0);
     const [submitting, setSubmitting] = useState(false);
     const [leaving, setLeaving] = useState(false);
-    const [supabase, setSupabase] = useState<any>(null);
-
-    // Initialize Supabase client - only once
-    useEffect(() => {
-        if (supabaseConfig.url && supabaseConfig.anonKey && !supabase) {
-            console.log("[BATTLE] Initializing Supabase client");
-            setSupabase(createClient(supabaseConfig.url, supabaseConfig.anonKey));
-        }
-    }, [supabaseConfig.url, supabaseConfig.anonKey, supabase]);
 
     // Sync state with props when router.refresh() updates the server component
     useEffect(() => {
@@ -86,11 +71,12 @@ export function BattleArena({ battle: initialBattle, currentUser, courseId, supa
     const battleRef = useRef(battle);
     const isLeavingRef = useRef(false);
     const hasShownCompletionToast = useRef(false);
+    const channelRef = useRef<any>(null); // Store channel for broadcasting
     useEffect(() => { battleRef.current = battle; }, [battle]);
 
     // Derived state
-    const opponent = battle.participants.find((p: any) => p.user_id !== currentUser.id);
-    const myParticipant = battle.participants.find((p: any) => p.user_id === currentUser.id);
+    const opponent = battle.participants.find((p: any) => String(p.user_id) !== String(currentUser.id));
+    const myParticipant = battle.participants.find((p: any) => String(p.user_id) === String(currentUser.id));
 
     // Additional state for countdown
     const [starting, setStarting] = useState(false);
@@ -138,7 +124,7 @@ export function BattleArena({ battle: initialBattle, currentUser, courseId, supa
                     // Prevent reverting finished status if we know we are finished
                     // This fixes the persistent polling issue where stale server data restarts the interval
                     if (currentMyParticipant?.finished) {
-                        const serverMyPart = data.battle.participants.find((p: any) => p.user_id === currentUser.id);
+                        const serverMyPart = data.battle.participants.find((p: any) => String(p.user_id) === String(currentUser.id));
                         if (serverMyPart) {
                             serverMyPart.finished = true;
                             // Ensure score doesn't revert either
@@ -234,32 +220,29 @@ export function BattleArena({ battle: initialBattle, currentUser, courseId, supa
                     setWaiting(false);
                 }
 
-                // Handle PROGRESS (Score/Finish) - Always process this first
-                if (payload.payload?.type === 'PROGRESS') {
-                    const { userId, score, finished } = payload.payload;
-                    console.log(`[BATTLE-REALTIME] Updating progress for user ${userId}: Score ${score}, Finished ${finished}`);
+                // Handle PLAYER_FINISHED (opponent finished their quiz)
+                if (payload.payload?.type === 'PLAYER_FINISHED') {
+                    const { userId, score } = payload.payload;
+                    console.log(`[BATTLE-REALTIME] Player ${userId} FINISHED with score ${score}`);
 
-                    setBattle((prev: any) => ({
-                        ...prev,
-                        participants: prev.participants.map((p: any) =>
-                            Number(p.user_id) === Number(userId) ? { ...p, score, finished } : p
-                        )
-                    }));
-                    // DO NOT fetch - we already have the correct data from the broadcast
+                    if (String(userId) !== String(currentUser.id)) {
+                        toast.info('Opponent has finished!', { icon: '🏁' });
+                    }
+
+                    // Fetch latest data to get the finished player's results
+                    fetchBattleData();
                     return;
                 }
 
-                // Handle COMPLETION
+                // Handle COMPLETION (all players done, results calculated)
                 if (payload.payload?.status === 'COMPLETED') {
                     console.log('[BATTLE-REALTIME] Battle COMPLETED received');
-                    setBattle((prev: any) => ({ ...prev, status: 'COMPLETED' }));
-                    // Ensure the toast fires
+                    // Force fetch to get final results with ranks and points_change
+                    fetchBattleData();
                     if (!hasShownCompletionToast.current) {
                         hasShownCompletionToast.current = true;
-                        toast.success("Battle Completed!");
+                        toast.success('Battle Completed!');
                     }
-                    // Force fetch to get final results/ranks (points_change)
-                    fetchBattleData();
                     return;
                 }
 
@@ -331,13 +314,28 @@ export function BattleArena({ battle: initialBattle, currentUser, courseId, supa
                 }
             });
 
+        channelRef.current = channel;
+
         return () => {
             console.log('[BATTLE-REALTIME] Cleaning up subscription');
             supabase.removeChannel(channel);
+            channelRef.current = null;
         };
     }, [battle.id, supabase]);
 
-    // Removed polling - now relying entirely on Supabase Realtime broadcasts
+    // Polling fallback: only activate after current user finishes,
+    // to detect opponent completion if realtime misses the event
+    useEffect(() => {
+        if (battle.status !== 'IN_PROGRESS') return;
+        if (!myParticipant?.finished) return; // Only poll after we finish
+
+        const interval = setInterval(() => {
+            console.log('[BATTLE-POLL] Polling for opponent results...');
+            fetchBattleData();
+        }, 3000);
+
+        return () => clearInterval(interval);
+    }, [battle.status, myParticipant?.finished, fetchBattleData]);
 
     // Global Timer logic
     useEffect(() => {
@@ -427,10 +425,14 @@ export function BattleArena({ battle: initialBattle, currentUser, courseId, supa
             if (isLeavingRef.current) return; // Already handled manually
 
             const currentBattle = battleRef.current;
-            const myPart = currentBattle.participants.find((p: any) => p.user_id === currentUser.id);
+            const myPart = currentBattle.participants.find((p: any) => String(p.user_id) === String(currentUser.id));
+
+            // NEW: Don't auto-leave if in lobby (WAITING state)
+            // This allows page refreshes without deleting the battle (if host) or leaving (if participant)
+            if (currentBattle.status === 'WAITING') return;
 
             // Only leave if battle is active AND I haven't finished
-            const isActive = currentBattle.status === 'WAITING' || currentBattle.status === 'IN_PROGRESS';
+            const isActive = currentBattle.status === 'IN_PROGRESS';
             const isNotFinished = !myPart?.finished && currentBattle.status !== 'COMPLETED';
 
             if (isActive && isNotFinished) {
@@ -475,14 +477,14 @@ export function BattleArena({ battle: initialBattle, currentUser, courseId, supa
             // Optimistic update
             setBattle((prev: any) => ({ ...prev, status: "IN_PROGRESS" }));
 
-            // Signal start to everyone
-            if (supabase) {
-                const channel = supabase.channel(`battle:${battle.id}`);
-                await channel.send({
+            // Signal start to everyone via persistent channel
+            if (channelRef.current) {
+                const result = await channelRef.current.send({
                     type: 'broadcast',
                     event: 'BATTLE_UPDATE',
                     payload: { type: 'START' }
                 });
+                console.log('[BATTLE-START] Broadcast result:', result);
             }
         } catch (e: any) {
             toast.error(e.message || "Failed to start battle");
@@ -564,6 +566,17 @@ export function BattleArena({ battle: initialBattle, currentUser, courseId, supa
         const finished = currentQIndex >= battle.quiz.questions.length - 1;
 
         try {
+            // Optimistic Update: Update score immediately
+            setBattle((prev: any) => ({
+                ...prev,
+                participants: prev.participants.map((p: any) =>
+                    String(p.user_id) === String(currentUser.id)
+                        ? { ...p, score: newScore, finished, current_q_index: currentQIndex + 1 }
+                        : p
+                )
+            }));
+
+            // PERSIST TO DB (Server) — server will broadcast PLAYER_FINISHED if this is the last question
             await fetch("/api/battle/update-progress", {
                 method: "POST",
                 body: JSON.stringify({
@@ -573,16 +586,6 @@ export function BattleArena({ battle: initialBattle, currentUser, courseId, supa
                     finished
                 })
             });
-
-            // Signal progress update
-            if (supabase) {
-                const channel = supabase.channel(`battle:${battle.id}`);
-                await channel.send({
-                    type: 'broadcast',
-                    event: 'BATTLE_UPDATE',
-                    payload: { type: 'PROGRESS', userId: currentUser.id }
-                });
-            }
 
             if (isCorrect) {
                 toast.success(`Correct! +${points} pts`);
@@ -594,15 +597,7 @@ export function BattleArena({ battle: initialBattle, currentUser, courseId, supa
 
             if (finished) {
                 toast.success("You finished!");
-                // Force local update to show results immediately
-                setBattle((prev: any) => ({
-                    ...prev,
-                    participants: prev.participants.map((p: any) =>
-                        p.user_id === currentUser.id
-                            ? { ...p, score: newScore, finished: true }
-                            : p
-                    )
-                }));
+                // Final update handled by optimistic update above
             } else {
                 setCurrentQIndex((prev: number) => prev + 1);
                 setSelectedAnswer(null);
@@ -610,6 +605,7 @@ export function BattleArena({ battle: initialBattle, currentUser, courseId, supa
             }
         } catch (e) {
             toast.error("Failed to submit answer");
+            // Revert optimistic update on error would go here ideally, but complex to implement cleanly
         } finally {
             setSubmitting(false);
         }
@@ -716,10 +712,10 @@ export function BattleArena({ battle: initialBattle, currentUser, courseId, supa
 
             {/* Main Content */}
             <div className="flex-1 relative z-10 p-4 md:p-6 overflow-hidden">
-                <div className="max-w-7xl mx-auto h-full grid grid-cols-1 lg:grid-cols-12 gap-6">
+                <div className="max-w-4xl mx-auto w-full">
 
-                    {/* Question Area (Left - 8 cols) */}
-                    <div className="lg:col-span-8 flex flex-col justify-center h-full">
+                    {/* Question Area */}
+                    <div className="flex flex-col justify-center h-full">
                         <QuestionCard
                             questionType={question.question_type}
                             questionNumber={currentQIndex + 1}
@@ -800,14 +796,6 @@ export function BattleArena({ battle: initialBattle, currentUser, courseId, supa
                         </div>
                     </div>
 
-                    {/* Leaderboard (Right - 4 cols) */}
-                    <div className="hidden lg:block lg:col-span-4 h-full max-h-[calc(100vh-140px)]">
-                        <LiveLeaderboard
-                            participants={[...battle.participants]}
-                            currentUserId={currentUser.id}
-                            totalQuestions={battle.quiz.questions.length}
-                        />
-                    </div>
                 </div>
             </div>
         </div>
