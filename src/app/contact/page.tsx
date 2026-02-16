@@ -43,7 +43,7 @@ export default function ContactUs() {
                 <div className="container mx-auto px-4 py-4">
                     <Link href="/" className="inline-block">
                         <Image
-                            src="/zirnalogosmall.png"
+                            src="/zirnalogosmallnew.png"
                             alt="Zirna"
                             width={120}
                             height={40}

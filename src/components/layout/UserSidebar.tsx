@@ -86,7 +86,7 @@ export default function UserSidebar({ setSidebarOpen }: UserSidebarProps) {
 				{!displayCollapsed ? (
 					<Link href="/" className="flex items-center">
 						<Image
-							src="/zirnalogosmall.png"
+							src="/zirnalogosmallnew.png"
 							alt="Zirna"
 							width={100}
 							height={32}
