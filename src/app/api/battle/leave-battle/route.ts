@@ -57,35 +57,43 @@ export async function POST(req: Request) {
                 return NextResponse.json({ message: "Battle cancelled" });
             } else {
                 // If battle is in progress, do NOT delete.
-                // We might want to mark them as 'disconnected' but for now, just 200 OK.
-                // The frontend will handle the redirect if strictly leaving.
-                // If it's just a refresh, nothing bad happens.
                 return NextResponse.json({ message: "Host left (Battle continues)" });
             }
-
-            // Broadcast cancellation
-            await supabase.channel(`battle:${battleId}`).send({
-                type: 'broadcast',
-                event: 'BATTLE_UPDATE',
-                payload: { type: 'BATTLE_CANCELLED' }
-            });
-
-            return NextResponse.json({ message: "Battle cancelled" });
         } else {
-            // Participant is leaving -> Remove participant
+            // Participant is leaving
             const participant = battle.participants.find(p => p.user_id === userId);
 
             if (participant) {
-                await prisma.battleParticipant.delete({
-                    where: { id: participant.id }
-                });
+                if (battle.status === 'IN_PROGRESS') {
+                    // Mid-game leave: Mark as finished (forfeit) instead of deleting
+                    // This allows the battle to complete normally for other players
+                    await prisma.battleParticipant.update({
+                        where: { id: participant.id },
+                        data: {
+                            finished: true,
+                            completed_at: new Date(),
+                        }
+                    });
 
-                // Broadcast participant left
-                await supabase.channel(`battle:${battleId}`).send({
-                    type: 'broadcast',
-                    event: 'BATTLE_UPDATE',
-                    payload: { type: 'PARTICIPANT_LEFT', userId: userId }
-                });
+                    // Broadcast that this player finished (forfeited)
+                    await supabase.channel(`battle:${battleId}`).send({
+                        type: 'broadcast',
+                        event: 'BATTLE_UPDATE',
+                        payload: { type: 'PLAYER_FINISHED', userId: userId, score: participant.score || 0 }
+                    });
+                } else {
+                    // Lobby leave: Remove participant entirely
+                    await prisma.battleParticipant.delete({
+                        where: { id: participant.id }
+                    });
+
+                    // Broadcast participant left
+                    await supabase.channel(`battle:${battleId}`).send({
+                        type: 'broadcast',
+                        event: 'BATTLE_UPDATE',
+                        payload: { type: 'PARTICIPANT_LEFT', userId: userId }
+                    });
+                }
             }
 
             return NextResponse.json({ message: "Left battle" });

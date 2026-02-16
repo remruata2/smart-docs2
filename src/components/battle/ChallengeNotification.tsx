@@ -69,20 +69,25 @@ export function ChallengeNotification({ currentUserId }: { currentUserId: number
     const handleAccept = async (battleId: string, battleCode: string, toastId: string | number) => {
         toast.dismiss(toastId);
         const loadingToast = toast.loading("Joining battle...");
+        console.log('[CHALLENGE_NOTIF] Accepting challenge:', { battleId, battleCode });
 
         try {
             // Join the battle using the code
+            console.log('[CHALLENGE_NOTIF] Sending join request...');
             const res = await fetch("/api/battle/join", {
                 method: "POST",
                 headers: { "Content-Type": "application/json" },
                 body: JSON.stringify({ code: battleCode }),
             });
+            console.log('[CHALLENGE_NOTIF] Join response status:', res.status);
 
             if (!res.ok) {
                 const data = await res.json();
+                console.error('[CHALLENGE_NOTIF] Join failed:', data);
                 throw new Error(data.error || "Failed to join battle");
             }
 
+            console.log('[CHALLENGE_NOTIF] Join success, redirecting to:', `/app/practice/battle/${battleId}`);
             toast.success("Joined! Redirecting...", { id: loadingToast });
             router.push(`/app/practice/battle/${battleId}`);
         } catch (e: any) {

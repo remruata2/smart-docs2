@@ -43,14 +43,32 @@ export async function POST(request: NextRequest) {
             // Participant leaving
             const participant = battle.participants.find(p => p.user_id === userId);
             if (participant) {
-                await Promise.all([
-                    prisma.battleParticipant.delete({ where: { id: participant.id } }),
-                    supabase.channel(`battle:${battleId}`).send({
+                if (battle.status === 'IN_PROGRESS') {
+                    // Mid-game leave: Mark as finished (forfeit) instead of deleting
+                    // This allows the battle to complete normally for other players
+                    await prisma.battleParticipant.update({
+                        where: { id: participant.id },
+                        data: {
+                            finished: true,
+                            completed_at: new Date(),
+                        }
+                    });
+                    await supabase.channel(`battle:${battleId}`).send({
                         type: 'broadcast',
                         event: 'BATTLE_UPDATE',
-                        payload: { type: 'PARTICIPANT_LEFT', userId }
-                    })
-                ]);
+                        payload: { type: 'PLAYER_FINISHED', userId, score: participant.score || 0 }
+                    });
+                } else {
+                    // Lobby leave: Remove participant entirely
+                    await Promise.all([
+                        prisma.battleParticipant.delete({ where: { id: participant.id } }),
+                        supabase.channel(`battle:${battleId}`).send({
+                            type: 'broadcast',
+                            event: 'BATTLE_UPDATE',
+                            payload: { type: 'PARTICIPANT_LEFT', userId }
+                        })
+                    ]);
+                }
             }
             return NextResponse.json({ message: "Left battle" });
         }

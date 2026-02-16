@@ -200,19 +200,23 @@ export function BattleLobby({ initialSubjects = [], courseId }: BattleLobbyProps
         }
 
         setLoading(true);
+        console.log('[BATTLE_LOBBY] joining with code:', code);
         try {
             const res = await fetch("/api/battle/join", {
                 method: "POST",
                 headers: { "Content-Type": "application/json" },
                 body: JSON.stringify({ code }),
             });
+            console.log('[BATTLE_LOBBY] Join response status:', res.status);
 
             const data = await res.json();
             if (!res.ok) throw new Error(data.error);
 
+            console.log('[BATTLE_LOBBY] Join success, redirecting to:', `/app/practice/battle/${data.battle.id}`);
             toast.success("Joined battle!");
             router.push(`/app/practice/battle/${data.battle.id}`);
         } catch (error: any) {
+            console.error('[BATTLE_LOBBY] Join error:', error);
             toast.error(error.message || "Failed to join battle");
         } finally {
             setLoading(false);
