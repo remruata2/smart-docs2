@@ -125,7 +125,10 @@ dist
 
 # Gatsby files
 .cache/
-public
+# public directory should not be ignored for Next.js static assets
+!public/zirna-brand-logo.png
+!public/zirnalogosmallnew.png
+!public/zirnalogosmall.png
 
 # Storybook build outputs
 .out
