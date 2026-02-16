@@ -137,7 +137,7 @@ export default async function SubscriptionsPage() {
 
                                         <div className="px-6 pb-6 mt-auto">
                                             <a
-                                                href={`/app/courses/${enrollment.course_id}`}
+                                                href={`/app/subjects?courseId=${enrollment.course_id}`}
                                                 className="block w-full text-center py-3 px-4 rounded-xl font-bold text-sm bg-indigo-50 text-indigo-700 hover:bg-indigo-100 border border-indigo-100 transition-colors duration-200"
                                             >
                                                 Go to Course

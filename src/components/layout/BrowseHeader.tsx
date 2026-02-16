@@ -39,9 +39,6 @@ export function BrowseHeader() {
                             <Link href="/my-courses" className="text-gray-600 hover:text-gray-900 font-medium">
                                 My Courses
                             </Link>
-                            <Link href="/subscriptions" className="text-gray-600 hover:text-gray-900 font-medium">
-                                My Subscriptions
-                            </Link>
                         </>
                     )}
                 </nav>
