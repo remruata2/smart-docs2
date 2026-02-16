@@ -58,10 +58,16 @@ export function SecurePdfViewer({ pdfUrl, title, userName = "Student" }: SecureP
     const speechRef = useRef<SpeechSynthesisUtterance | null>(null);
     const isAutoReadingRef = useRef<boolean>(false);
     const [isMouseOver, setIsMouseOver] = useState<boolean>(true);
+    const [supportsHover, setSupportsHover] = useState<boolean>(false);
 
     // Load available voices
     useEffect(() => {
         const loadVoices = () => {
+            if (typeof window === "undefined") return;
+
+            // Check for hover support
+            setSupportsHover(window.matchMedia("(hover: hover)").matches);
+
             const availableVoices = window.speechSynthesis.getVoices();
             // Blacklist of macOS novelty/funny voices
             const funnyVoices = [
@@ -412,7 +418,7 @@ export function SecurePdfViewer({ pdfUrl, title, userName = "Student" }: SecureP
                         minHeight: "500px",
                         userSelect: "none",
                         WebkitUserSelect: "none",
-                        filter: (isFocused && isMouseOver) ? "none" : "blur(20px)",
+                        filter: (isFocused && (!supportsHover || isMouseOver)) ? "none" : "blur(20px)",
                     }}
                 >
                     {/* Security Styles - Prevents Printing & Selection */}
