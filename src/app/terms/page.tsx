@@ -68,15 +68,14 @@ export default function TermsOfService() {
                     <section>
                         <h2 className="text-2xl font-semibold text-gray-900 mb-4">4. Subscription and Payments</h2>
                         <p className="text-gray-700 leading-relaxed mb-3">
-                            Zirna offers both free and paid subscription plans:
+                            Zirna offers both trial and premium subscription plans for course enrollment:
                         </p>
                         <ul className="list-disc list-inside text-gray-700 space-y-2 ml-4">
-                            <li>Free features have usage limitations as specified in the platform</li>
-                            <li>Paid courses or subscriptions are billed as specified during purchase</li>
-                            <li>All payments are processed securely through Razorpay</li>
-                            <li>Fees are non-refundable except as required by law</li>
-                            <li>You may cancel any recurring subscription at any time, effective at the end of the current billing period</li>
-                            <li>We reserve the right to modify pricing with reasonable notice to existing subscribers</li>
+                            <li><strong>3-Day Free Trial:</strong> We offer a 3-day free trial for every course. Please note that trials have limited functionality and access compared to full premium subscriptions.</li>
+                            <li><strong>Subscription Required:</strong> Beyond the trial period, a paid subscription is required to continue accessing course materials and features.</li>
+                            <li><strong>Early Bird Launch Offer:</strong> As part of our launch phase, we are currently offering Early Bird access where courses can be accessed for free for a limited time. This offer is subject to change.</li>
+                            <li><strong>Secure Payments:</strong> All premium payments are processed securely through Razorpay. Fees are non-refundable except as required by law.</li>
+                            <li><strong>Cancellation:</strong> You may cancel any recurring subscription at any time, effective at the end of the current billing period.</li>
                         </ul>
                     </section>
 

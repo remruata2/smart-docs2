@@ -1,8 +1,10 @@
 import type { NextAuthOptions } from "next-auth";
 import CredentialsProvider from "next-auth/providers/credentials";
 import GoogleProvider from "next-auth/providers/google";
+import AppleProvider from "next-auth/providers/apple";
 import { compare } from "bcryptjs";
 import { db } from "./db";
+import jwt from "jsonwebtoken";
 // Import UserRole from the generated Prisma client
 import { UserRole } from "../generated/prisma";
 
@@ -93,10 +95,35 @@ export const authOptions: NextAuthOptions = {
 				},
 			},
 		}),
+		AppleProvider({
+			clientId: process.env.APPLE_ID!,
+			clientSecret: jwt.sign({}, (process.env.APPLE_PRIVATE_KEY || "").replace(/\\n/g, "\n"), {
+				algorithm: "ES256",
+				expiresIn: "24h",
+				audience: "https://appleid.apple.com",
+				issuer: process.env.APPLE_TEAM_ID!,
+				subject: process.env.APPLE_ID!,
+				header: {
+					alg: "ES256",
+					kid: process.env.APPLE_KEY_ID!,
+				},
+			}),
+		}),
 	],
+	cookies: {
+		pkceCodeVerifier: {
+			name: "next-auth.pkce.code_verifier",
+			options: {
+				httpOnly: true,
+				sameSite: "none",
+				path: "/",
+				secure: true,
+			},
+		},
+	},
 	callbacks: {
 		async signIn({ user, account }) {
-			if (account?.provider === "google") {
+			if (account?.provider === "google" || account?.provider === "apple") {
 				try {
 					// Check if user exists by email
 					const existingUser = await db.user.findUnique({
@@ -104,7 +131,7 @@ export const authOptions: NextAuthOptions = {
 					});
 
 					if (!existingUser) {
-						// Generate a unique username from the Google profile name
+						// Generate a unique username from the profile name or email
 						const baseUsername = user.name?.replace(/\s+/g, '').toLowerCase() || user.email!.split('@')[0];
 						let counter = 1;
 						let uniqueUsername = baseUsername;
@@ -133,7 +160,7 @@ export const authOptions: NextAuthOptions = {
 						});
 					}
 				} catch (error) {
-					console.error("Error creating Google user:", error);
+					console.error(`Error creating ${account.provider} user:`, error);
 					return false;
 				}
 			}
@@ -142,7 +169,7 @@ export const authOptions: NextAuthOptions = {
 		async jwt({ token, user, account }) {
 			if (user) {
 				// For OAuth users, fetch from database to get complete user data
-				if (account?.provider === "google" && user.email) {
+				if ((account?.provider === "google" || account?.provider === "apple") && user.email) {
 					const dbUser = await db.user.findUnique({
 						where: { email: user.email },
 					});

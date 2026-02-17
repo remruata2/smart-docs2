@@ -48,6 +48,23 @@ export function SupabaseProvider({ children }: { children: React.ReactNode }) {
         // Currently empty as CHALLENGE_INVITE is handled in ChallengeNotification
     }, [session, supabase, router]);
 
+    // Daily Check-in (Web)
+    useEffect(() => {
+        if (session?.user?.id) {
+            fetch('/api/daily-checkin', { method: 'POST' })
+                .then(res => res.json())
+                .then(data => {
+                    if (data.pointsAdded > 0) {
+                        toast.success(`Daily Login: +${data.pointsAdded} Points! 🔥 Streak: ${data.streak}`);
+                    } else if (data.streak > 0) {
+                        // Optional: simpler toast or none if already checked in
+                        console.log(`[DAILY-CHECKIN] Already checked in. Streak: ${data.streak}`);
+                    }
+                })
+                .catch(err => console.error("[DAILY-CHECKIN] Failed:", err));
+        }
+    }, [session?.user?.id]);
+
     // Track Course Presence (Legacy/Specific Room)
     useEffect(() => {
         if (!session?.user?.id || !supabase || !activeCourseId) return;

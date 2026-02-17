@@ -5,6 +5,7 @@ import { useRouter } from "next/navigation";
 import { useEffect, useState } from "react";
 import { Loader2, Lock, User, AlertCircle, BookOpen, Brain, GraduationCap, Sparkles, ArrowLeft } from "lucide-react";
 import { FcGoogle } from "react-icons/fc";
+import { FaApple } from "react-icons/fa";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
@@ -288,16 +289,28 @@ export default function LoginPage() {
 									</div>
 								</div>
 
-								<Button
-									type="button"
-									variant="outline"
-									className="w-full h-12 border-2 hover:bg-gray-50 hover:border-gray-300 transition-all duration-200 font-semibold"
-									onClick={() => signIn("google", { callbackUrl: "/my-courses" })}
-									disabled={isFormDisabled}
-								>
-									<FcGoogle className="mr-2 h-5 w-5" />
-									Sign in with Google
-								</Button>
+								<div className="grid grid-cols-2 gap-4">
+									<Button
+										type="button"
+										variant="outline"
+										className="h-12 border-2 hover:bg-gray-50 hover:border-gray-300 transition-all duration-200 font-semibold"
+										onClick={() => signIn("google", { callbackUrl: "/my-courses" })}
+										disabled={isFormDisabled}
+									>
+										<FcGoogle className="mr-2 h-5 w-5" />
+										Google
+									</Button>
+									<Button
+										type="button"
+										variant="outline"
+										className="h-12 border-2 hover:bg-gray-50 hover:border-gray-300 transition-all duration-200 font-semibold"
+										onClick={() => signIn("apple", { callbackUrl: "/my-courses" })}
+										disabled={isFormDisabled}
+									>
+										<FaApple className="mr-2 h-5 w-5" />
+										Apple
+									</Button>
+								</div>
 							</CardContent>
 
 							<CardFooter className="flex flex-col space-y-3 pb-6">

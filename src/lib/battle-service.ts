@@ -408,6 +408,17 @@ export class BattleService {
             participant.points_change = finalPointsChange;
 
             console.log(`[BATTLE RESULTS] User ${participant.user_id} Rank ${rank}: ${totalPointsChange} pts (${basePoints} + ${participationBonus})`);
+
+            // 3. Trigger Badge Check (Unified Streak Logic)
+            try {
+                // Import dynamically to avoid circular deps
+                const { calculateStreak, checkAndAwardBadges } = await import("@/lib/streak-service");
+                const currentStreak = await calculateStreak(participant.user_id);
+                await checkAndAwardBadges(participant.user_id, currentStreak);
+                console.log(`[BATTLE BADGE] Checked badges for User ${participant.user_id}. Streak: ${currentStreak}`);
+            } catch (e) {
+                console.error(`[BATTLE BADGE] Failed to check badges for User ${participant.user_id}`, e);
+            }
         }
     }
 

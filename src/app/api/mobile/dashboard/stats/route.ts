@@ -76,39 +76,9 @@ export async function GET(request: NextRequest) {
             }
         }
 
-        // Get current streak (consecutive days with quiz activity)
-        const today = new Date();
-        today.setHours(0, 0, 0, 0);
-
-        let currentStreak = 0;
-        let checkDate = new Date(today);
-
-        for (let i = 0; i < 365; i++) { // Max 365 days to check
-            const dayStart = new Date(checkDate);
-            const dayEnd = new Date(checkDate);
-            dayEnd.setDate(dayEnd.getDate() + 1);
-
-            const hasActivityOnDay = await prisma.quiz.count({
-                where: {
-                    user_id: userId,
-                    status: 'COMPLETED',
-                    completed_at: {
-                        gte: dayStart,
-                        lt: dayEnd
-                    }
-                }
-            });
-
-            if (hasActivityOnDay > 0) {
-                currentStreak++;
-                checkDate.setDate(checkDate.getDate() - 1);
-            } else if (i === 0) {
-                // If no activity today, check if yesterday had activity (streak not broken yet)
-                checkDate.setDate(checkDate.getDate() - 1);
-            } else {
-                break; // Streak broken
-            }
-        }
+        // Get current streak (Unified Logic)
+        const { calculateStreak } = await import("@/lib/streak-service");
+        const currentStreak = await calculateStreak(userId);
 
         // Get badges count
         const badgesCount = await prisma.userBadge.count({
