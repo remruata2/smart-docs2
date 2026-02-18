@@ -84,7 +84,7 @@ export default function ConversationList({
 		if (onNewConversation) {
 			onNewConversation();
 		} else {
-			router.push("/app/chat");
+			router.push("/app/chat/setup");
 		}
 	};
 

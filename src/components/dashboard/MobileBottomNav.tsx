@@ -35,7 +35,7 @@ export function MobileBottomNav() {
                 <span className="absolute -bottom-6 left-1/2 -translate-x-1/2 text-[10px] font-medium text-primary whitespace-nowrap">Practice</span>
             </div>
 
-            <Link href="/app/chat" className={`flex flex-col items-center p-2 rounded-lg transition-colors ${isActive('/app/chat') ? 'text-primary' : 'text-gray-400 hover:text-gray-600'}`}>
+            <Link href="/app/chat/setup" className={`flex flex-col items-center p-2 rounded-lg transition-colors ${isActive('/app/chat') ? 'text-primary' : 'text-gray-400 hover:text-gray-600'}`}>
                 <Sparkles className="w-6 h-6 mb-1" />
                 <span className="text-[10px] font-medium">AI Tutor</span>
             </Link>

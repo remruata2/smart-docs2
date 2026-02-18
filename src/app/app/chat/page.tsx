@@ -14,6 +14,7 @@ import {
 	ExternalLink,
 	Copy,
 	Check,
+	ChevronRight,
 } from "lucide-react";
 // PDF generation removed - using text export instead
 import { toast } from "sonner";
@@ -85,18 +86,21 @@ function ChatPageContent() {
 	const urlSubjectId = searchParams.get("subjectId");
 	const urlChapterId = searchParams.get("chapterId");
 
-	// Load conversation from URL on mount
+	// Load conversation from URL on mount or redirect to setup
 	useEffect(() => {
 		if (urlConversationId) {
 			const convId = parseInt(urlConversationId);
 			if (!isNaN(convId)) {
 				loadConversation(convId);
 			}
+		} else if (!urlSubjectId || !urlChapterId) {
+			// No conversation and no context params - redirect to setup
+			router.push("/app/chat/setup");
 		} else {
-			// URL ID removed (New Chat pressed), reset state if needed
+			// New Chat with context params - reset state but keep params
 			if (currentConversationId !== null) {
 				setCurrentConversationId(null);
-				setConversationTitle("New Conversation");
+				setConversationTitle("New AI Tutor");
 				setMessages([]);
 				setError(null);
 				setLastResponseMeta(null);
@@ -104,7 +108,7 @@ function ChatPageContent() {
 			}
 		}
 		// eslint-disable-next-line react-hooks/exhaustive-deps
-	}, [urlConversationId]);
+	}, [urlConversationId, urlSubjectId, urlChapterId]);
 
 	// Trigger global sidebar refresh when needed (for new chats or deletions)
 	useEffect(() => {
@@ -127,11 +131,7 @@ function ChatPageContent() {
 				setSubjects(loadedSubjects);
 				setCourses(loadedCourses);
 
-				// Auto-select first subject if none selected and not loading from URL
-				if (loadedSubjects.length > 0 && !urlSubjectId && !selectedSubjectId) {
-					setSelectedSubjectId(loadedSubjects[0].id);
-					setSelectedSubjectName(loadedSubjects[0].name);
-				}
+				// Auto-selection removed - setup page handles context initialization
 			} catch (e) {
 				console.error("[Chat] Failed to fetch subjects", e);
 				setSubjects([]);
@@ -427,8 +427,8 @@ function ChatPageContent() {
 		setLastResponseMeta(null);
 		setInputMessage("");
 
-		// Clear URL params
-		router.push("/app/chat");
+		// Redirect to setup page for context selection
+		router.push("/app/chat/setup");
 
 		toast.success("Started new AI Tutor");
 	};
@@ -894,35 +894,64 @@ function ChatPageContent() {
 			<div className="flex-1 flex flex-col overflow-hidden bg-gray-50/50 dark:bg-gray-900/50 h-full">
 				<div className="flex-1 flex flex-col overflow-hidden min-h-0">
 					{/* Header */}
-					<div className="border-b bg-white/80 dark:bg-gray-900/80 backdrop-blur-sm p-4 flex items-center justify-between sticky top-0 z-10">
-						<div className="flex items-center gap-3">
-							<div className="p-2 bg-primary/10 rounded-lg">
-								<Bot className="w-5 h-5 text-primary" />
-							</div>
-							<div>
-								<h1 className="text-lg font-semibold text-gray-900 dark:text-gray-100">
-									{conversationTitle}
-								</h1>
-								<div className="flex items-center gap-2 text-xs text-muted-foreground">
-									<span className="flex items-center gap-1">
-										<div className="w-1.5 h-1.5 rounded-full bg-green-500 animate-pulse" />
-										Online
-									</span>
+					<div className="border-b bg-white/80 dark:bg-gray-900/80 backdrop-blur-sm p-3 flex flex-col gap-2 sticky top-0 z-10">
+						<div className="flex items-center justify-between">
+							<div className="flex items-center gap-3">
+								<div className="p-2 bg-primary/10 rounded-lg">
+									<Bot className="w-5 h-5 text-primary" />
 								</div>
+								<div>
+									<h1 className="text-base font-bold text-gray-900 dark:text-gray-100 leading-tight">
+										{conversationTitle}
+									</h1>
+									<div className="flex items-center gap-2 text-[10px] text-muted-foreground font-medium uppercase tracking-wider">
+										<span className="flex items-center gap-1">
+											<div className="w-1.5 h-1.5 rounded-full bg-green-500" />
+											Active
+										</span>
+									</div>
+								</div>
+							</div>
+
+							<div className="flex items-center gap-2">
+								<Button
+									variant="ghost"
+									size="sm"
+									onClick={() => router.push("/app/chat/setup")}
+									className="h-8 text-xs font-bold text-muted-foreground hover:text-primary px-2"
+								>
+									<MessageSquare className="w-3.5 h-3.5 mr-1" />
+									New Chat
+								</Button>
 							</div>
 						</div>
 
-						<div className="flex items-center gap-2">
-							<Button
-								variant="ghost"
-								size="sm"
-								onClick={startNewConversation}
-								className="text-muted-foreground hover:text-primary"
-							>
-								<MessageSquare className="w-4 h-4 mr-2" />
-								New AI Tutor
-							</Button>
-						</div>
+						{/* Compact Context Header */}
+						{(selectedSubjectName || selectedChapterTitle) && (
+							<div className="flex items-center gap-2 px-1 border-t pt-2 animate-in fade-in slide-in-from-top-1 duration-300">
+								<div className="flex flex-wrap items-center gap-1.5 text-xs">
+									<Badge variant="secondary" className="bg-slate-100 hover:bg-slate-100 text-slate-600 font-semibold rounded-md border-none px-2 py-0.5">
+										{selectedSubjectName || "Loading..."}
+									</Badge>
+									<ChevronRight className="w-3 h-3 text-slate-300" />
+									<Badge variant="outline" className="text-slate-500 font-medium rounded-md px-2 py-0.5 border-slate-200 truncate max-w-[150px] sm:max-w-none">
+										{selectedChapterTitle || "Loading..."}
+									</Badge>
+								</div>
+								<div className="ml-auto">
+									{!currentConversationId && (
+										<Button
+											variant="ghost"
+											size="sm"
+											onClick={() => router.push("/app/chat/setup")}
+											className="h-6 text-[10px] uppercase tracking-tighter font-bold text-primary hover:bg-primary/5 p-0 px-1"
+										>
+											Change
+										</Button>
+									)}
+								</div>
+							</div>
+						)}
 					</div>
 
 					{/* Messages Area */}
@@ -948,96 +977,6 @@ function ChatPageContent() {
 
 								{/* Inline Input Area for empty state */}
 								<div className="w-full max-w-2xl space-y-2">
-									{/* Filters */}
-									<div className="flex flex-wrap items-center justify-center gap-2">
-										<select
-											className="h-9 text-sm border rounded-md px-3 bg-white dark:bg-gray-800 focus:ring-2 focus:ring-primary/20 outline-none disabled:opacity-50 disabled:cursor-not-allowed"
-											value={selectedCourseId}
-											onChange={(e) => {
-												const val = e.target.value;
-												setSelectedCourseId(val);
-												// Reset subject if not in course
-												if (val !== "all" && selectedSubjectId) {
-													const sub = subjects.find(s => s.id === selectedSubjectId);
-													if (sub && !sub.courseIds?.includes(parseInt(val))) {
-														// Find first subject in new course
-														const firstInCourse = subjects.find(s => s.courseIds?.includes(parseInt(val)));
-														if (firstInCourse) {
-															setSelectedSubjectId(firstInCourse.id);
-															setSelectedSubjectName(firstInCourse.name);
-														} else {
-															setSelectedSubjectId(null);
-															setSelectedSubjectName("");
-														}
-													}
-												}
-											}}
-											disabled={subjectsLoading}
-										>
-											<option value="all">All Courses</option>
-											{courses.map((c) => (
-												<option key={c.id} value={c.id}>
-													{c.title}
-												</option>
-											))}
-										</select>
-
-										<select
-											className="h-9 text-sm border rounded-md px-3 bg-white dark:bg-gray-800 focus:ring-2 focus:ring-primary/20 outline-none disabled:opacity-50 disabled:cursor-not-allowed"
-											value={selectedSubjectId || ""}
-											onChange={(e) => {
-												const val = e.target.value;
-												if (val) {
-													const id = parseInt(val);
-													setSelectedSubjectId(id);
-													const subj = subjects.find((s) => s.id === id);
-													if (subj) setSelectedSubjectName(subj.name);
-													const params = new URLSearchParams(searchParams.toString());
-													params.set("subjectId", val);
-													params.delete("chapterId");
-													router.push(`?${params.toString()}`);
-												}
-											}}
-											disabled={subjectsLoading}
-										>
-											{filteredSubjects.map((s) => (
-												<option key={s.id} value={s.id}>
-													{s.name}
-												</option>
-											))}
-										</select>
-
-										<select
-											className="h-9 text-sm border rounded-md px-3 bg-white dark:bg-gray-800 focus:ring-2 focus:ring-primary/20 outline-none max-w-[200px]"
-											value={selectedChapterId || ""}
-											onChange={(e) => {
-												const val = e.target.value;
-												if (val) {
-													setSelectedChapterId(val);
-													const chap = chapters.find((c) => c.id === val);
-													if (chap) setSelectedChapterTitle(chap.title);
-													const params = new URLSearchParams(searchParams.toString());
-													params.set("chapterId", val);
-													router.push(`?${params.toString()}`);
-												}
-											}}
-											disabled={chaptersLoading || !selectedSubjectId}
-										>
-											{chapters.length === 0 ? (
-												<option value="" disabled>No chapters found</option>
-											) : (
-												<option value="" disabled>Select Chapter</option>
-											)}
-											{chapters.map((c) => (
-												<option key={c.id} value={c.id} disabled={c.isLocked}>
-													{c.isLocked ? "🔒 " : ""}
-													{c.chapter_number ? `${c.chapter_number}. ` : ""}
-													{c.title}
-													{c.isLocked ? " (Upgrade)" : ""}
-												</option>
-											))}
-										</select>
-									</div>
 
 									{/* Input Box */}
 									<div className="relative flex items-end gap-2 bg-white dark:bg-gray-800 border rounded-xl shadow-sm focus-within:ring-2 focus-within:ring-primary/20 focus-within:border-primary transition-all p-2">
@@ -1395,94 +1334,6 @@ function ChatPageContent() {
 					{messages.length > 0 && (
 						<div className="border-t bg-white dark:bg-gray-900 px-2 pt-2 pb-1">
 							<div className="max-w-4xl mx-auto space-y-1">
-								{/* Filters */}
-								<div className="flex flex-wrap items-center gap-2">
-									{currentConversationId && (
-										<div className="w-full text-xs text-amber-600 bg-amber-50 px-2 py-1 rounded border border-amber-200 mb-1 flex items-center gap-1">
-											<span>🔒 Context locked to this AI Tutor. Start a new one to change.</span>
-										</div>
-									)}
-									<select
-										className="h-9 text-sm border rounded-md px-3 bg-white dark:bg-gray-800 focus:ring-2 focus:ring-primary/20 outline-none disabled:opacity-50 disabled:cursor-not-allowed"
-										value={selectedCourseId}
-										onChange={(e) => {
-											setSelectedCourseId(e.target.value);
-											// Subject sync handled by filteredSubjects and effect
-										}}
-										disabled={subjectsLoading || !!currentConversationId}
-									>
-										<option value="all">All Courses</option>
-										{courses.map((c) => (
-											<option key={c.id} value={c.id}>
-												{c.title}
-											</option>
-										))}
-									</select>
-
-									<select
-										className="h-9 text-sm border rounded-md px-3 bg-white dark:bg-gray-800 focus:ring-2 focus:ring-primary/20 outline-none disabled:opacity-50 disabled:cursor-not-allowed"
-										value={selectedSubjectId || ""}
-
-										onChange={(e) => {
-											const val = e.target.value;
-											if (val) {
-												const id = parseInt(val);
-												setSelectedSubjectId(id);
-												const subj = subjects.find((s) => s.id === id);
-												if (subj) setSelectedSubjectName(subj.name);
-
-												// Update URL
-												const params = new URLSearchParams(searchParams.toString());
-												params.set("subjectId", val);
-												params.delete("chapterId"); // Reset chapter when subject changes
-												router.push(`?${params.toString()}`);
-											}
-											// No "All Subjects" option allowed
-										}}
-										disabled={subjectsLoading || !!currentConversationId}
-									>
-										{filteredSubjects.map((s) => (
-											<option key={s.id} value={s.id}>
-												{s.name}
-											</option>
-										))}
-									</select>
-
-									<select
-										className="h-9 text-sm border rounded-md px-3 bg-white dark:bg-gray-800 focus:ring-2 focus:ring-primary/20 outline-none max-w-[200px]"
-										value={selectedChapterId || ""}
-										onChange={(e) => {
-											const val = e.target.value;
-											if (val) {
-												setSelectedChapterId(val);
-												const chap = chapters.find((c) => c.id === val);
-												if (chap) setSelectedChapterTitle(chap.title);
-
-												// Update URL
-												const params = new URLSearchParams(searchParams.toString());
-												params.set("chapterId", val);
-												router.push(`?${params.toString()}`);
-											}
-										}}
-										disabled={chaptersLoading || !selectedSubjectId || !!currentConversationId}
-									>
-										{chapters.length === 0 ? (
-											<option value="" disabled>
-												No chapters found
-											</option>
-										) : (
-											<option value="" disabled>Select Chapter</option>
-										)}
-										{chapters.map((c) => (
-											<option key={c.id} value={c.id} disabled={c.isLocked}>
-												{c.isLocked ? "🔒 " : ""}
-												{c.chapter_number ? `${c.chapter_number}. ` : ""}
-												{c.title}
-												{c.isLocked ? " (Upgrade)" : ""}
-											</option>
-										))}
-									</select>
-								</div>
 
 								{/* Input Box */}
 								<div className="relative flex items-end gap-2 bg-white dark:bg-gray-800 border rounded-xl shadow-sm focus-within:ring-2 focus-within:ring-primary/20 focus-within:border-primary transition-all p-2">
