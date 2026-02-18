@@ -65,43 +65,43 @@ export function StudyMaterialsClient({ materials, chapterId, pdfUrl, hasApiKey =
     return (
         <Tabs defaultValue="summary" className="w-full" onValueChange={setActiveTab}>
             <div className="flex flex-col items-center mb-10">
-                <TabsList className="bg-muted/30 p-1.5 h-auto rounded-xl border border-muted/50 shadow-sm inline-flex">
+                <TabsList className="bg-muted/30 p-1.5 h-auto rounded-xl border border-muted/50 shadow-sm inline-flex flex-wrap justify-center gap-1.5 md:gap-2">
                     {materials && (
                         <>
                             <TabsTrigger
                                 value="summary"
-                                className="px-6 py-3 rounded-lg data-[state=active]:bg-indigo-600 data-[state=active]:text-white data-[state=active]:shadow-lg transition-all duration-200 gap-2 text-base font-medium cursor-pointer"
+                                className="px-4 md:px-6 py-2 md:py-3 rounded-lg data-[state=active]:bg-indigo-600 data-[state=active]:text-white data-[state=active]:shadow-lg transition-all duration-200 gap-2 text-sm md:text-base font-medium cursor-pointer flex-1 min-w-[100px] sm:min-w-0"
                             >
-                                <BookOpen className="w-5 h-5" />
+                                <BookOpen className="w-4 h-4 md:w-5 md:h-5" />
                                 Summary
                             </TabsTrigger>
                             <TabsTrigger
                                 value="terms"
-                                className="px-6 py-3 rounded-lg data-[state=active]:bg-indigo-600 data-[state=active]:text-white data-[state=active]:shadow-lg transition-all duration-200 gap-2 text-base font-medium cursor-pointer"
+                                className="px-4 md:px-6 py-2 md:py-3 rounded-lg data-[state=active]:bg-indigo-600 data-[state=active]:text-white data-[state=active]:shadow-lg transition-all duration-200 gap-2 text-sm md:text-base font-medium cursor-pointer flex-1 min-w-[100px] sm:min-w-0"
                             >
-                                <Sparkles className="w-5 h-5" />
+                                <Sparkles className="w-4 h-4 md:w-5 md:h-5" />
                                 Key Terms
                             </TabsTrigger>
                             <TabsTrigger
                                 value="flashcards"
-                                className="px-6 py-3 rounded-lg data-[state=active]:bg-indigo-600 data-[state=active]:text-white data-[state=active]:shadow-lg transition-all duration-200 gap-2 text-base font-medium cursor-pointer"
+                                className="px-4 md:px-6 py-2 md:py-3 rounded-lg data-[state=active]:bg-indigo-600 data-[state=active]:text-white data-[state=active]:shadow-lg transition-all duration-200 gap-2 text-sm md:text-base font-medium cursor-pointer flex-1 min-w-[100px] sm:min-w-0"
                             >
-                                <Brain className="w-5 h-5" />
+                                <Brain className="w-4 h-4 md:w-5 md:h-5" />
                                 Flashcards
                             </TabsTrigger>
                             <TabsTrigger
                                 value="videos"
-                                className="px-6 py-3 rounded-lg data-[state=active]:bg-indigo-600 data-[state=active]:text-white data-[state=active]:shadow-lg transition-all duration-200 gap-2 text-base font-medium cursor-pointer"
+                                className="px-4 md:px-6 py-2 md:py-3 rounded-lg data-[state=active]:bg-indigo-600 data-[state=active]:text-white data-[state=active]:shadow-lg transition-all duration-200 gap-2 text-sm md:text-base font-medium cursor-pointer flex-1 min-w-[100px] sm:min-w-0"
                             >
-                                <Video className="w-5 h-5" />
+                                <Video className="w-4 h-4 md:w-5 md:h-5" />
                                 Videos
                             </TabsTrigger>
                             {pdfUrl && !hideTextbook && (
                                 <TabsTrigger
                                     value="textbook"
-                                    className="px-6 py-3 rounded-lg data-[state=active]:bg-indigo-600 data-[state=active]:text-white data-[state=active]:shadow-lg transition-all duration-200 gap-2 text-base font-medium cursor-pointer"
+                                    className="px-4 md:px-6 py-2 md:py-3 rounded-lg data-[state=active]:bg-indigo-600 data-[state=active]:text-white data-[state=active]:shadow-lg transition-all duration-200 gap-2 text-sm md:text-base font-medium cursor-pointer flex-1 min-w-[100px] sm:min-w-0"
                                 >
-                                    <BookMarked className="w-5 h-5" />
+                                    <BookMarked className="w-4 h-4 md:w-5 md:h-5" />
                                     Textbook
                                 </TabsTrigger>
                             )}

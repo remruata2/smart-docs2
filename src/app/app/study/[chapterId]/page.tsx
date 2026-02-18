@@ -134,7 +134,7 @@ export default async function StudyMaterialsPage({
 
                     <TrialBadge daysRemaining={trialAccess.trialDaysRemaining} />
                 </div>
-                <h1 className="text-4xl font-bold mb-2">{chapter.title}</h1>
+                <h1 className="text-2xl md:text-4xl font-bold mb-2">{chapter.title}</h1>
                 <p className="text-muted-foreground text-lg">{chapter.subject.name}</p>
             </div>
 
