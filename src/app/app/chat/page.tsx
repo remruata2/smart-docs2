@@ -1003,10 +1003,8 @@ function ChatPageContent() {
 								</div>
 
 								{/* Inline Input Area for empty state */}
-								<div className="w-full max-w-2xl space-y-2">
-
-									{/* Input Box */}
-									<div className="relative flex items-end gap-2 bg-white dark:bg-gray-800 border rounded-xl shadow-sm focus-within:ring-2 focus-within:ring-primary/20 focus-within:border-primary transition-all p-2">
+								<div className="w-full max-w-2xl mx-auto space-y-2">
+									<div className="relative flex items-end gap-2 bg-white dark:bg-gray-800 border rounded-xl shadow-sm focus-within:ring-2 focus-within:ring-primary/20 focus-within:border-primary transition-all p-1.5">
 										<div className="flex-1">
 											<Textarea
 												ref={(el: HTMLTextAreaElement | null) => {
@@ -1029,7 +1027,7 @@ function ChatPageContent() {
 														? `Ask about ${truncateTitle(selectedChapterTitle, 30)}...`
 														: "Select a chapter to start chatting..."
 												}
-												className="border-0 focus-visible:ring-0 px-3 py-2 min-h-[50px] max-h-32 resize-none bg-transparent shadow-none"
+												className="border-0 focus-visible:ring-0 px-2 py-2 min-h-[50px] max-h-32 resize-none bg-transparent shadow-none"
 												disabled={isLoading || !selectedChapterId}
 												rows={2}
 											/>
@@ -1050,7 +1048,7 @@ function ChatPageContent() {
 											)}
 										</Button>
 									</div>
-									<p className="text-[10px] text-muted-foreground text-center">
+									<p className="text-[10px] text-muted-foreground text-center px-4">
 										AI can make mistakes. Please verify important information.
 									</p>
 								</div>
@@ -1362,11 +1360,9 @@ function ChatPageContent() {
 
 					{/* Input Area - Only show at bottom when there are messages */}
 					{messages.length > 0 && (
-						<div className="border-t bg-white dark:bg-gray-900 px-2 pt-2 pb-1">
-							<div className="max-w-4xl mx-auto space-y-1">
-
-								{/* Input Box */}
-								<div className="relative flex items-end gap-2 bg-white dark:bg-gray-800 border rounded-xl shadow-sm focus-within:ring-2 focus-within:ring-primary/20 focus-within:border-primary transition-all p-2">
+						<div className="border-t bg-white dark:bg-gray-900 px-3 pt-3 pb-2">
+							<div className="w-full max-w-4xl mx-auto space-y-1">
+								<div className="relative flex items-end gap-2 bg-white dark:bg-gray-800 border rounded-xl shadow-sm focus-within:ring-2 focus-within:ring-primary/20 focus-within:border-primary transition-all p-1.5">
 									<div className="flex-1">
 										<Textarea
 											ref={(el: HTMLTextAreaElement | null) => {
@@ -1395,7 +1391,7 @@ function ChatPageContent() {
 													)}...`
 													: "Select a chapter to start chatting..."
 											}
-											className="border-0 focus-visible:ring-0 px-3 py-2 min-h-[50px] max-h-32 resize-none bg-transparent shadow-none"
+											className="border-0 focus-visible:ring-0 px-2.5 py-2 min-h-[50px] max-h-32 resize-none bg-transparent shadow-none"
 											disabled={isLoading || !selectedChapterId}
 											rows={2} // Default to 2 lines height
 										/>
@@ -1418,7 +1414,7 @@ function ChatPageContent() {
 										)}
 									</Button>
 								</div>
-								<div className="flex justify-between items-center px-1">
+								<div className="flex justify-between items-center px-4">
 									<p className="text-[10px] text-muted-foreground">
 										AI can make mistakes. Please verify important information.
 									</p>
