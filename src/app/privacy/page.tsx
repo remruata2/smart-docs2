@@ -31,7 +31,7 @@ export default function PrivacyPolicy() {
                     <section>
                         <h2 className="text-2xl font-semibold text-gray-900 mb-4">1. Introduction</h2>
                         <p className="text-gray-700 leading-relaxed">
-                            Zirna ("we," "our," or "us") is committed to protecting your privacy. This Privacy Policy explains how we collect, use, disclose, and safeguard your information when you use our AI-powered exam preparation platform at zirna.io.
+                            Fiara Infotech (&quot;we,&quot; &quot;our,&quot; or &quot;us&quot;) is committed to protecting your privacy. This Privacy Policy explains how we collect, use, disclose, and safeguard your information when you use our AI-powered exam preparation platform at zirna.io.
                         </p>
                     </section>
 
@@ -174,7 +174,7 @@ export default function PrivacyPolicy() {
                             If you have any questions about this Privacy Policy, please contact us:
                         </p>
                         <div className="mt-4 text-gray-700">
-                            <p className="font-semibold">Zirna</p>
+                            <p className="font-semibold">Fiara Infotech</p>
                             <p>D/Z31B, Dinthar, Aizawl</p>
                             <p>Mizoram, India - 796009</p>
                             <p className="mt-2">Email: <a href="mailto:support@zirna.io" className="text-blue-600 hover:underline">support@zirna.io</a></p>

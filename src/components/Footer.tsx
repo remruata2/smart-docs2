@@ -20,7 +20,7 @@ export function Footer() {
                             />
                         </Link>
                         <p className="text-gray-600 text-sm">
-                            AI-powered exam preparation platform for students across India.
+                            Zirna is developed and owned by Fiara Infotech. An AI-powered exam preparation platform for students.
                         </p>
                     </div>
 
@@ -72,7 +72,7 @@ export function Footer() {
                 </div>
 
                 <div className="border-t mt-8 pt-8 text-center text-gray-600 text-sm">
-                    <p>&copy; {new Date().getFullYear()} Zirna. All rights reserved.</p>
+                    <p>&copy; {new Date().getFullYear()} Fiara Infotech. All rights reserved.</p>
                 </div>
             </div>
         </footer>

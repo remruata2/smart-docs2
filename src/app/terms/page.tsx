@@ -98,7 +98,7 @@ export default function TermsOfService() {
                     <section>
                         <h2 className="text-2xl font-semibold text-gray-900 mb-4">6. Intellectual Property</h2>
                         <p className="text-gray-700 leading-relaxed">
-                            All content, features, and functionality of the Service, including but not limited to text, graphics, logos, and software, are the exclusive property of Zirna and are protected by copyright, trademark, and other intellectual property laws. You may not reproduce, distribute, or create derivative works without our express written permission.
+                            All content, features, and functionality of the Service, including but not limited to text, graphics, logos, and software, are the exclusive property of Fiara Infotech and are protected by copyright, trademark, and other intellectual property laws. You may not reproduce, distribute, or create derivative works without our express written permission.
                         </p>
                     </section>
 
@@ -143,7 +143,7 @@ export default function TermsOfService() {
                             If you have any questions about these Terms of Service, please contact us at:
                         </p>
                         <div className="mt-4 text-gray-700">
-                            <p className="font-semibold">Zirna</p>
+                            <p className="font-semibold">Fiara Infotech</p>
                             <p>D/Z31B, Dinthar, Aizawl</p>
                             <p>Mizoram, India - 796009</p>
                             <p className="mt-2">Email: <a href="mailto:support@zirna.io" className="text-blue-600 hover:underline">support@zirna.io</a></p>
