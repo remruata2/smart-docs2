@@ -229,7 +229,7 @@ export function BattleLobby({ initialSubjects = [], courseId }: BattleLobbyProps
             <div className="fixed inset-0 bg-[radial-gradient(ellipse_at_top,_var(--tw-gradient-stops))] from-indigo-900/40 via-slate-950 to-slate-950 pointer-events-none" />
             <div className="absolute inset-0 bg-[url('/grid.svg')] bg-center [mask-image:linear-gradient(180deg,white,rgba(255,255,255,0))] opacity-20 pointer-events-none" />
 
-            <div className="container max-w-4xl mx-auto py-1 md:py-6 px-4 relative z-10">
+            <div className="container max-w-4xl mx-auto py-1 md:py-6 px-4 pb-24 md:pb-6 relative z-10">
                 {/* Header */}
                 <div className="text-center mb-2 space-y-2 animate-in slide-in-from-top-4 fade-in duration-700">
                     <div className="inline-flex items-center justify-center p-2 bg-indigo-500/10 rounded-2xl border border-indigo-500/20 shadow-[0_0_20px_rgba(99,102,241,0.2)]">

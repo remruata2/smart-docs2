@@ -125,16 +125,6 @@ export default async function UsagePage() {
 
             <div className="grid grid-cols-1 gap-6">
                 {/* Plan Summary */}
-                <Card className="bg-gradient-to-r from-indigo-50 to-white border-indigo-100">
-                    <CardContent className="p-6 flex items-center justify-between">
-                        <div>
-                            <p className="text-sm font-medium text-indigo-600 mb-1">Current Plan</p>
-                            <h2 className="text-2xl font-bold text-gray-900">
-                                {user?.subscription?.plan?.display_name || "Free Plan"}
-                            </h2>
-                        </div>
-                    </CardContent>
-                </Card>
 
                 {/* Usage Metrics */}
                 <div className="grid grid-cols-1 md:grid-cols-2 gap-6">

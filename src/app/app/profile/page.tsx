@@ -226,38 +226,6 @@ export default async function ProfilePage() {
                         </CardContent>
                     </Card>
 
-                    {/* Subscription / Plan Info */}
-                    <Card>
-                        <CardHeader>
-                            <CardTitle className="text-lg flex items-center gap-2">
-                                <CreditCard className="h-5 w-5 text-indigo-600" />
-                                Plan Details
-                            </CardTitle>
-                        </CardHeader>
-                        <CardContent>
-                            {subscription ? (
-                                <div className="flex items-center justify-between p-4 bg-gray-50 rounded-lg border border-gray-100">
-                                    <div>
-                                        <p className="font-medium text-gray-900">{subscription.plan.display_name}</p>
-                                        <p className="text-sm text-gray-500 capitalize">{subscription.billing_cycle} Billing</p>
-                                    </div>
-                                    <Badge variant="secondary" className="bg-green-100 text-green-800">
-                                        Active
-                                    </Badge>
-                                </div>
-                            ) : (
-                                <div className="flex items-center justify-between p-4 bg-gray-50 rounded-lg border border-gray-100">
-                                    <div>
-                                        <p className="font-medium text-gray-900">Basic Plan</p>
-                                        <p className="text-sm text-gray-500">Free Tier</p>
-                                    </div>
-                                    <Badge variant="outline">No Active Subscription</Badge>
-                                </div>
-                            )}
-
-                            {/* Account Actions moved here or kept below? User didn't explicitly say to remove it but "just show his user info...". keeping it is safer for logout functionality */}
-                        </CardContent>
-                    </Card>
 
                     <div className="flex justify-end">
                         <ProfileActions />

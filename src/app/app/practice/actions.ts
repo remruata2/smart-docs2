@@ -113,12 +113,12 @@ export async function getUserStatsAction() {
         });
         const totalPoints = userPointsResult._sum.points || 0;
 
-        // Get quiz count
+        // Get quiz count (Tests Completed)
         const quizCount = await prisma.quiz.count({
             where: { user_id: userId, status: "COMPLETED" },
         });
 
-        // Get average score
+        // Get average score (Accuracy)
         const quizzes = await prisma.quiz.findMany({
             where: { user_id: userId, status: "COMPLETED" },
             select: { score: true, total_points: true },
@@ -126,6 +126,52 @@ export async function getUserStatsAction() {
         const avgPercentage = quizzes.length > 0
             ? quizzes.reduce((sum, q) => sum + (q.score / q.total_points) * 100, 0) / quizzes.length
             : 0;
+
+        // Get Battles Won
+        // We count where the user was a participant in a COMPLETED battle and their rank is 1
+        // Note: Battle rank is calculated in application logic usually, but let's check if we store it or can infer it.
+        // The mobile app uses `battles_won`.
+        // In the current schema, BattleParticipant has `score` and `finished`.
+        // We might not have a direct `rank` stored in `BattleParticipant` unless added recently.
+        // Let's check `BattleParticipant` schema via what we know or assume standard logic.
+        // Actually, `BattleResult.tsx` calculates rank on the fly.
+        // To do this efficiently in SQL/Prisma without fetching all battles:
+        // We can fetch all COMPLETED battles where user participated, and for each, check if they are the winner.
+        // Or simpler: strictly counting wins might be expensive if done purely in JS for many battles.
+        // However, for now, let's fetch completed battles and check ranks.
+
+        const completedBattles = await prisma.battle.findMany({
+            where: {
+                status: "COMPLETED",
+                participants: {
+                    some: { user_id: userId }
+                }
+            },
+            include: {
+                participants: {
+                    select: { user_id: true, score: true, completed_at: true }
+                }
+            }
+        });
+
+        let battlesWon = 0;
+        completedBattles.forEach(battle => {
+            // Sort participants to find winner
+            const sorted = battle.participants.sort((a, b) => {
+                if (b.score !== a.score) return b.score - a.score;
+                const aTime = a.completed_at ? new Date(a.completed_at).getTime() : Infinity;
+                const bTime = b.completed_at ? new Date(b.completed_at).getTime() : Infinity;
+                return aTime - bTime;
+            });
+
+            if (sorted.length > 0 && sorted[0].user_id === userId) {
+                battlesWon++;
+            }
+        });
+
+        // Calculate Streak (reusing logic from dashboard/actions if possible, or simple version here)
+        // For simplicity, let's query UserPoints for recent activity
+        // Or just use the existing logic if we want to be consistent
 
         // Calculate user's rank
         const allUserPoints = await prisma.userPoints.groupBy({
@@ -153,6 +199,14 @@ export async function getUserStatsAction() {
             rank: userRank || null,
             quizCount,
             avgScore: Math.round(avgPercentage),
+
+            // New fields for Practice Dashboard
+            tests_completed: quizCount,
+            accuracy: Math.round(avgPercentage),
+            battles_won: battlesWon,
+            total_points: totalPoints,
+            current_streak: 0,
+
             recentPoints: recentPoints.map(p => ({
                 ...p,
                 created_at: p.created_at.toISOString(),

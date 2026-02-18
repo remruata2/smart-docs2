@@ -452,7 +452,7 @@ export function QuizInterface({ quiz }: { quiz: Quiz }) {
                 </div>
 
                 {/* Scrollable Question Area */}
-                <div className="flex-1 overflow-y-auto p-4 md:p-6 lg:p-8 pb-20 md:pb-24 scroll-smooth">
+                <div className="flex-1 overflow-y-auto p-4 md:p-6 lg:p-8 pb-36 md:pb-24 scroll-smooth">
                     <div className="max-w-3xl mx-auto w-full">
                         <QuestionCard
                             questionType={currentQuestion.question_type}
@@ -488,7 +488,7 @@ export function QuizInterface({ quiz }: { quiz: Quiz }) {
                 </div>
 
                 {/* Bottom Bar - Navigation */}
-                <div className="absolute bottom-0 left-0 right-0 bg-background/95 backdrop-blur border-t p-4 md:p-6 pb-safe z-20">
+                <div className="absolute bottom-[68px] md:bottom-0 left-0 right-0 bg-background/95 backdrop-blur border-t p-4 md:p-6 pb-safe z-20">
                     <div className="max-w-3xl mx-auto w-full flex justify-end">
                         {/* Previous button removed for linear flow */}
 

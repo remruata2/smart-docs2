@@ -476,7 +476,7 @@ export function QuizGenerator({
     };
 
     return (
-        <div className="w-full">
+        <div className="w-full pb-24 md:pb-8">
             {currentStep === 1 && (
                 <div className="mb-4 md:mb-8 text-center">
                     <h1 className="text-2xl md:text-4xl font-bold mb-2 md:mb-3 bg-gradient-to-r from-purple-600 via-pink-600 to-blue-600 bg-clip-text text-transparent">

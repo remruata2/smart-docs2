@@ -253,11 +253,6 @@ export default function UserSidebar({ setSidebarOpen }: UserSidebarProps) {
 								</Link>
 							</DropdownMenuItem>
 							<DropdownMenuItem asChild>
-								<Link href="/subscriptions" className="w-full cursor-pointer text-sm hover:bg-gray-100">
-									My Subscriptions
-								</Link>
-							</DropdownMenuItem>
-							<DropdownMenuItem asChild>
 								<Link href="/app/usage" className="w-full cursor-pointer text-sm hover:bg-gray-100">
 									Usage & Limits
 								</Link>

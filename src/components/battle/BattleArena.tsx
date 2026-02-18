@@ -564,7 +564,7 @@ export function BattleArena({ battle: initialBattle, currentUser, courseId }: Ba
             </div>
 
             {/* Main Content */}
-            <div className="flex-1 relative z-10 p-4 md:p-6 overflow-hidden">
+            <div className="flex-1 relative z-10 p-4 md:p-6 pb-24 md:pb-6 overflow-y-auto">
                 <div className="max-w-4xl mx-auto w-full">
 
                     {/* Question Area */}

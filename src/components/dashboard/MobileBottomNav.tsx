@@ -2,7 +2,8 @@
 
 import Link from "next/link";
 import { usePathname } from "next/navigation";
-import { Home, BookOpen, BrainCircuit, User, Swords, Compass } from "lucide-react";
+import { Home, BrainCircuit, Sparkles, Compass } from "lucide-react";
+import { MobileMenu } from "./MobileMenu";
 
 export function MobileBottomNav() {
     const pathname = usePathname();
@@ -20,28 +21,26 @@ export function MobileBottomNav() {
                 <span className="text-[10px] font-medium">Explore</span>
             </Link>
 
-            {/* Battle Mode - Popped Out */}
+            {/* Practice Hub - Center Popped Out */}
             <div className="relative -top-6">
                 <Link
-                    href="/app/practice/battle"
-                    className={`flex flex-col items-center justify-center w-14 h-14 rounded-full shadow-lg border-4 border-gray-50 transition-transform hover:scale-105 ${isActive('/app/practice/battle')
-                        ? 'bg-purple-600 text-white'
-                        : 'bg-gradient-to-br from-purple-500 to-indigo-600 text-white'
+                    href="/app/practice"
+                    className={`flex flex-col items-center justify-center w-14 h-14 rounded-full shadow-lg border-4 border-gray-50 transition-transform hover:scale-105 ${isActive('/app/practice')
+                        ? 'bg-primary text-primary-foreground'
+                        : 'bg-primary text-primary-foreground'
                         }`}
                 >
-                    <Swords className="w-6 h-6" />
+                    <BrainCircuit className="w-6 h-6" />
                 </Link>
-                <span className="absolute -bottom-6 left-1/2 -translate-x-1/2 text-[10px] font-medium text-purple-700 whitespace-nowrap">Battle</span>
+                <span className="absolute -bottom-6 left-1/2 -translate-x-1/2 text-[10px] font-medium text-primary whitespace-nowrap">Practice</span>
             </div>
 
-            <Link href="/app/practice" className={`flex flex-col items-center p-2 rounded-lg transition-colors ${isActive('/app/practice') ? 'text-primary' : 'text-gray-400 hover:text-gray-600'}`}>
-                <BrainCircuit className="w-6 h-6 mb-1" />
-                <span className="text-[10px] font-medium">Practice</span>
+            <Link href="/app/chat" className={`flex flex-col items-center p-2 rounded-lg transition-colors ${isActive('/app/chat') ? 'text-primary' : 'text-gray-400 hover:text-gray-600'}`}>
+                <Sparkles className="w-6 h-6 mb-1" />
+                <span className="text-[10px] font-medium">AI Tutor</span>
             </Link>
-            <Link href="/app/subjects" className={`flex flex-col items-center p-2 rounded-lg transition-colors ${isActive('/app/subjects') || isActive('/app/chapters') ? 'text-primary' : 'text-gray-400 hover:text-gray-600'}`}>
-                <BookOpen className="w-6 h-6 mb-1" />
-                <span className="text-[10px] font-medium">My Kurs</span>
-            </Link>
+            {/* Replaced 'My Courses' with MobileMenu */}
+            <MobileMenu />
         </div>
     );
 }
