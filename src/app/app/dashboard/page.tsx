@@ -10,6 +10,7 @@ import { WeaknessSniperList } from "@/components/dashboard/WeaknessSniperList";
 import { BadgeIcon } from "@/components/ui/badge-icon";
 import { RadarChartWrapper } from "@/components/dashboard/RadarChartWrapper";
 import { MobileStatCard } from "@/components/dashboard/MobileStatCard";
+import { MasteryBarChart } from "@/components/dashboard/MasteryBarChart";
 
 export const dynamic = "force-dynamic";
 
@@ -24,8 +25,8 @@ export default async function DashboardPage() {
         redirect("/");
     }
 
-    // Radar Chart Data is now fetched from actions
-    const radarData = data.radarData || [];
+    // Mastery Data for the new chart
+    const courseMasteryData = data.courseMasteryData || [];
 
     return (
         <div className="min-h-screen bg-gray-50 pb-24 md:pb-8">
@@ -76,15 +77,15 @@ export default async function DashboardPage() {
 
                     {/* LEFT COLUMN (Profile & Stats) */}
                     <div className="md:col-span-3 space-y-6">
-                        {/* Desktop: Radar Chart */}
-                        <Card className="hidden md:block border-none shadow-md overflow-hidden">
+                        {/* Desktop: Radar Chart Hidden/Removed in favor of Mastery Bar */}
+                        {/* <Card className="hidden md:block border-none shadow-md overflow-hidden">
                             <CardHeader className="bg-white border-b border-gray-50 pb-3">
                                 <CardTitle className="text-base font-semibold text-gray-800">Skill Radar</CardTitle>
                             </CardHeader>
                             <CardContent className="p-4 bg-white">
                                 <RadarChartWrapper data={radarData} />
                             </CardContent>
-                        </Card>
+                        </Card> */}
 
                         {/* Desktop: Quick Stats */}
                         <Card className="hidden md:block border-none shadow-md">
@@ -152,63 +153,8 @@ export default async function DashboardPage() {
                             </Card>
                         )}
 
-                        {/* Enrolled Courses Section */}
-                        <div className="space-y-4">
-                            <div className="flex items-center justify-between px-1">
-                                <h3 className="font-bold text-gray-900 text-lg">My Subject Enrollments</h3>
-                                <Link href="/app/catalog" className="text-sm font-medium text-blue-600 hover:text-blue-700">
-                                    Browse Catalog
-                                </Link>
-                            </div>
-
-                            <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
-                                {enrollments && enrollments.length > 0 ? enrollments.map((enrollment: any) => (
-                                    <Link key={enrollment.id} href={`/app/subjects?courseId=${enrollment.course_id}`}>
-                                        <Card className="hover:shadow-lg transition-all border-none bg-white overflow-hidden group">
-                                            <CardContent className="p-0">
-                                                <div className="flex gap-4 p-4">
-                                                    <div className="w-16 h-16 rounded-lg bg-indigo-50 flex items-center justify-center flex-shrink-0 group-hover:bg-indigo-100 transition-colors">
-                                                        <BookOpen className="w-8 h-8 text-indigo-600" />
-                                                    </div>
-                                                    <div className="flex-1 min-w-0">
-                                                        <h4 className="font-bold text-gray-900 truncate leading-tight mb-1">
-                                                            {enrollment.course.title}
-                                                        </h4>
-                                                        <p className="text-xs text-gray-500 mb-2">
-                                                            {enrollment.course.subjects.length} Subjects • {enrollment.course.board_id}
-                                                        </p>
-                                                        <div className="space-y-1.5">
-                                                            <div className="flex items-center justify-between text-[10px] font-bold">
-                                                                <span className="text-gray-400 uppercase">Progress</span>
-                                                                <span className="text-indigo-600">{enrollment.progress}%</span>
-                                                            </div>
-                                                            <div className="w-full bg-gray-100 rounded-full h-1.5">
-                                                                <div
-                                                                    className="bg-indigo-600 h-1.5 rounded-full transition-all duration-1000"
-                                                                    style={{ width: `${enrollment.progress}%` }}
-                                                                />
-                                                            </div>
-                                                        </div>
-                                                    </div>
-                                                </div>
-                                            </CardContent>
-                                        </Card>
-                                    </Link>
-                                )) : (
-                                    <Card className="col-span-full border-dashed border-2 border-gray-200 bg-gray-50/50">
-                                        <CardContent className="py-12 text-center">
-                                            <GraduationCap className="w-12 h-12 text-gray-400 mx-auto mb-3" />
-                                            <p className="text-gray-500 font-medium mb-4">No subjects enrolled yet</p>
-                                            <Link href="/app/catalog">
-                                                <Button variant="outline" className="border-indigo-200 text-indigo-600 hover:bg-indigo-50">
-                                                    Explore Catalog
-                                                </Button>
-                                            </Link>
-                                        </CardContent>
-                                    </Card>
-                                )}
-                            </div>
-                        </div>
+                        {/* Mastery Analytics Bar Chart (Replaced Enrollments) */}
+                        <MasteryBarChart data={courseMasteryData} />
 
                         {/* Weakness Sniper */}
                         <WeaknessSniperList items={weaknessList} />

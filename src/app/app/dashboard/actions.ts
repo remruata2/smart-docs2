@@ -212,6 +212,63 @@ export async function getDashboardData() {
         };
     }).slice(0, 6);
 
+    // H. Course & Subject Mastery Data (Using standardized 70/30 Readiness Formula)
+    const courseMasteryData = enrollments.map(e => {
+        const courseSubjects = e.course?.subjects || [];
+
+        // Calculate Subject Level Readiness
+        const subjectMastery = courseSubjects.map(sub => {
+            // 1. Subject Quiz Average
+            const subQuizzes = allQuizStats.filter(q => q.subject_id === sub.id);
+            const subQuizAvg = subQuizzes.length > 0
+                ? subQuizzes.reduce((acc, q) => acc + (q.score / q.total_points) * 100, 0) / subQuizzes.length
+                : 0;
+
+            // 2. Subject Syllabus Completion
+            // Note: We need chapter count for this subject. In enrollments we have _count on program subjects.
+            // Let's find the subject in the enrolledSubjects list which has the count.
+            const subjectWithCount = enrolledSubjects.find(es => es.id === sub.id);
+            const subTotalChapters = subjectWithCount?._count.chapters || 0;
+            const subCompletedChapters = new Set(subQuizzes.map(q => q.chapter_id?.toString()).filter(Boolean)).size;
+            const subSyllabusComp = subTotalChapters > 0 ? (subCompletedChapters / subTotalChapters) * 100 : 0;
+
+            // 3. Subject Readiness Score (Standard Formula)
+            const subReadiness = Math.round((subQuizAvg * 0.7) + (subSyllabusComp * 0.3));
+
+            return {
+                id: sub.id,
+                name: sub.name,
+                score: subReadiness
+            };
+        });
+
+        // Calculate Course Level Readiness
+        // 1. Course Quiz Average
+        const courseSubjectIds = new Set(courseSubjects.map(s => s.id));
+        const courseQuizzes = allQuizStats.filter(q => q.subject_id && courseSubjectIds.has(q.subject_id));
+        const courseQuizAvg = courseQuizzes.length > 0
+            ? courseQuizzes.reduce((acc, q) => acc + (q.score / q.total_points) * 100, 0) / courseQuizzes.length
+            : 0;
+
+        // 2. Course Syllabus Completion
+        const courseTotalChapters = courseSubjects.reduce((acc, sub) => {
+            const swc = enrolledSubjects.find(es => es.id === sub.id);
+            return acc + (swc?._count.chapters || 0);
+        }, 0);
+        const courseCompletedChapters = new Set(courseQuizzes.map(q => q.chapter_id?.toString()).filter(Boolean)).size;
+        const courseSyllabusComp = courseTotalChapters > 0 ? (courseCompletedChapters / courseTotalChapters) * 100 : 0;
+
+        // 3. Course Readiness Score
+        const courseReadiness = Math.round((courseQuizAvg * 0.7) + (courseSyllabusComp * 0.3));
+
+        return {
+            courseId: e.course_id.toString(),
+            courseTitle: e.course?.title || "Unknown Course",
+            mastery: courseReadiness,
+            subjects: subjectMastery
+        };
+    });
+
     return {
         profile,
         metrics: {
@@ -227,6 +284,7 @@ export async function getDashboardData() {
         recentActivity, // Already limited to 5
         badges,
         radarData,
+        courseMasteryData,
         enrollments
     };
 }
