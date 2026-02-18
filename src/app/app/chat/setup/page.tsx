@@ -43,7 +43,7 @@ export default function AISelectionPage() {
                 setLoading(true);
                 const [subjectsRes, convsRes] = await Promise.all([
                     fetch("/api/dashboard/subjects"),
-                    fetch("/api/dashboard/conversations?limit=3")
+                    fetch("/api/dashboard/conversations?limit=5")
                 ]);
 
                 if (!subjectsRes.ok) throw new Error("Failed to load initial data");
@@ -118,64 +118,67 @@ export default function AISelectionPage() {
 
     return (
         <div className="min-h-screen bg-slate-50/30">
-            <div className="container max-w-lg mx-auto py-8 px-4 space-y-8">
+            <div className="container max-w-5xl mx-auto py-8 px-4 space-y-8">
                 {/* Header */}
-                <div className="text-center">
+                <div className="text-center md:text-left md:px-2">
                     <h1 className="text-2xl font-black text-slate-900 tracking-tight">AI Tutor</h1>
                 </div>
 
-                {/* Selection Section */}
-                <div className="space-y-4">
-                    {/* Course Selection */}
-                    <Card className="border-slate-100 shadow-sm rounded-2xl overflow-hidden bg-white">
-                        <CardContent className="p-4 space-y-3">
-                            <h3 className="text-[11px] font-bold text-slate-500 uppercase tracking-widest pl-1">1. SELECT COURSE (OPTIONAL)</h3>
-                            <div className="relative group">
-                                <select
-                                    className="w-full h-14 bg-slate-50/50 border border-slate-100 rounded-xl px-4 text-sm font-medium appearance-none focus:outline-none focus:ring-2 focus:ring-indigo-500/10 focus:border-indigo-500/30 focus:bg-white transition-all cursor-pointer text-slate-700"
-                                    value={selectedCourseId}
-                                    onChange={(e) => {
-                                        setSelectedCourseId(e.target.value);
-                                        setSelectedSubjectId(null);
-                                        setSelectedChapterId(null);
-                                    }}
-                                >
-                                    <option value="all">All Courses</option>
-                                    {courses.map(c => (
-                                        <option key={c.id} value={c.id.toString()}>{c.title}</option>
-                                    ))}
-                                </select>
-                                <ChevronDown className="absolute right-4 top-1/2 -translate-y-1/2 w-5 h-5 text-slate-400 pointer-events-none transition-transform group-focus-within:rotate-180" />
-                            </div>
-                        </CardContent>
-                    </Card>
+                <div className="grid grid-cols-1 md:grid-cols-12 gap-8 items-start">
+                    {/* Selection Column (Left) */}
+                    <div className="md:col-span-7 space-y-4">
+                        {/* Course Selection */}
+                        <Card className="border-slate-100 shadow-sm rounded-2xl overflow-hidden bg-white">
+                            <CardContent className="p-4 space-y-3">
+                                <h3 className="text-[11px] font-bold text-slate-500 uppercase tracking-widest pl-1">1. SELECT COURSE (OPTIONAL)</h3>
+                                <div className="relative group">
+                                    <select
+                                        className="w-full h-14 bg-slate-50/50 border border-slate-100 rounded-xl px-4 text-sm font-medium appearance-none focus:outline-none focus:ring-2 focus:ring-indigo-500/10 focus:border-indigo-500/30 focus:bg-white transition-all cursor-pointer text-slate-700"
+                                        value={selectedCourseId}
+                                        onChange={(e) => {
+                                            setSelectedCourseId(e.target.value);
+                                            setSelectedSubjectId(null);
+                                            setSelectedChapterId(null);
+                                        }}
+                                    >
+                                        <option value="all">All Courses</option>
+                                        {courses.map(c => (
+                                            <option key={c.id} value={c.id.toString()}>{c.title}</option>
+                                        ))}
+                                    </select>
+                                    <ChevronDown className="absolute right-4 top-1/2 -translate-y-1/2 w-5 h-5 text-slate-400 pointer-events-none transition-transform group-focus-within:rotate-180" />
+                                </div>
+                            </CardContent>
+                        </Card>
 
-                    {/* Subject Selection */}
-                    <Card className="border-slate-100 shadow-sm rounded-2xl overflow-hidden bg-white">
-                        <CardContent className="p-4 space-y-3">
-                            <h3 className="text-[11px] font-bold text-slate-500 uppercase tracking-widest pl-1">2. SELECT SUBJECT</h3>
-                            <div className="relative group">
-                                <select
-                                    className="w-full h-14 bg-slate-50/50 border border-slate-100 rounded-xl px-4 text-sm font-medium appearance-none focus:outline-none focus:ring-2 focus:ring-indigo-500/10 focus:border-indigo-500/30 focus:bg-white transition-all cursor-pointer text-slate-700 disabled:opacity-50"
-                                    value={selectedSubjectId || ""}
-                                    onChange={(e) => {
-                                        setSelectedSubjectId(e.target.value ? parseInt(e.target.value) : null);
-                                        setSelectedChapterId(null);
-                                    }}
-                                >
-                                    <option value="" disabled>Choose a subject...</option>
-                                    {filteredSubjects.map(s => (
-                                        <option key={s.id} value={s.id}>{s.name}</option>
-                                    ))}
-                                </select>
-                                <ChevronDown className="absolute right-4 top-1/2 -translate-y-1/2 w-5 h-5 text-slate-400 pointer-events-none transition-transform group-focus-within:rotate-180" />
-                            </div>
-                        </CardContent>
-                    </Card>
+                        {/* Subject Selection */}
+                        <Card className="border-slate-100 shadow-sm rounded-2xl overflow-hidden bg-white">
+                            <CardContent className="p-4 space-y-3">
+                                <h3 className="text-[11px] font-bold text-slate-500 uppercase tracking-widest pl-1">2. SELECT SUBJECT</h3>
+                                <div className="relative group">
+                                    <select
+                                        className="w-full h-14 bg-slate-50/50 border border-slate-100 rounded-xl px-4 text-sm font-medium appearance-none focus:outline-none focus:ring-2 focus:ring-indigo-500/10 focus:border-indigo-500/30 focus:bg-white transition-all cursor-pointer text-slate-700 disabled:opacity-50"
+                                        value={selectedSubjectId || ""}
+                                        onChange={(e) => {
+                                            setSelectedSubjectId(e.target.value ? parseInt(e.target.value) : null);
+                                            setSelectedChapterId(null);
+                                        }}
+                                    >
+                                        <option value="" disabled>Choose a subject...</option>
+                                        {filteredSubjects.map(s => (
+                                            <option key={s.id} value={s.id}>{s.name}</option>
+                                        ))}
+                                    </select>
+                                    <ChevronDown className="absolute right-4 top-1/2 -translate-y-1/2 w-5 h-5 text-slate-400 pointer-events-none transition-transform group-focus-within:rotate-180" />
+                                </div>
+                            </CardContent>
+                        </Card>
 
-                    {/* Chapter Selection - Style matched to screenshot */}
-                    {selectedSubjectId && (
-                        <Card className="border-slate-100 shadow-sm rounded-2xl overflow-hidden bg-white animate-in fade-in slide-in-from-top-2 duration-300">
+                        {/* Chapter Selection */}
+                        <Card className={cn(
+                            "border-slate-100 shadow-sm rounded-2xl overflow-hidden bg-white transition-all duration-300",
+                            !selectedSubjectId && "opacity-50 grayscale pointer-events-none"
+                        )}>
                             <CardContent className="p-4 space-y-3">
                                 <h3 className="text-[11px] font-bold text-slate-500 uppercase tracking-widest pl-1">3. SELECT CHAPTER</h3>
                                 <div className="relative group">
@@ -183,9 +186,9 @@ export default function AISelectionPage() {
                                         className="w-full h-14 bg-slate-50/50 border border-slate-100 rounded-xl px-4 text-sm font-medium appearance-none focus:outline-none focus:ring-2 focus:ring-indigo-500/10 focus:border-indigo-500/30 focus:bg-white transition-all cursor-pointer text-slate-700 disabled:opacity-50"
                                         value={selectedChapterId || ""}
                                         onChange={(e) => setSelectedChapterId(e.target.value)}
-                                        disabled={chaptersLoading}
+                                        disabled={chaptersLoading || !selectedSubjectId}
                                     >
-                                        <option value="" disabled>{chaptersLoading ? "Loading chapters..." : "Choose a chapter..."}</option>
+                                        <option value="" disabled>{chaptersLoading ? "Loading chapters..." : (selectedSubjectId ? "Choose a chapter..." : "Select a subject first")}</option>
                                         {chapters.map(c => (
                                             <option key={c.id} value={c.id} disabled={c.isLocked}>
                                                 {c.isLocked ? "🔒 " : ""}{c.chapter_number ? `${c.chapter_number}. ` : ""}{c.title}
@@ -200,59 +203,59 @@ export default function AISelectionPage() {
                                 </div>
                             </CardContent>
                         </Card>
-                    )}
 
-                    {/* Start Learning Button */}
-                    <div className="pt-2">
-                        <Button
-                            className={cn(
-                                "w-full h-14 rounded-2xl text-base font-bold transition-all shadow-md active:scale-[0.98]",
-                                (!selectedSubjectId || !selectedChapterId)
-                                    ? "bg-slate-200 text-slate-400 hover:bg-slate-200 cursor-not-allowed"
-                                    : "bg-indigo-600 hover:bg-indigo-700 text-white shadow-indigo-500/20"
-                            )}
-                            disabled={!selectedSubjectId || !selectedChapterId}
-                            onClick={handleStartChat}
-                        >
-                            Start Learning
-                        </Button>
+                        {/* Start Learning Button */}
+                        <div className="pt-2">
+                            <Button
+                                className={cn(
+                                    "w-full h-14 rounded-2xl text-base font-bold transition-all shadow-md active:scale-[0.98]",
+                                    (!selectedSubjectId || !selectedChapterId)
+                                        ? "bg-slate-200 text-slate-400 hover:bg-slate-200 cursor-not-allowed"
+                                        : "bg-indigo-600 hover:bg-indigo-700 text-white shadow-indigo-500/20"
+                                )}
+                                disabled={!selectedSubjectId || !selectedChapterId}
+                                onClick={handleStartChat}
+                            >
+                                Start Learning
+                            </Button>
+                        </div>
                     </div>
-                </div>
 
-                {/* Recent Conversations */}
-                <div className="space-y-4 pt-4">
-                    <h2 className="text-[11px] font-bold text-slate-400 uppercase tracking-widest ml-1">RECENT CONVERSATIONS</h2>
-                    {recentConversations.length > 0 ? (
-                        <div className="space-y-3">
-                            {recentConversations.map(conv => (
-                                <Card
-                                    key={conv.id}
-                                    className="border-slate-100 shadow-sm rounded-2xl overflow-hidden hover:bg-slate-50 transition-all cursor-pointer group active:scale-[0.99] bg-white text-left"
-                                    onClick={() => router.push(`/app/chat?id=${conv.id}`)}
-                                >
-                                    <CardContent className="p-4 flex items-center justify-between">
-                                        <div className="space-y-0.5">
-                                            <p className="text-sm font-bold text-slate-800 group-hover:text-indigo-600 transition-colors">
-                                                {conv.title}
-                                            </p>
-                                            <p className="text-[11px] text-slate-400 font-medium tracking-tight">
-                                                {conv.courseTitle || "Individual Course"} • {formatDate(conv.updatedAt)}
-                                            </p>
-                                        </div>
-                                        <div className="w-8 h-8 rounded-full bg-slate-50 flex items-center justify-center group-hover:bg-indigo-50 transition-colors">
-                                            <ChevronRight className="w-4 h-4 text-slate-300 group-hover:text-indigo-500 transition-all" />
-                                        </div>
-                                    </CardContent>
-                                </Card>
-                            ))}
-                        </div>
-                    ) : (
-                        <div className="text-center py-12 bg-white rounded-2xl border border-dashed border-slate-200 shadow-sm">
-                            <Clock className="w-8 h-8 text-slate-200 mx-auto mb-3" />
-                            <p className="text-xs font-semibold text-slate-400">No recent sessions found</p>
-                            <p className="text-[10px] text-slate-300 mt-1">Select a subject to start learning</p>
-                        </div>
-                    )}
+                    {/* Recent Conversations Column (Right) */}
+                    <div className="md:col-span-5 space-y-4">
+                        <h2 className="text-[11px] font-bold text-slate-400 uppercase tracking-widest ml-1">RECENT CONVERSATIONS</h2>
+                        {recentConversations.length > 0 ? (
+                            <div className="space-y-3">
+                                {recentConversations.map(conv => (
+                                    <Card
+                                        key={conv.id}
+                                        className="border-slate-100 shadow-sm rounded-2xl overflow-hidden hover:bg-slate-50 transition-all cursor-pointer group active:scale-[0.99] bg-white text-left"
+                                        onClick={() => router.push(`/app/chat?id=${conv.id}`)}
+                                    >
+                                        <CardContent className="p-4 flex items-center justify-between">
+                                            <div className="space-y-0.5 min-w-0 flex-1 pr-2">
+                                                <p className="text-sm font-bold text-slate-800 group-hover:text-indigo-600 transition-colors truncate">
+                                                    {conv.title}
+                                                </p>
+                                                <p className="text-[11px] text-slate-400 font-medium tracking-tight truncate">
+                                                    {conv.courseTitle || "Individual Course"} • {formatDate(conv.updatedAt)}
+                                                </p>
+                                            </div>
+                                            <div className="w-8 h-8 rounded-full bg-slate-50 flex items-center justify-center group-hover:bg-indigo-50 transition-colors shrink-0">
+                                                <ChevronRight className="w-4 h-4 text-slate-300 group-hover:text-indigo-500 transition-all" />
+                                            </div>
+                                        </CardContent>
+                                    </Card>
+                                ))}
+                            </div>
+                        ) : (
+                            <div className="text-center py-12 bg-white rounded-2xl border border-dashed border-slate-200 shadow-sm">
+                                <Clock className="w-8 h-8 text-slate-200 mx-auto mb-3" />
+                                <p className="text-xs font-semibold text-slate-400">No recent sessions found</p>
+                                <p className="text-[10px] text-slate-300 mt-1">Select a subject to start learning</p>
+                            </div>
+                        )}
+                    </div>
                 </div>
             </div>
         </div>
