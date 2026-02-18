@@ -62,8 +62,23 @@ export async function GET(request: NextRequest) {
                 message_count: true,
                 is_pinned: true,
                 is_archived: true,
-                // subject_id: true,
-                // chapter_id: true,
+                subject_id: true,
+                chapter_id: true,
+                subject: {
+                    select: {
+                        name: true,
+                        courses: {
+                            take: 1,
+                            select: { title: true }
+                        }
+                    }
+                },
+                chapter: {
+                    select: {
+                        title: true,
+                        chapter_number: true
+                    }
+                },
                 messages: {
                     take: 1,
                     orderBy: {
@@ -97,8 +112,11 @@ export async function GET(request: NextRequest) {
             messageCount: conv.message_count,
             isPinned: conv.is_pinned,
             isArchived: conv.is_archived,
-            // subjectId: conv.subject_id,
-            // chapterId: conv.chapter_id?.toString(),
+            subjectId: conv.subject_id,
+            chapterId: conv.chapter_id?.toString(),
+            subjectName: conv.subject?.name,
+            chapterTitle: conv.chapter?.title,
+            courseTitle: conv.subject?.courses[0]?.title,
             lastMessage:
                 conv.messages[0]?.role === "assistant"
                     ? conv.messages[0].content.substring(0, 100) + "..."
