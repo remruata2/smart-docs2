@@ -982,7 +982,7 @@ function ChatPageContent() {
 					</div>
 
 					{/* Messages Area */}
-					<div className={`flex-1 overflow-y-auto p-4 space-y-6 ${messages.length === 0 ? 'flex flex-col justify-center' : ''}`}>
+					<div className={`flex-1 overflow-y-auto overflow-x-hidden p-4 space-y-6 ${messages.length === 0 ? 'flex flex-col justify-center' : ''}`}>
 						{messages.length === 0 ? (
 							<div className="flex flex-col items-center justify-center text-center p-8 animate-in fade-in zoom-in duration-500">
 								<div className="w-24 h-24 bg-primary/5 rounded-3xl flex items-center justify-center mb-6 shadow-inner">
@@ -1059,17 +1059,17 @@ function ChatPageContent() {
 									<div
 										key={msg.id}
 										data-role={msg.role}
-										className={`flex gap-4 ${msg.role === "user" ? "justify-end" : "justify-start"
+										className={`flex gap-3 ${msg.role === "user" ? "justify-end" : "justify-start"
 											} animate-in fade-in slide-in-from-bottom-4 duration-500`}
 									>
 										{msg.role === "assistant" && (
-											<div className="w-8 h-8 rounded-full bg-primary/10 flex items-center justify-center flex-shrink-0 mt-1">
-												<Bot className="w-5 h-5 text-primary" />
+											<div className="w-7 h-7 rounded-full bg-primary/10 hidden md:flex items-center justify-center flex-shrink-0 mt-1">
+												<Bot className="w-4 h-4 text-primary" />
 											</div>
 										)}
 
 										<div
-											className={`flex flex-col max-w-[85%] ${msg.role === "user" ? "items-end" : "items-start"
+											className={`flex flex-col max-w-[85%] min-w-0 ${msg.role === "user" ? "items-end" : "items-start"
 												}`}
 										>
 											<div
@@ -1079,7 +1079,7 @@ function ChatPageContent() {
 													}`}
 											>
 												{msg.role === "assistant" ? (
-													<div className="prose prose-sm dark:prose-invert max-w-none">
+													<div className="prose prose-sm dark:prose-invert max-w-none break-words overflow-hidden">
 														<ReactMarkdown
 															remarkPlugins={[remarkMath, remarkGfm, remarkBreaks]}
 															rehypePlugins={[rehypeKatex]}
