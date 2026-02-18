@@ -210,24 +210,48 @@ function ChatPageContent() {
 		: subjects.filter(s => s.courseIds?.includes(parseInt(selectedCourseId)));
 
 	const messagesEndRef = useRef<HTMLDivElement>(null);
+	const prevConversationId = useRef<number | null | string>(null);
 	const inputRef = useRef<HTMLInputElement>(null);
 
-	// Auto-scroll to bottom when new messages arrive
-	// Auto-scroll to bottom when new messages arrive
-	// Auto-scroll to bottom when new messages arrive or conversation changes
+	// Auto-scroll logic: Anchor to user question or scroll to bottom on load
 	useEffect(() => {
 		const scrollContainer = messagesEndRef.current?.parentElement;
 		if (!scrollContainer) return;
 
-		// Always scroll to bottom when messages change to ensure latest content is visible
-		// This fixes the issue where opening a chat showed the top instead of bottom
-		messagesEndRef.current?.scrollIntoView({ behavior: "auto" });
+		// 1. If conversation changed (initial load or switcher), scroll to bottom
+		if (prevConversationId.current !== currentConversationId) {
+			setTimeout(() => {
+				messagesEndRef.current?.scrollIntoView({ behavior: "auto" });
+			}, 100);
+			prevConversationId.current = currentConversationId;
+			return;
+		}
 
-		// Double check scroll check scroll after a small delay to handle any layout shifts (images, etc)
-		setTimeout(() => {
-			messagesEndRef.current?.scrollIntoView({ behavior: "auto", block: "end" });
-		}, 300);
-	}, [messages, currentConversationId]);
+		// 2. If new messages arrived
+		if (messages.length > 0) {
+			const lastMessage = messages[messages.length - 1];
+
+			// Check if a new user query was just sent
+			// We detect this when the user message is the second to last and assistant is starting or placeholder exists
+			const isNewQuery = messages.length >= 2 &&
+				messages[messages.length - 2].role === "user" &&
+				lastMessage.role === "assistant" &&
+				(lastMessage.content.startsWith("Analyzing") ||
+					lastMessage.content.startsWith("Processing"));
+
+			if (isNewQuery) {
+				// Find the last user message element and scroll it to the top of the container
+				// Gemini behavior: Anchor the question at the top
+				const userMsgElements = document.querySelectorAll('[data-role="user"]');
+				const lastUserMsg = userMsgElements[userMsgElements.length - 1];
+				if (lastUserMsg) {
+					lastUserMsg.scrollIntoView({ behavior: "smooth", block: "start" });
+				}
+			}
+			// 3. While streaming: DO NOTHING. This allows the user to read at their own pace.
+			// The old aggressive scroll to bottom is removed to match Gemini's UX.
+		}
+	}, [messages, currentConversationId, isLoading]);
 
 	// Focus input on mount
 	useEffect(() => {
@@ -1033,6 +1057,7 @@ function ChatPageContent() {
 								{messages.map((msg) => (
 									<div
 										key={msg.id}
+										data-role={msg.role}
 										className={`flex gap-4 ${msg.role === "user" ? "justify-end" : "justify-start"
 											} animate-in fade-in slide-in-from-bottom-4 duration-500`}
 									>
