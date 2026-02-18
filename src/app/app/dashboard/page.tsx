@@ -71,35 +71,11 @@ export default async function DashboardPage() {
                     </div>
                 </div>
 
-                {/* --- MAIN GRID LAYOUT --- */}
+                {/* --- MAIN GRID LAYOUT (2-Column) --- */}
                 <div className="grid grid-cols-1 md:grid-cols-12 gap-6">
 
-                    {/* LEFT COLUMN (Profile & Stats) */}
-                    <div className="md:col-span-3 space-y-6">
-                        {/* Desktop: Radar Chart Hidden/Removed in favor of Mastery Bar */}
-                        {/* <Card className="hidden md:block border-none shadow-md overflow-hidden">
-                            <CardHeader className="bg-white border-b border-gray-50 pb-3">
-                                <CardTitle className="text-base font-semibold text-gray-800">Skill Radar</CardTitle>
-                            </CardHeader>
-                            <CardContent className="p-4 bg-white">
-                                <RadarChartWrapper data={radarData} />
-                            </CardContent>
-                        </Card> */}
-
-                        {/* Desktop: Quick Stats */}
-                        <Card className="hidden md:block border-none shadow-md">
-                            <CardContent className="p-5 space-y-4">
-                                <div className="flex items-center justify-between">
-                                    <span className="text-sm text-gray-500">Test Average</span>
-                                    <span className="font-bold text-gray-900">{metrics.quizAverage}%</span>
-                                </div>
-                                <div className="w-full bg-gray-100 rounded-full h-2.5">
-                                    <div className="bg-emerald-500 h-2.5 rounded-full" style={{ width: `${metrics.quizAverage}%` }} />
-                                </div>
-                                <p className="text-[10px] text-gray-400 mt-2 italic">Based on your recent practice sessions</p>
-                            </CardContent>
-                        </Card>
-
+                    {/* MAIN COLUMN (8/12 - 2/3 of page) */}
+                    <div className="md:col-span-8 space-y-6">
                         {/* Mobile: Horizontal Stats Scroll */}
                         <div className="md:hidden overflow-x-auto pb-2 -mx-4 px-4 scrollbar-hide">
                             <div className="flex gap-3 w-max">
@@ -129,10 +105,7 @@ export default async function DashboardPage() {
                                 />
                             </div>
                         </div>
-                    </div>
 
-                    {/* CENTER COLUMN (Action) */}
-                    <div className="md:col-span-6 space-y-6">
                         {/* Hero Card */}
                         {resumeData ? (
                             <HeroResumeCard
@@ -143,10 +116,11 @@ export default async function DashboardPage() {
                             />
                         ) : (
                             <Card className="border-none shadow-md bg-gradient-to-r from-indigo-500 to-purple-600 text-white p-8 text-center">
+                                <p className="text-white/80">Ready to start your practice session?</p>
                             </Card>
                         )}
 
-                        {/* Mastery Analytics Bar Chart (Prioritized) */}
+                        {/* Mastery Analytics Bar Chart */}
                         <MasteryBarChart data={courseMasteryData} />
 
                         {/* Focus Areas (Weakness Sniper) */}
@@ -182,8 +156,26 @@ export default async function DashboardPage() {
                         </div>
                     </div>
 
-                    {/* RIGHT COLUMN (Gamification - Desktop Only) */}
-                    <div className="hidden md:block md:col-span-3 space-y-6">
+                    {/* SIDEBAR COLUMN (4/12 - 1/3 of page) */}
+                    <div className="hidden md:block md:col-span-4 space-y-6">
+                        {/* Test Average Card (Moved from left column) */}
+                        <Card className="border-none shadow-md bg-white">
+                            <CardHeader className="pb-2 border-b border-gray-50">
+                                <CardTitle className="text-base font-semibold text-gray-800">Practice Performance</CardTitle>
+                            </CardHeader>
+                            <CardContent className="p-5 space-y-4">
+                                <div className="flex items-center justify-between">
+                                    <span className="text-sm text-gray-500">Test Average</span>
+                                    <span className="font-bold text-gray-900">{metrics.quizAverage}%</span>
+                                </div>
+                                <div className="w-full bg-gray-100 rounded-full h-2.5">
+                                    <div className="bg-emerald-500 h-2.5 rounded-full" style={{ width: `${metrics.quizAverage}%` }} />
+                                </div>
+                                <p className="text-[10px] text-gray-400 mt-2 italic">Based on your recent practice sessions</p>
+                            </CardContent>
+                        </Card>
+
+                        {/* Your Badges */}
                         <Card className="border-none shadow-md bg-white">
                             <CardHeader className="pb-2 border-b border-gray-50">
                                 <CardTitle className="flex items-center gap-2 text-base">
@@ -209,7 +201,6 @@ export default async function DashboardPage() {
                             </CardContent>
                         </Card>
                     </div>
-
                 </div>
             </main>
 
