@@ -916,12 +916,12 @@ function ChatPageContent() {
 	};
 
 	return (
-		<div className="flex h-[calc(100vh-4rem)] lg:h-screen overflow-hidden -mb-16 lg:mb-0 pb-4">
+		<div className="flex w-full h-[calc(100vh-4rem)] lg:h-screen overflow-hidden -mb-16 lg:mb-0 pb-4">
 			{/* Main Chat Area */}
-			<div className="flex-1 flex flex-col overflow-hidden bg-gray-50/50 dark:bg-gray-900/50 h-full">
-				<div className="flex-1 flex flex-col overflow-hidden min-h-0">
+			<div className="flex-1 w-full flex flex-col overflow-hidden bg-gray-50/50 dark:bg-gray-900/50 h-full">
+				<div className="flex-1 w-full flex flex-col overflow-hidden min-h-0">
 					{/* Header */}
-					<div className="border-b bg-white/80 dark:bg-gray-900/80 backdrop-blur-sm p-3 flex flex-col gap-2 sticky top-0 z-10">
+					<div className="border-b bg-white/80 dark:bg-gray-900/80 backdrop-blur-sm p-4 flex flex-col gap-2 sticky top-0 z-10">
 						<div className="flex items-center justify-between">
 							<div className="flex items-center gap-3">
 								<div className="p-2 bg-primary/10 rounded-lg">
@@ -955,7 +955,7 @@ function ChatPageContent() {
 
 						{/* Compact Context Header */}
 						{(selectedSubjectName || selectedChapterTitle) && (
-							<div className="flex items-center gap-2 px-1 border-t pt-2 animate-in fade-in slide-in-from-top-1 duration-300">
+							<div className="flex items-center gap-2 px-0 border-t pt-2 animate-in fade-in slide-in-from-top-1 duration-300">
 								<div className="flex flex-wrap items-center gap-1.5 text-xs">
 									<Badge variant="secondary" className="bg-slate-100 hover:bg-slate-100 text-slate-600 font-semibold rounded-md border-none px-2 py-0.5">
 										{selectedSubjectName || "Loading..."}
@@ -1003,7 +1003,7 @@ function ChatPageContent() {
 								</div>
 
 								{/* Inline Input Area for empty state */}
-								<div className="w-full max-w-2xl mx-auto space-y-2">
+								<div className="w-full max-w-2xl mx-auto space-y-2 px-4 sm:px-0">
 									<div className="relative flex items-end gap-2 bg-white dark:bg-gray-800 border rounded-xl shadow-sm focus-within:ring-2 focus-within:ring-primary/20 focus-within:border-primary transition-all p-1.5">
 										<div className="flex-1">
 											<Textarea
@@ -1360,7 +1360,7 @@ function ChatPageContent() {
 
 					{/* Input Area - Only show at bottom when there are messages */}
 					{messages.length > 0 && (
-						<div className="border-t bg-white dark:bg-gray-900 px-3 pt-3 pb-2">
+						<div className="border-t bg-white dark:bg-gray-900 px-4 pt-4 pb-2">
 							<div className="w-full max-w-4xl mx-auto space-y-1">
 								<div className="relative flex items-end gap-2 bg-white dark:bg-gray-800 border rounded-xl shadow-sm focus-within:ring-2 focus-within:ring-primary/20 focus-within:border-primary transition-all p-1.5">
 									<div className="flex-1">
@@ -1414,7 +1414,7 @@ function ChatPageContent() {
 										)}
 									</Button>
 								</div>
-								<div className="flex justify-between items-center px-4">
+								<div className="flex justify-between items-center px-0">
 									<p className="text-[10px] text-muted-foreground">
 										AI can make mistakes. Please verify important information.
 									</p>
