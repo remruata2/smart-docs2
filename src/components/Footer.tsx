@@ -69,6 +69,37 @@ export function Footer() {
                             </li>
                         </ul>
                     </div>
+
+                    {/* App Stores */}
+                    <div>
+                        <h4 className="font-semibold text-gray-900 mb-4">Get the App</h4>
+                        <div className="space-y-3">
+                            <div className="flex flex-col gap-2">
+                                <div className="flex items-center gap-2 px-3 py-2 bg-gray-900 text-white rounded-lg opacity-50 cursor-not-allowed">
+                                    <div className="w-6 h-6 flex items-center justify-center">
+                                        <svg viewBox="0 0 24 24" className="w-5 h-5 fill-current">
+                                            <path d="M17.05 20.28c-.96.95-2.04.8-2.04 1.93 0 1.13 1.05 1.09 2.04-.01.99-1.11 1.01-2.88 0-1.92zM12.03 7.25c-2.48 0-4.5 2.01-4.5 4.5s2.02 4.5 4.5 4.5 4.5-2.01 4.5-4.5-2.01-4.5-4.5-4.5zm0 7.5c-1.65 0-3-1.35-3-3s1.35-3 3-3 3 1.35 3 3-1.35 3-3 3zM10.5 4.5h3v-2h-3v2z" />
+                                        </svg>
+                                    </div>
+                                    <div className="flex flex-col leading-tight">
+                                        <span className="text-[10px] uppercase font-medium text-gray-400">Coming Soon on</span>
+                                        <span className="text-sm font-semibold">App Store</span>
+                                    </div>
+                                </div>
+                                <div className="flex items-center gap-2 px-3 py-2 bg-gray-900 text-white rounded-lg opacity-50 cursor-not-allowed">
+                                    <div className="w-6 h-6 flex items-center justify-center">
+                                        <svg viewBox="0 0 24 24" className="w-5 h-5 fill-current">
+                                            <path d="M5.929 22.857l14.143-8.143-14.143-8.143v16.286zM15.5 12l-7.571 4.357v-8.714l7.571 4.357z" />
+                                        </svg>
+                                    </div>
+                                    <div className="flex flex-col leading-tight">
+                                        <span className="text-[10px] uppercase font-medium text-gray-400">Coming Soon on</span>
+                                        <span className="text-sm font-semibold">Google Play</span>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
                 </div>
 
                 <div className="border-t mt-8 pt-8 text-center text-gray-600 text-sm">
