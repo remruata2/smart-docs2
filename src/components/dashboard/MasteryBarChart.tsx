@@ -57,11 +57,12 @@ export function MasteryBarChart({ data }: MasteryBarChartProps) {
                 )}
             </CardHeader>
             <CardContent className="p-6">
-                <div className="h-[300px] w-full">
+                <div className={`${selectedCourse ? 'h-[400px]' : 'h-[300px]'} w-full`}>
                     <ResponsiveContainer width="100%" height="100%">
                         <BarChart
                             data={chartData}
-                            margin={{ top: 20, right: 30, left: 0, bottom: 40 }}
+                            layout="vertical"
+                            margin={{ top: 5, right: 30, left: 100, bottom: 5 }}
                             onClick={(data) => {
                                 if (data && data.activeLabel) {
                                     const entry = chartData.find(d => d.name === data.activeLabel);
@@ -69,21 +70,21 @@ export function MasteryBarChart({ data }: MasteryBarChartProps) {
                                 }
                             }}
                         >
-                            <CartesianGrid strokeDasharray="3 3" vertical={false} stroke="#f3f4f6" />
+                            <CartesianGrid strokeDasharray="3 3" horizontal={true} vertical={false} stroke="#f3f4f6" />
                             <XAxis
-                                dataKey="name"
-                                axisLine={false}
-                                tickLine={false}
-                                tick={{ fill: '#9ca3af', fontSize: 10 }}
-                                interval={0}
-                                angle={-45}
-                                textAnchor="end"
-                            />
-                            <YAxis
+                                type="number"
                                 axisLine={false}
                                 tickLine={false}
                                 tick={{ fill: '#9ca3af', fontSize: 10 }}
                                 domain={[0, 100]}
+                            />
+                            <YAxis
+                                type="category"
+                                dataKey="name"
+                                axisLine={false}
+                                tickLine={false}
+                                tick={{ fill: '#4b5563', fontSize: 11, fontWeight: 500 }}
+                                width={95}
                             />
                             <Tooltip
                                 cursor={{ fill: '#f9fafb' }}
@@ -91,8 +92,8 @@ export function MasteryBarChart({ data }: MasteryBarChartProps) {
                             />
                             <Bar
                                 dataKey="score"
-                                radius={[6, 6, 0, 0]}
-                                barSize={40}
+                                radius={[0, 6, 6, 0]}
+                                barSize={24}
                                 className="cursor-pointer"
                             >
                                 {chartData.map((entry, index) => (

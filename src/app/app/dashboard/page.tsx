@@ -8,7 +8,6 @@ import Link from "next/link";
 import { HeroResumeCard } from "@/components/dashboard/HeroResumeCard";
 import { WeaknessSniperList } from "@/components/dashboard/WeaknessSniperList";
 import { BadgeIcon } from "@/components/ui/badge-icon";
-import { RadarChartWrapper } from "@/components/dashboard/RadarChartWrapper";
 import { MobileStatCard } from "@/components/dashboard/MobileStatCard";
 import { MasteryBarChart } from "@/components/dashboard/MasteryBarChart";
 
@@ -91,19 +90,13 @@ export default async function DashboardPage() {
                         <Card className="hidden md:block border-none shadow-md">
                             <CardContent className="p-5 space-y-4">
                                 <div className="flex items-center justify-between">
-                                    <span className="text-sm text-gray-500">Syllabus Covered</span>
-                                    <span className="font-bold text-gray-900">{metrics.syllabusCompletion}%</span>
-                                </div>
-                                <div className="w-full bg-gray-100 rounded-full h-2">
-                                    <div className="bg-indigo-600 h-2 rounded-full" style={{ width: `${metrics.syllabusCompletion}%` }} />
-                                </div>
-                                <div className="flex items-center justify-between pt-2">
                                     <span className="text-sm text-gray-500">Test Average</span>
                                     <span className="font-bold text-gray-900">{metrics.quizAverage}%</span>
                                 </div>
-                                <div className="w-full bg-gray-100 rounded-full h-2">
-                                    <div className="bg-emerald-500 h-2 rounded-full" style={{ width: `${metrics.quizAverage}%` }} />
+                                <div className="w-full bg-gray-100 rounded-full h-2.5">
+                                    <div className="bg-emerald-500 h-2.5 rounded-full" style={{ width: `${metrics.quizAverage}%` }} />
                                 </div>
+                                <p className="text-[10px] text-gray-400 mt-2 italic">Based on your recent practice sessions</p>
                             </CardContent>
                         </Card>
 
@@ -153,10 +146,10 @@ export default async function DashboardPage() {
                             </Card>
                         )}
 
-                        {/* Mastery Analytics Bar Chart (Replaced Enrollments) */}
+                        {/* Mastery Analytics Bar Chart (Prioritized) */}
                         <MasteryBarChart data={courseMasteryData} />
 
-                        {/* Weakness Sniper */}
+                        {/* Focus Areas (Weakness Sniper) */}
                         <WeaknessSniperList items={weaknessList} />
 
                         {/* Recent Activity */}
