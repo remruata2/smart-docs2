@@ -245,7 +245,10 @@ function ChatPageContent() {
 				const userMsgElements = document.querySelectorAll('[data-role="user"]');
 				const lastUserMsg = userMsgElements[userMsgElements.length - 1];
 				if (lastUserMsg) {
-					lastUserMsg.scrollIntoView({ behavior: "smooth", block: "start" });
+					// Small delay to allow the bottom spacer and AI placeholder to render
+					setTimeout(() => {
+						lastUserMsg.scrollIntoView({ behavior: "smooth", block: "start" });
+					}, 100);
 				}
 			}
 			// 3. While streaming: DO NOTHING. This allows the user to read at their own pace.
@@ -1350,6 +1353,8 @@ function ChatPageContent() {
 										</div>
 									</div>
 								))}
+								{/* Dynamic Spacer to allow scroll-to-top for last user question */}
+								{isLoading && <div className="h-[60vh] w-full pointer-events-none" />}
 								<div ref={messagesEndRef} />
 							</div>
 						)}
