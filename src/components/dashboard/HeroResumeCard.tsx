@@ -32,7 +32,7 @@ export function HeroResumeCard({ subject, chapter, lastScore, quizId }: HeroResu
                         </p>
                         <div className="flex items-center gap-2 mt-2">
                             <span className="bg-white/20 px-2 py-0.5 rounded text-sm">
-                                Last Test: {lastScore}%
+                                Last Mock Test: {lastScore}%
                             </span>
                         </div>
                     </div>

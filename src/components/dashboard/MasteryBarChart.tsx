@@ -1,7 +1,7 @@
 "use client";
 
 import { useState } from "react";
-import { BarChart, Bar, XAxis, YAxis, CartesianGrid, Tooltip, ResponsiveContainer, Cell } from "recharts";
+import { BarChart, Bar, XAxis, YAxis, CartesianGrid, Tooltip, ResponsiveContainer, Cell, LabelList } from "recharts";
 import { ArrowLeft, BarChart3 } from "lucide-react";
 import { Card, CardHeader, CardTitle, CardContent } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
@@ -83,8 +83,8 @@ export function MasteryBarChart({ data }: MasteryBarChartProps) {
                                 dataKey="name"
                                 axisLine={false}
                                 tickLine={false}
-                                tick={{ fill: '#4b5563', fontSize: 11, fontWeight: 500 }}
-                                width={95}
+                                tick={{ fill: '#374151', fontSize: 12, fontWeight: 600 }}
+                                width={140}
                             />
                             <Tooltip
                                 cursor={{ fill: '#f9fafb' }}
@@ -93,7 +93,7 @@ export function MasteryBarChart({ data }: MasteryBarChartProps) {
                             <Bar
                                 dataKey="score"
                                 radius={[0, 6, 6, 0]}
-                                barSize={24}
+                                barSize={28}
                                 className="cursor-pointer"
                             >
                                 {chartData.map((entry, index) => (
@@ -103,6 +103,13 @@ export function MasteryBarChart({ data }: MasteryBarChartProps) {
                                         className="hover:opacity-80 transition-opacity"
                                     />
                                 ))}
+                                <LabelList
+                                    dataKey="score"
+                                    position="right"
+                                    formatter={(v: any) => `${v}%`}
+                                    style={{ fill: '#4b5563', fontSize: 12, fontWeight: 700 }}
+                                    offset={10}
+                                />
                             </Bar>
                         </BarChart>
                     </ResponsiveContainer>
