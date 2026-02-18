@@ -37,15 +37,15 @@ export default async function LeaderboardPage() {
     ]);
 
     return (
-        <div className="container mx-auto py-8 px-4 max-w-6xl">
-            <div className="mb-8">
-                <div className="flex items-center gap-3 mb-2">
-                    <Trophy className="w-8 h-8 text-yellow-500" />
-                    <h1 className="text-4xl font-bold bg-gradient-to-r from-indigo-600 to-purple-600 bg-clip-text text-transparent">
+        <div className="container mx-auto py-6 px-4 max-w-5xl space-y-6">
+            <div className="flex flex-col gap-1 px-1">
+                <div className="flex items-center gap-2">
+                    <Trophy className="w-6 h-6 text-yellow-500" />
+                    <h1 className="text-3xl font-black bg-gradient-to-r from-indigo-600 to-purple-600 bg-clip-text text-transparent tracking-tight">
                         Leaderboard
                     </h1>
                 </div>
-                <p className="text-muted-foreground text-lg">
+                <p className="text-muted-foreground text-sm font-medium">
                     Compete with students and track your progress
                 </p>
             </div>

@@ -67,88 +67,79 @@ export function LeaderboardClient({ initialEntries, initialUserRank, userContext
     };
 
     return (
-        <div className="space-y-6">
-            {/* Header / Context Info */}
-            <div className="flex flex-col md:flex-row gap-4 justify-between items-start md:items-center bg-muted/30 p-4 rounded-lg border">
-                <div>
-                    <h2 className="text-lg font-semibold flex items-center gap-2">
-                        <Trophy className="w-5 h-5 text-primary" />
-                        {enrolledCourses.find(c => c.id.toString() === selectedCourseId)?.title || "Course"} Leaderboard
-                    </h2>
-                    <p className="text-sm text-muted-foreground">
-                        Ranking among all enrolled students in this course
-                    </p>
-                </div>
+        <div className="space-y-4">
+            {/* Optimized Context/Filter Bar */}
+            <div className="bg-white border border-slate-100 p-2 rounded-2xl shadow-sm space-y-2">
+                <div className="flex items-center justify-between px-2 py-1">
+                    <div className="flex items-center gap-2">
+                        <div className="w-8 h-8 rounded-full bg-indigo-50 flex items-center justify-center">
+                            <School className="w-4 h-4 text-indigo-600" />
+                        </div>
+                        <span className="text-xs font-bold text-slate-700">Course Scope</span>
+                    </div>
 
-                <div className="flex flex-col md:flex-row gap-2">
                     {/* Course Selector */}
                     {enrolledCourses.length > 0 && (
-                        <div className="flex items-center gap-2">
-                            <Select value={selectedCourseId} onValueChange={handleCourseChange}>
-                                <SelectTrigger className="h-9 w-[200px] bg-background">
-                                    <SelectValue placeholder="Select Course" />
-                                </SelectTrigger>
-                                <SelectContent>
-                                    {enrolledCourses.map(course => (
-                                        <SelectItem key={course.id} value={course.id.toString()}>
-                                            {course.title}
-                                        </SelectItem>
-                                    ))}
-                                </SelectContent>
-                            </Select>
-                        </div>
+                        <Select value={selectedCourseId} onValueChange={handleCourseChange}>
+                            <SelectTrigger className="h-8 w-auto min-w-[120px] max-w-[180px] bg-slate-50 border-none text-[11px] font-bold rounded-lg focus:ring-0">
+                                <SelectValue placeholder="Select Course" />
+                            </SelectTrigger>
+                            <SelectContent>
+                                {enrolledCourses.map(course => (
+                                    <SelectItem key={course.id} value={course.id.toString()} className="text-xs">
+                                        {course.title}
+                                    </SelectItem>
+                                ))}
+                            </SelectContent>
+                        </Select>
                     )}
+                </div>
 
-                    {/* Timeframe Selector */}
-                    <div className="flex items-center bg-muted p-1 rounded-lg gap-1">
-                        {(['weekly', 'monthly', 'all_time'] as const).map((tf) => (
-                            <button
-                                key={tf}
-                                onClick={() => handleTimeframeChange(tf)}
-                                className={`px-3 py-1.5 text-xs font-medium rounded-md transition-all ${timeframe === tf
-                                    ? "bg-background shadow-sm text-foreground"
-                                    : "text-muted-foreground hover:text-foreground"
-                                    }`}
-                            >
-                                {tf === 'weekly' ? 'This Week' : tf === 'monthly' ? 'This Month' : 'All Time'}
-                            </button>
-                        ))}
-                    </div>
+                {/* Timeframe Selector - Compact Row */}
+                <div className="flex items-center bg-slate-50 p-1 rounded-xl gap-1">
+                    {(['weekly', 'monthly', 'all_time'] as const).map((tf) => (
+                        <button
+                            key={tf}
+                            onClick={() => handleTimeframeChange(tf)}
+                            className={`flex-1 py-1.5 text-[10px] font-bold uppercase tracking-tight rounded-lg transition-all ${timeframe === tf
+                                ? "bg-white shadow-sm text-indigo-600"
+                                : "text-slate-400 hover:text-slate-600"
+                                }`}
+                        >
+                            {tf === 'weekly' ? 'Week' : tf === 'monthly' ? 'Month' : 'All Time'}
+                        </button>
+                    ))}
                 </div>
             </div>
 
-            {/* User Rank Message (if not in top 100) */}
+            {/* User Rank Message (Compact) */}
             {currentUserRank && currentUserRank > 100 && (
-                <div className="bg-green-50 dark:bg-green-900/20 border border-green-200 dark:border-green-900 p-4 rounded-lg flex items-center justify-center gap-2">
-                    <Trophy className="w-5 h-5 text-green-600 dark:text-green-400" />
-                    <p className="text-green-800 dark:text-green-300 font-medium">
-                        You are currently ranked <span className="font-bold">#{currentUserRank}</span> on this leaderboard. Keep going to reach the top 100!
+                <div className="bg-indigo-50/50 border border-indigo-100/50 p-3 rounded-2xl flex items-center gap-3 animate-in fade-in slide-in-from-top-1">
+                    <div className="w-8 h-8 rounded-full bg-white shadow-sm flex items-center justify-center shrink-0">
+                        <Trophy className="w-4 h-4 text-indigo-600" />
+                    </div>
+                    <p className="text-[11px] text-indigo-700 font-bold leading-tight">
+                        Ranked <span className="text-indigo-900 border-b border-indigo-200">#{currentUserRank}</span>. Keep pushing to reach the top 100!
                     </p>
                 </div>
             )}
 
-            {/* Metric Tabs */}
+            {/* Metric Tabs - Optimized */}
             <Tabs defaultValue="POINTS" value={metric} onValueChange={handleMetricChange} className="w-full">
-                <TabsList className="grid w-full grid-cols-2 mb-6">
-                    <TabsTrigger value="POINTS" className="flex items-center gap-2">
-                        <Trophy className="w-4 h-4" />
-                        By Points (Battle Mode)
+                <TabsList className="grid w-full grid-cols-2 bg-slate-100/50 p-1 rounded-2xl h-11">
+                    <TabsTrigger value="POINTS" className="rounded-xl text-[11px] font-bold data-[state=active]:bg-white data-[state=active]:shadow-sm data-[state=active]:text-indigo-600 transition-all">
+                        <Trophy className="w-3.5 h-3.5 mr-1.5" />
+                        BATTLE POINTS
                     </TabsTrigger>
-                    <TabsTrigger value="AVG_SCORE" className="flex items-center gap-2">
-                        <Percent className="w-4 h-4" />
-                        By Average Score
+                    <TabsTrigger value="AVG_SCORE" className="rounded-xl text-[11px] font-bold data-[state=active]:bg-white data-[state=active]:shadow-sm data-[state=active]:text-indigo-600 transition-all">
+                        <Percent className="w-3.5 h-3.5 mr-1.5" />
+                        AVG SCORE
                     </TabsTrigger>
                 </TabsList>
 
                 <TabsContent value="POINTS" className="mt-0">
-                    <Card>
-                        <CardHeader>
-                            <CardTitle>Top Battle Warriors</CardTitle>
-                            <CardDescription>
-                                Earn points by winning battles and defeating opponents.
-                            </CardDescription>
-                        </CardHeader>
-                        <CardContent>
+                    <Card className="border-slate-100 rounded-2xl shadow-sm">
+                        <CardContent className="p-0">
                             {isLoading ? (
                                 <div className="flex justify-center py-12">
                                     <Loader2 className="w-8 h-8 animate-spin text-primary" />
@@ -161,14 +152,8 @@ export function LeaderboardClient({ initialEntries, initialUserRank, userContext
                 </TabsContent>
 
                 <TabsContent value="AVG_SCORE" className="mt-0">
-                    <Card>
-                        <CardHeader>
-                            <CardTitle>Top Students by Average Score</CardTitle>
-                            <CardDescription>
-                                Based on your performance across all completed quizzes.
-                            </CardDescription>
-                        </CardHeader>
-                        <CardContent>
+                    <Card className="border-slate-100 rounded-2xl shadow-sm">
+                        <CardContent className="p-0">
                             {isLoading ? (
                                 <div className="flex justify-center py-12">
                                     <Loader2 className="w-8 h-8 animate-spin text-primary" />
