@@ -213,11 +213,11 @@ export async function getDashboardData() {
     }).slice(0, 6);
 
     // H. Course & Subject Mastery Data (Using standardized 70/30 Readiness Formula)
-    const courseMasteryData = enrollments.map(e => {
+    const courseMasteryData = await Promise.all(enrollments.map(async (e) => {
         const courseSubjects = e.course?.subjects || [];
 
         // Calculate Subject Level Readiness
-        const subjectMastery = courseSubjects.map(sub => {
+        const subjectMastery = await Promise.all(courseSubjects.map(async (sub) => {
             // 1. Subject Quiz Average
             const subQuizzes = allQuizStats.filter(q => q.subject_id === sub.id);
             const subQuizAvg = subQuizzes.length > 0
@@ -225,8 +225,6 @@ export async function getDashboardData() {
                 : 0;
 
             // 2. Subject Syllabus Completion
-            // Note: We need chapter count for this subject. In enrollments we have _count on program subjects.
-            // Let's find the subject in the enrolledSubjects list which has the count.
             const subjectWithCount = enrolledSubjects.find(es => es.id === sub.id);
             const subTotalChapters = subjectWithCount?._count.chapters || 0;
             const subCompletedChapters = new Set(subQuizzes.map(q => q.chapter_id?.toString()).filter(Boolean)).size;
@@ -235,12 +233,36 @@ export async function getDashboardData() {
             // 3. Subject Readiness Score (Standard Formula)
             const subReadiness = Math.round((subQuizAvg * 0.7) + (subSyllabusComp * 0.3));
 
+            // 4. Chapter Level Readiness
+            // Fetch chapters for this subject to show in drill-down
+            const chapters = await prisma.chapter.findMany({
+                where: { subject_id: sub.id, is_active: true },
+                select: { id: true, title: true }
+            });
+
+            const chapterMastery = chapters.map(chap => {
+                const chapQuizzes = subQuizzes.filter(q => q.chapter_id?.toString() === chap.id.toString());
+                const chapQuizAvg = chapQuizzes.length > 0
+                    ? chapQuizzes.reduce((acc, q) => acc + (q.score / q.total_points) * 100, 0) / chapQuizzes.length
+                    : 0;
+
+                const isCompleted = completedChapterIds.has(chap.id.toString());
+                const chapReadiness = Math.round((chapQuizAvg * 0.7) + (isCompleted ? 30 : 0));
+
+                return {
+                    id: chap.id.toString(),
+                    name: chap.title,
+                    score: chapReadiness
+                };
+            }).sort((a, b) => b.score - a.score);
+
             return {
                 id: sub.id,
                 name: sub.name,
-                score: subReadiness
+                score: subReadiness,
+                chapters: chapterMastery
             };
-        });
+        }));
 
         // Calculate Course Level Readiness
         // 1. Course Quiz Average
@@ -267,7 +289,7 @@ export async function getDashboardData() {
             mastery: courseReadiness,
             subjects: subjectMastery
         };
-    });
+    }));
 
     return {
         profile,
