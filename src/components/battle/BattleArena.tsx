@@ -41,6 +41,9 @@ export function BattleArena({ battle: initialBattle, currentUser, courseId }: Ba
     // Sync state with props when router.refresh() updates the server component
     useEffect(() => {
         setBattle(initialBattle);
+        if (initialBattle.status === 'IN_PROGRESS') {
+            setWaiting(false);
+        }
     }, [initialBattle]);
 
     // Track presence status separately from client initialization

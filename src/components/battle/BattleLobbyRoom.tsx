@@ -74,15 +74,12 @@ export function BattleLobbyRoom({
         };
     }, [updatePresenceStatus]);
 
-    // Update readyMap when participants change (e.g. new player joins)
+    // Sync readyMap from participants prop (BattleArena handles READY_UPDATE events)
     useEffect(() => {
         setReadyMap(prev => {
             const newMap = { ...prev };
             participants.forEach((p: any) => {
-                // If user not in map (newly joined), set to their DB status or false
-                if (newMap[p.user_id] === undefined) {
-                    newMap[p.user_id] = p.is_ready || false;
-                }
+                newMap[p.user_id] = p.is_ready || false;
             });
             return newMap;
         });
@@ -161,12 +158,12 @@ export function BattleLobbyRoom({
         }
     };
 
-    // Subscribe to STABLE battle channel events (Chat & Status)
+    // Subscribe to lobby-specific channel (Chat only)
+    // Battle events (START, PLAYER_JOINED, READY_UPDATE) are handled by parent BattleArena
     useEffect(() => {
         if (!supabase || !battle?.id) return;
 
-        // 1. Lobby Chat & Status (Unified Channel)
-        const channel = supabase.channel(`battle:${battle.id}`)
+        const channel = supabase.channel(`battle_lobby:${battle.id}`)
             .on('broadcast', { event: 'CHAT_MESSAGE' }, (payload: any) => {
                 const msg = payload.payload;
                 if (msg && msg.userId !== currentUser.id) {
@@ -183,29 +180,12 @@ export function BattleLobbyRoom({
                     }
                 }
             })
-            .on('broadcast', { event: 'BATTLE_UPDATE' }, (payload: any) => {
-                const data = payload.payload;
-                if (!data) return;
-
-                if (data.type === 'READY_UPDATE') {
-                    const { userId, isReady } = data;
-                    if (userId !== currentUser.id) {
-                        setReadyMap(prev => ({ ...prev, [userId]: isReady }));
-                    }
-                } else if (data.type === 'PLAYER_JOINED') {
-                    router.refresh(); // Refresh to update participants list
-                } else if (data.type === 'SETTINGS_UPDATE') {
-                    router.refresh();
-                } else if (data.type === 'START' || data.status === 'IN_PROGRESS') {
-                    router.refresh(); // Switch to Arena View
-                }
-            })
             .subscribe();
 
         return () => {
             supabase.removeChannel(channel);
         };
-    }, [supabase, battle?.id, currentUser.id, router]);
+    }, [supabase, battle?.id, currentUser.id]);
 
     // Subscribe to PRESENCE (HOST ONLY) - Re-runs on participant change
     useEffect(() => {
@@ -260,7 +240,7 @@ export function BattleLobbyRoom({
         }]);
 
         // Broadcast to others
-        await supabase.channel(`battle:${battle.id}`).send({
+        await supabase.channel(`battle_lobby:${battle.id}`).send({
             type: 'broadcast',
             event: 'CHAT_MESSAGE',
             payload: msg,
