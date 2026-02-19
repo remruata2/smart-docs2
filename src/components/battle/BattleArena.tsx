@@ -74,13 +74,36 @@ export function BattleArena({ battle: initialBattle, currentUser, courseId }: Ba
     const channelRef = useRef<any>(null); // Store channel for broadcasting
     useEffect(() => { battleRef.current = battle; }, [battle]);
 
-    // Derived state
-    const opponent = battle.participants.find((p: any) => String(p.user_id) !== String(currentUser.id));
-    const myParticipant = battle.participants.find((p: any) => String(p.user_id) === String(currentUser.id));
+    // Derived state (defensive: participants may be temporarily undefined during state transitions)
+    const opponent = battle.participants?.find((p: any) => String(p.user_id) !== String(currentUser.id));
+    const myParticipant = battle.participants?.find((p: any) => String(p.user_id) === String(currentUser.id));
 
     // Additional state for countdown
     const [starting, setStarting] = useState(false);
     const [countdown, setCountdown] = useState(3);
+
+    // Timer countdown effect
+    useEffect(() => {
+        if (battle.status !== 'IN_PROGRESS' || !battle.started_at) return;
+
+        const durationSecs = (battle.duration_minutes || 5) * 60;
+        const startedAt = new Date(battle.started_at).getTime();
+
+        const tick = () => {
+            const elapsed = Math.floor((Date.now() - startedAt) / 1000);
+            const remaining = Math.max(0, durationSecs - elapsed);
+            setTimeLeft(remaining);
+
+            if (remaining <= 0) {
+                clearInterval(intervalId);
+            }
+        };
+
+        tick(); // Run immediately
+        const intervalId = setInterval(tick, 1000);
+
+        return () => clearInterval(intervalId);
+    }, [battle.status, battle.started_at, battle.duration_minutes]);
 
     // Helper functions (defined early to avoid hoisting issues)
     const handleJoinRematch = async (code: string) => {
@@ -107,7 +130,7 @@ export function BattleArena({ battle: initialBattle, currentUser, courseId }: Ba
 
     const fetchBattleData = async () => {
         const currentBattle = battleRef.current;
-        const currentMyParticipant = currentBattle.participants.find((p: any) => p.user_id === currentUser.id);
+        const currentMyParticipant = currentBattle.participants?.find((p: any) => p.user_id === currentUser.id);
 
         try {
             const res = await fetch(`/api/battle/${currentBattle.id}`, { cache: 'no-store' });
@@ -218,6 +241,8 @@ export function BattleArena({ battle: initialBattle, currentUser, courseId }: Ba
                 if (payload.payload?.status === 'IN_PROGRESS' || payload.payload?.type === 'START') {
                     setBattle((prev: any) => ({ ...prev, status: 'IN_PROGRESS' }));
                     setWaiting(false);
+                    // Fetch full battle data to get started_at for the timer
+                    fetchBattleData();
                 }
 
                 // Handle PLAYER_FINISHED (opponent finished their quiz)

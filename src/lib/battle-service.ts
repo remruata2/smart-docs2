@@ -440,6 +440,27 @@ export class BattleService {
             data: {
                 status: BattleStatus.IN_PROGRESS,
                 started_at: new Date()
+            },
+            include: {
+                participants: {
+                    include: {
+                        user: {
+                            select: { id: true, username: true, email: true }
+                        }
+                    }
+                },
+                quiz: {
+                    include: {
+                        questions: true,
+                        chapter: {
+                            include: {
+                                subject: {
+                                    select: { name: true }
+                                }
+                            }
+                        }
+                    }
+                }
             }
         });
 
