@@ -199,7 +199,7 @@ function ChapterRow({ chapter, isNewTextbook, textbookId, subjectId, trialAccess
                                     </Button>
                                 </Link>
                                 {chapter.subject?.quizzes_enabled === false || chapter.quizzes_enabled === false ? null : (
-                                    <Link href={isLocked ? "#" : `/app/practice?subjectId=${subjectId || chapter.subject_id}&chapterId=${chapter.id}`} className="flex-1 md:flex-initial">
+                                    <Link href={isLocked ? "#" : `/app/practice/mock?subjectId=${subjectId || chapter.subject_id}&chapterId=${chapter.id}`} className="flex-1 md:flex-initial">
                                         <Button
                                             variant="outline"
                                             disabled={isLocked}
