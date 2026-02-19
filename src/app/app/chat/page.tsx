@@ -1027,9 +1027,9 @@ function ChatPageContent() {
 														? `Ask about ${truncateTitle(selectedChapterTitle, 30)}...`
 														: "Select a chapter to start chatting..."
 												}
-												className="border-0 focus-visible:ring-0 px-2 py-2 min-h-[50px] max-h-32 resize-none bg-transparent shadow-none"
+												className="border-0 focus-visible:ring-0 px-2 py-2 min-h-[60px] max-h-48 resize-none bg-transparent shadow-none"
 												disabled={isLoading || !selectedChapterId}
-												rows={2}
+												rows={3}
 											/>
 										</div>
 										<Button
@@ -1391,9 +1391,9 @@ function ChatPageContent() {
 													)}...`
 													: "Select a chapter to start chatting..."
 											}
-											className="border-0 focus-visible:ring-0 px-2.5 py-2 min-h-[50px] max-h-32 resize-none bg-transparent shadow-none"
+											className="border-0 focus-visible:ring-0 px-2.5 py-2 min-h-[60px] max-h-48 resize-none bg-transparent shadow-none"
 											disabled={isLoading || !selectedChapterId}
-											rows={2} // Default to 2 lines height
+											rows={3} // Default to 3 lines height
 										/>
 									</div>
 									<Button
