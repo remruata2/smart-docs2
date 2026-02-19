@@ -507,9 +507,10 @@ Respond ONLY with valid JSON.`;
 
 		// Validate response
 		// Allow empty coreSearchTerms for specific_search queries with instructional terms (like "all documents")
-		// or for list_all or analytical queries
+		// or for list_all or analytical queries, or when semanticConcepts is provided for general queries
 		const hasValidTerms =
 			analysis.coreSearchTerms ||
+			analysis.semanticConcepts ||
 			(analysis.queryType === "specific_search" &&
 				analysis.instructionalTerms) ||
 			analysis.queryType === "list_all" ||
