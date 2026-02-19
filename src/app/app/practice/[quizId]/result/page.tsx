@@ -107,16 +107,10 @@ export default async function QuizResultPage({ params }: { params: Promise<{ qui
                             </p>
 
                             <div className="flex gap-3">
-                                {quiz.chapter_id ? (
+                                {quiz.chapter_id && (
                                     <Link href={`/app/chapters/${quiz.chapter_id}`}>
                                         <Button variant="outline" className="min-w-[120px]">
                                             Review Notes
-                                        </Button>
-                                    </Link>
-                                ) : (
-                                    <Link href={`/app/subjects/${quiz.subject_id}`}>
-                                        <Button variant="outline" className="min-w-[120px]">
-                                            Review Subject
                                         </Button>
                                     </Link>
                                 )}

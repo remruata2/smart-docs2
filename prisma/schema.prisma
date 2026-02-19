@@ -482,6 +482,7 @@ model Chapter {
   learning_sessions LearningSession[]
   questions         Question[]
   quizzes           Quiz[]
+  quiz_questions    QuizQuestion[]
   study_materials   StudyMaterial?
 
   @@index([subject_id, chapter_number])
@@ -569,9 +570,12 @@ model QuizQuestion {
   points         Int          @default(1)
   explanation    String?
   feedback       String?
+  chapter_id     BigInt?
+  chapter        Chapter?     @relation(fields: [chapter_id], references: [id], onDelete: SetNull)
   quiz           Quiz         @relation(fields: [quiz_id], references: [id], onDelete: Cascade)
 
   @@index([quiz_id])
+  @@index([chapter_id])
   @@map("quiz_questions")
 }
 

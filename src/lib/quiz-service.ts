@@ -279,6 +279,7 @@ export const quizService = {
                         correct_answer: q.correct_answer,
                         points: q.points,
                         explanation: q.explanation || "Correct answer",
+                        chapter_id: q.chapter_id,
                     }));
 
                     if (chapterId) {
@@ -382,6 +383,7 @@ export const quizService = {
                             correct_answer: q.correct_answer,
                             points: q.points,
                             explanation: q.explanation,
+                            chapter_id: (q as any).chapter_id,
                         })),
                     },
                 },

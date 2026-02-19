@@ -107,17 +107,18 @@ export function QuizGenerator({
                     setChapters(validChapters);
 
                     if (validChapters.length > 0) {
-                        // Preselect first chapter only if no initialChapterId provided OR if user manually changed subject
+                        // Preselect "all" chapters by default if no initialChapterId provided
+                        // OR if user manually changed subject
                         const isInitialSubject = selectedSubject === initialSubjectId;
                         if (!isInitialSubject || !initialChapterId) {
-                            setSelectedChapter(validChapters[0].id.toString());
+                            setSelectedChapter("all");
                         } else if (initialChapterId) {
                             // Verify initial chapter is still valid
                             const initialValid = validChapters.find((c: any) => c.id.toString() === initialChapterId);
                             if (initialValid) {
                                 setSelectedChapter(initialChapterId);
                             } else {
-                                setSelectedChapter(validChapters[0].id.toString());
+                                setSelectedChapter("all");
                             }
                         }
                     } else {
@@ -166,7 +167,7 @@ export function QuizGenerator({
         try {
             const quiz = await generateQuizAction(
                 parseInt(selectedSubject),
-                parseInt(selectedChapter),
+                selectedChapter === "all" ? null : parseInt(selectedChapter),
                 difficulty,
                 questionCount[0],
                 questionTypes as any
@@ -265,7 +266,8 @@ export function QuizGenerator({
                                 <SelectTrigger className="h-10 md:h-14 text-sm md:text-base border-2">
                                     <SelectValue placeholder="Select a chapter" />
                                 </SelectTrigger>
-                                <SelectContent>
+                                <SelectContent className="max-h-[300px]">
+                                    <SelectItem value="all" className="text-base py-3 font-semibold text-primary">All Chapters</SelectItem>
                                     {chapters.map(c => (
                                         <SelectItem
                                             key={c.id}
@@ -433,7 +435,7 @@ export function QuizGenerator({
 
             case 4:
                 const selectedSubjectName = subjects.find(s => s.id.toString() === selectedSubject)?.name;
-                const selectedChapterName = chapters.find(c => c.id.toString() === selectedChapter)?.title;
+                const selectedChapterName = selectedChapter === "all" ? "All Chapters" : chapters.find(c => c.id.toString() === selectedChapter)?.title;
 
                 return (
                     <div className="space-y-4">

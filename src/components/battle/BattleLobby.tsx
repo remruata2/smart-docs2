@@ -125,7 +125,7 @@ export function BattleLobby({ initialSubjects = [], courseId }: BattleLobbyProps
                 if (chapters && chapters.length > 0) {
                     chaptersCache.current[selectedSubject] = chapters;
                     setChapters(chapters);
-                    setSelectedChapter(chapters[0].id.toString());
+                    setSelectedChapter("all");
                 } else {
                     chaptersCache.current[selectedSubject] = [];
                     setChapters([]);
@@ -150,11 +150,11 @@ export function BattleLobby({ initialSubjects = [], courseId }: BattleLobbyProps
 
         try {
             const subjectName = subjects.find(s => s.id.toString() === selectedSubject)?.name || "";
-            const chapterName = chapters.find(c => c.id.toString() === selectedChapter)?.title || "";
+            const chapterName = selectedChapter === "all" ? "All Chapters" : chapters.find(c => c.id.toString() === selectedChapter)?.title || "";
 
             const quiz = await generateQuizAction(
                 parseInt(selectedSubject),
-                parseInt(selectedChapter),
+                selectedChapter === "all" ? null : parseInt(selectedChapter),
                 "medium",
                 5,
                 ["MCQ"],
@@ -167,7 +167,7 @@ export function BattleLobby({ initialSubjects = [], courseId }: BattleLobbyProps
                 body: JSON.stringify({
                     quizId: quiz.id,
                     subjectId: parseInt(selectedSubject),
-                    chapterId: parseInt(selectedChapter),
+                    chapterId: selectedChapter === "all" ? undefined : parseInt(selectedChapter),
                     subjectName,
                     chapterName,
                     isPublic
@@ -414,6 +414,9 @@ function CreateBattleCard({
                                 <SelectValue placeholder="Select Chapter" />
                             </SelectTrigger>
                             <SelectContent className="bg-slate-800 border-slate-700 text-slate-100 max-h-[250px]">
+                                <SelectItem value="all" className="focus:bg-orange-500 focus:text-white py-2 font-semibold text-orange-400">
+                                    All Chapters
+                                </SelectItem>
                                 {chapters.map((c: any) => (
                                     <SelectItem
                                         key={c.id}

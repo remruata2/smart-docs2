@@ -27,6 +27,7 @@ interface Question {
     question_type: "MCQ" | "TRUE_FALSE" | "FILL_IN_BLANK" | "SHORT_ANSWER" | "LONG_ANSWER";
     options?: any; // Json
     points: number;
+    chapter_name?: string;
 }
 
 interface Quiz {
@@ -462,6 +463,12 @@ export function QuizInterface({ quiz }: { quiz: Quiz }) {
                             className="animate-in fade-in-50 slide-in-from-bottom-4 duration-500 mb-4"
                         >
                             <div className="space-y-4">
+                                {currentQuestion.chapter_name && (
+                                    <div className="inline-flex items-center gap-1.5 px-2.5 py-0.5 rounded-md bg-muted text-muted-foreground text-xs font-medium uppercase tracking-wider">
+                                        <span className="opacity-70">From:</span>
+                                        <span className="text-primary">{currentQuestion.chapter_name}</span>
+                                    </div>
+                                )}
                                 <div className="prose prose-base md:prose-lg dark:prose-invert max-w-none text-foreground leading-relaxed">
                                     <ReactMarkdown
                                         remarkPlugins={[remarkGfm, remarkBreaks, remarkMath]}

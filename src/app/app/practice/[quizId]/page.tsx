@@ -22,6 +22,9 @@ export default async function QuizPage({ params }: { params: Promise<{ quizId: s
                     question_type: true,
                     options: true,
                     points: true,
+                    chapter: {
+                        select: { title: true }
+                    }
                     // DO NOT SELECT correct_answer or explanation
                 },
                 orderBy: { id: 'asc' } // Ensure consistent order
@@ -48,7 +51,8 @@ export default async function QuizPage({ params }: { params: Promise<{ quizId: s
         description: quiz.description,
         questions: quiz.questions.map(q => ({
             ...q,
-            question_type: q.question_type as any
+            question_type: q.question_type as any,
+            chapter_name: q.chapter?.title
         }))
     };
 
