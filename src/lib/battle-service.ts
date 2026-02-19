@@ -22,11 +22,7 @@ export class BattleService {
 
     /**
      * Helper to broadcast events via Supabase Admin (server-side)
-     * Uses httpSend for stateless server-to-client broadcasts
-     */
-    /**
-     * Helper to broadcast events via Supabase Admin (server-side)
-     * Uses httpSend for stateless server-to-client broadcasts
+     * Subscribes the channel, sends the message, then cleans up
      */
     static async broadcast(battleId: string, event: string, payload: any = {}) {
         if (!supabaseAdmin) {
@@ -34,20 +30,40 @@ export class BattleService {
             return;
         }
 
-        const channel = supabaseAdmin.channel(`battle:${battleId}`);
+        const channelName = `battle:${battleId}`;
 
         try {
-            // @ts-ignore - httpSend is available in v2 but not typed in all versions
-            if (typeof (channel as any).httpSend === 'function') {
-                // @ts-ignore
-                await channel.httpSend(event, payload);
-            } else {
-                await channel.send({
-                    type: 'broadcast',
-                    event,
-                    payload
+            const channel = supabaseAdmin.channel(channelName);
+
+            // Subscribe and wait for connection before sending
+            await new Promise<void>((resolve, reject) => {
+                const timeout = setTimeout(() => {
+                    reject(new Error('Channel subscribe timeout'));
+                }, 5000);
+
+                channel.subscribe((status: string) => {
+                    if (status === 'SUBSCRIBED') {
+                        clearTimeout(timeout);
+                        resolve();
+                    } else if (status === 'CHANNEL_ERROR' || status === 'TIMED_OUT') {
+                        clearTimeout(timeout);
+                        reject(new Error(`Channel subscription failed: ${status}`));
+                    }
                 });
-            }
+            });
+
+            // Now send the broadcast
+            await channel.send({
+                type: 'broadcast',
+                event,
+                payload
+            });
+
+            // Small delay to ensure message is delivered before cleanup
+            await new Promise(resolve => setTimeout(resolve, 100));
+
+            // Clean up the server-side channel
+            await supabaseAdmin.removeChannel(channel);
         } catch (error) {
             console.error('[BATTLE-BROADCAST] Error broadcasting:', error);
         }

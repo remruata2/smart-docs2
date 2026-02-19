@@ -606,7 +606,9 @@ export function BattleArena({ battle: initialBattle, currentUser, courseId }: Ba
 
             if (finished) {
                 toast.success("You finished!");
-                // Final update handled by optimistic update above
+                // Fetch latest battle data to check if battle is now COMPLETED
+                // (if all players are done, server marks it COMPLETED)
+                fetchBattleData();
             } else {
                 setCurrentQIndex((prev: number) => prev + 1);
                 setSelectedAnswer(null);
