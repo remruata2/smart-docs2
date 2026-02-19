@@ -1003,7 +1003,7 @@ function ChatPageContent() {
 								</div>
 
 								{/* Inline Input Area for empty state */}
-								<div className="w-full max-w-3xl mx-auto space-y-2 px-4 sm:px-0">
+								<div className="w-full max-w-5xl mx-auto space-y-2 px-4 sm:px-0">
 									<div className="relative flex items-end gap-2 bg-white dark:bg-gray-800 border rounded-xl shadow-sm focus-within:ring-2 focus-within:ring-primary/20 focus-within:border-primary transition-all p-1.5">
 										<div className="flex-1">
 											<Textarea
