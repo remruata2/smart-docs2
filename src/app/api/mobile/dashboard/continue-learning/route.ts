@@ -119,7 +119,10 @@ export async function GET(request: NextRequest) {
                 // Group by Chapter
                 const chapterMap = new Map<string, typeof subjectQuizzes>();
                 subjectQuizzes.forEach(q => {
-                    const chId = q.chapter_id ? q.chapter_id.toString() : 'unknown';
+                    // Exclude "All Chapters" quizzes (chapter_id = null) - they span
+                    // multiple chapters so attributing them to a single chapter is misleading
+                    if (q.chapter_id === null) return;
+                    const chId = q.chapter_id.toString();
                     const list = chapterMap.get(chId) || [];
                     list.push(q);
                     chapterMap.set(chId, list);
