@@ -82,28 +82,6 @@ export function BattleArena({ battle: initialBattle, currentUser, courseId }: Ba
     const [starting, setStarting] = useState(false);
     const [countdown, setCountdown] = useState(3);
 
-    // Timer countdown effect
-    useEffect(() => {
-        if (battle.status !== 'IN_PROGRESS' || !battle.started_at) return;
-
-        const durationSecs = (battle.duration_minutes || 5) * 60;
-        const startedAt = new Date(battle.started_at).getTime();
-
-        const tick = () => {
-            const elapsed = Math.floor((Date.now() - startedAt) / 1000);
-            const remaining = Math.max(0, durationSecs - elapsed);
-            setTimeLeft(remaining);
-
-            if (remaining <= 0) {
-                clearInterval(intervalId);
-            }
-        };
-
-        tick(); // Run immediately
-        const intervalId = setInterval(tick, 1000);
-
-        return () => clearInterval(intervalId);
-    }, [battle.status, battle.started_at, battle.duration_minutes]);
 
     // Helper functions (defined early to avoid hoisting issues)
     const handleJoinRematch = async (code: string) => {
@@ -280,16 +258,169 @@ export function BattleArena({ battle: initialBattle, currentUser, courseId }: Ba
             .on('broadcast', { event: 'REMATCH' }, (payload: any) => {
                 console.log('[BATTLE-REALTIME] ✅ Received REMATCH:', payload);
                 if (payload.payload?.newBattleId) {
-                    // ... (rest of rematch logic remains same)
-                    // (I'm truncating the unchanged rematch logic for brevity in this replace call, 
-                    // assuming replace_file_content handles exact string matching context)
-                    // allow me to use a larger chunk to be safe
+                    // If I am the requester, I'm already redirected by the API response (or should be)
+                    // But if I'm the opponent, I need to join
+                    if (payload.payload.requesterId !== currentUser.id) {
+                        toast.custom((t) => (
+                            <div className="bg-slate-900 border border-indigo-500/50 rounded-xl p-4 shadow-2xl max-w-sm animate-in slide-in-from-top-2">
+                                <div className="flex items-start gap-3">
+                                    <div className="p-2 bg-indigo-500/20 rounded-lg">
+                                        <span className="text-2xl">🔄</span>
+                                    </div>
+                                    <div className="flex-1">
+                                        <p className="font-semibold text-white">
+                                            Rematch Requested!
+                                        </p>
+                                        <p className="text-sm text-slate-400 mt-1">
+                                            Opponent wants to play again.
+                                        </p>
+                                        <div className="flex gap-2 mt-3">
+                                            <button
+                                                onClick={() => {
+                                                    toast.dismiss(t);
+                                                    handleJoinRematch(payload.payload.newBattleCode);
+                                                }}
+                                                className="px-3 py-1.5 bg-gradient-to-r from-emerald-500 to-green-600 text-white text-sm font-medium rounded-lg hover:from-emerald-400 hover:to-green-500 transition-all"
+                                            >
+                                                Accept
+                                            </button>
+                                            <button
+                                                onClick={() => toast.dismiss(t)}
+                                                className="px-3 py-1.5 bg-slate-700 text-slate-300 text-sm font-medium rounded-lg hover:bg-slate-600 transition-all"
+                                            >
+                                                Decline
+                                            </button>
+                                        </div>
+                                    </div>
+                                </div>
+                            </div>
+                        ), { duration: Infinity });
+                    }
                 }
             })
-        // ... (rest of handlers) ...
+            .on('broadcast', { event: 'CHALLENGE_DECLINED' }, (payload: any) => {
+                console.log('[BATTLE-REALTIME] ✅ Received CHALLENGE_DECLINED:', payload);
+                const declinedBy = payload.payload?.declinedBy || 'The challenger';
+                toast.error(`${declinedBy} declined the challenge`);
+                router.push('/app/practice/battle');
+            })
+            .subscribe((status: string) => {
+                console.log('[BATTLE-REALTIME] Subscription status:', status);
+                if (status === 'SUBSCRIBED') {
+                    console.log('[BATTLE-REALTIME] Successfully subscribed to channel');
+                    // Signal presence to force refresh for others (e.g. host sees joiner)
+                    channel.send({
+                        type: 'broadcast',
+                        event: 'BATTLE_UPDATE',
+                        payload: { type: 'JOIN', userId: currentUser.id }
+                    });
+                }
+            });
+
+        channelRef.current = channel;
+
+        return () => {
+            console.log('[BATTLE-REALTIME] Cleaning up subscription');
+            supabase.removeChannel(channel);
+            channelRef.current = null;
+        };
     }, [battle.id, supabase]);
 
-    // ... (rest of effects) ...
+    // Polling fallback: only activate after current user finishes,
+    // to detect opponent completion if realtime misses the event
+    useEffect(() => {
+        if (battle.status !== 'IN_PROGRESS') return;
+        if (!myParticipant?.finished) return; // Only poll after we finish
+
+        const interval = setInterval(() => {
+            console.log('[BATTLE-POLL] Polling for opponent results...');
+            fetchBattleData();
+        }, 3000);
+
+        return () => clearInterval(interval);
+    }, [battle.status, myParticipant?.finished]);
+
+    // Global Timer logic
+    useEffect(() => {
+        if (waiting || starting || battle.status !== "IN_PROGRESS" || myParticipant?.finished) return;
+
+        const updateTimer = () => {
+            if (!battle.started_at) return;
+
+            const now = Date.now();
+            const startTime = new Date(battle.started_at).getTime();
+            const durationMs = (battle.duration_minutes || 5) * 60 * 1000;
+            const endTime = startTime + durationMs;
+            const remaining = Math.max(0, Math.ceil((endTime - now) / 1000));
+
+            setTimeLeft(remaining);
+
+            if (remaining <= 0) {
+                // Time up! Force finish.
+                handleTimeUp();
+            }
+        };
+
+        // Immediate update to avoid 1s lag
+        updateTimer();
+        const timer = setInterval(updateTimer, 1000);
+        return () => clearInterval(timer);
+    }, [waiting, starting, battle.status, battle.started_at, battle.duration_minutes, myParticipant?.finished]);
+
+    const handleTimeUp = async () => {
+        // Prevent multiple calls
+        if (submitting) return;
+        setSubmitting(true);
+
+        toast.error("Time's up!");
+
+        try {
+            await fetch("/api/battle/update-progress", {
+                method: "POST",
+                body: JSON.stringify({
+                    battleId: battle.id,
+                    score: myParticipant?.score || 0,
+                    questionIndex: currentQIndex,
+                    finished: true
+                })
+            });
+
+            // Local update
+            setBattle((prev: any) => ({
+                ...prev,
+                participants: prev.participants.map((p: any) =>
+                    p.user_id === currentUser.id
+                        ? { ...p, finished: true }
+                        : p
+                )
+            }));
+        } catch (e) {
+            console.error("Error submitting time up:", e);
+        } finally {
+            setSubmitting(false);
+        }
+    };
+
+    // Start countdown logic
+    useEffect(() => {
+        if (battle.status === "IN_PROGRESS" && initialBattle.status === "WAITING") {
+            setStarting(true);
+            setWaiting(false);
+            let count = 3;
+            setCountdown(count);
+
+            const interval = setInterval(() => {
+                count--;
+                setCountdown(count);
+                if (count <= 0) {
+                    clearInterval(interval);
+                    setStarting(false);
+                }
+            }, 1000);
+
+            return () => clearInterval(interval);
+        }
+    }, [battle.status]);
 
     // Check for completion - AFTER all hooks to avoid "Rendered fewer hooks than expected" error
     if (battle.status === "COMPLETED") {
