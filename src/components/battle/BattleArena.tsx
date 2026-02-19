@@ -431,8 +431,14 @@ export function BattleArena({ battle: initialBattle, currentUser, courseId }: Ba
     if (myParticipant?.finished) {
         const myScore = myParticipant?.score || 0;
         const maxScore = battle.quiz?.questions?.reduce((acc: number, q: any) => acc + (q.points || 1), 0) || 0;
-        const otherPlayers = battle.participants.filter((p: any) => p.user_id !== currentUser.id);
+        const otherPlayers = battle.participants?.filter((p: any) => p.user_id !== currentUser.id) || [];
         const allOthersFinished = otherPlayers.every((p: any) => p.finished);
+
+        // If all others are finished too, we are the last player — fetch results immediately
+        if (allOthersFinished && battle.status !== 'COMPLETED') {
+            // Trigger immediate fetch to get COMPLETED status
+            fetchBattleData();
+        }
 
         return (
             <div className="min-h-screen bg-slate-950 flex items-center justify-center text-white">
@@ -606,9 +612,8 @@ export function BattleArena({ battle: initialBattle, currentUser, courseId }: Ba
 
             if (finished) {
                 toast.success("You finished!");
-                // Fetch latest battle data to check if battle is now COMPLETED
-                // (if all players are done, server marks it COMPLETED)
-                fetchBattleData();
+                // Await fetch to get COMPLETED status immediately for last player
+                await fetchBattleData();
             } else {
                 setCurrentQIndex((prev: number) => prev + 1);
                 setSelectedAnswer(null);
