@@ -191,12 +191,19 @@ export function SupabaseProvider({ children }: { children: React.ReactNode }) {
 
         const channel = supabase.channel(`notifications:user:${targetUserId}`);
 
-        // Wait for subscription to be established
+        // Wait for subscription to be established with a timeout
         await new Promise<void>((resolve, reject) => {
+            const timeoutId = setTimeout(() => {
+                supabase.removeChannel(channel);
+                reject(new Error('TIMED_OUT'));
+            }, 5000);
+
             channel.subscribe((status) => {
                 if (status === 'SUBSCRIBED') {
+                    clearTimeout(timeoutId);
                     resolve();
                 } else if (status === 'CHANNEL_ERROR' || status === 'TIMED_OUT') {
+                    clearTimeout(timeoutId);
                     reject(new Error(`Failed to subscribe: ${status}`));
                 }
             });

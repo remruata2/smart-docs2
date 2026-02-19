@@ -52,6 +52,7 @@ export function BattleLobbyRoom({
     const [unreadChatCount, setUnreadChatCount] = useState(0);
     const [newMessage, setNewMessage] = useState("");
     const [isReady, setIsReady] = useState(false);
+    const [pendingInvites, setPendingInvites] = useState<Record<number, string | number>>({});
     // Track ready status of all OTHER participants by ID
     const [readyMap, setReadyMap] = useState<Record<number, boolean>>(() => {
         const initialMap: Record<number, boolean> = {};
@@ -87,9 +88,28 @@ export function BattleLobbyRoom({
         });
     }, [participants]);
 
+    // Auto-dismiss pending invite toasts if the player appears in participants list
+    useEffect(() => {
+        const joinedUserIds = new Set(participants.map(p => p.user_id));
+        setPendingInvites(prev => {
+            const next = { ...prev };
+            let changed = false;
+            Object.keys(next).forEach(idStr => {
+                const id = parseInt(idStr);
+                if (joinedUserIds.has(id)) {
+                    toast.dismiss(next[id]);
+                    delete next[id];
+                    changed = true;
+                }
+            });
+            return changed ? next : prev;
+        });
+    }, [participants]);
+
     const handleOpenChallengeModal = async (user: any) => {
         // Direct invite in lobby (bypass modal)
         const toastId = toast.loading(`Inviting ${user.username} to lobby...`);
+        setPendingInvites(prev => ({ ...prev, [user.id]: toastId }));
         try {
             await sendChallenge(
                 user.id,
@@ -100,8 +120,18 @@ export function BattleLobbyRoom({
                 battle.quiz.chapter?.title || "Chapter Challenge"
             );
             toast.success(`Invite sent to ${user.username}!`, { id: toastId });
+            setPendingInvites(prev => {
+                const next = { ...prev };
+                delete next[user.id];
+                return next;
+            });
         } catch (error: any) {
             toast.error("Failed to send invite", { id: toastId });
+            setPendingInvites(prev => {
+                const next = { ...prev };
+                delete next[user.id];
+                return next;
+            });
         }
     };
 
