@@ -1003,7 +1003,7 @@ function ChatPageContent() {
 								</div>
 
 								{/* Inline Input Area for empty state */}
-								<div className="w-full max-w-2xl mx-auto space-y-2 px-4 sm:px-0">
+								<div className="w-full max-w-3xl mx-auto space-y-2 px-4 sm:px-0">
 									<div className="relative flex items-end gap-2 bg-white dark:bg-gray-800 border rounded-xl shadow-sm focus-within:ring-2 focus-within:ring-primary/20 focus-within:border-primary transition-all p-1.5">
 										<div className="flex-1">
 											<Textarea
@@ -1024,10 +1024,10 @@ function ChatPageContent() {
 												onKeyDown={handleKeyPress}
 												placeholder={
 													selectedChapterId
-														? `Ask about ${truncateTitle(selectedChapterTitle, 30)}...`
+														? `Ask about ${truncateTitle(selectedChapterTitle, 60)}...`
 														: "Select a chapter to start chatting..."
 												}
-												className="border-0 focus-visible:ring-0 px-2 py-2 min-h-[60px] max-h-48 resize-none bg-transparent shadow-none"
+												className="border-0 focus-visible:ring-0 px-2 py-2 min-h-[80px] max-h-48 resize-none bg-transparent shadow-none"
 												disabled={isLoading || !selectedChapterId}
 												rows={3}
 											/>
@@ -1387,11 +1387,11 @@ function ChatPageContent() {
 												selectedChapterId
 													? `Ask about ${truncateTitle(
 														selectedChapterTitle,
-														30
+														60
 													)}...`
 													: "Select a chapter to start chatting..."
 											}
-											className="border-0 focus-visible:ring-0 px-2.5 py-2 min-h-[60px] max-h-48 resize-none bg-transparent shadow-none"
+											className="border-0 focus-visible:ring-0 px-2.5 py-2 min-h-[80px] max-h-48 resize-none bg-transparent shadow-none"
 											disabled={isLoading || !selectedChapterId}
 											rows={3} // Default to 3 lines height
 										/>
