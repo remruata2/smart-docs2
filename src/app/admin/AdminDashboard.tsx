@@ -54,7 +54,8 @@ interface DashboardData {
 	kpis: {
 		totalUsers: number;
 		newUsers7d: number;
-		activeSubscriptions: number;
+		paidEnrollments: number;
+		trialEnrollments: number;
 		totalEnrollments: number;
 		quizzesCompleted: number;
 		battlesPlayed: number;
@@ -115,7 +116,8 @@ export default function AdminDashboard({ session }: { session: Session }) {
 	const kpiItems = [
 		{ label: "Total Users", value: data.kpis.totalUsers, icon: Users, color: "text-blue-600", bg: "bg-blue-50 dark:bg-blue-900/20" },
 		{ label: "New Users (7d)", value: data.kpis.newUsers7d, icon: UserCheck, color: "text-green-600", bg: "bg-green-50 dark:bg-green-900/20" },
-		{ label: "Active Subs", value: data.kpis.activeSubscriptions, icon: CreditCard, color: "text-purple-600", bg: "bg-purple-50 dark:bg-purple-900/20" },
+		{ label: "Paid Enrollments", value: data.kpis.paidEnrollments, icon: CreditCard, color: "text-purple-600", bg: "bg-purple-50 dark:bg-purple-900/20" },
+		{ label: "Active Trials", value: data.kpis.trialEnrollments, icon: History, color: "text-cyan-600", bg: "bg-cyan-50 dark:bg-cyan-900/20" },
 		{ label: "Revenue (30d)", value: `₹${Math.round(data.kpis.revenue30d).toLocaleString()}`, icon: TrendingUp, color: "text-emerald-600", bg: "bg-emerald-50 dark:bg-emerald-900/20" },
 		{ label: "Enrollments", value: data.kpis.totalEnrollments, icon: GraduationCap, color: "text-orange-600", bg: "bg-orange-50 dark:bg-orange-900/20" },
 		{ label: "Quizzes", value: data.kpis.quizzesCompleted, icon: BookOpen, color: "text-indigo-600", bg: "bg-indigo-50 dark:bg-indigo-900/20" },
@@ -141,7 +143,7 @@ export default function AdminDashboard({ session }: { session: Session }) {
 			</div>
 
 			{/* KPI Grid */}
-			<div className="grid grid-cols-2 md:grid-cols-2 lg:grid-cols-4 gap-4 sm:gap-6">
+			<div className="grid grid-cols-2 md:grid-cols-3 lg:grid-cols-4 gap-4 sm:gap-6">
 				{kpiItems.map((item, i) => (
 					<Card key={i} className="border-none shadow-sm overflow-hidden group hover:shadow-md transition-all duration-200">
 						<CardHeader className="flex flex-row items-center justify-between pb-2">

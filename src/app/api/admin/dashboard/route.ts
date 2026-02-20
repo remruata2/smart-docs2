@@ -20,7 +20,8 @@ export async function GET() {
         const [
             totalUsers,
             newUsers7d,
-            activeSubscriptions,
+            paidEnrollments,
+            trialEnrollments,
             totalEnrollments,
             quizzesCompleted,
             battlesPlayed,
@@ -28,25 +29,32 @@ export async function GET() {
         ] = await Promise.all([
             prisma.user.count(),
             prisma.user.count({ where: { created_at: { gte: sevenDaysAgo } } }),
-            prisma.userSubscription.count({ where: { status: "active" } }),
+            prisma.userEnrollment.count({ where: { is_paid: true } }),
+            prisma.userEnrollment.count({
+                where: {
+                    is_paid: false,
+                    trial_ends_at: { gte: now }, // trial still active
+                }
+            }),
             prisma.userEnrollment.count(),
             prisma.quiz.count({ where: { status: "COMPLETED" } }),
             prisma.battle.count({ where: { status: "COMPLETED" } }),
             prisma.conversation.count(),
         ]);
 
-        // Calculate 30-day revenue (estimated)
-        // We'll sum up the monthly price of active subscriptions
-        const activeSubsWithPlans = await prisma.userSubscription.findMany({
-            where: { status: "active" },
-            include: { plan: true },
+        // Revenue (30d): sum of course prices for paid enrollments made in last 30 days
+        const recentPaidEnrollments = await prisma.userEnrollment.findMany({
+            where: {
+                is_paid: true,
+                enrolled_at: { gte: thirtyDaysAgo },
+            },
+            include: {
+                course: { select: { price: true } }
+            }
         });
 
-        const monthlyRevenue = activeSubsWithPlans.reduce((sum, sub) => {
-            const price = sub.billing_cycle === "yearly"
-                ? (Number(sub.plan.price_yearly || 0) / 12)
-                : Number(sub.plan.price_monthly);
-            return sum + price;
+        const revenue30d = recentPaidEnrollments.reduce((sum, e) => {
+            return sum + Number(e.course.price || 0);
         }, 0);
 
         // Time-series data (Last 30 days)
@@ -59,17 +67,12 @@ export async function GET() {
 			ORDER BY date ASC
 		`;
 
-        // 2. Revenue Trend (based on subscription creation)
+        // 2. Revenue Trend (based on paid enrollments × course price)
         const revenueTrendRaw = await prisma.$queryRaw<any[]>`
-			SELECT DATE_TRUNC('day', us.created_at) as date, SUM(
-				CASE 
-					WHEN us.billing_cycle = 'yearly' THEN sp.price_yearly
-					ELSE sp.price_monthly
-				END
-			) as amount
-			FROM "user_subscriptions" us
-			JOIN "subscription_plans" sp ON us.plan_id = sp.id
-			WHERE us.created_at >= ${thirtyDaysAgo}
+			SELECT DATE_TRUNC('day', ue.enrolled_at) as date, SUM(COALESCE(c.price, 0)) as amount
+			FROM "user_enrollments" ue
+			JOIN "courses" c ON ue.course_id = c.id
+			WHERE ue.enrolled_at >= ${thirtyDaysAgo} AND ue.is_paid = true
 			GROUP BY date
 			ORDER BY date ASC
 		`;
@@ -163,12 +166,13 @@ export async function GET() {
             kpis: {
                 totalUsers,
                 newUsers7d,
-                activeSubscriptions,
+                paidEnrollments,
+                trialEnrollments,
                 totalEnrollments,
                 quizzesCompleted,
                 battlesPlayed,
                 aiConversations,
-                revenue30d: monthlyRevenue
+                revenue30d
             },
             charts: {
                 userGrowth,
