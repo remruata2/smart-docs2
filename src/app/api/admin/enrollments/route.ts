@@ -61,7 +61,7 @@ export async function GET(request: NextRequest) {
             ];
         }
 
-        const [enrollments, total, courses] = await Promise.all([
+        const [enrollments, total, courses, totalPaid, totalTrial, totalFree, totalExpired, totalAll] = await Promise.all([
             prisma.userEnrollment.findMany({
                 where,
                 skip,
@@ -79,6 +79,12 @@ export async function GET(request: NextRequest) {
                 select: { id: true, title: true },
                 orderBy: { title: "asc" },
             }),
+            // DB-wide totals (unaffected by filters) for summary cards
+            prisma.userEnrollment.count({ where: { is_paid: true } }),
+            prisma.userEnrollment.count({ where: { is_paid: false, trial_ends_at: { gte: now } } }),
+            prisma.userEnrollment.count({ where: { is_paid: false, trial_ends_at: null } }),
+            prisma.userEnrollment.count({ where: { is_paid: false, trial_ends_at: { lt: now } } }),
+            prisma.userEnrollment.count(),
         ]);
 
         // Serialize
@@ -109,6 +115,13 @@ export async function GET(request: NextRequest) {
             page,
             totalPages: Math.ceil(total / limit),
             courses,
+            totals: {
+                all: totalAll,
+                paid: totalPaid,
+                trial: totalTrial,
+                free: totalFree,
+                expired: totalExpired,
+            },
         });
     } catch (error) {
         console.error("Enrollments API error:", error);

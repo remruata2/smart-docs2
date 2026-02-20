@@ -331,7 +331,7 @@ export default function AdminDashboard({ session }: { session: Session }) {
 											</Badge>
 										</TableCell>
 										<TableCell className="text-sm text-muted-foreground whitespace-nowrap">
-											{format(new Date(user.created_at), 'MMM d, yyyy')}
+											{format(new Date(user.created_at), 'MMM d, h:mm a')}
 										</TableCell>
 									</TableRow>
 								))}

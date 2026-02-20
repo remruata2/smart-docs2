@@ -101,6 +101,7 @@ export default function EnrollmentsClient() {
     const [courses, setCourses] = useState<Course[]>([]);
     const [total, setTotal] = useState(0);
     const [totalPages, setTotalPages] = useState(1);
+    const [totals, setTotals] = useState({ all: 0, paid: 0, trial: 0, free: 0, expired: 0 });
     const [loading, setLoading] = useState(true);
 
     // Filters
@@ -138,6 +139,7 @@ export default function EnrollmentsClient() {
             setTotal(data.total || 0);
             setTotalPages(data.totalPages || 1);
             if (data.courses?.length) setCourses(data.courses);
+            if (data.totals) setTotals(data.totals);
         } catch (err) {
             console.error(err);
         } finally {
@@ -171,12 +173,13 @@ export default function EnrollmentsClient() {
             </div>
 
             {/* Summary Cards */}
-            <div className="grid grid-cols-2 sm:grid-cols-4 gap-4 mb-6">
+            <div className="grid grid-cols-2 sm:grid-cols-5 gap-4 mb-6">
                 {[
-                    { label: "Total", value: total, icon: Users, color: "text-blue-600" },
-                    { label: "Paid", value: enrollments.filter(e => e.enrollmentType === "paid").length, icon: CreditCard, color: "text-emerald-600" },
-                    { label: "Active Trials", value: enrollments.filter(e => e.enrollmentType === "trial").length, icon: Clock, color: "text-orange-600" },
-                    { label: "Free", value: enrollments.filter(e => e.enrollmentType === "free").length, icon: Gift, color: "text-gray-600" },
+                    { label: "Total", value: totals.all, icon: Users, color: "text-blue-600" },
+                    { label: "Paid", value: totals.paid, icon: CreditCard, color: "text-emerald-600" },
+                    { label: "Active Trials", value: totals.trial, icon: Clock, color: "text-orange-600" },
+                    { label: "Free", value: totals.free, icon: Gift, color: "text-gray-600" },
+                    { label: "Expired", value: totals.expired, icon: AlertTriangle, color: "text-red-600" },
                 ].map((s) => (
                     <Card key={s.label} className="border-none shadow-sm">
                         <CardHeader className="flex flex-row items-center justify-between pb-1 pt-4 px-4">
