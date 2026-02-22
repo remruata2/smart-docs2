@@ -398,6 +398,7 @@ export const quizService = {
                 chapter_id: quiz.chapter_id?.toString() || null,
                 questions: quiz.questions.map(q => ({
                     ...q,
+                    chapter_id: q.chapter_id ? q.chapter_id.toString() : null,
                     // Hide correct answer and explanation for the client!
                     correct_answer: null,
                     explanation: null,
