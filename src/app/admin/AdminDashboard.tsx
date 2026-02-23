@@ -64,6 +64,7 @@ interface DashboardData {
 	};
 	charts: {
 		userGrowth: any[];
+		cumulativeUserGrowth: any[];
 		revenueTrend: any[];
 		enrollmentTrend: any[];
 		activityTrend: any[];
@@ -166,7 +167,7 @@ export default function AdminDashboard({ session }: { session: Session }) {
 			</div>
 
 			{/* Charts Grid - Row 1 */}
-			<div className="grid grid-cols-1 lg:grid-cols-2 gap-6">
+			<div className="grid grid-cols-1 lg:grid-cols-3 gap-6">
 				<Card className="border-none shadow-sm">
 					<CardHeader>
 						<CardTitle className="text-lg">User Growth</CardTitle>
@@ -226,6 +227,39 @@ export default function AdminDashboard({ session }: { session: Session }) {
 								/>
 								<Bar dataKey="amount" fill="#10b981" radius={[6, 6, 0, 0]} />
 							</BarChart>
+						</ResponsiveContainer>
+					</CardContent>
+				</Card>
+				<Card className="border-none shadow-sm">
+					<CardHeader>
+						<CardTitle className="text-lg">Total Users Over Time</CardTitle>
+						<CardDescription>Cumulative user growth</CardDescription>
+					</CardHeader>
+					<CardContent className="h-80">
+						<ResponsiveContainer width="100%" height="100%">
+							<AreaChart data={data.charts.cumulativeUserGrowth}>
+								<defs>
+									<linearGradient id="colorCumGrowth" x1="0" y1="0" x2="0" y2="1">
+										<stop offset="5%" stopColor="#8b5cf6" stopOpacity={0.3} />
+										<stop offset="95%" stopColor="#8b5cf6" stopOpacity={0} />
+									</linearGradient>
+								</defs>
+								<CartesianGrid strokeDasharray="3 3" vertical={false} stroke="#e5e7eb" />
+								<XAxis
+									dataKey="date"
+									tickFormatter={(date) => format(new Date(date), 'MMM d')}
+									axisLine={false}
+									tickLine={false}
+									fontSize={12}
+									tick={{ fill: '#6b7280' }}
+								/>
+								<YAxis axisLine={false} tickLine={false} fontSize={12} tick={{ fill: '#6b7280' }} />
+								<Tooltip
+									contentStyle={{ borderRadius: '12px', border: 'none', boxShadow: '0 4px 12px rgba(0,0,0,0.1)' }}
+									labelFormatter={(label) => format(new Date(label), 'MMMM d, yyyy')}
+								/>
+								<Area type="monotone" dataKey="count" stroke="#8b5cf6" strokeWidth={3} fillOpacity={1} fill="url(#colorCumGrowth)" />
+							</AreaChart>
 						</ResponsiveContainer>
 					</CardContent>
 				</Card>

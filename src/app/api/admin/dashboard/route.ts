@@ -26,6 +26,7 @@ export async function GET() {
             quizzesCompleted,
             battlesPlayed,
             aiConversations,
+            totalUsersBefore30Days,
         ] = await Promise.all([
             prisma.user.count(),
             prisma.user.count({ where: { created_at: { gte: sevenDaysAgo } } }),
@@ -40,6 +41,7 @@ export async function GET() {
             prisma.quiz.count({ where: { status: "COMPLETED" } }),
             prisma.battle.count({ where: { status: "COMPLETED" } }),
             prisma.conversation.count(),
+            prisma.user.count({ where: { created_at: { lt: thirtyDaysAgo } } }),
         ]);
 
         // Revenue (30d): sum of course prices for paid enrollments made in last 30 days
@@ -127,6 +129,21 @@ export async function GET() {
         const revenueTrend = fillMissingDates(revenueTrendRaw, 'amount');
         const enrollmentTrend = fillMissingDates(enrollmentTrendRaw, 'count');
 
+        // Cumulative User Growth
+        const cumulativeUserGrowth = [];
+        let rollingTotal = totalUsersBefore30Days;
+
+        for (let i = 29; i >= 0; i--) {
+            const date = subDays(now, i);
+            const dateStr = format(date, 'yyyy-MM-dd');
+            const dailyCount = userGrowth.find(x => x.date === dateStr)?.count || 0;
+            rollingTotal += dailyCount;
+            cumulativeUserGrowth.push({
+                date: dateStr,
+                count: rollingTotal
+            });
+        }
+
         // Combined activity chart
         const quizMap = new Map();
         quizActivityRaw.forEach(item => quizMap.set(format(new Date(item.date), 'yyyy-MM-dd'), Number(item.count)));
@@ -176,6 +193,7 @@ export async function GET() {
             },
             charts: {
                 userGrowth,
+                cumulativeUserGrowth,
                 revenueTrend,
                 enrollmentTrend,
                 activityTrend
