@@ -2,6 +2,8 @@ import { NextRequest, NextResponse } from "next/server";
 import { prisma } from "@/lib/prisma";
 import { getMobileUser } from "@/lib/mobile-auth";
 
+export const dynamic = 'force-dynamic';
+
 export async function GET(request: NextRequest) {
     try {
         const user = await getMobileUser(request);
@@ -9,7 +11,8 @@ export async function GET(request: NextRequest) {
 
         const quizzes = await prisma.quiz.findMany({
             where: {
-                user_id: userId
+                user_id: userId,
+                status: 'COMPLETED'
             },
             select: {
                 id: true,
@@ -22,8 +25,8 @@ export async function GET(request: NextRequest) {
             },
             orderBy: {
                 created_at: 'desc'
-            },
-            take: 50 // Limit to last 50 quizzes
+            }
+            // Removed take: 50 to match web total test count correctly
         });
 
         // Map to ensure date format consistency if needed, though JSON handles Date objects
