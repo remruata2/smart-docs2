@@ -30,6 +30,7 @@ export default async function UserEditPage({ params }: { params: Promise<{ id: s
           id: rawUser.id,
           username: rawUser.username,
           name: rawUser.name,
+          email: rawUser.email,
           image: rawUser.image,
           role: rawUser.role,
           is_active: rawUser.is_active === null ? true : rawUser.is_active, // Default to true if null

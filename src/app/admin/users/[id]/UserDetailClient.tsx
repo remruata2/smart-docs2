@@ -8,11 +8,21 @@ export type UserDetailProps = {
   id: number;
   username: string;
   name: string | null;
+  email: string | null;
   image: string | null;
   role: UserRole;
   is_active: boolean | null;
   last_login: string | null; // Dates as ISO strings
   created_at: string | null; // Dates as ISO strings
+  enrollments?: {
+    id: number;
+    course: {
+      id: number;
+      title: string;
+    };
+    enrolled_at: Date | string;
+    status: string;
+  }[];
 };
 
 interface UserDetailClientProps {
@@ -22,7 +32,7 @@ interface UserDetailClientProps {
 }
 
 export default function UserDetailClient({ user, loading, error }: UserDetailClientProps) {
-  const formatDate = (dateString: string | null) => {
+  const formatDate = (dateString: string | Date | null) => {
     if (!dateString) return 'N/A';
     return new Date(dateString).toLocaleDateString('en-US', {
       year: 'numeric',
@@ -126,6 +136,12 @@ export default function UserDetailClient({ user, loading, error }: UserDetailCli
                 {user.username}
               </dd>
             </div>
+            <div className="bg-gray-50 px-4 py-5 sm:grid sm:grid-cols-3 sm:gap-4 sm:px-6">
+              <dt className="text-sm font-medium text-gray-500">Email Address</dt>
+              <dd className="mt-1 text-sm text-gray-900 sm:mt-0 sm:col-span-2">
+                {user.email || 'N/A'}
+              </dd>
+            </div>
             <div className="bg-white px-4 py-5 sm:grid sm:grid-cols-3 sm:gap-4 sm:px-6">
               <dt className="text-sm font-medium text-gray-500">Role</dt>
               <dd className="mt-1 text-sm text-gray-900 sm:mt-0 sm:col-span-2">
@@ -159,6 +175,41 @@ export default function UserDetailClient({ user, loading, error }: UserDetailCli
           </dl>
         </div>
       </div>
+
+      <div className="mt-8">
+        <h2 className="text-lg font-medium text-gray-900 mb-4">Enrolled Courses</h2>
+        <div className="bg-white shadow overflow-hidden sm:rounded-lg">
+          {user.enrollments && user.enrollments.length > 0 ? (
+            <ul className="divide-y divide-gray-200">
+              {user.enrollments.map((enrollment) => (
+                <li key={enrollment.id} className="px-4 py-4 sm:px-6">
+                  <div className="flex items-center justify-between">
+                    <div className="flex flex-col">
+                      <p className="text-sm font-medium text-indigo-600 truncate">
+                        {enrollment.course.title}
+                      </p>
+                      <p className="text-xs text-gray-500">
+                        Enrolled on {formatDate(enrollment.enrolled_at)}
+                      </p>
+                    </div>
+                    <div className="ml-2 flex-shrink-0 flex">
+                      <p className={`px-2 inline-flex text-xs leading-5 font-semibold rounded-full ${enrollment.status === 'active' ? 'bg-green-100 text-green-800' : 'bg-gray-100 text-gray-800'
+                        }`}>
+                        {enrollment.status.charAt(0).toUpperCase() + enrollment.status.slice(1)}
+                      </p>
+                    </div>
+                  </div>
+                </li>
+              ))}
+            </ul>
+          ) : (
+            <div className="px-4 py-5 sm:px-6 text-sm text-gray-500 text-center">
+              No course enrollments found for this user.
+            </div>
+          )}
+        </div>
+      </div>
     </div>
   );
 }
+

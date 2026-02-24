@@ -33,6 +33,7 @@ export type UserListData = {
   id: number;
   username: string;
   name: string | null;
+  email: string | null;
   role: UserRole;
   is_active: boolean | null;
   last_login: Date | null;
@@ -48,7 +49,8 @@ export default function UserListClient({ initialUsers, initialError }: UserListC
   const [users, setUsers] = useState<UserListData[]>(initialUsers);
   const [loading, setLoading] = useState(false); // Initial loading is done by server
   const [error, setError] = useState<string | null>(initialError || null);
-  // const [deleteConfirm, setDeleteConfirm] = useState<number | null>(null); // Replaced by AlertDialog state
+  const [searchTerm, setSearchTerm] = useState('');
+  const [roleFilter, setRoleFilter] = useState<string>('all');
   const [isAlertDialogOpen, setIsAlertDialogOpen] = useState(false);
   const [userToDelete, setUserToDelete] = useState<{ id: number; username: string } | null>(null);
   const router = useRouter();
@@ -56,6 +58,14 @@ export default function UserListClient({ initialUsers, initialError }: UserListC
   useEffect(() => {
     setUsers(initialUsers);
   }, [initialUsers]);
+
+  const filteredUsers = users.filter((user) => {
+    const matchesSearch =
+      user.username.toLowerCase().includes(searchTerm.toLowerCase()) ||
+      (user.email && user.email.toLowerCase().includes(searchTerm.toLowerCase()));
+    const matchesRole = roleFilter === 'all' || user.role === roleFilter;
+    return matchesSearch && matchesRole;
+  });
 
   const openDeleteDialog = (id: number, username: string) => {
     setUserToDelete({ id, username });
@@ -71,6 +81,8 @@ export default function UserListClient({ initialUsers, initialError }: UserListC
         if (result.success) {
           setIsAlertDialogOpen(false); // Close dialog on success
           setUserToDelete(null);
+          // Optimistically update the list
+          setUsers(users.filter(u => u.id !== userToDelete.id));
           return `User ${userToDelete.username} deleted successfully.`;
         } else {
           // This error will be caught by the 'error' callback of toast.promise
@@ -116,11 +128,37 @@ export default function UserListClient({ initialUsers, initialError }: UserListC
           </div>
         )}
 
+        <div className="mb-6 flex flex-col sm:flex-row gap-4">
+          <div className="flex-1">
+            <input
+              type="text"
+              placeholder="Search by username or email..."
+              value={searchTerm}
+              onChange={(e) => setSearchTerm(e.target.value)}
+              className="w-full px-4 py-2 border border-gray-300 rounded-md shadow-sm focus:ring-indigo-500 focus:border-indigo-500 sm:text-sm"
+            />
+          </div>
+          <div className="w-full sm:w-48">
+            <select
+              value={roleFilter}
+              onChange={(e) => setRoleFilter(e.target.value)}
+              className="w-full px-4 py-2 border border-gray-300 rounded-md shadow-sm focus:ring-indigo-500 focus:border-indigo-500 sm:text-sm"
+            >
+              <option value="all">All Roles</option>
+              <option value="admin">Admin</option>
+              <option value="student">Student</option>
+              <option value="instructor">Instructor</option>
+              <option value="institution">Institution</option>
+            </select>
+          </div>
+        </div>
+
         <div className={cardContainer}>
           <Table>
             <TableHeader className="bg-gray-50">
               <TableRow>
                 <TableHead className="w-[200px]">User</TableHead>
+                <TableHead className="w-[200px]">Email</TableHead>
                 <TableHead className="w-[100px]">Role</TableHead>
                 <TableHead className="w-[100px]">Status</TableHead>
                 <TableHead className="w-[150px]">Last Login</TableHead>
@@ -129,11 +167,14 @@ export default function UserListClient({ initialUsers, initialError }: UserListC
               </TableRow>
             </TableHeader>
             <TableBody>
-              {users.length > 0 && users.map((user) => (
+              {filteredUsers.length > 0 && filteredUsers.map((user) => (
                 <TableRow key={user.id}>
                   <TableCell className="font-medium">
                     <div className="font-semibold">{user.name || user.username}</div>
                     {user.name && <div className="text-xs text-gray-500">{user.username}</div>}
+                  </TableCell>
+                  <TableCell className="text-sm text-gray-600">
+                    {user.email || <span className="text-gray-400 italic">N/A</span>}
                   </TableCell>
                   <TableCell>
                     <span className={`inline-flex items-center px-2.5 py-0.5 rounded-full text-xs font-semibold border ${user.role === 'admin' ? 'bg-purple-100 text-purple-800 border-purple-200' : 'bg-blue-100 text-blue-800 border-blue-200'

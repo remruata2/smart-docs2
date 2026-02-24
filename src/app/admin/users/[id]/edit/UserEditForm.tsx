@@ -13,6 +13,7 @@ export type UserEditData = {
   id: number;
   username: string;
   name: string | null;
+  email: string | null;
   image: string | null;
   role: UserRole;
   is_active: boolean;
@@ -26,6 +27,7 @@ export default function UserEditForm({ user }: UserEditFormProps) {
   const [formData, setFormData] = useState({
     username: user.username,
     name: user.name || '',
+    email: user.email || '',
     image: user.image || '',
     password: '',
     role: user.role,
@@ -40,6 +42,7 @@ export default function UserEditForm({ user }: UserEditFormProps) {
     setFormData({
       username: user.username,
       name: user.name || '',
+      email: user.email || '',
       image: user.image || '',
       password: '',
       role: user.role,
@@ -127,6 +130,22 @@ export default function UserEditForm({ user }: UserEditFormProps) {
                   label="Profile Picture / Logo"
                   description="This image will be used in the sidebar and course listings."
                 />
+              </div>
+
+              <div className="sm:col-span-4">
+                <label htmlFor="email" className="block text-sm font-medium text-gray-700">
+                  Email Address
+                </label>
+                <div className="mt-1">
+                  <input
+                    type="email"
+                    name="email"
+                    id="email"
+                    value={formData.email}
+                    onChange={handleInputChange}
+                    className="shadow-sm focus:ring-indigo-500 focus:border-indigo-500 block w-full text-base border-gray-300 rounded-md h-8 px-4"
+                  />
+                </div>
               </div>
 
               <div className="sm:col-span-4">
@@ -229,3 +248,4 @@ export default function UserEditForm({ user }: UserEditFormProps) {
     </div>
   );
 }
+

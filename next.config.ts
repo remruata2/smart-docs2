@@ -70,8 +70,8 @@ const nextConfig: NextConfig = {
 			"@tiptap/extension-underline",
 		],
 	},
-	// Allow cross-origin requests from demo.lushaimedia.in
-	allowedDevOrigins: ["demo.lushaimedia.in"],
+	// Allow cross-origin requests from demo.lushaimedia.in and local network (for mobile app testing)
+	allowedDevOrigins: ["demo.lushaimedia.in", "192.168.29.243", "192.168.29.153", "localhost"],
 	// Add timeout configurations
 	async headers() {
 		return [

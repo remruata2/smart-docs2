@@ -13,6 +13,7 @@ export async function getAllUsers() {
 				id: true,
 				username: true,
 				name: true,
+				email: true,
 				image: true,
 				role: true,
 				is_active: true,
@@ -41,11 +42,25 @@ export async function getUserById(id: number) {
 			id: true,
 			username: true,
 			name: true,
+			email: true,
 			image: true,
 			role: true,
 			is_active: true,
 			last_login: true,
 			created_at: true,
+			enrollments: {
+				select: {
+					id: true,
+					course: {
+						select: {
+							id: true,
+							title: true
+						}
+					},
+					enrolled_at: true,
+					status: true
+				}
+			}
 		},
 	});
 }
@@ -56,12 +71,13 @@ export async function getUserById(id: number) {
 export async function createUser(data: {
 	username: string;
 	name?: string;
+	email?: string;
 	image?: string;
 	password: string;
 	role: UserRole;
 	is_active?: boolean;
 }) {
-	const { username, name, image, password, role, is_active = true } = data;
+	const { username, name, email, image, password, role, is_active = true } = data;
 
 	// Hash the password
 	const password_hash = await hash(password, 10);
@@ -70,6 +86,7 @@ export async function createUser(data: {
 		data: {
 			username,
 			name,
+			email,
 			image,
 			password_hash,
 			role,
@@ -79,6 +96,7 @@ export async function createUser(data: {
 			id: true,
 			username: true,
 			name: true,
+			email: true,
 			image: true,
 			role: true,
 			is_active: true,
@@ -112,13 +130,14 @@ export async function updateUser(
 	data: {
 		username?: string;
 		name?: string;
+		email?: string;
 		image?: string;
 		password?: string;
 		role?: UserRole;
 		is_active?: boolean;
 	}
 ) {
-	const { username, name, image, password, role, is_active } = data;
+	const { username, name, email, image, password, role, is_active } = data;
 
 	// Prepare update data
 	const updateData: any = {};
@@ -129,6 +148,9 @@ export async function updateUser(
 
 	if (name !== undefined) {
 		updateData.name = name;
+	}
+	if (email !== undefined) {
+		updateData.email = email;
 	}
 	if (image !== undefined) {
 		updateData.image = image;

@@ -139,6 +139,59 @@ export default function AdminSidebar({ setSidebarOpen }: AdminSidebarProps) {
 					</Link>
 				)}
 
+				{session?.user.role === UserRole.admin && (
+					<Link
+						href="/admin/mock-tests"
+						onClick={() => setSidebarOpen && setSidebarOpen(false)}
+						className={`${baseLinkClasses} ${pathname.startsWith("/admin/mock-tests")
+							? activeLinkClasses
+							: inactiveLinkClasses
+							}`}
+					>
+						<svg
+							className="mr-3 h-5 w-5 text-slate-400"
+							fill="none"
+							viewBox="0 0 24 24"
+							stroke="currentColor"
+						>
+							<path
+								strokeLinecap="round"
+								strokeLinejoin="round"
+								strokeWidth={2}
+								d="M9 5H7a2 2 0 00-2 2v12a2 2 0 002 2h10a2 2 0 002-2V7a2 2 0 00-2-2h-2M9 5a2 2 0 002 2h2a2 2 0 002-2M9 5a2 2 0 012-2h2a2 2 0 012 2"
+							/>
+							<path d="M12 11V16M12 11L14 13M12 11L10 13" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round" />
+						</svg>
+						Mock Test History
+					</Link>
+				)}
+
+				{session?.user.role === UserRole.admin && (
+					<Link
+						href="/admin/chat-history"
+						onClick={() => setSidebarOpen && setSidebarOpen(false)}
+						className={`${baseLinkClasses} ${pathname.startsWith("/admin/chat-history")
+							? activeLinkClasses
+							: inactiveLinkClasses
+							}`}
+					>
+						<svg
+							className="mr-3 h-5 w-5 text-slate-400"
+							fill="none"
+							viewBox="0 0 24 24"
+							stroke="currentColor"
+						>
+							<path
+								strokeLinecap="round"
+								strokeLinejoin="round"
+								strokeWidth={2}
+								d="M8 12h.01M12 12h.01M16 12h.01M21 12c0 4.418-4.03 8-9 8a9.863 9.863 0 01-4.255-.949L3 20l1.395-3.72C3.512 15.042 3 13.574 3 12c0-4.418 4.03-8 9-8s9 3.582 9 8z"
+							/>
+						</svg>
+						Chat History
+					</Link>
+				)}
+
 
 
 				{session?.user.role === UserRole.admin && (
