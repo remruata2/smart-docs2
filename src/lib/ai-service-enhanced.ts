@@ -585,7 +585,7 @@ export async function getRecentFiles(
 
 		console.log(`[RECENT CHAPTERS] Found ${chapters.length} recent chapters`);
 
-		return chapters.map((chapter) => ({
+		return chapters.map((chapter: any) => ({
 			id: chapter.id.toString(),
 			subject: chapter.subject.name,
 			title: chapter.title,
@@ -1483,6 +1483,7 @@ ${historyContext}
    - The system will automatically detect this intent and generate the chart for you.
    - You do not need to generate ASCII charts; a real interactive chart will be rendered.
 
+/*
 6. **Image Generation (INTELLIGENT - USE WISELY):**
    - You can generate educational diagrams, illustrations, and visualizations to help explain concepts.
    - **When to generate images (use your judgment):**
@@ -1502,6 +1503,7 @@ ${historyContext}
      * Focus on educational clarity
      * Example: [GENERATE_IMAGE: Labeled diagram of plant cell showing cell wall, cell membrane, nucleus, chloroplasts, mitochondria, and vacuole with arrows pointing to each organelle]
    - **Limit:** Students have 10 images/day. Use images meaningfully to maximize learning value.
+*/
 
 7. **Honesty:**
    - If the provided records do not contain the answer, state: "I cannot find information about [X] in the current study materials."
@@ -1520,7 +1522,7 @@ Answer:`;
 			console.log("[AI-GEN] Generating structured chart configuration...");
 			// Use priority: opts.model → admin config → .env → fallback
 			const dbModels = await getActiveModelNames("gemini");
-			const fallbackModel = process.env.GEMINI_DEFAULT_MODEL || "gemini-2.0-flash";
+			const fallbackModel = process.env.GEMINI_DEFAULT_MODEL || "gemini-2.5-flash";
 			const modelName = opts.model || dbModels[0] || fallbackModel;
 
 			let attempts = 0;
@@ -1926,6 +1928,7 @@ Format:
    - The system will automatically detect this intent and generate the chart for you.
    - You do not need to generate ASCII charts; a real interactive chart will be rendered.
 
+/*
 6. **Image Generation (INTELLIGENT - USE WISELY):**
    - You can generate educational diagrams, illustrations, and visualizations to help explain concepts.
    - **When to generate images (use your judgment):**
@@ -1945,6 +1948,7 @@ Format:
      * Focus on educational clarity
      * Example: [GENERATE_IMAGE: Labeled diagram of plant cell showing cell wall, cell membrane, nucleus, chloroplasts, mitochondria, and vacuole with arrows pointing to each organelle]
    - **Limit:** Students have 10 images/day. Use images meaningfully to maximize learning value.
+*/
 
 7. **Knowledge Guidelines:**
    - **Primary Source:** Base your answers on the provided chapter content.
@@ -1993,7 +1997,7 @@ Answer:`;
 
 			// Use priority: opts.model → admin config → .env → fallback
 			const dbModels = await getActiveModelNames("gemini");
-			const fallbackModel = process.env.GEMINI_DEFAULT_MODEL || "gemini-2.0-flash";
+			const fallbackModel = process.env.GEMINI_DEFAULT_MODEL || "gemini-2.5-flash-preview";
 			const streamingModelName = opts.model || dbModels[0] || fallbackModel;
 			const streamingModel = client.getGenerativeModel({
 				model: streamingModelName as string,

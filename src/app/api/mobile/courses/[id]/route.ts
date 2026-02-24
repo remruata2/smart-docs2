@@ -23,7 +23,7 @@ export async function GET(
             where: { id: parseInt(courseId) },
             include: {
                 subjects: {
-                    where: { is_active: true },
+                    where: { is_active: true, created_by_user_id: null },
                     orderBy: { name: 'asc' },
                     include: {
                         chapters: {

@@ -19,6 +19,7 @@ export async function getCourseDetails(courseId: number) {
                 include: { user: true }
             },
             subjects: {
+                where: { created_by_user_id: null },
                 include: {
                     chapters: {
                         orderBy: { chapter_number: "asc" },

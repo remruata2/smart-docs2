@@ -26,7 +26,7 @@ export async function getTextbookModels() {
 export const TEXTBOOK_AI_MODELS = {
     CONTENT_PRIMARY: 'gemini-3-pro-preview',
     CONTENT_FALLBACK: 'gemini-2.5-pro',
-    PARSER: 'gemini-2.0-flash',
+    PARSER: 'gemini-3-flash-preview',
     IMAGE: 'gemini-3-pro-image-preview',
 } as const;
 

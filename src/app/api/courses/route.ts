@@ -18,6 +18,7 @@ export async function GET(request: NextRequest) {
             },
             include: {
                 subjects: {
+                    where: { created_by_user_id: null },
                     select: {
                         id: true,
                         name: true,

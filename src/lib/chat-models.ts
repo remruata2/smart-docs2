@@ -13,7 +13,7 @@ export async function getChatModels() {
         CHAT_FALLBACK: await getSettingString('ai.model.chat.fallback', 'gemini-2.5-flash'),
 
         // For query analysis (fast model)
-        QUERY_ANALYZER: await getSettingString('ai.model.chat.analyzer', 'gemini-2.0-flash'),
+        QUERY_ANALYZER: await getSettingString('ai.model.chat.analyzer', 'gemini-2.5-flash'),
 
         // For image generation in chat - Nano Banana (fast) or Pro (quality)
         // Default to gemini-2.5-flash-image for speed
@@ -28,7 +28,7 @@ export async function getChatModels() {
 export const CHAT_AI_MODELS = {
     CHAT_PRIMARY: 'gemini-3-flash-preview',
     CHAT_FALLBACK: 'gemini-2.5-flash',
-    QUERY_ANALYZER: 'gemini-2.0-flash',
+    QUERY_ANALYZER: 'gemini-2.5-flash',
     IMAGE_GENERATION: 'gemini-2.5-flash-image',
 } as const;
 
@@ -44,5 +44,5 @@ export const CHAT_MODEL_OPTIONS = [
     { value: 'gemini-3-pro-preview', label: 'Gemini 3 Pro (Best Quality)' },
     { value: 'gemini-2.5-pro', label: 'Gemini 2.5 Pro' },
     { value: 'gemini-2.5-flash', label: 'Gemini 2.5 Flash (Fast)' },
-    { value: 'gemini-2.0-flash', label: 'Gemini 2.0 Flash' },
+    { value: 'gemini-3-flash-preview', label: 'Gemini 3.0 Flash Preview' },
 ] as const;

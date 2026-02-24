@@ -94,7 +94,7 @@ export async function getChaptersForSubject(subjectId: number) {
 				id: true,
 				is_paid: true,
 				trial_ends_at: true,
-				course: { select: { is_free: true } }
+				course: { select: { id: true, is_free: true } }
 			}
 		})
 	]);

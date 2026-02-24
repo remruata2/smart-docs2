@@ -118,15 +118,24 @@ export async function getUserStatsAction() {
             where: { user_id: userId, status: "COMPLETED" },
         });
 
-        // Get average score (Accuracy)
-        const quizzes = await prisma.quiz.findMany({
-            where: { user_id: userId, status: "COMPLETED" },
-            select: { score: true, total_points: true },
+        // Get total score and total points for accuracy calculation (Matching mobile app logic)
+        const quizAggregates = await prisma.quiz.aggregate({
+            where: {
+                user_id: userId,
+                status: "COMPLETED",
+                total_points: { gt: 0 }
+            },
+            _sum: {
+                score: true,
+                total_points: true
+            }
         });
-        const avgPercentage = quizzes.length > 0
-            ? quizzes.reduce((sum, q) => sum + (q.score / q.total_points) * 100, 0) / quizzes.length
-            : 0;
 
+        const totalScore = quizAggregates._sum.score || 0;
+        const totalPointsForAccuracy = quizAggregates._sum.total_points || 0;
+        const accuracy = totalPointsForAccuracy > 0
+            ? Math.round((totalScore / totalPointsForAccuracy) * 100)
+            : 0;
         // Get Battles Won
         // We count where the user was a participant in a COMPLETED battle and their rank is 1
         // Note: Battle rank is calculated in application logic usually, but let's check if we store it or can infer it.
@@ -198,11 +207,11 @@ export async function getUserStatsAction() {
             totalPoints,
             rank: userRank || null,
             quizCount,
-            avgScore: Math.round(avgPercentage),
+            avgScore: accuracy,
 
             // New fields for Practice Dashboard
             tests_completed: quizCount,
-            accuracy: Math.round(avgPercentage),
+            accuracy: accuracy,
             battles_won: battlesWon,
             total_points: totalPoints,
             current_streak: 0,

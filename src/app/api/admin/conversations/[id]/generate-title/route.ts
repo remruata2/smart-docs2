@@ -70,9 +70,8 @@ export async function POST(
 					msg.content.length > 200
 						? msg.content.substring(0, 200) + "..."
 						: msg.content;
-				return `${
-					msg.role === "user" ? "User" : "Assistant"
-				}: ${truncatedContent}`;
+				return `${msg.role === "user" ? "User" : "Assistant"
+					}: ${truncatedContent}`;
 			})
 			.join("\n\n");
 
@@ -86,7 +85,7 @@ Title (concise, descriptive, no quotes):`;
 		try {
 			const { client } = await getGeminiClient({ provider: "gemini" });
 			const model = client.getGenerativeModel({
-				model: "gemini-2.0-flash-exp",
+				model: "gemini-2.5-flash",
 			});
 
 			const result = await model.generateContent(prompt);

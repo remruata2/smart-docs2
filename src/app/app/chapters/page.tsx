@@ -106,6 +106,7 @@ export default async function ChaptersPage({
                                         }}
                                         isNewTextbook={true}
                                         textbookId={textbookId}
+                                        course={course}
                                         trialAccess={trialAccess}
                                     />
                                 ))}
@@ -122,6 +123,7 @@ export default async function ChaptersPage({
                             chapter={chapter}
                             isNewTextbook={false}
                             subjectId={subjectId}
+                            course={course}
                             trialAccess={trialAccess}
                         />
                     ))}
@@ -131,7 +133,7 @@ export default async function ChaptersPage({
     );
 }
 
-function ChapterRow({ chapter, isNewTextbook, textbookId, subjectId, trialAccess }: any) {
+function ChapterRow({ chapter, isNewTextbook, textbookId, subjectId, course, trialAccess }: any) {
     const viewUrl = `/app/study/${chapter.id}`;
     const chapterNum = chapter.order || chapter.chapter_number || 1;
     const isLocked = trialAccess.isTrialActive && chapterNum > 1;
@@ -199,7 +201,7 @@ function ChapterRow({ chapter, isNewTextbook, textbookId, subjectId, trialAccess
                                     </Button>
                                 </Link>
                                 {chapter.subject?.quizzes_enabled === false || chapter.quizzes_enabled === false ? null : (
-                                    <Link href={isLocked ? "#" : `/app/practice/mock?subjectId=${subjectId || chapter.subject_id}&chapterId=${chapter.id}`} className="flex-1 md:flex-initial">
+                                    <Link href={isLocked ? "#" : `/app/practice/mock?subjectId=${subjectId || chapter.subject_id}&chapterId=${chapter.id}${course?.id ? `&courseId=${course.id}` : ''}`} className="flex-1 md:flex-initial">
                                         <Button
                                             variant="outline"
                                             disabled={isLocked}

@@ -16,6 +16,7 @@ import { getChaptersForSubject } from "@/app/app/chapters/actions";
 export interface QuizGeneratorProps {
     initialSubjectId?: string;
     initialChapterId?: string;
+    initialCourseId?: string;
     initialSubjects?: any[];
     initialCourses?: any[];
 }
@@ -23,6 +24,7 @@ export interface QuizGeneratorProps {
 export function QuizGenerator({
     initialSubjectId,
     initialChapterId,
+    initialCourseId,
     initialSubjects = [],
     initialCourses = []
 }: QuizGeneratorProps) {
@@ -35,7 +37,7 @@ export function QuizGenerator({
     const uniqueInitialSubjects = Array.from(new Map(initialSubjects.filter(s => s.quizzes_enabled !== false).map(s => [s.id, s])).values());
     const [subjects, setSubjects] = useState<any[]>(uniqueInitialSubjects);
     const [courses, setCourses] = useState<any[]>(initialCourses || []);
-    const [selectedCourseId, setSelectedCourseId] = useState<string>(initialCourses?.[0]?.id?.toString() || "all");
+    const [selectedCourseId, setSelectedCourseId] = useState<string>(initialCourseId || initialCourses?.[0]?.id?.toString() || "all");
     const [chapters, setChapters] = useState<any[]>([]);
 
     const [selectedSubject, setSelectedSubject] = useState<string>(initialSubjectId || "");

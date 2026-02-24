@@ -9,9 +9,9 @@ export const dynamic = "force-dynamic";
 export default async function MockTestPage({
     searchParams
 }: {
-    searchParams: Promise<{ subjectId?: string; chapterId?: string }>;
+    searchParams: Promise<{ subjectId?: string; chapterId?: string; courseId?: string }>;
 }) {
-    const { subjectId, chapterId } = await searchParams;
+    const { subjectId, chapterId, courseId } = await searchParams;
 
     // Prefetch subjects without mastery for faster loading
     const subjectsData = await getSubjectsForUserProgram(undefined, false);
@@ -55,6 +55,7 @@ export default async function MockTestPage({
             <QuizGenerator
                 initialSubjectId={subjectId}
                 initialChapterId={chapterId}
+                initialCourseId={courseId}
                 initialSubjects={initialSubjects}
                 initialCourses={initialCourses}
             />

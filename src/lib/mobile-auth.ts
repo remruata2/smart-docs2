@@ -29,22 +29,26 @@ export async function getMobileUser(request: NextRequest) {
     console.log(`[DEBUG-AUTH] User authenticated in Supabase: ${supabaseUser.email}`);
 
     // Find Prisma user
-    let dbUser = await prisma.user.findFirst({
-        where: {
-            OR: [
-                { email: supabaseUser.email },
-            ]
-        }
-    });
+    let dbUser = null;
 
+    // Prioritize username lookup for generated emails
+    if (supabaseUser.email.endsWith("@aiexamprep.local")) {
+        const username = supabaseUser.email.split("@")[0];
+        console.log(`[DEBUG-AUTH] Generated email detected. Trying username match for '${username}'...`);
+        dbUser = await prisma.user.findUnique({
+            where: { username }
+        });
+    }
+
+    // Fallback to strict email match if not found by username
     if (!dbUser) {
-        console.log(`[DEBUG-AUTH] User not found by email, trying username match...`);
-        if (supabaseUser.email.endsWith("@aiexamprep.local")) {
-            const username = supabaseUser.email.split("@")[0];
-            dbUser = await prisma.user.findUnique({
-                where: { username }
-            });
-        }
+        dbUser = await prisma.user.findFirst({
+            where: {
+                OR: [
+                    { email: supabaseUser.email },
+                ]
+            }
+        });
     }
 
     if (!dbUser) {
