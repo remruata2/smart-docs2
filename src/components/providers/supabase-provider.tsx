@@ -116,7 +116,7 @@ export function SupabaseProvider({ children }: { children: React.ReactNode }) {
                     const users: any[] = [];
                     Object.values(newState).forEach((state: any) => {
                         state.forEach((presence: any) => {
-                            if (presence.id !== userId && presence.status !== 'OFFLINE') {
+                            if (presence.id !== userId && presence.status !== 'OFFLINE' && presence.role !== 'admin') {
                                 // Filter by shared courses
                                 const theirCourses = presence.course_ids || [];
                                 const hasShared = myCourseIds.length > 0 && theirCourses.length > 0 &&
@@ -145,7 +145,8 @@ export function SupabaseProvider({ children }: { children: React.ReactNode }) {
                             image: userImage,
                             online_at: new Date().toISOString(),
                             status: userStatus,
-                            course_ids: myCourseIds
+                            course_ids: myCourseIds,
+                            role: session.user.role
                         });
                         console.log('[PRESENCE-WEB] Track Result:', trackRes);
                     }
