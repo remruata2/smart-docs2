@@ -39,33 +39,30 @@ export async function POST(request: NextRequest) {
         if (!dbUser) {
             console.log(`[SUPABASE WEBHOOK] Syncing new user: ${email}`);
 
-            // Check if username is taken
-            let finalUsername = usernameBase;
-            const existingWithUsername = await prisma.user.findUnique({
-                where: { username: usernameBase }
-            });
-
-            if (existingWithUsername) {
-                // Only suffix if the username is already taken by someone else
-                finalUsername = `${usernameBase}_${Math.floor(Math.random() * 10000)}`;
-            }
-
             const isTeacher = email.includes('admin') || email.includes('teacher');
 
-            await prisma.user.create({
-                data: {
-                    email: email,
-                    username: finalUsername,
-                    role: isTeacher ? UserRole.instructor : UserRole.student,
-                    is_active: true,
-                    profile: {
-                        create: {
-                            is_premium: false
+            try {
+                await prisma.user.create({
+                    data: {
+                        email: email,
+                        username: usernameBase,
+                        role: isTeacher ? UserRole.instructor : UserRole.student,
+                        is_active: true,
+                        profile: {
+                            create: {
+                                is_premium: false
+                            }
                         }
                     }
+                });
+                console.log(`[SUPABASE WEBHOOK] ✅ Successfully synced user: ${email} as ${usernameBase}`);
+            } catch (err: any) {
+                if (err.code === 'P2002') {
+                    console.error(`[SUPABASE WEBHOOK] ❌ Collision error: Username "${usernameBase}" already exists. Sync skipped for ${email}.`);
+                } else {
+                    throw err;
                 }
-            });
-            console.log(`[SUPABASE WEBHOOK] ✅ Successfully synced user: ${email} as ${finalUsername}`);
+            }
         } else {
             console.log(`[SUPABASE WEBHOOK] User already synced: ${email}`);
         }

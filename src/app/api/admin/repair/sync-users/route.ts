@@ -49,33 +49,32 @@ export async function POST(request: NextRequest) {
 
             if (!dbUser) {
                 try {
-                    // Check if username is taken
-                    let finalUsername = usernameBase;
-                    const existingWithUsername = await prisma.user.findUnique({
-                        where: { username: usernameBase }
-                    });
-
-                    if (existingWithUsername) {
-                        finalUsername = `${usernameBase}_${Math.floor(Math.random() * 10000)}`;
-                    }
-
                     const isTeacher = email.includes('admin') || email.includes('teacher');
 
-                    await prisma.user.create({
-                        data: {
-                            email: email,
-                            username: finalUsername,
-                            role: isTeacher ? UserRole.instructor : UserRole.student,
-                            is_active: true,
-                            profile: {
-                                create: {
-                                    is_premium: false
+                    try {
+                        await prisma.user.create({
+                            data: {
+                                email: email,
+                                username: usernameBase,
+                                role: isTeacher ? UserRole.instructor : UserRole.student,
+                                is_active: true,
+                                profile: {
+                                    create: {
+                                        is_premium: false
+                                    }
                                 }
                             }
+                        });
+                        console.log(`[SYNC-USERS] ✅ Synced missing user: ${email} as ${usernameBase}`);
+                        stats.synced++;
+                    } catch (innerErr: any) {
+                        if (innerErr.code === 'P2002') {
+                            console.error(`[SYNC-USERS] ❌ Collision error: Username "${usernameBase}" already exists. Sync skipped for ${email}.`);
+                            stats.errors++;
+                        } else {
+                            throw innerErr;
                         }
-                    });
-                    console.log(`[SYNC-USERS] ✅ Synced missing user: ${email} as ${finalUsername}`);
-                    stats.synced++;
+                    }
                 } catch (e) {
                     console.error(`[SYNC-USERS] ❌ Error syncing user ${email}:`, e);
                     stats.errors++;
