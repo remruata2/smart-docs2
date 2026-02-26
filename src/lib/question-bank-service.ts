@@ -199,3 +199,192 @@ export async function generateQuestionBank(
         throw error;
     }
 }
+
+/**
+ * Top-up Question Bank for a chapter
+ * - Similar to generateQuestionBank but DOES NOT delete existing questions
+ * - Fetches existing question context for duplication avoidance in AI Prompt
+ */
+export async function topUpQuestionBank(
+    chapterId: string,
+    config: FullQuestionBankConfig
+) {
+    console.log(`[QUESTION-BANK-TOPUP] Starting top-up for chapter ${chapterId}`);
+
+    try {
+        const bigChapterId = BigInt(chapterId);
+
+        // 1. Fetch chapter details to get exam_category and chunks
+        const chapter = await prisma.chapter.findUnique({
+            where: { id: bigChapterId },
+            include: {
+                subject: {
+                    include: {
+                        program: true
+                    }
+                },
+                chunks: {
+                    orderBy: { chunk_index: 'asc' },
+                    select: {
+                        id: true,
+                        content: true,
+                        page_number: true,
+                        chunk_index: true
+                    }
+                }
+            }
+        });
+
+        if (!chapter || chapter.chunks.length === 0) {
+            console.warn(`[QUESTION-BANK-TOPUP] No chunks or chapter found for chapter ${chapterId}`);
+            return;
+        }
+
+        const chunks = chapter.chunks;
+        const examCategory = chapter.subject.program.exam_category as any;
+
+        // Extract the types of questions requested in the top-up config
+        const requestedTypes = new Set<QuestionType>();
+        (['easy', 'medium', 'hard'] as const).forEach(diff => {
+            Object.entries(config[diff]).forEach(([type, count]) => {
+                if (count && count > 0) {
+                    requestedTypes.add(type as QuestionType);
+                }
+            });
+        });
+
+        // 2. Fetch existing question context for duplication avoidance
+        // Only fetch questions of the types being requested to reduce token usage and irrelevant context
+        const existingQuestions = await prisma.question.findMany({
+            where: {
+                chapter_id: bigChapterId,
+                question_type: { in: Array.from(requestedTypes) }
+            },
+            select: { question_text: true, question_type: true }
+        });
+
+        let existingQuestionsSummary = "";
+        if (existingQuestions.length > 0) {
+            existingQuestionsSummary = `Here are existing questions of similar types already in the bank. DO NOT ask questions testing the exact same concepts or using highly similar phrasing:\n` +
+                existingQuestions.map((q, i) => `${i + 1}. [${q.question_type}] ${q.question_text}`).join('\n');
+            console.log(`[QUESTION-BANK-TOPUP] Found ${existingQuestions.length} existing questions of requested types to pass as anti-duplication context`);
+        }
+
+        // 3. Group chunks into logical sections
+        const PAGES_PER_SECTION = 3;
+        const sections: {
+            startPage: number;
+            endPage: number;
+            content: string;
+            chunkIds: bigint[];
+        }[] = [];
+
+        let currentSectionChunks: typeof chunks = [];
+        let currentStartPage = chunks[0].page_number || 1;
+
+        for (const chunk of chunks) {
+            const pageNum = chunk.page_number || 0;
+
+            if (
+                currentSectionChunks.length > 0 &&
+                (pageNum > currentStartPage + PAGES_PER_SECTION || pageNum > (currentSectionChunks[currentSectionChunks.length - 1].page_number || 0) + 2)
+            ) {
+                sections.push({
+                    startPage: currentStartPage,
+                    endPage: currentSectionChunks[currentSectionChunks.length - 1].page_number || currentStartPage,
+                    content: currentSectionChunks.map(c => c.content).join("\n\n"),
+                    chunkIds: currentSectionChunks.map(c => c.id)
+                });
+                currentSectionChunks = [];
+                currentStartPage = pageNum;
+            }
+            currentSectionChunks.push(chunk);
+        }
+
+        if (currentSectionChunks.length > 0) {
+            sections.push({
+                startPage: currentStartPage,
+                endPage: currentSectionChunks[currentSectionChunks.length - 1].page_number || currentStartPage,
+                content: currentSectionChunks.map(c => c.content).join("\n\n"),
+                chunkIds: currentSectionChunks.map(c => c.id)
+            });
+        }
+
+        // 4. Calculate quota per section
+        const totalSections = sections.length;
+        const distribute = (total: number) => {
+            const base = Math.floor(total / totalSections);
+            const remainder = total % totalSections;
+            return { base, remainder };
+        };
+
+        const jobs = sections.map((section, idx) => {
+            const sectionConfig: FullQuestionBankConfig = {
+                easy: {},
+                medium: {},
+                hard: {}
+            };
+
+            (['easy', 'medium', 'hard'] as const).forEach(diff => {
+                Object.entries(config[diff]).forEach(([type, count]) => {
+                    const { base, remainder } = distribute(count as number);
+                    const sectionCount = base + (idx < remainder ? 1 : 0);
+
+                    if (sectionCount > 0) {
+                        sectionConfig[diff][type as QuestionType] = sectionCount;
+                    }
+                });
+            });
+
+            return { section, config: sectionConfig };
+        });
+
+        // 5. Process sections in parallel
+        const BATCH_SIZE = 3;
+        for (let i = 0; i < jobs.length; i += BATCH_SIZE) {
+            const batch = jobs.slice(i, i + BATCH_SIZE);
+
+            await Promise.all(batch.map(async (job) => {
+                const hasQuestions = Object.values(job.config).some(d => Object.keys(d).length > 0);
+                if (!hasQuestions) return;
+
+                try {
+                    const questions = await generateBatchQuestions({
+                        context: job.section.content,
+                        config: job.config,
+                        chapterTitle: `Pages ${job.section.startPage}-${job.section.endPage}`,
+                        examCategory,
+                        existingQuestionsSummary // PASS THE DEDUPLICATION CONTEXT
+                    });
+
+                    // Save to DB
+                    if (questions.length > 0) {
+                        await prisma.question.createMany({
+                            data: questions.map(q => ({
+                                chapter_id: bigChapterId,
+                                question_text: q.question_text,
+                                question_type: q.question_type as QuestionType,
+                                difficulty: q.difficulty,
+                                options: q.options ? q.options : undefined,
+                                correct_answer: q.correct_answer,
+                                explanation: q.explanation,
+                                points: q.points,
+                                is_active: true
+                            }))
+                        });
+                        console.log(`[QUESTION-BANK-TOPUP] Saved ${questions.length} TOP-UP questions for section Pages ${job.section.startPage}-${job.section.endPage}`);
+                    }
+                } catch (error) {
+                    console.error(`[QUESTION-BANK-TOPUP] Failed to generate for section Pages ${job.section.startPage}-${job.section.endPage}:`, error);
+                }
+            }));
+        }
+
+        console.log(`[QUESTION-BANK-TOPUP] Completed top-up generation for chapter ${chapterId}`);
+
+    } catch (error) {
+        console.error(`[QUESTION-BANK-TOPUP] Critical error topping up question bank for ${chapterId}:`, error);
+        throw error;
+    }
+}
+

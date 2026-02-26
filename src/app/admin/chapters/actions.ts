@@ -7,7 +7,7 @@ import { authOptions } from "@/lib/auth-options";
 import { isAdmin } from "@/lib/auth";
 import { supabaseAdmin } from "@/lib/supabase";
 import { clearChapterCache } from "@/lib/response-cache";
-import { generateQuestionBank } from "@/lib/question-bank-service";
+import { generateQuestionBank, topUpQuestionBank } from "@/lib/question-bank-service";
 import { getQuestionDefaults, QuestionBankConfigState } from "@/lib/question-bank-defaults";
 
 export async function regenerateChapterQuizAction(chapterId: string, config?: QuestionBankConfigState) {
@@ -80,6 +80,68 @@ export async function regenerateChapterQuizAction(chapterId: string, config?: Qu
         return { success: true, deletedCount: deletedCount.count };
     } catch (error) {
         console.error("Error regenerating quiz:", error);
+        throw error;
+    }
+}
+
+export async function topUpChapterQuizAction(chapterId: string, config: QuestionBankConfigState) {
+    const session = await getServerSession(authOptions);
+    if (!session?.user || !isAdmin((session.user as any).role)) {
+        throw new Error("Unauthorized");
+    }
+
+    try {
+        const bigIntId = BigInt(chapterId);
+
+        // 1. Fetch Chapter Metadata
+        const chapter = await prisma.chapter.findUnique({
+            where: { id: bigIntId },
+            include: {
+                subject: {
+                    include: {
+                        program: true
+                    }
+                }
+            }
+        });
+
+        if (!chapter) throw new Error("Chapter not found");
+
+        // 2. Set status to GENERATING
+        await prisma.chapter.update({
+            where: { id: bigIntId },
+            data: { quiz_regen_status: 'GENERATING' }
+        });
+
+        console.log(`[QUIZ-TOPUP] Starting top-up questions for chapter ${chapterId}`);
+
+        // 3. Trigger top-up in background
+        setImmediate(async () => {
+            try {
+                await topUpQuestionBank(chapterId, config as any);
+
+                // Set status to COMPLETED
+                await prisma.chapter.update({
+                    where: { id: bigIntId },
+                    data: { quiz_regen_status: 'COMPLETED' }
+                });
+
+                console.log(`[QUIZ-TOPUP] Successfully topped up quiz for chapter ${chapterId}`);
+            } catch (error) {
+                // Set status to FAILED
+                await prisma.chapter.update({
+                    where: { id: bigIntId },
+                    data: { quiz_regen_status: 'FAILED' }
+                });
+
+                console.error(`[QUIZ-TOPUP] Failed for chapter ${chapterId}:`, error);
+            }
+        });
+
+        revalidatePath("/admin/chapters");
+        return { success: true };
+    } catch (error) {
+        console.error("Error topping up quiz:", error);
         throw error;
     }
 }

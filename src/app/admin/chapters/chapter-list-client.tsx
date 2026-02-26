@@ -7,6 +7,7 @@ import { Wand2, Sparkles, Loader2, Trash2, FileSearch, Zap, Dices, Ban } from "l
 import { Button } from "@/components/ui/button";
 import EditChapterDialog from "./edit-chapter-dialog";
 import RegenerateQuizDialog from "./regenerate-quiz-dialog";
+import TopUpQuizDialog from "./top-up-quiz-dialog";
 
 interface Subject {
     id: number;
@@ -400,6 +401,10 @@ export default function ChapterListClient({ chapters, onDelete, onUpdate, subjec
                                                         /* @ts-ignore */
                                                         examCategory={chapter.subject?.program?.exam_category}
                                                         subjectName={chapter.subject?.name}
+                                                    />
+                                                    <TopUpQuizDialog
+                                                        chapterId={chapter.id.toString()}
+                                                        chapterTitle={chapter.title}
                                                     />
                                                     <Button
                                                         variant="outline"

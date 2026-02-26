@@ -3757,6 +3757,7 @@ export interface BatchQuestionConfig {
 		hard: { [key in QuestionType]?: number };
 	};
 	examCategory?: ExamCategory; // Add this for better tailoring
+	existingQuestionsSummary?: string; // Anti-duplication context
 }
 
 /**
@@ -3803,6 +3804,12 @@ ${context}
 === DIFFICULTY GUIDELINES (STRICT ADHERENCE REQUIRED) ===
 ${difficultyInstructions}
 =====================================================
+
+${input.existingQuestionsSummary ? `
+=== AVOID DUPLICATES ===
+${input.existingQuestionsSummary}
+=====================================================
+` : ''}
 
 REQUIREMENTS:
 Generate the following mix of questions based STRICTLY on the source material above:

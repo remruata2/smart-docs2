@@ -31,6 +31,9 @@ export function BrowseHeader() {
                     <Link href="/courses" className="text-gray-600 hover:text-gray-900 font-medium">
                         Browse Courses
                     </Link>
+                    <Link href="/tutorial-videos" className="text-gray-600 hover:text-gray-900 font-medium whitespace-nowrap">
+                        Tutorial Videos
+                    </Link>
                     <Link href="/features" className="text-gray-600 hover:text-gray-900 font-medium">
                         Features
                     </Link>
