@@ -31,24 +31,31 @@ export async function POST(request: NextRequest) {
         const email = authUser.email;
         const usernameBase = authUser.raw_user_meta_data?.username || email.split('@')[0];
 
-        // Check if user already exists
-        const dbUser = await prisma.user.findFirst({
-            where: {
-                OR: [
-                    { email },
-                    { username: usernameBase }
-                ]
-            }
+        // First check by email to avoid duplicates
+        let dbUser = await prisma.user.findUnique({
+            where: { email }
         });
 
         if (!dbUser) {
             console.log(`[SUPABASE WEBHOOK] Syncing new user: ${email}`);
+
+            // Check if username is taken
+            let finalUsername = usernameBase;
+            const existingWithUsername = await prisma.user.findUnique({
+                where: { username: usernameBase }
+            });
+
+            if (existingWithUsername) {
+                // Only suffix if the username is already taken by someone else
+                finalUsername = `${usernameBase}_${Math.floor(Math.random() * 10000)}`;
+            }
+
             const isTeacher = email.includes('admin') || email.includes('teacher');
 
             await prisma.user.create({
                 data: {
                     email: email,
-                    username: usernameBase + "_" + Math.floor(Math.random() * 10000), // Append random ID to ensure uniqueness
+                    username: finalUsername,
                     role: isTeacher ? UserRole.instructor : UserRole.student,
                     is_active: true,
                     profile: {
@@ -58,17 +65,9 @@ export async function POST(request: NextRequest) {
                     }
                 }
             });
-            console.log(`[SUPABASE WEBHOOK] ✅ Successfully synced user: ${email}`);
+            console.log(`[SUPABASE WEBHOOK] ✅ Successfully synced user: ${email} as ${finalUsername}`);
         } else {
             console.log(`[SUPABASE WEBHOOK] User already synced: ${email}`);
-            // If they exist by username but no email, update their email
-            if (!dbUser.email) {
-                await prisma.user.update({
-                    where: { id: dbUser.id },
-                    data: { email: email }
-                });
-                console.log(`[SUPABASE WEBHOOK] 🔄 Updated missing email for user: ${dbUser.username}`);
-            }
         }
 
         return NextResponse.json({ success: true });

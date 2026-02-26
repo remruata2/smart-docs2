@@ -42,24 +42,29 @@ export async function POST(request: NextRequest) {
 
             const usernameBase = authUser.user_metadata?.username || email.split('@')[0];
 
-            // Check if user exists in Prisma
-            const dbUser = await prisma.user.findFirst({
-                where: {
-                    OR: [
-                        { email },
-                        { username: usernameBase }
-                    ]
-                }
+            // First check by email
+            let dbUser = await prisma.user.findUnique({
+                where: { email }
             });
 
             if (!dbUser) {
                 try {
+                    // Check if username is taken
+                    let finalUsername = usernameBase;
+                    const existingWithUsername = await prisma.user.findUnique({
+                        where: { username: usernameBase }
+                    });
+
+                    if (existingWithUsername) {
+                        finalUsername = `${usernameBase}_${Math.floor(Math.random() * 10000)}`;
+                    }
+
                     const isTeacher = email.includes('admin') || email.includes('teacher');
 
                     await prisma.user.create({
                         data: {
                             email: email,
-                            username: usernameBase + "_" + Math.floor(Math.random() * 10000), // Append random string to ensure unique constraint
+                            username: finalUsername,
                             role: isTeacher ? UserRole.instructor : UserRole.student,
                             is_active: true,
                             profile: {
@@ -69,29 +74,14 @@ export async function POST(request: NextRequest) {
                             }
                         }
                     });
-                    console.log(`[SYNC-USERS] ✅ Synced missing user: ${email}`);
+                    console.log(`[SYNC-USERS] ✅ Synced missing user: ${email} as ${finalUsername}`);
                     stats.synced++;
                 } catch (e) {
                     console.error(`[SYNC-USERS] ❌ Error syncing user ${email}:`, e);
                     stats.errors++;
                 }
             } else {
-                // User already exists, but ensure their email is attached if somehow missing
-                if (!dbUser.email) {
-                    try {
-                        await prisma.user.update({
-                            where: { id: dbUser.id },
-                            data: { email: email }
-                        });
-                        console.log(`[SYNC-USERS] 🔄 Updated missing email for user: ${dbUser.username}`);
-                        stats.synced++;
-                    } catch (e) {
-                        console.error(`[SYNC-USERS] ❌ Error updating email for ${dbUser.username}:`, e);
-                        stats.errors++;
-                    }
-                } else {
-                    stats.skipped++;
-                }
+                stats.skipped++;
             }
         }
 
