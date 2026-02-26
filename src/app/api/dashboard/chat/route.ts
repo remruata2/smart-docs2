@@ -40,8 +40,8 @@ export async function POST(request: NextRequest) {
 		const limitCheck = await enforceUsageLimit(UsageType.chat_message, userId);
 		if (!limitCheck.success) {
 			return NextResponse.json(
-				{ error: limitCheck.error, limitExceeded: true },
-				{ status: limitCheck.status }
+				{ error: (limitCheck as any).error, limitExceeded: true },
+				{ status: (limitCheck as any).status || 429 }
 			);
 		}
 
@@ -298,7 +298,7 @@ export async function POST(request: NextRequest) {
 												);
 											}
 										} else {
-											console.error(`[IMAGE-GEN] Failed to generate image: ${imageResult.error}`);
+											console.error(`[IMAGE-GEN] Failed to generate image: ${(imageResult as any).error}`);
 											// Send error but don't fail the whole request
 											const errorData = JSON.stringify({
 												type: "image_error",

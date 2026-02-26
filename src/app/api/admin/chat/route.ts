@@ -40,8 +40,8 @@ export async function POST(request: NextRequest) {
 			);
 			if (!limitCheck.success) {
 				return NextResponse.json(
-					{ error: limitCheck.error, limitExceeded: true },
-					{ status: limitCheck.status }
+					{ error: (limitCheck as any).error, limitExceeded: true },
+					{ status: (limitCheck as any).status || 429 }
 				);
 			}
 		}

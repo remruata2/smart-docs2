@@ -65,7 +65,7 @@ export async function POST(request: NextRequest, { params }: RouteParams) {
                 where: { id: textbookId },
                 data: { status: 'DRAFT' },
             });
-            return NextResponse.json({ error: parseResult.error }, { status: 422 });
+            return NextResponse.json({ error: (parseResult as any).error }, { status: 422 });
         }
 
         const parsed = parseResult.data;

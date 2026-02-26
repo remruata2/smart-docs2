@@ -15,6 +15,7 @@ import {
 	Trophy,
 	History,
 	Swords,
+	PlaySquare,
 	// Compass, -- Removed
 
 } from "lucide-react";
@@ -195,6 +196,21 @@ export default function UserSidebar({ setSidebarOpen }: UserSidebarProps) {
 						className={`${displayCollapsed ? "h-5 w-5" : "mr-3 h-5 w-5"}`}
 					/>
 					{!displayCollapsed && "Leaderboard"}
+				</Link>
+
+				<Link
+					href="/app/tutorial-videos"
+					onClick={() => setSidebarOpen && setSidebarOpen(false)}
+					className={`${baseLinkClasses} ${pathname.startsWith("/app/tutorial-videos")
+						? "bg-white/20 text-white shadow-sm"
+						: "text-white/70 hover:bg-white/10 hover:text-white"
+						} ${displayCollapsed ? "justify-center px-0" : ""}`}
+					title={displayCollapsed ? "Tutorial Videos" : ""}
+				>
+					<PlaySquare
+						className={`${displayCollapsed ? "h-5 w-5" : "mr-3 h-5 w-5"}`}
+					/>
+					{!displayCollapsed && "Tutorial Videos"}
 				</Link>
 			</nav>
 

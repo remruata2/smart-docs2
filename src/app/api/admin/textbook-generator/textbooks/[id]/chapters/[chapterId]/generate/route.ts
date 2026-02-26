@@ -95,8 +95,8 @@ export async function POST(request: NextRequest, { params }: RouteParams) {
                 );
 
                 if (!contentResult.success) {
-                    console.error(`[API][CHAPTER-${chapterIdNum}] STEP 1 FAILED after ${Date.now() - contentStartTime}ms: ${contentResult.error}`);
-                    throw new Error(contentResult.error);
+                    console.error(`[API][CHAPTER-${chapterIdNum}] STEP 1 FAILED after ${Date.now() - contentStartTime}ms: ${(contentResult as any).error}`);
+                    throw new Error((contentResult as any).error);
                 }
                 console.log(`[API][CHAPTER-${chapterIdNum}] STEP 1 COMPLETED in ${Date.now() - contentStartTime}ms`);
 
@@ -105,8 +105,8 @@ export async function POST(request: NextRequest, { params }: RouteParams) {
                 console.log(`[API][CHAPTER-${chapterIdNum}] STEP 2/4: Saving Content to DB...`);
                 const saveResult = await saveChapterContent(chapterIdNum, contentResult.content);
                 if (!saveResult.success) {
-                    console.error(`[API][CHAPTER-${chapterIdNum}] STEP 2 FAILED after ${Date.now() - saveStartTime}ms: ${saveResult.error}`);
-                    throw new Error(saveResult.error);
+                    console.error(`[API][CHAPTER-${chapterIdNum}] STEP 2 FAILED after ${Date.now() - saveStartTime}ms: ${(saveResult as any).error}`);
+                    throw new Error((saveResult as any).error);
                 }
                 console.log(`[API][CHAPTER-${chapterIdNum}] STEP 2 COMPLETED in ${Date.now() - saveStartTime}ms`);
 
@@ -128,7 +128,7 @@ export async function POST(request: NextRequest, { params }: RouteParams) {
                     if (pdfResult.success) {
                         console.log(`[API][CHAPTER-${chapterIdNum}] STEP 4 COMPLETED in ${Date.now() - pdfStartTime}ms. URL: ${pdfResult.result.pdf_url}`);
                     } else {
-                        console.error(`[API][CHAPTER-${chapterIdNum}] STEP 4 FAILED after ${Date.now() - pdfStartTime}ms: ${pdfResult.error}`);
+                        console.error(`[API][CHAPTER-${chapterIdNum}] STEP 4 FAILED after ${Date.now() - pdfStartTime}ms: ${(pdfResult as any).error}`);
                         // Don't throw - allow chapter to still be marked as COMPLETED
                         // The PDF can be regenerated later
                     }

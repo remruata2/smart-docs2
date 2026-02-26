@@ -356,7 +356,7 @@ export async function createFileAction(
 	if (!enforceCheck.success) {
 		return {
 			success: false,
-			error: enforceCheck.error || "Usage limit exceeded",
+			error: (enforceCheck as any).error || "Usage limit exceeded",
 		};
 	}
 

@@ -283,7 +283,7 @@ export async function generateChapterImage(
                 where: { id: imageId },
                 data: { status: 'FAILED' },
             });
-            return { success: false, error: result.error };
+            return { success: false, error: (result as any).error };
         }
 
         // Upload to storage
@@ -299,7 +299,7 @@ export async function generateChapterImage(
                 where: { id: imageId },
                 data: { status: 'FAILED' },
             });
-            return { success: false, error: uploadResult.error };
+            return { success: false, error: (uploadResult as any).error };
         }
 
         // Update image record with URL

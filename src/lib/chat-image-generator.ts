@@ -105,7 +105,7 @@ export async function generateChatImage(
         const uploadResult = await uploadChatImage(imageBase64, mimeType);
 
         if (!uploadResult.success) {
-            return { success: false, error: uploadResult.error };
+            return { success: false, error: (uploadResult as any).error };
         }
 
         console.log(`[CHAT-IMAGE] Successfully generated and uploaded image: ${uploadResult.url}`);

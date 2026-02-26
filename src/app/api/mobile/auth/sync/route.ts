@@ -44,7 +44,7 @@ export async function POST(request: NextRequest) {
         // Check if user exists in Supabase
         const { data: { users }, error: listError } = await supabaseAdmin.auth.admin.listUsers();
 
-        const existingSupabaseUser = users.find(u => u.email === supabaseEmail);
+        const existingSupabaseUser = (users as any[] || []).find(u => u.email === supabaseEmail);
 
         if (listError || !existingSupabaseUser) {
             console.log(`[SYNC] Creating user in Supabase for ${supabaseEmail}`);

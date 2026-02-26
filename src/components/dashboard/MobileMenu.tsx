@@ -17,7 +17,8 @@ import {
     CreditCard,
     BarChart3,
     User,
-    MessageSquare
+    MessageSquare,
+    PlaySquare
 } from "lucide-react";
 import {
     Sheet,
@@ -42,6 +43,7 @@ export function MobileMenu() {
         { href: "/app/practice/battle", label: "Battle Mode", icon: Swords },
         { href: "/app/practice/history", label: "Test History", icon: History },
         { href: "/app/leaderboard", label: "Leaderboard", icon: Trophy },
+        { href: "/app/tutorial-videos", label: "Tutorial Videos", icon: PlaySquare },
     ];
 
     const accountItems = [

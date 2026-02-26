@@ -168,7 +168,7 @@ export async function splitAndExpandSyllabus(
                 );
 
                 if (!expandResult.success) {
-                    errors.push(`Failed to expand "${topic.title}": ${expandResult.error}`);
+                    errors.push(`Failed to expand "${topic.title}": ${(expandResult as any).error}`);
                     continue;
                 }
 

@@ -36,8 +36,8 @@ export type UserListData = {
   email: string | null;
   role: UserRole;
   is_active: boolean | null;
-  last_login: Date | null;
-  created_at: Date | null;
+  last_login: string | null;
+  created_at: string | null;
 };
 
 interface UserListClientProps {

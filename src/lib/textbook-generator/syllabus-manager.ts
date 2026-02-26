@@ -96,7 +96,7 @@ export async function parseAndSaveSyllabus(id: number) {
         });
 
         if (!result.success) {
-            throw new Error(result.error);
+            throw new Error((result as any).error);
         }
 
         const parsed = result.data!;

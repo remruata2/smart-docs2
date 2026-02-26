@@ -26,8 +26,8 @@ export async function POST(req: NextRequest) {
   const limitCheck = await enforceUsageLimit(UsageType.file_upload, userId);
   if (!limitCheck.success) {
     return NextResponse.json(
-      { error: limitCheck.error, limitExceeded: true },
-      { status: limitCheck.status }
+      { error: (limitCheck as any).error, limitExceeded: true },
+      { status: (limitCheck as any).status || 429 }
     );
   }
 

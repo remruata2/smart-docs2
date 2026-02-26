@@ -80,7 +80,7 @@ export async function POST(request: NextRequest, { params }: RouteParams) {
         });
 
         if (!result.success) {
-            return NextResponse.json({ error: result.error }, { status: 500 });
+            return NextResponse.json({ error: (result as any).error }, { status: 500 });
         }
 
         // Update textbook status to PUBLISHED if fully compiled
