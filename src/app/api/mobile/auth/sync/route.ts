@@ -37,25 +37,31 @@ export async function POST(request: NextRequest) {
                 }
 
                 // Ensure they exist in Supabase Auth
-                const { data: { users }, error: listError } = await supabaseAdmin.auth.admin.listUsers();
-                const existingSupabaseUser = (users as any[] || []).find(u => u.email === resolvedEmail);
+                // We use a "Try Create" pattern which is more reliable than listUsers filtering
+                console.log(`[SYNC] Ensuring legacy user exists in Supabase: ${resolvedEmail}`);
+                const { error: createError } = await supabaseAdmin.auth.admin.createUser({
+                    email: resolvedEmail,
+                    password: password,
+                    email_confirm: true,
+                    user_metadata: {
+                        username: user.username,
+                        is_derived: !user.email
+                    }
+                });
 
-                if (listError || !existingSupabaseUser) {
-                    console.log(`[SYNC] Creating user in Supabase for legacy user: ${resolvedEmail}`);
-                    await supabaseAdmin.auth.admin.createUser({
-                        email: resolvedEmail,
-                        password: password,
-                        email_confirm: true,
-                        user_metadata: {
-                            username: user.username,
-                            is_derived: !user.email
+                if (createError) {
+                    // If user already exists, update their password instead
+                    if (createError.message.includes('already been registered')) {
+                        const { data: { users } } = await supabaseAdmin.auth.admin.listUsers();
+                        const existingUser = users.find(u => u.email === resolvedEmail);
+                        if (existingUser) {
+                            await supabaseAdmin.auth.admin.updateUserById(existingUser.id, {
+                                password: password
+                            });
                         }
-                    });
-                } else {
-                    // Update password in Supabase to match Prisma
-                    await supabaseAdmin.auth.admin.updateUserById(existingSupabaseUser.id, {
-                        password: password
-                    });
+                    } else {
+                        console.error("[SYNC] Error creating Supabase user:", createError.message);
+                    }
                 }
             } else {
                 // Case B: User exists in Prisma but has no password_hash (Native Supabase User)
@@ -63,13 +69,8 @@ export async function POST(request: NextRequest) {
             }
         } else {
             // Case C: User NOT in Prisma yet (Webhook lag or identifier is email)
-            console.log(`[SYNC] User not in Prisma, checking Supabase Auth directly: ${resolvedEmail}`);
-            const { data: { users }, error: listError } = await supabaseAdmin.auth.admin.listUsers();
-            const existingSupabaseUser = (users as any[] || []).find(u => u.email === resolvedEmail);
-
-            if (listError || !existingSupabaseUser) {
-                return NextResponse.json({ error: "User not found" }, { status: 404 });
-            }
+            console.log(`[SYNC] User not in Prisma, directly verifying with Supabase Auth: ${resolvedEmail}`);
+            // We just let it pass to Supabase Auth login - if it fails there, the user doesn't exist
         }
 
         return NextResponse.json({
