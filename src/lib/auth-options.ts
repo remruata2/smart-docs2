@@ -5,6 +5,7 @@ import AppleProvider from "next-auth/providers/apple";
 import { compare } from "bcryptjs";
 import { db } from "./db";
 import jwt from "jsonwebtoken";
+import { supabaseAdmin } from "./supabase";
 // Import UserRole from the generated Prisma client
 import { UserRole } from "../generated/prisma";
 
@@ -55,33 +56,76 @@ export const authOptions: NextAuthOptions = {
 					},
 				});
 
-				if (!user || !user.password_hash) {
+				if (!user) {
+					// Fallback: If user is not in Prisma yet, attempt Supabase login directly if it's an email
+					if (credentials.username.includes('@') && supabaseAdmin) {
+						const { data, error } = await supabaseAdmin.auth.signInWithPassword({
+							email: credentials.username.toLowerCase(),
+							password: credentials.password,
+						});
+
+						if (!error && data.user) {
+							// For session, we need them in Prisma eventually, but for now we might need to return a guest-like user or wait for webhook
+							// Better approach: Since we have supabaseAdmin, we can't easily "create" them here without more info (role, etc)
+							// However, our webhook should have created them. If not, they might be truly non-existent.
+							return null;
+						}
+					}
 					return null;
 				}
 
-				const isPasswordValid = await compare(
-					credentials.password,
-					user.password_hash
-				);
+				// Case A: User has a direct Prisma password (Web-native or Legacy)
+				if (user.password_hash) {
+					const isPasswordValid = await compare(
+						credentials.password,
+						user.password_hash
+					);
 
-				if (!isPasswordValid) {
+					if (isPasswordValid) {
+						// Update last login
+						await db.user.update({
+							where: { id: user.id },
+							data: { last_login: new Date() },
+						});
+
+						return {
+							id: String(user.id),
+							username: user.username,
+							role: user.role,
+							email: user.email || user.username,
+							name: user.name || user.username,
+							image: user.image,
+						};
+					}
 					return null;
 				}
 
-				// Update last login
-				await db.user.update({
-					where: { id: user.id },
-					data: { last_login: new Date() },
-				});
+				// Case B: User exists in Prisma but has NO password (Supabase-native/Mobile user)
+				if (user.email && supabaseAdmin) {
+					const { data, error } = await supabaseAdmin.auth.signInWithPassword({
+						email: user.email,
+						password: credentials.password,
+					});
 
-				return {
-					id: String(user.id),
-					username: user.username,
-					role: user.role,
-					email: user.email || user.username,
-					name: user.name || user.username,
-					image: user.image,
-				};
+					if (!error && data.user) {
+						// Update last login in Prisma
+						await db.user.update({
+							where: { id: user.id },
+							data: { last_login: new Date() },
+						});
+
+						return {
+							id: String(user.id),
+							username: user.username,
+							role: user.role,
+							email: user.email,
+							name: user.name || user.username,
+							image: user.image,
+						};
+					}
+				}
+
+				return null;
 			},
 		}),
 		GoogleProvider({
