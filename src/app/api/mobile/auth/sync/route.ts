@@ -52,8 +52,8 @@ export async function POST(request: NextRequest) {
                 if (createError) {
                     // If user already exists, update their password instead
                     if (createError.message.includes('already been registered')) {
-                        const { data: { users } } = await supabaseAdmin.auth.admin.listUsers();
-                        const existingUser = users.find(u => u.email === resolvedEmail);
+                        const { data } = await supabaseAdmin.auth.admin.listUsers();
+                        const existingUser = data?.users?.find((u: any) => u.email === resolvedEmail);
                         if (existingUser) {
                             await supabaseAdmin.auth.admin.updateUserById(existingUser.id, {
                                 password: password

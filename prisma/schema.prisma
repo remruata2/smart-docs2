@@ -114,6 +114,9 @@ model user {
   points                UserPoints[]
   subscription          UserSubscription?
   custom_subjects       Subject[]           @relation("UserCustomSubjects")
+  forum_topics          ForumTopic[]
+  forum_posts           ForumPost[]
+  forum_likes           ForumLike[]
 
   @@index([email], map: "idx_user_email")
 }
@@ -360,20 +363,20 @@ model Country {
 }
 
 model Board {
-  id           String              @id
-  name         String
-  country_id   String              @default("IN")
-  state        String?
-  is_active    Boolean             @default(true)
-  created_at   DateTime            @default(now())
-  updated_at   DateTime            @updatedAt
-  type         String              @default("academic")
-  hide_textbook Boolean            @default(false)
-  country      Country             @relation(fields: [country_id], references: [id])
-  chunkBoards  ChapterChunkBoard[]
-  courses      Course[]
-  institutions Institution[]
-  programs     Program[]
+  id            String              @id
+  name          String
+  country_id    String              @default("IN")
+  state         String?
+  is_active     Boolean             @default(true)
+  created_at    DateTime            @default(now())
+  updated_at    DateTime            @updatedAt
+  type          String              @default("academic")
+  hide_textbook Boolean             @default(false)
+  country       Country             @relation(fields: [country_id], references: [id])
+  chunkBoards   ChapterChunkBoard[]
+  courses       Course[]
+  institutions  Institution[]
+  programs      Program[]
 
   @@index([country_id, is_active])
   @@index([type])
@@ -430,24 +433,24 @@ model Profile {
 }
 
 model Subject {
-  id              Int            @id @default(autoincrement())
-  name            String
-  code            String?
-  is_active       Boolean        @default(true)
-  created_at      DateTime       @default(now())
-  program_id      Int
-  term            String?
-  exam_id         String?
-  quizzes_enabled Boolean        @default(true)
+  id                 Int            @id @default(autoincrement())
+  name               String
+  code               String?
+  is_active          Boolean        @default(true)
+  created_at         DateTime       @default(now())
+  program_id         Int
+  term               String?
+  exam_id            String?
+  quizzes_enabled    Boolean        @default(true)
   created_by_user_id Int?
-  chapters        Chapter[]
-  conversations   Conversation[]
-  quizzes         Quiz[]
-  exam            Exam?          @relation(fields: [exam_id], references: [id])
-  program         Program        @relation(fields: [program_id], references: [id])
-  created_by_user user?          @relation("UserCustomSubjects", fields: [created_by_user_id], references: [id], onDelete: Cascade)
-  textbooks       Textbook[]
-  courses         Course[]       @relation("CourseToSubject")
+  chapters           Chapter[]
+  conversations      Conversation[]
+  quizzes            Quiz[]
+  exam               Exam?          @relation(fields: [exam_id], references: [id])
+  program            Program        @relation(fields: [program_id], references: [id])
+  created_by_user    user?          @relation("UserCustomSubjects", fields: [created_by_user_id], references: [id], onDelete: Cascade)
+  textbooks          Textbook[]
+  courses            Course[]       @relation("CourseToSubject")
 
   @@unique([program_id, name, created_by_user_id])
   @@index([created_by_user_id])
@@ -1139,4 +1142,82 @@ enum TextbookJobStatus {
   CANCELLED
 
   @@map("textbook_job_status")
+}
+
+// -----------------------------------------------------------------------------
+// Forum Feature Models
+// -----------------------------------------------------------------------------
+
+model ForumCategory {
+  id          Int          @id @default(autoincrement())
+  name        String       @db.VarChar(255)
+  slug        String       @unique @db.VarChar(255)
+  description String?      @db.Text
+  order       Int          @default(0)
+  is_active   Boolean      @default(true)
+  created_at  DateTime     @default(now()) @db.Timestamptz(6)
+  updated_at  DateTime     @updatedAt @db.Timestamptz(6)
+  topics      ForumTopic[]
+
+  @@map("forum_categories")
+}
+
+model ForumTopic {
+  id          String        @id @default(cuid())
+  category_id Int
+  user_id     Int
+  title       String        @db.VarChar(255)
+  slug        String        @unique @db.VarChar(255)
+  content     String        @db.Text
+  views       Int           @default(0)
+  is_pinned   Boolean       @default(false)
+  is_locked   Boolean       @default(false)
+  created_at  DateTime      @default(now()) @db.Timestamptz(6)
+  updated_at  DateTime      @updatedAt @db.Timestamptz(6)
+  category    ForumCategory @relation(fields: [category_id], references: [id], onDelete: Restrict)
+  user        user          @relation(fields: [user_id], references: [id], onDelete: Cascade)
+  posts       ForumPost[]
+  likes       ForumLike[]
+
+  @@index([category_id])
+  @@index([user_id])
+  @@index([created_at(sort: Desc)])
+  @@map("forum_topics")
+}
+
+model ForumPost {
+  id                 String      @id @default(cuid())
+  topic_id           String
+  user_id            Int
+  content            String      @db.Text
+  is_accepted_answer Boolean     @default(false)
+  created_at         DateTime    @default(now()) @db.Timestamptz(6)
+  updated_at         DateTime    @updatedAt @db.Timestamptz(6)
+  topic              ForumTopic  @relation(fields: [topic_id], references: [id], onDelete: Cascade)
+  user               user        @relation(fields: [user_id], references: [id], onDelete: Cascade)
+  likes              ForumLike[]
+
+  @@index([topic_id])
+  @@index([user_id])
+  @@index([created_at])
+  @@map("forum_posts")
+}
+
+model ForumLike {
+  id         String      @id @default(cuid())
+  user_id    Int
+  topic_id   String?
+  post_id    String?
+  is_upvote  Boolean     @default(true)
+  created_at DateTime    @default(now()) @db.Timestamptz(6)
+  user       user        @relation(fields: [user_id], references: [id], onDelete: Cascade)
+  topic      ForumTopic? @relation(fields: [topic_id], references: [id], onDelete: Cascade)
+  post       ForumPost?  @relation(fields: [post_id], references: [id], onDelete: Cascade)
+
+  @@unique([user_id, topic_id], map: "uq_forum_like_user_topic")
+  @@unique([user_id, post_id], map: "uq_forum_like_user_post")
+  @@index([user_id])
+  @@index([topic_id])
+  @@index([post_id])
+  @@map("forum_likes")
 }

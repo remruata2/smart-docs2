@@ -16,8 +16,6 @@ import {
 	History,
 	Swords,
 	PlaySquare,
-	// Compass, -- Removed
-
 } from "lucide-react";
 import {
 	DropdownMenu,
