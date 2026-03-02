@@ -201,6 +201,8 @@ export async function GET(request: NextRequest) {
             quizzesBySubject.set(q.subject_id, list);
         });
 
+        console.log(`[DEBUG-MOBILE-SUBJECTS] Completed quizzes found: ${completedQuizzes.length} for ${subjectIds.length} subjects`);
+
         const formattedSubjects = subjects.map((s: any) => {
             const subjectQuizzes = quizzesBySubject.get(s.id) || [];
 
@@ -220,6 +222,7 @@ export async function GET(request: NextRequest) {
                     : 0;
 
                 readiness = Math.round((quizAverage * 0.7) + (syllabusCompletion * 0.3));
+                console.log(`[DEBUG-MOBILE-SUBJECTS] Subject "${s.name}" (${s.id}): ${subjectQuizzes.length} quizzes, quizAvg=${Math.round(quizAverage)}%, syllabus=${Math.round(syllabusCompletion)}%, readiness=${readiness}%`);
             }
 
             return {
