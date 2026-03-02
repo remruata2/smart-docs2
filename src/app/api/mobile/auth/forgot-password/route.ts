@@ -34,28 +34,25 @@ export async function POST(request: NextRequest) {
         }
 
         // 2. Ensure they exist in Supabase Auth before resetting
-        if (user.password_hash) {
-            // Legacy user: Try to create them in Supabase Auth with a random dummy password 
-            // so that resetPasswordForEmail actually works
-            console.log(`[FORGOT-PASSWORD] Ensuring legacy user exists in Supabase: ${resolvedEmail}`);
+        // We do this for all valid Prisma users (even OAuth ones) so they can recover their account via email
+        console.log(`[FORGOT-PASSWORD] Ensuring user exists in Supabase Auth: ${resolvedEmail}`);
 
-            // Generate a secure random password since we only want to trigger a reset
-            const dummyPassword = Math.random().toString(36).slice(-10) + Math.random().toString(36).slice(-10) + "A1!";
+        // Generate a secure random password since we only want to trigger a reset
+        const dummyPassword = Math.random().toString(36).slice(-10) + Math.random().toString(36).slice(-10) + "A1!";
 
-            const { error: createError } = await supabaseAdmin.auth.admin.createUser({
-                email: resolvedEmail,
-                password: dummyPassword,
-                email_confirm: true,
-                user_metadata: {
-                    username: user.username,
-                    is_derived: false
-                }
-            });
-
-            if (createError && !createError.message.includes('already been registered')) {
-                console.error("[FORGOT-PASSWORD] Error creating Supabase user:", createError.message);
-                // Continue anyway, maybe they do exist
+        const { error: createError } = await supabaseAdmin.auth.admin.createUser({
+            email: resolvedEmail,
+            password: dummyPassword,
+            email_confirm: true,
+            user_metadata: {
+                username: user.username,
+                is_derived: false
             }
+        });
+
+        if (createError && !createError.message.includes('already been registered')) {
+            console.error("[FORGOT-PASSWORD] Error creating Supabase user:", createError.message);
+            // Continue anyway, maybe they do exist
         }
 
         // 3. Trigger the reset email using Admin API
