@@ -24,7 +24,7 @@ export async function GET(request: NextRequest) {
                 created_at: true
             },
             orderBy: {
-                created_at: 'desc'
+                completed_at: 'desc'
             }
             // Removed take: 50 to match web total test count correctly
         });
