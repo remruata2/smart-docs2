@@ -67,22 +67,18 @@ export async function POST(request: NextRequest) {
             console.log(`[FORGOT-PASSWORD] Successfully created placeholder user in Supabase Auth.`);
         }
 
-        // 3. Trigger the reset email using Admin API
-        console.log(`[FORGOT-PASSWORD] Calling generateLink (type: 'recovery') for ${resolvedEmail}...`);
-        const { data: linkData, error: resetError } = await supabaseAdmin.auth.admin.generateLink({
-            type: 'recovery',
-            email: resolvedEmail,
-            options: {
-                redirectTo: 'zirnaio://auth/callback'
-            }
+        // 3. Trigger the reset email
+        console.log(`[FORGOT-PASSWORD] Calling resetPasswordForEmail for ${resolvedEmail}...`);
+        const { error: resetError } = await supabaseAdmin.auth.resetPasswordForEmail(resolvedEmail, {
+            redirectTo: 'zirnaio://auth/callback'
         });
 
         if (resetError) {
-            console.error("[FORGOT-PASSWORD] Supabase generateLink error:", resetError.message, resetError);
-            return NextResponse.json({ error: "Failed to generate reset link. Please try again later.", details: resetError.message }, { status: 500 });
+            console.error("[FORGOT-PASSWORD] Supabase reset error:", resetError.message, resetError);
+            return NextResponse.json({ error: "Failed to send reset email. Please try again later.", details: resetError.message }, { status: 500 });
         }
 
-        console.log(`[FORGOT-PASSWORD] Successfully generated recovery link!`);
+        console.log(`[FORGOT-PASSWORD] Successfully dispatched recovery email!`);
 
         return NextResponse.json({
             success: true,
