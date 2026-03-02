@@ -112,58 +112,32 @@ export async function GET(request: NextRequest) {
         const sortedSubjects = subjects.map(subject => {
             const subjectQuizzes = quizzesBySubject.get(subject.id) || [];
 
-            // Calculate Mastery (Same logic as before, just in-memory)
-            let mastery = 0;
+            // Canonical readiness formula: (quizAverage * 0.7) + (syllabusCompletion * 0.3)
+            // This matches mastery-service.ts used by web dashboard and mobile progress page
+            let readiness = 0;
 
             if (subjectQuizzes.length > 0) {
-                // Group by Chapter
-                const chapterMap = new Map<string, typeof subjectQuizzes>();
-                subjectQuizzes.forEach(q => {
-                    // Exclude "All Chapters" quizzes (chapter_id = null) - they span
-                    // multiple chapters so attributing them to a single chapter is misleading
-                    if (q.chapter_id === null) return;
-                    const chId = q.chapter_id.toString();
-                    const list = chapterMap.get(chId) || [];
-                    list.push(q);
-                    chapterMap.set(chId, list);
-                });
+                // Quiz Average: mean score percentage across all completed quizzes
+                const totalScore = subjectQuizzes.reduce((acc, q) =>
+                    acc + (q.total_points > 0 ? (q.score / q.total_points) * 100 : 0), 0);
+                const quizAverage = totalScore / subjectQuizzes.length;
 
-                const chapterMasteries: number[] = [];
-
-                chapterMap.forEach((attempts) => {
-                    // Sort by recent
-                    attempts.sort((a, b) => {
-                        const dateA = new Date(a.completed_at || a.created_at).getTime();
-                        const dateB = new Date(b.completed_at || b.created_at).getTime();
-                        return dateB - dateA;
-                    });
-
-                    // Top 3
-                    const recent = attempts.slice(0, 3);
-
-                    const score = recent.reduce((s, q) => s + q.score, 0);
-                    const total = recent.reduce((s, q) => s + q.total_points, 0);
-                    const chMastery = total > 0 ? (score / total) * 100 : 0;
-
-                    chapterMasteries.push(chMastery);
-                });
-
-                const avgMastery = chapterMasteries.length > 0
-                    ? chapterMasteries.reduce((a, b) => a + b, 0) / chapterMasteries.length
+                // Syllabus Completion: chapters with at least one quiz / total chapters
+                const completedChapterIds = new Set(
+                    subjectQuizzes.map(q => q.chapter_id?.toString()).filter(Boolean)
+                );
+                const syllabusCompletion = subject._count.chapters > 0
+                    ? (completedChapterIds.size / subject._count.chapters) * 100
                     : 0;
 
-                const coverage = subject._count.chapters > 0
-                    ? (chapterMap.size / subject._count.chapters) * 100
-                    : 0;
-
-                mastery = Math.round((avgMastery * coverage) / 100);
+                readiness = Math.round((quizAverage * 0.7) + (syllabusCompletion * 0.3));
             }
 
             return {
                 id: subject.id,
                 name: subject.name,
                 description: null,
-                mastery,
+                readiness,
                 chapterCount: subject._count.chapters,
                 lastAccessedAt: subjectLastAccess.get(subject.id),
                 _count: { chapters: subject._count.chapters }
@@ -175,7 +149,7 @@ export async function GET(request: NextRequest) {
             const timeA = a.lastAccessedAt ? new Date(a.lastAccessedAt).getTime() : 0;
             const timeB = b.lastAccessedAt ? new Date(b.lastAccessedAt).getTime() : 0;
             if (timeB !== timeA) return timeB - timeA;
-            return b.mastery - a.mastery;
+            return b.readiness - a.readiness;
         });
 
         // Limit to 5

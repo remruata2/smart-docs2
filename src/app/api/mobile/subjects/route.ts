@@ -173,18 +173,68 @@ export async function GET(request: NextRequest) {
         console.log(`[DEBUG-MOBILE-SUBJECTS] Found ${courses.length} courses:`, courses.map(c => ({ id: c.id, title: c.title })));
         console.log(`[DEBUG-MOBILE-SUBJECTS] User enrollments count: ${userEnrollments.length}`);
 
-        const formattedSubjects = subjects.map(s => ({
-            id: s.id,
-            name: s.name,
-            description: null,
-            is_active: s.is_active,
-            quizzes_enabled: s.quizzes_enabled,
-            examCategory: s.program?.exam_category,
-            courseIds: s.courses.map((c: any) => c.id),
-            _count: s._count,
-            mastery: 0,
-            isCustom: !!s.created_by_user_id,
-        }));
+        // Batch-fetch completed quizzes for all subjects to compute readiness
+        const subjectIds = subjects.map((s: any) => s.id);
+        const completedQuizzes = subjectIds.length > 0
+            ? await prisma.quiz.findMany({
+                where: {
+                    user_id: Number(user.id),
+                    subject_id: { in: subjectIds },
+                    status: 'COMPLETED',
+                    total_points: { gt: 0 },
+                },
+                select: {
+                    subject_id: true,
+                    score: true,
+                    total_points: true,
+                    chapter_id: true,
+                },
+            })
+            : [];
+
+        // Group quizzes by subject
+        const quizzesBySubject = new Map<number, typeof completedQuizzes>();
+        completedQuizzes.forEach(q => {
+            if (!q.subject_id) return;
+            const list = quizzesBySubject.get(q.subject_id) || [];
+            list.push(q);
+            quizzesBySubject.set(q.subject_id, list);
+        });
+
+        const formattedSubjects = subjects.map((s: any) => {
+            const subjectQuizzes = quizzesBySubject.get(s.id) || [];
+
+            // Canonical readiness: (quizAverage * 0.7) + (syllabusCompletion * 0.3)
+            let readiness = 0;
+            if (subjectQuizzes.length > 0) {
+                const totalScore = subjectQuizzes.reduce((acc, q) =>
+                    acc + (q.total_points > 0 ? (q.score / q.total_points) * 100 : 0), 0);
+                const quizAverage = totalScore / subjectQuizzes.length;
+
+                const completedChapterIds = new Set(
+                    subjectQuizzes.map(q => q.chapter_id?.toString()).filter(Boolean)
+                );
+                const totalChapters = s._count?.chapters || 0;
+                const syllabusCompletion = totalChapters > 0
+                    ? (completedChapterIds.size / totalChapters) * 100
+                    : 0;
+
+                readiness = Math.round((quizAverage * 0.7) + (syllabusCompletion * 0.3));
+            }
+
+            return {
+                id: s.id,
+                name: s.name,
+                description: null,
+                is_active: s.is_active,
+                quizzes_enabled: s.quizzes_enabled,
+                examCategory: s.program?.exam_category,
+                courseIds: s.courses.map((c: any) => c.id),
+                _count: s._count,
+                readiness,
+                isCustom: !!s.created_by_user_id,
+            };
+        });
 
         return NextResponse.json({
             subjects: formattedSubjects,
