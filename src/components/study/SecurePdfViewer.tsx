@@ -52,21 +52,14 @@ export function SecurePdfViewer({ pdfUrl, title, userName = "Student" }: SecureP
     const [selectedVoice, setSelectedVoice] = useState<string>("");
     const [pageText, setPageText] = useState<string>("");
     const [isAutoReading, setIsAutoReading] = useState<boolean>(false);
-    const [isFocused, setIsFocused] = useState<boolean>(true);
-
     const containerRef = useRef<HTMLDivElement>(null);
     const speechRef = useRef<SpeechSynthesisUtterance | null>(null);
     const isAutoReadingRef = useRef<boolean>(false);
-    const [isMouseOver, setIsMouseOver] = useState<boolean>(true);
-    const [supportsHover, setSupportsHover] = useState<boolean>(false);
 
     // Load available voices
     useEffect(() => {
         const loadVoices = () => {
             if (typeof window === "undefined") return;
-
-            // Check for hover support
-            setSupportsHover(window.matchMedia("(hover: hover)").matches);
 
             const availableVoices = window.speechSynthesis.getVoices();
             // Blacklist of macOS novelty/funny voices
@@ -111,29 +104,20 @@ export function SecurePdfViewer({ pdfUrl, title, userName = "Student" }: SecureP
                 (e.key === "c" || e.key === "C" || e.key === "p" || e.key === "P" || e.key === "s" || e.key === "S")
             ) {
                 e.preventDefault();
-                setIsFocused(false); // Trigger blur protection on shortcut attempt
                 return false;
             }
             // Block PrintScreen and other common capture shortcuts
             if (e.key === "PrintScreen" || (e.shiftKey && (e.metaKey || e.ctrlKey) && (e.key === "4" || e.key === "3" || e.key === "5"))) {
-                setIsFocused(false);
                 return false;
             }
         };
 
-        const handleBlur = () => setIsFocused(false);
-        const handleFocus = () => setIsFocused(true);
-
         document.addEventListener("contextmenu", handleContextMenu);
         document.addEventListener("keydown", handleKeyDown);
-        window.addEventListener("blur", handleBlur);
-        window.addEventListener("focus", handleFocus);
 
         return () => {
             document.removeEventListener("contextmenu", handleContextMenu);
             document.removeEventListener("keydown", handleKeyDown);
-            window.removeEventListener("blur", handleBlur);
-            window.removeEventListener("focus", handleFocus);
         };
     }, []);
 
@@ -410,15 +394,12 @@ export function SecurePdfViewer({ pdfUrl, title, userName = "Student" }: SecureP
 
                 <div
                     ref={containerRef}
-                    onMouseEnter={() => setIsMouseOver(true)}
-                    onMouseLeave={() => setIsMouseOver(false)}
                     className="relative overflow-auto bg-gray-100 dark:bg-gray-900 transition-all duration-300"
                     style={{
                         height: "calc(100vh - 300px)",
                         minHeight: "500px",
                         userSelect: "none",
                         WebkitUserSelect: "none",
-                        filter: (isFocused && (!supportsHover || isMouseOver)) ? "none" : "blur(20px)",
                     }}
                 >
                     {/* Security Styles - Prevents Printing & Selection */}
