@@ -28,7 +28,8 @@ export async function GET(
                         user_answer: true,
                         is_correct: true,
                         feedback: true,
-                    }
+                    },
+                    orderBy: { id: 'asc' }
                 }
             }
         });
