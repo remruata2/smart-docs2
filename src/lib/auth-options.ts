@@ -33,8 +33,7 @@ declare module "next-auth/jwt" {
 	interface JWT extends AppUser { }
 }
 
-export const authOptions: NextAuthOptions = {
-	providers: [
+const providers: NextAuthOptions["providers"] = [
 		CredentialsProvider({
 			name: "Credentials",
 			credentials: {
@@ -129,8 +128,8 @@ export const authOptions: NextAuthOptions = {
 			},
 		}),
 		GoogleProvider({
-			clientId: process.env.GOOGLE_CLIENT_ID!,
-			clientSecret: process.env.GOOGLE_CLIENT_SECRET!,
+			clientId: process.env.GOOGLE_CLIENT_ID || "",
+			clientSecret: process.env.GOOGLE_CLIENT_SECRET || "",
 			authorization: {
 				params: {
 					prompt: "select_account",
@@ -139,9 +138,16 @@ export const authOptions: NextAuthOptions = {
 				},
 			},
 		}),
+];
+
+// Only add Apple if keys are present to avoid build crash
+const hasAppleKeys = !!(process.env.APPLE_ID && process.env.APPLE_PRIVATE_KEY && process.env.APPLE_TEAM_ID && process.env.APPLE_KEY_ID);
+
+if (hasAppleKeys) {
+	providers.push(
 		AppleProvider({
 			clientId: process.env.APPLE_ID!,
-			clientSecret: jwt.sign({}, (process.env.APPLE_PRIVATE_KEY || "").replace(/\\n/g, "\n"), {
+			clientSecret: jwt.sign({}, process.env.APPLE_PRIVATE_KEY!.replace(/\\n/g, "\n"), {
 				algorithm: "ES256",
 				expiresIn: "24h",
 				audience: "https://appleid.apple.com",
@@ -152,8 +158,12 @@ export const authOptions: NextAuthOptions = {
 					kid: process.env.APPLE_KEY_ID!,
 				},
 			}),
-		}),
-	],
+		})
+	);
+}
+
+export const authOptions: NextAuthOptions = {
+	providers,
 	cookies: {
 		pkceCodeVerifier: {
 			name: "next-auth.pkce.code_verifier",
