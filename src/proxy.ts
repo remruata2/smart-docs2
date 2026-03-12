@@ -14,6 +14,8 @@ export async function proxy(req: NextRequest) {
 		"/register",
 		"/api/auth/register",
 		"/api/subscriptions/webhook",
+		"/api/webhooks/smartgateway",
+		"/api/payments/smartgateway/return",
 	];
 
 	// In development, allow /api/seed for easier testing

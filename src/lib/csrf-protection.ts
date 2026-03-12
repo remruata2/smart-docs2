@@ -6,8 +6,8 @@
 import { NextRequest } from "next/server";
 
 // Get allowed origins from environment or use defaults
-function getAllowedOrigins(): string[] {
-    const origins: string[] = [];
+function getAllowedOrigins(): (string | RegExp)[] {
+    const origins: (string | RegExp)[] = [];
 
     // Add NEXTAUTH_URL if set
     if (process.env.NEXTAUTH_URL) {
@@ -30,9 +30,14 @@ function getAllowedOrigins(): string[] {
         origins.push(...process.env.ALLOWED_ORIGINS.split(",").map((o) => o.trim()));
     }
 
-    // In development, allow localhost
+    // In development, allow localhost and common local network IP patterns
     if (process.env.NODE_ENV !== "production") {
         origins.push("http://localhost:3000", "http://127.0.0.1:3000");
+        origins.push("http://localhost:3003", "http://127.0.0.1:3003");
+        
+        // Match common local network IP ranges (192.168.x.x, 10.x.x.x, 172.16.x.x - 172.31.x.x)
+        // This is safe because it only applies when NODE_ENV is not production
+        origins.push(/http:\/\/(192\.168\.\d+\.\d+|10\.\d+\.\d+\.\d+|172\.(1[6-9]|2\d|3[0-1])\.\d+\.\d+):3003/ as any);
     }
 
     return origins;
@@ -69,7 +74,14 @@ export function validateCsrf(request: NextRequest): CsrfValidationResult {
 
     // Check Origin header
     if (origin) {
-        if (allowedOrigins.some((allowed) => origin.startsWith(allowed))) {
+        const isAllowed = allowedOrigins.some((allowed) => {
+            if (allowed instanceof RegExp) {
+                return (allowed as RegExp).test(origin);
+            }
+            return origin.startsWith(allowed as string);
+        });
+
+        if (isAllowed) {
             return { valid: true };
         }
         return {
@@ -80,7 +92,14 @@ export function validateCsrf(request: NextRequest): CsrfValidationResult {
 
     // Fall back to Referer check
     if (referer) {
-        if (allowedOrigins.some((allowed) => referer.startsWith(allowed))) {
+        const isAllowed = allowedOrigins.some((allowed) => {
+            if (allowed instanceof RegExp) {
+                return (allowed as RegExp).test(referer);
+            }
+            return referer.startsWith(allowed as string);
+        });
+
+        if (isAllowed) {
             return { valid: true };
         }
         return {

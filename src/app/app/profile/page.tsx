@@ -227,6 +227,70 @@ export default async function ProfilePage() {
                     </Card>
 
 
+                    {/* Subscription Info */}
+                    <Card>
+                        <CardHeader>
+                            <CardTitle className="text-lg flex items-center gap-2">
+                                <CreditCard className="h-5 w-5 text-indigo-600" />
+                                Subscription Details
+                            </CardTitle>
+                            <CardDescription>Your current plan and billing status</CardDescription>
+                        </CardHeader>
+                        <CardContent>
+                            {subscription ? (
+                                <div className="space-y-4">
+                                    <div className="flex justify-between items-center">
+                                        <div>
+                                            <h3 className="text-xl font-bold text-gray-900">{subscription.plan.display_name}</h3>
+                                            <p className="text-gray-500 text-sm capitalize">
+                                                {subscription.billing_cycle} Billing
+                                            </p>
+                                        </div>
+                                        <Badge className={`
+                                            ${subscription.status === 'active' ? 'bg-green-100 text-green-700 hover:bg-green-100 border-green-200' : 
+                                              subscription.status === 'canceled' ? 'bg-red-100 text-red-700 hover:bg-red-100 border-red-200' :
+                                              'bg-yellow-100 text-yellow-700 hover:bg-yellow-100 border-yellow-200'}
+                                        `}>
+                                            {subscription.status.toUpperCase()}
+                                        </Badge>
+                                    </div>
+
+                                    <div className="pt-4 border-t border-gray-100 space-y-2">
+                                        <div className="flex justify-between text-sm">
+                                            <span className="text-gray-500">Next Renewal</span>
+                                            <span className="font-medium text-gray-900">
+                                                {format(new Date(subscription.current_period_end), 'MMM d, yyyy')}
+                                            </span>
+                                        </div>
+                                        <div className="flex justify-between text-sm">
+                                            <span className="text-gray-500">Amount</span>
+                                            <span className="font-medium text-gray-900">
+                                                ₹{subscription.billing_cycle === 'yearly' ? subscription.plan.price_yearly?.toString() : subscription.plan.price_monthly.toString()}
+                                            </span>
+                                        </div>
+                                    </div>
+                                    
+                                    {subscription.status === 'active' && (
+                                        <div className="pt-4">
+                                            <Link href="/app/subscription/manage">
+                                                <Button variant="outline" size="sm" className="w-full">
+                                                    Manage Subscription
+                                                </Button>
+                                            </Link>
+                                        </div>
+                                    )}
+                                </div>
+                            ) : (
+                                <div className="text-center py-6">
+                                    <p className="text-gray-500 text-sm mb-4">No active subscription found.</p>
+                                    <Link href="/#pricing">
+                                        <Button size="sm">View Plans</Button>
+                                    </Link>
+                                </div>
+                            )}
+                        </CardContent>
+                    </Card>
+
                     <div className="flex justify-end">
                         <ProfileActions />
                     </div>

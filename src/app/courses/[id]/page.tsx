@@ -93,18 +93,7 @@ export default async function CourseDetailsPage({
                                 </div>
                             )}
 
-                            {/* Pricing */}
-                            <div className="mb-4">
-                                {course.is_free ? (
-                                    <div className="flex items-center gap-2">
-                                        <span className="text-3xl font-bold text-green-600">Free</span>
-                                    </div>
-                                ) : (
-                                    <div className="flex items-baseline gap-2">
-                                        <span className="text-3xl font-bold">{course.currency} {course.price}</span>
-                                    </div>
-                                )}
-                            </div>
+                            {/* Enrollment and Pricing */}
 
                             {course.isEnrolled ? (
                                 <div className="space-y-3">

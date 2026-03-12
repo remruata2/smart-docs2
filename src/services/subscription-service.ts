@@ -48,9 +48,9 @@ export async function upsertUserSubscription(
 	userId: number,
 	data: {
 		planId: number;
-		razorpaySubscriptionId?: string;
-		razorpayCustomerId?: string;
-		razorpayOrderId?: string;
+		razorpaySubscriptionId?: string; // TBD: rename DB column later
+		razorpayCustomerId?: string; // TBD: rename DB column later
+		razorpayOrderId?: string; // TBD: rename DB column later
 		status?: SubscriptionStatus;
 		billingCycle?: BillingCycle;
 		currentPeriodStart: Date;

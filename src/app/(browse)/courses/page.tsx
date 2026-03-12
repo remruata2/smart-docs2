@@ -174,7 +174,7 @@ function CourseCard({ course, isAuthenticated }: { course: any; isAuthenticated:
                         </Button>
                     ) : (
                         <Button className={`w-full py-5 text-base font-bold ${course.is_free ? 'bg-indigo-600 hover:bg-indigo-700 text-white' : 'bg-emerald-600 hover:bg-emerald-700 text-white'}`}>
-                            {course.is_free ? 'View Course' : `${course.currency} ${course.price}`}
+                            {course.is_free ? 'Enroll Now' : `Purchase: ${course.currency} ${course.price}`}
                         </Button>
                     )}
                 </div>

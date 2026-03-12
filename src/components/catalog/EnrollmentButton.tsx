@@ -19,7 +19,7 @@ interface EnrollmentButtonProps {
 
 declare global {
     interface Window {
-        Razorpay: any;
+        Juspay: any;
     }
 }
 
@@ -57,8 +57,8 @@ export function EnrollmentButton({
     const handlePaidEnroll = async () => {
         setLoadingAction("paid");
         try {
-            // 1. Create order
-            const res = await fetch("/api/courses/checkout/razorpay", {
+            // 1. Create order session
+            const res = await fetch("/api/courses/checkout/smartgateway", {
                 method: "POST",
                 headers: { "Content-Type": "application/json" },
                 body: JSON.stringify({ courseId }),
@@ -70,54 +70,36 @@ export function EnrollmentButton({
             }
 
             const orderData = await res.json();
+            console.log("[EnrollmentButton] SmartGateway response:", orderData);
 
-            // 2. Open Razorpay Modal
-            const options = {
-                key: orderData.key,
-                amount: orderData.amount,
-                currency: orderData.currency,
-                name: "Zirna",
-                description: `Enroll in ${courseTitle}`,
-                order_id: orderData.orderId,
-                handler: async function (response: any) {
-                    try {
-                        setLoadingAction("paid");
-                        const verifyResult = await verifyCoursePurchase({
-                            courseId,
-                            razorpayOrderId: response.razorpay_order_id,
-                            razorpayPaymentId: response.razorpay_payment_id,
-                            razorpaySignature: response.razorpay_signature,
-                        });
+            // 2. Redirect to payment page (primary approach for web)
+            if (orderData.paymentLink) {
+                window.location.href = orderData.paymentLink;
+                return; // Don't reset loading - user is navigating away
+            }
 
-                        if (verifyResult.success) {
-                            toast.success(`Payment successful! Enrolled in ${courseTitle}`);
+            // 3. Fallback: Try SDK approach if paymentLink not available
+            if (orderData.sdkPayload && window.Juspay) {
+                window.Juspay.Setup({
+                    payment_form: "#payment_form",
+                    success_handler: function(status: any) {
+                        toast.success("Payment successful! Please wait while we confirm your enrollment.");
+                        setTimeout(() => {
                             router.refresh();
                             router.push(`/app/subjects?courseId=${courseId}`);
-                        }
-                    } catch (error: any) {
-                        toast.error(error.message || "Payment verification failed");
-                    } finally {
+                            setLoadingAction(null);
+                        }, 2000);
+                    },
+                    error_handler: function(error: any) {
+                        toast.error("Payment failed or was cancelled.");
                         setLoadingAction(null);
                     }
-                },
-                prefill: orderData.prefill,
-                theme: {
-                    color: "#4f46e5", // indigo-600
-                },
-                modal: {
-                    ondismiss: function () {
-                        setLoadingAction(null);
-                    }
-                }
-            };
+                });
+                window.Juspay.openPaymentPage(orderData.sdkPayload);
+                return;
+            }
 
-            const rzp = new window.Razorpay(options);
-            rzp.on('payment.failed', function (response: any) {
-                toast.error(response.error.description || "Payment failed");
-                setLoadingAction(null);
-            });
-            rzp.open();
-
+            throw new Error("No payment method available in the response.");
         } catch (error: any) {
             toast.error(error.message || "Failed to initiate payment");
             setLoadingAction(null);
@@ -146,8 +128,8 @@ export function EnrollmentButton({
     return (
         <>
             <Script
-                id="razorpay-checkout-js"
-                src="https://checkout.razorpay.com/v1/checkout.js"
+                id="smartgateway-checkout-js"
+                src={process.env.NEXT_PUBLIC_SMARTGATEWAY_ENV === "production" ? "https://smartgateway.hdfcbank.com/checkout.js" : "https://smartgateway.hdfcuat.bank.in/checkout.js"}
             />
             <div className={`flex flex-col gap-3 w-full ${className}`}>
                 {/* 1. Free Course / Trial Option - Hidden in Upgrade Mode or if already Enrolled */}
@@ -165,7 +147,7 @@ export function EnrollmentButton({
                         ) : (
                             <CheckCircle2 className="mr-2 h-4 w-4" />
                         )}
-                        {isFree ? "Enroll Now" : "Start 3 Days Trial"}
+                        {isFree ? "Enroll now for Free" : "Start 3 Days Trial"}
                     </Button>
                 )}
 
@@ -185,9 +167,19 @@ export function EnrollmentButton({
                         ) : (
                             <CreditCard className="mr-2 h-4 w-4 shrink-0" />
                         )}
-                        <span>{upgradeMode ? `Upgrade Now - ${currency} ${price}` : `Buy Now - ${currency} ${price}`}</span>
+                        <span>
+                            {upgradeMode 
+                                ? `Upgrade Now - ₹ ${price}/month` 
+                                : isFree 
+                                    ? "Enroll now for Free" 
+                                    : `Enroll now : ₹ ${price}/month`
+                            }
+                        </span>
                     </Button>
                 )}
+
+                {/* Subscriptions usually have a slightly different button in some contexts, but if this component is used for it: */}
+                {/* We can add a more explicit Subscription button label if we detect it's a subscription */}
 
                 {/* 3. Unenroll Option (For testing/admin) */}
                 {isEnrolled && isAdmin && (
