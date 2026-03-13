@@ -37,6 +37,23 @@ function verifyBasicAuth(request: NextRequest): boolean {
         return false;
     }
 }
+async function updatePaymentTransaction(orderId: string, status: string, gatewayResponse: any) {
+    try {
+        await db.paymentTransaction.update({
+            where: { order_id: orderId },
+            data: {
+                status: status,
+                gateway_status: gatewayResponse?.status || null,
+                gateway_transaction_id: gatewayResponse?.txn_id || gatewayResponse?.transaction?.txn_id || null,
+                payment_method: gatewayResponse?.payment_method || gatewayResponse?.transaction?.payment_method || null,
+                error_message: gatewayResponse?.resp_message || null,
+                updated_at: new Date(),
+            }
+        });
+    } catch (e) {
+        console.error(`[WEBHOOK-SG] Error updating transaction ${orderId}:`, e);
+    }
+}
 
 export async function POST(request: NextRequest) {
     console.log(`[WEBHOOK-SG] RECEIVED REQUEST - ${new Date().toISOString()}`);
@@ -65,6 +82,16 @@ export async function POST(request: NextRequest) {
                     await handleSubscriptionPayment(orderId, event.content);
                 } else {
                     console.log(`[WEBHOOK-SG] Unrecognized order prefix: ${orderId}`);
+                }
+                
+                // Track success in payment_transactions
+                await updatePaymentTransaction(orderId, "CHARGED", event.content);
+                break;
+            }
+            case "TRANSACTION_FAILED": {
+                const orderId = event.content?.order?.order_id;
+                if (orderId) {
+                    await updatePaymentTransaction(orderId, "FAILED", event.content);
                 }
                 break;
             }

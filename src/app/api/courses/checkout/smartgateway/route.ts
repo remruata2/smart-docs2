@@ -54,7 +54,7 @@ export async function POST(request: NextRequest) {
             customer_id: userId.toString(),
             customer_email: session.user.email || "",
             customer_phone: "", // Optional, but can be added if available in session
-            return_url: `${process.env.NEXTAUTH_URL}/api/payments/smartgateway/return?destination=/courses/${courseId}&courseId=${courseId}&payment=success&order_id=${orderId}`, // Bridge route
+            return_url: `${process.env.NEXTAUTH_URL}/api/payments/smartgateway/return?destination=/courses/${courseId}&courseId=${courseId}&payment=success`, // Bridge route — order_id is appended by SmartGateway
             webhook_url: `${process.env.NEXTAUTH_URL}/api/webhooks/smartgateway`,
             action: "paymentPage",
             description: `Enroll in ${course.title}`,
@@ -64,7 +64,20 @@ export async function POST(request: NextRequest) {
         const smartgateway = getSmartGateway();
         const response = await (smartgateway as any).orderSession.create(orderParams);
 
-        // console.log("[COURSE-CHECKOUT-SG] Full SmartGateway response:", JSON.stringify(response, null, 2));
+        // Create a PENDING transaction record in our database
+        // This satisfies HDFC's requirement to track all transactions including pending/failed ones
+        await prisma.paymentTransaction.create({
+            data: {
+                order_id: orderId,
+                user_id: userId,
+                course_id: parseInt(courseId),
+                amount: parseFloat(amount),
+                currency: course.currency || "INR",
+                status: "PENDING",
+                description: `Enroll in ${course.title}`,
+                gateway_order_id: response.id, // SmartGateway internal order ID
+            }
+        });
 
         // The web checkout uses payment_links.web for redirect
         const paymentLink = response.payment_links?.web || response.payment_links?.mobile;

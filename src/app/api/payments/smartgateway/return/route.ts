@@ -84,7 +84,11 @@ async function getDestinationFromBody(request: NextRequest, bodyText: string): P
  */
 function extractOrderId(request: NextRequest, bodyText: string): string | null {
     // 1. Check URL param
-    const urlOrderId = request.nextUrl.searchParams.get("order_id") || request.nextUrl.searchParams.get("orderId");
+    let urlOrderId = request.nextUrl.searchParams.get("order_id") || request.nextUrl.searchParams.get("orderId");
+    // Defensive: SmartGateway may duplicate the order_id param, resulting in "ID,ID"
+    if (urlOrderId && urlOrderId.includes(",")) {
+        urlOrderId = urlOrderId.split(",")[0];
+    }
     if (urlOrderId) return urlOrderId;
 
     // 2. Derive from destination path (e.g., /courses/13 + courseId param)
@@ -92,12 +96,33 @@ function extractOrderId(request: NextRequest, bodyText: string): string | null {
     if (bodyText) {
         try {
             const params = new URLSearchParams(bodyText);
-            const fromBody = params.get("order_id") || params.get("orderId");
+            let fromBody = params.get("order_id") || params.get("orderId");
+            if (fromBody && fromBody.includes(",")) {
+                fromBody = fromBody.split(",")[0];
+            }
             if (fromBody) return fromBody;
         } catch { /* ignore */ }
     }
 
     return null;
+}
+
+async function updatePaymentTransaction(orderId: string, status: string, gatewayResponse: any) {
+    try {
+        await db.paymentTransaction.update({
+            where: { order_id: orderId },
+            data: {
+                status: status,
+                gateway_status: gatewayResponse?.status || null,
+                gateway_transaction_id: gatewayResponse?.txn_id || null,
+                payment_method: gatewayResponse?.payment_method || null,
+                error_message: gatewayResponse?.resp_message || null,
+                updated_at: new Date(),
+            }
+        });
+    } catch (e) {
+        console.error(`[RETURN-BRIDGE] Error updating transaction ${orderId}:`, e);
+    }
 }
 
 /**
@@ -110,6 +135,9 @@ async function verifyAndEnroll(orderId: string): Promise<boolean> {
         
         const status = orderStatus?.status?.toUpperCase();
         console.log(`[RETURN-BRIDGE] Order ${orderId} status: ${status}`);
+
+        // Update our transaction record with the latest status from gateway
+        await updatePaymentTransaction(orderId, status === "CHARGED" ? "CHARGED" : (status === "FAILED" ? "FAILED" : "PENDING"), orderStatus);
 
         if (status !== "CHARGED") {
             console.log(`[RETURN-BRIDGE] Order ${orderId} not CHARGED (${status}), skipping enrollment`);
@@ -209,25 +237,58 @@ async function handleReturn(request: NextRequest, bodyText: string = ""): Promis
 
     // 3. Verify payment and enroll (server-to-server check)
     const orderId = extractOrderId(request, bodyText);
+    let isSuccessfullyCharged = false;
+
     if (orderId) {
-        const enrolled = await verifyAndEnroll(orderId);
-        if (!enrolled) {
+        isSuccessfullyCharged = await verifyAndEnroll(orderId);
+        if (!isSuccessfullyCharged) {
             payment = "pending"; // Don't show success if not actually charged
         }
     }
 
-    // 4. Final fallback
+    // 4. SECURITY: URL Redirection Validation (HDFC requirement)
+    // Only allow redirects to internal app paths
+    const allowedPrefixes = ["/courses/", "/app/", "/dashboard"];
+    const isAllowedDestination = allowedPrefixes.some(prefix => destination.startsWith(prefix));
+    
+    if (!isAllowedDestination && destination !== "") {
+        console.warn(`[RETURN-BRIDGE] Blocked potentially unsafe redirect to: ${destination}`);
+        destination = "/app/dashboard";
+    }
+
+    // 5. Final fallback
     if (!destination) {
         destination = "/app/dashboard";
         console.log("[RETURN-BRIDGE] No destination found, falling back to /app/dashboard");
     }
 
-    // Build redirect URL
+    // 6. SUCCESS REDIRECT: Display data to end user in real-time (HDFC requirement)
+    // If successful, redirect to the dedicated payment-success page instead of the course page
+    if (isSuccessfullyCharged && orderId) {
+        const baseUrl = process.env.NEXTAUTH_URL || request.nextUrl.origin;
+        // For courses, we want the specific course success page
+        if (orderId.startsWith("CRSE_")) {
+            const parts = orderId.split("_");
+            const cid = courseId || parts[1];
+            const successUrl = new URL(`/courses/${cid}/payment-success`, baseUrl);
+            successUrl.searchParams.set("order_id", orderId);
+            console.log(`[RETURN-BRIDGE] Redirecting to success page: ${successUrl.toString()}`);
+            return NextResponse.redirect(successUrl, { status: 303 });
+        } 
+        // For subscriptions, we can redirect to a general subscription success page or dashboard
+        // Let's create a general success route or reusable component later.
+        // For now, let's keep it consistent.
+    }
+
+    // Build default redirect URL (for pending/fail or generic)
     const baseUrl = process.env.NEXTAUTH_URL || request.nextUrl.origin;
     const redirectUrl = new URL(destination, baseUrl);
     redirectUrl.searchParams.set("payment", payment);
     if (courseId) {
         redirectUrl.searchParams.set("courseId", courseId);
+    }
+    if (orderId) {
+        redirectUrl.searchParams.set("order_id", orderId);
     }
 
     console.log(`[RETURN-BRIDGE] Redirecting to: ${redirectUrl.toString()}`);

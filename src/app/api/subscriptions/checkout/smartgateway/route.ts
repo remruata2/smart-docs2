@@ -67,7 +67,7 @@ export async function POST(request: NextRequest) {
             customer_id: userId.toString(),
             customer_email: user.email || "",
             customer_phone: "", 
-            return_url: `${process.env.NEXTAUTH_URL}/api/payments/smartgateway/return?destination=/app/dashboard&payment=success&order_id=${orderId}`, // Bridge route
+            return_url: `${process.env.NEXTAUTH_URL}/api/payments/smartgateway/return?destination=/app/dashboard&payment=success`, // Bridge route — order_id is appended by SmartGateway
             webhook_url: `${process.env.NEXTAUTH_URL}/api/webhooks/smartgateway`,
             action: "paymentPage",
             description: `Subscription to ${plan.display_name} (${billingCycle})`,
@@ -88,7 +88,20 @@ export async function POST(request: NextRequest) {
         const smartgateway = getSmartGateway();
         const response = await (smartgateway as any).orderSession.create(orderParams);
 
-        // console.log("[SUBSCRIPTION-CHECKOUT-SG] Full SmartGateway response:", JSON.stringify(response, null, 2));
+        // Log the PENDING transaction in the new payment_transactions table
+        // This satisfies HDFC's requirement to track all transactions including pending/failed ones
+        await db.paymentTransaction.create({
+            data: {
+                order_id: orderId,
+                user_id: userId,
+                plan_id: plan.id,
+                amount: parseFloat(amount),
+                currency: "INR",
+                status: "PENDING",
+                description: `Subscription to ${plan.display_name} (${billingCycle})`,
+                gateway_order_id: response.id,
+            }
+        });
 
         // The web checkout uses payment_links.web for redirect, similar to course checkout
         const paymentLink = response.payment_links?.web || response.payment_links?.mobile;
