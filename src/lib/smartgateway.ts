@@ -6,25 +6,41 @@ import path from "path";
 const merchantId = process.env.SMARTGATEWAY_MERCHANT_ID;
 const keyId = process.env.SMARTGATEWAY_KEY_ID;
 
-let publicKey = process.env.SMARTGATEWAY_PUBLIC_KEY;
-try {
-    const pubKeyPath = path.join(process.cwd(), 'key_32609c0122f6470093972bd2e90064dd.pem');
-    if (fs.existsSync(pubKeyPath)) {
-        publicKey = fs.readFileSync(pubKeyPath, 'utf8');
-    }
-} catch (error) {
-    console.warn("Could not read key_32609c0122f6470093972bd2e90064dd.pem, falling back to environment variable.");
+// Helper to sanitize keys from env (handling newlines and quotes)
+function sanitizeKey(key: string | undefined): string | undefined {
+    if (!key || key.includes("your_public_key_string") || key.includes("your_private_key_string")) return undefined;
+    return key.replace(/\\n/g, '\n').replace(/^["']|["']$/g, '');
 }
 
-let privateKey = process.env.SMARTGATEWAY_PRIVATE_KEY;
-try {
-    const keyPath = path.join(process.cwd(), 'privateKey.pem');
-    if (fs.existsSync(keyPath)) {
-        privateKey = fs.readFileSync(keyPath, 'utf8');
+function loadKey(fileName: string, envVar: string | undefined): string {
+    // 1. Try File (Lowest precedence in env, but preferred if files are pushed)
+    try {
+        const keyPath = path.join(process.cwd(), fileName);
+        if (fs.existsSync(keyPath)) {
+            const content = fs.readFileSync(keyPath, 'utf8');
+            if (content && content.length > 50) {
+                console.log(`[SMARTGATEWAY] Loaded ${fileName} from disk`);
+                return content;
+            }
+        }
+    } catch (error) {
+        console.warn(`[SMARTGATEWAY] Error reading ${fileName}:`, error);
     }
-} catch (error) {
-    console.warn("Could not read privateKey.pem, falling back to environment variable.");
+
+    // 2. Try Env (Sanitized)
+    const sanitized = sanitizeKey(envVar);
+    if (sanitized) {
+        console.log(`[SMARTGATEWAY] Loaded key for ${fileName} from environment`);
+        return sanitized;
+    }
+
+    console.warn(`[SMARTGATEWAY] Warning: No valid key found for ${fileName}`);
+    return "";
 }
+
+const publicKey = loadKey('key_32609c0122f6470093972bd2e90064dd.pem', process.env.SMARTGATEWAY_PUBLIC_KEY);
+const privateKey = loadKey('privateKey.pem', process.env.SMARTGATEWAY_PRIVATE_KEY);
+
 const baseUrl = process.env.SMARTGATEWAY_BASE_URL || "https://smartgatewayuat.hdfcbank.com";
 
 let juspayClient: any = null;
@@ -33,7 +49,6 @@ export function getSmartGateway() {
     if (!juspayClient) {
         // Try CommonJS require
         const expressCheckout = require("expresscheckout-nodejs");
-        // The package might export Juspay or might be Juspay directly
         const Juspay = expressCheckout.Juspay || expressCheckout;
         
         juspayClient = new Juspay({
@@ -41,8 +56,8 @@ export function getSmartGateway() {
             baseUrl: baseUrl,
             jweAuth: {
                 keyId: keyId || "",
-                publicKey: publicKey || "",
-                privateKey: privateKey || "",
+                publicKey: publicKey,
+                privateKey: privateKey,
             }
         });
     }

@@ -24,6 +24,8 @@
 # misc
 .DS_Store
 *.pem
+!key_32609c0122f6470093972bd2e90064dd.pem
+!privateKey.pem
 Thumbs.db
 
 # debug
