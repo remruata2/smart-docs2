@@ -54,7 +54,7 @@ export async function POST(request: NextRequest) {
             customer_id: userId.toString(),
             customer_email: session.user.email || "",
             customer_phone: "", // Optional, but can be added if available in session
-            return_url: `${process.env.NEXTAUTH_URL}/api/payments/smartgateway/return?destination=/courses/${courseId}&courseId=${courseId}&payment=success`, // Bridge route
+            return_url: `${process.env.NEXTAUTH_URL}/api/payments/smartgateway/return?destination=/courses/${courseId}&courseId=${courseId}&payment=success&order_id=${orderId}`, // Bridge route
             webhook_url: `${process.env.NEXTAUTH_URL}/api/webhooks/smartgateway`,
             action: "paymentPage",
             description: `Enroll in ${course.title}`,
