@@ -15,10 +15,22 @@ import {
     AlertTriangle,
     Download,
     RefreshCw,
+    Trash2,
 } from "lucide-react";
+import { toast } from "sonner";
 import { Badge } from "@/components/ui/badge";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
+import {
+    AlertDialog,
+    AlertDialogAction,
+    AlertDialogCancel,
+    AlertDialogContent,
+    AlertDialogDescription,
+    AlertDialogFooter,
+    AlertDialogHeader,
+    AlertDialogTitle,
+} from "@/components/ui/alert-dialog";
 import {
     Select,
     SelectContent,
@@ -111,6 +123,8 @@ export default function EnrollmentsClient() {
     const [statusFilter, setStatusFilter] = useState("all");
     const [courseFilter, setCourseFilter] = useState("all");
     const [page, setPage] = useState(1);
+    const [enrollmentToDelete, setEnrollmentToDelete] = useState<Enrollment | null>(null);
+    const [deleting, setDeleting] = useState(false);
 
     // Debounce search input
     useEffect(() => {
@@ -150,6 +164,28 @@ export default function EnrollmentsClient() {
     useEffect(() => {
         fetchEnrollments();
     }, [fetchEnrollments]);
+
+    const handleDelete = async () => {
+        if (!enrollmentToDelete) return;
+        
+        setDeleting(true);
+        try {
+            const res = await fetch(`/api/admin/enrollments/unenroll?id=${enrollmentToDelete.id}`, {
+                method: 'DELETE'
+            });
+            
+            if (!res.ok) throw new Error("Failed to unenroll");
+            
+            toast.success(`Unenrolled ${enrollmentToDelete.user.username} from ${enrollmentToDelete.course.title}`);
+            fetchEnrollments();
+        } catch (error) {
+            console.error(error);
+            toast.error("Failed to unenroll user");
+        } finally {
+            setDeleting(false);
+            setEnrollmentToDelete(null);
+        }
+    };
 
     // Reset page on filter change
     const handleTypeChange = (v: string) => { setTypeFilter(v); setPage(1); };
@@ -246,6 +282,7 @@ export default function EnrollmentsClient() {
                                 <TableHead>Trial Ends</TableHead>
                                 <TableHead>Progress</TableHead>
                                 <TableHead>Status</TableHead>
+                                <TableHead className="text-right pr-6">Actions</TableHead>
                             </TableRow>
                         </TableHeader>
                         <TableBody>
@@ -261,7 +298,7 @@ export default function EnrollmentsClient() {
                                 ))
                             ) : enrollments.length === 0 ? (
                                 <TableRow>
-                                    <TableCell colSpan={7} className="text-center py-16 text-muted-foreground">
+                                    <TableCell colSpan={8} className="text-center py-16 text-muted-foreground">
                                         <BookOpen className="w-8 h-8 mx-auto mb-3 opacity-30" />
                                         No enrollments found matching the filters.
                                     </TableCell>
@@ -310,6 +347,17 @@ export default function EnrollmentsClient() {
                                                 {e.status}
                                             </Badge>
                                         </TableCell>
+                                        <TableCell className="text-right pr-6">
+                                            <Button
+                                                variant="ghost"
+                                                size="icon"
+                                                className="text-red-500 hover:text-red-600 hover:bg-red-50 dark:hover:bg-red-900/20"
+                                                onClick={() => setEnrollmentToDelete(e)}
+                                                title="Unenroll user"
+                                            >
+                                                <Trash2 className="w-4 h-4" />
+                                            </Button>
+                                        </TableCell>
                                     </TableRow>
                                 ))
                             )}
@@ -344,6 +392,33 @@ export default function EnrollmentsClient() {
                     </div>
                 )}
             </Card>
+
+            {/* Confirmation Dialog */}
+            <AlertDialog open={!!enrollmentToDelete} onOpenChange={(open) => !open && setEnrollmentToDelete(null)}>
+                <AlertDialogContent>
+                    <AlertDialogHeader>
+                        <AlertDialogTitle>Unenroll User?</AlertDialogTitle>
+                        <AlertDialogDescription>
+                            This will remove <strong>{enrollmentToDelete?.user.name || enrollmentToDelete?.user.username}</strong> from 
+                            the course <strong>{enrollmentToDelete?.course.title}</strong>. 
+                            The user will lose access to all course materials immediately.
+                        </AlertDialogDescription>
+                    </AlertDialogHeader>
+                    <AlertDialogFooter>
+                        <AlertDialogCancel disabled={deleting}>Cancel</AlertDialogCancel>
+                        <AlertDialogAction 
+                            onClick={(e) => {
+                                e.preventDefault();
+                                handleDelete();
+                            }}
+                            className="bg-red-600 hover:bg-red-700 text-white"
+                            disabled={deleting}
+                        >
+                            {deleting ? "Unenrolling..." : "Unenroll"}
+                        </AlertDialogAction>
+                    </AlertDialogFooter>
+                </AlertDialogContent>
+            </AlertDialog>
         </div>
     );
 }
