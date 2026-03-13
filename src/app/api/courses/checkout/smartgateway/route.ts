@@ -64,7 +64,7 @@ export async function POST(request: NextRequest) {
         const smartgateway = getSmartGateway();
         const response = await (smartgateway as any).orderSession.create(orderParams);
 
-        console.log("[COURSE-CHECKOUT-SG] Full SmartGateway response:", JSON.stringify(response, null, 2));
+        // console.log("[COURSE-CHECKOUT-SG] Full SmartGateway response:", JSON.stringify(response, null, 2));
 
         // The web checkout uses payment_links.web for redirect
         const paymentLink = response.payment_links?.web || response.payment_links?.mobile;
