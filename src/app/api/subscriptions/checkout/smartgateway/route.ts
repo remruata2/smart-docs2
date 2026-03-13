@@ -68,6 +68,7 @@ export async function POST(request: NextRequest) {
             customer_email: user.email || "",
             customer_phone: "", 
             return_url: `${process.env.NEXTAUTH_URL}/api/payments/smartgateway/return?destination=/app/dashboard&payment=success`, // Bridge route
+            webhook_url: `${process.env.NEXTAUTH_URL}/api/webhooks/smartgateway`,
             action: "paymentPage",
             description: `Subscription to ${plan.display_name} (${billingCycle})`,
             payment_page_client_id: process.env.SMARTGATEWAY_CLIENT_ID || "",

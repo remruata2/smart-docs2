@@ -39,6 +39,7 @@ function verifyBasicAuth(request: NextRequest): boolean {
 }
 
 export async function POST(request: NextRequest) {
+    console.log(`[WEBHOOK-SG] RECEIVED REQUEST - ${new Date().toISOString()}`);
     const bodyText = await request.text();
 
     // Verify Basic Auth credentials
