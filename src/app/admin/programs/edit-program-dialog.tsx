@@ -33,6 +33,7 @@ interface Program {
     code: string | null;
     level: string | null;
     duration_years: number | null;
+    exam_category: string | null;
 }
 
 interface EditProgramDialogProps {
@@ -161,6 +162,25 @@ export default function EditProgramDialog({ program, boards, institutions }: Edi
                                 className="mt-1 block w-full rounded-md border-gray-300 shadow-sm focus:border-indigo-500 focus:ring-indigo-500 sm:text-sm border p-2"
                             />
                         </div>
+                    </div>
+
+                    <div>
+                        <label className="block text-sm font-medium text-gray-700">Exam Category (Critical for AI)</label>
+                        <select
+                            name="examCategory"
+                            defaultValue={program.exam_category || ""}
+                            className="mt-1 block w-full rounded-md border-gray-300 shadow-sm focus:border-indigo-500 focus:ring-indigo-500 sm:text-sm border p-2"
+                        >
+                            <option value="">Select Category</option>
+                            <option value="academic_board">Academic Board</option>
+                            <option value="government_prelims">Govt Prelims (UPSC/SSC)</option>
+                            <option value="government_mains">Govt Mains</option>
+                            <option value="engineering">Engineering (JEE/GATE)</option>
+                            <option value="medical">Medical (NEET)</option>
+                            <option value="banking">Banking</option>
+                            <option value="university">University</option>
+                            <option value="general">General</option>
+                        </select>
                     </div>
 
                     <div className="flex justify-end gap-3 pt-4">

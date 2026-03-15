@@ -323,7 +323,7 @@ export function QuizGenerator({
                                         }`}
                                 >
                                     <span className="mr-2 text-xl">🔥</span>
-                                    Hard {selectedSubject && subjects.find(s => s.id.toString() === selectedSubject)?.program?.exam_category === "academic_board" ? "(HOTS)" : ""}
+                                    Hard {selectedSubject && ["academic_board", "engineering", "medical"].includes(subjects.find(s => s.id.toString() === selectedSubject)?.program?.exam_category || "") ? "(HOTS)" : ""}
                                 </Button>
                                 {/* Temporarily hidden - Exam level button
                                 <Button

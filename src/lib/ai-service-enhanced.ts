@@ -3831,8 +3831,8 @@ RULES:
    - Include all necessary context within the question itself.
 
 	// HOTS (Higher Order Thinking Skills) Enforcement for HARD difficulty
-	// Only for ACADEMIC BOARD exams (Schools)
-	${(config.hard && Object.keys(config.hard).length > 0) && (examCategory as string) === "academic_board" ? `
+	// For ACADEMIC BOARD (Schools) and ENTRANCE EXAMS (JEE/NEET)
+	${(config.hard && Object.keys(config.hard).length > 0) && ["academic_board", "engineering", "medical"].includes(examCategory as string) ? `
 === SPECIAL INSTRUCTION FOR HARD QUESTIONS (HOTS) ===
 You are generating questions for the "HARD" category, which is synonymous with **HOTS (Higher Order Thinking Skills)**.
 Do NOT just make the questions obscure or trivial. instead, focus on:
@@ -3850,8 +3850,8 @@ Examples of HOTS phrasing:
 =====================================================
 ` : ""}
 
-	// NON-ACADEMIC HARD Difficulty (Competitive, Professional, Entrance, etc.)
-	${(config.hard && Object.keys(config.hard).length > 0) && (examCategory as string) !== "academic_board" ? `
+	// NON-HOTS HARD Difficulty (Competitive, Professional, Banking, etc.)
+	${(config.hard && Object.keys(config.hard).length > 0) && !["academic_board", "engineering", "medical"].includes(examCategory as string) ? `
 === SPECIAL INSTRUCTION FOR HARD QUESTIONS ===
 You are generating questions for a high-complexity exam.
 Focus on:
