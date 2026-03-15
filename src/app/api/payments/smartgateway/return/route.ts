@@ -133,6 +133,9 @@ async function verifyAndEnroll(orderId: string): Promise<boolean> {
         const smartgateway = getSmartGateway();
         const orderStatus = await (smartgateway as any).order.status(orderId, {});
         
+        // HDFC AUDIT: Log the full response body as requested
+        console.log(`[RETURN-BRIDGE] Order status API response for ${orderId}: ${JSON.stringify(orderStatus, null, 2)}`);
+        
         const status = orderStatus?.status?.toUpperCase();
         console.log(`[RETURN-BRIDGE] Order ${orderId} status: ${status}`);
 
